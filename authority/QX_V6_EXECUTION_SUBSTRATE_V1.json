@@ -1,0 +1,71 @@
+{
+  "schema": "qx.replaymark.s6.v6-public-execution-substrate.v1",
+  "status": "PROSPECTIVELY_FROZEN_BEFORE_PERFORMANCE_OPEN",
+  "frozen_private_source_commit": "b5d40b10e5741b493edcfceb2d5c98e43de6d56d",
+  "frozen_private_source_parent": "35b57a9b70f94f430db73b50088565570b027dc8",
+  "immutable_source_v5_run_id": 34289543842,
+  "immutable_source_v5_run_attempt": 1,
+  "immutable_source_v5_head_sha": "35b57a9b70f94f430db73b50088565570b027dc8",
+  "execution_branch": "qx-run-v1",
+  "static_branch": "qx-static-v1",
+  "transport_only_delta": {
+    "scientific_code_changed": false,
+    "protocol_changed": false,
+    "measurement_definition_changed": false,
+    "estimator_changed": false,
+    "threshold_changed": false,
+    "seed_changed": false,
+    "replica_count_changed": false,
+    "resource_frontier_semantics_changed": false,
+    "inherited_record_selection_changed": false,
+    "missing_coordinate_set_changed": false,
+    "runner_os": "ubuntu-24.04",
+    "python": "3.12",
+    "purpose": "execute the exact frozen private source on standard hosted x86 runners while the private repository hosted-runner admission path is unavailable"
+  },
+  "source_binding": {
+    "repository_identity_is_not_hardcoded_in_public_harness": true,
+    "repository_is_resolved_at_runtime_by_unique_exact_commit_match": true,
+    "source_token_permissions_required": ["contents:read", "actions:read"],
+    "source_token_write_permission_required": false,
+    "exact_source_commit_is_checked_out_detached": true
+  },
+  "inheritance": {
+    "all_eligible_v5_records_must_be_inherited": true,
+    "eligible_v5_artifact_count": 54,
+    "source_v5_total_artifact_count": 55,
+    "valid_v5_record_rerun_permitted": false,
+    "selection_by_performance_magnitude_permitted": false,
+    "runnerless_v5_jobs_promoted_to_scientific_or_resource_failure": false,
+    "source_validation_must_complete_before_run_open": true
+  },
+  "missing_completion_coordinates": {
+    "f12_first_level": 64,
+    "f4_d1": [
+      {"H": 1, "replica": "A", "seed": 2026090801},
+      {"H": 1, "replica": "A", "seed": 2026090802},
+      {"H": 2, "replica": "A", "seed": 2026090801}
+    ],
+    "secondary": [
+      {"group": "f3full", "replica": "B", "seed": 2026090801},
+      {"group": "f5full", "replica": "B", "seed": 2026090801},
+      {"group": "f5full", "replica": "B", "seed": 2026090804},
+      {"group": "f6full", "replica": "B", "seed": 2026090801}
+    ]
+  },
+  "performance_open_rule": {
+    "public_harness_same_sha_static_success_required": true,
+    "exact_private_source_static_authority_success_required": true,
+    "private_actions_read_probe_success_required": true,
+    "v5_run_jobs_artifacts_metadata_validation_required": true,
+    "all_54_inherited_artifacts_structurally_valid_required": true,
+    "frozen_e3b_no_clock_requalification_required": true,
+    "run_open_record_uploaded_before_any_new_performance_coordinate_is_executed": true
+  },
+  "authority_ordering": {
+    "raw_union_must_be_duplicate_free": true,
+    "aggregate_uses_frozen_v4_provenance_only_wrapper": true,
+    "aggregate_authority_uploaded_before_enforcement": true,
+    "enforcement_interpretation_only_after_authority_seal": true
+  }
+}
