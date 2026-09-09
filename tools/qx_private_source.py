@@ -8,12 +8,13 @@ import shutil
 import subprocess
 import tempfile
 import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 from pathlib import Path
 
 API = "https://api.github.com"
-UA = "qx-v6-public-substrate-v1"
+UA = "qx-v6-public-substrate-v2"
 
 
 def _token():
@@ -100,6 +101,32 @@ def snapshot(sha, run_id, out):
     print("private_source_snapshot=PASS")
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _open_artifact_archive(api_url):
+    """Authenticate only to GitHub's archive endpoint, never to its signed redirect target."""
+    req = urllib.request.Request(api_url, headers=_headers())
+    opener = urllib.request.build_opener(_NoRedirect)
+    try:
+        return opener.open(req, timeout=120), "direct"
+    except urllib.error.HTTPError as exc:
+        if exc.code not in (301, 302, 303, 307, 308):
+            raise
+        location = exc.headers.get("Location")
+        if not location:
+            raise RuntimeError("artifact redirect missing Location header")
+        parsed = urllib.parse.urlsplit(location)
+        if parsed.scheme.lower() != "https" or not parsed.netloc or parsed.username or parsed.password:
+            raise RuntimeError("refusing unsafe artifact redirect target")
+        # Deliberately omit Authorization, GitHub Accept, and API version headers.
+        # The Location is a short-lived signed object-storage URL and carries its own authorization.
+        redirected = urllib.request.Request(location, headers={"User-Agent": UA})
+        return urllib.request.urlopen(redirected, timeout=120), "signed-redirect-without-source-token"
+
+
 def _safe_extract(zf, target, flatten):
     target = Path(target)
     target.mkdir(parents=True, exist_ok=True)
@@ -135,17 +162,29 @@ def download(sha, run_id, patterns, out, flatten=False, manifest=None):
     out.mkdir(parents=True, exist_ok=True)
     manifest_rows = []
     for artifact in sorted(selected, key=lambda a: a["name"]):
-        req = urllib.request.Request(artifact["archive_download_url"], headers=_headers())
         with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tf:
             tmp = Path(tf.name)
             h = hashlib.sha256()
-            with urllib.request.urlopen(req, timeout=120) as r:
+            response, transport = _open_artifact_archive(artifact["archive_download_url"])
+            with response as r:
                 while True:
                     chunk = r.read(1024 * 1024)
                     if not chunk:
                         break
                     tf.write(chunk)
                     h.update(chunk)
+        got_digest = h.hexdigest()
+        github_digest = artifact.get("digest")
+        if github_digest:
+            prefix, sep, want_digest = github_digest.partition(":")
+            if sep != ":" or prefix.lower() != "sha256" or len(want_digest) != 64:
+                tmp.unlink(missing_ok=True)
+                raise RuntimeError(f"unsupported GitHub artifact digest: {github_digest}")
+            if got_digest.lower() != want_digest.lower():
+                tmp.unlink(missing_ok=True)
+                raise RuntimeError(
+                    f"artifact digest mismatch for {artifact['name']}: got={got_digest} want={want_digest}"
+                )
         target = out if flatten else out / artifact["name"]
         try:
             with zipfile.ZipFile(tmp) as zf:
@@ -155,8 +194,10 @@ def download(sha, run_id, patterns, out, flatten=False, manifest=None):
         manifest_rows.append({
             "artifact_id": artifact["id"],
             "name": artifact["name"],
-            "github_digest": artifact.get("digest"),
-            "downloaded_zip_sha256": h.hexdigest(),
+            "github_digest": github_digest,
+            "downloaded_zip_sha256": got_digest,
+            "transport": transport,
+            "source_token_forwarded_to_redirect": False,
         })
     if manifest:
         Path(manifest).parent.mkdir(parents=True, exist_ok=True)
