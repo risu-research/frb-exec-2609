@@ -1,0 +1,149 @@
+name: qx S6 F4 level v1
+
+on:
+  workflow_call:
+    inputs:
+      d:
+        required: true
+        type: number
+      h_values_json:
+        required: true
+        type: string
+      previous_state_json:
+        required: true
+        type: string
+    secrets:
+      SOURCE_READ_TOKEN:
+        required: true
+    outputs:
+      state_json:
+        description: Exact F4 frontier state after this d barrier
+        value: ${{ jobs.barrier.outputs.state_json }}
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  SOURCE_SHA: b5d40b10e5741b493edcfceb2d5c98e43de6d56d
+
+jobs:
+  shards:
+    name: F4 d${{ inputs.d }} H${{ matrix.H }} ${{ matrix.replica }} seed${{ matrix.seed }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [A, B]
+        seed: [2026090801, 2026090802, 2026090803]
+        H: ${{ fromJSON(inputs.h_values_json) }}
+    env:
+      PREVIOUS_STATE_JSON: ${{ inputs.previous_state_json }}
+      S6_D: ${{ inputs.d }}
+      S6_H: ${{ matrix.H }}
+      S6_REPLICA: ${{ matrix.replica }}
+      S6_SEED: ${{ matrix.seed }}
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Bind exact frozen private source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Execute one exact frozen F4 horizon seed-replica shard
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/s6-f4
+          out="/tmp/s6-f4/f4-d${S6_D}-H${S6_H}-${S6_REPLICA}-${S6_SEED}.json"
+          (cd _src && python -m replaymark_verification.s6_campaign_f4_shard_v1 shard \
+            --d "$S6_D" \
+            --H "$S6_H" \
+            --seed "$S6_SEED" \
+            --replica "$S6_REPLICA" \
+            --previous-state-json "$PREVIOUS_STATE_JSON" \
+            --out "$out")
+          rc=$?
+          set -e
+          if [ ! -s "$out" ]; then
+            python - "$out" "$rc" <<'PY'
+          import json, os, sys
+          out, rc = sys.argv[1], int(sys.argv[2])
+          d=int(os.environ['S6_D']); H=int(os.environ['S6_H']); seed=int(os.environ['S6_SEED']); replica=os.environ['S6_REPLICA']
+          previous=json.loads(os.environ['PREVIOUS_STATE_JSON'])
+          spec={'family':'F4','d':d,'H':H,'B':4,'seed':seed}
+          points=[{'spec':spec,'plane':plane,'status':'ORCHESTRATION_ERROR','trials':[],'stage_decomposition':None,'orchestration_returncode':rc} for plane in ('full','q')]
+          record={'schema':'replaymark.s6.x86-first-complete-control.v2.f4-wave.v1','d':d,'N':128*(d+1),'H':H,'seed':seed,'replica':replica,'previous_frontier_state':previous,'points':points,'orchestration_failure':True,'returncode':rc}
+          with open(out,'w',encoding='utf-8') as f: json.dump(record,f,indent=2,sort_keys=True); f.write('\n')
+          PY
+          fi
+          python -m json.tool "$out" >/dev/null
+      - name: Upload immutable shard record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s6-f4-d${{ inputs.d }}-H${{ matrix.H }}-${{ matrix.replica }}-${{ matrix.seed }}
+          path: /tmp/s6-f4
+          if-no-files-found: error
+
+  barrier:
+    name: F4 d${{ inputs.d }} cross-replica horizon barrier
+    if: always()
+    needs: shards
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      state_json: ${{ steps.state.outputs.state_json }}
+    env:
+      PREVIOUS_STATE_JSON: ${{ inputs.previous_state_json }}
+      S6_D: ${{ inputs.d }}
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Bind exact frozen private source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Download every available shard for this d
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: s6-f4-d${{ inputs.d }}-*
+          path: /tmp/s6-f4-input
+          merge-multiple: true
+      - name: Apply unchanged frozen d-level barrier
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/s6-f4-input /tmp/s6-f4-barrier
+          (cd _src && python -m replaymark_verification.s6_campaign_f4_shard_v1 barrier \
+            --d "$S6_D" \
+            --previous-state-json "$PREVIOUS_STATE_JSON" \
+            --input-dir /tmp/s6-f4-input \
+            --out "/tmp/s6-f4-barrier/f4-barrier-d${S6_D}.json")
+          python -m json.tool "/tmp/s6-f4-barrier/f4-barrier-d${S6_D}.json" >/dev/null
+      - name: Export exact next state
+        id: state
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          p=f"/tmp/s6-f4-barrier/f4-barrier-d{os.environ['S6_D']}.json"
+          value=json.load(open(p,encoding='utf-8'))
+          print('state_json='+json.dumps(value,sort_keys=True,separators=(',',':')))
+          PY
+      - name: Upload barrier record
+        uses: actions/upload-artifact@v4
+        with:
+          name: s6-f4-barrier-d${{ inputs.d }}
+          path: /tmp/s6-f4-barrier
+          if-no-files-found: error
