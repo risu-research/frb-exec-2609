@@ -1,0 +1,1 @@
+Scientific payload is staged only on non-default execution branches and must pass byte-identity checks before any timed work.
