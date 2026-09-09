@@ -1,0 +1,51 @@
+{
+  "schema": "qx.replaymark.s6.v6-public-substrate-repair.v2",
+  "status": "PROSPECTIVELY_FROZEN_BEFORE_QX_RUN_V2_PERFORMANCE_OPEN",
+  "base_public_sha": "91636737ea0e3462082006acc4d577fbf4c70e6c",
+  "frozen_private_source_commit": "b5d40b10e5741b493edcfceb2d5c98e43de6d56d",
+  "immutable_source_v5_run_id": 34289543842,
+  "immutable_source_v5_sha": "35b57a9b70f94f430db73b50088565570b027dc8",
+  "quarantined_public_attempt": {
+    "run_id": 34366933489,
+    "branch": "qx-run-v1",
+    "head_sha": "91636737ea0e3462082006acc4d577fbf4c70e6c",
+    "may_contribute_measurements": false,
+    "may_contribute_anchors": false,
+    "may_contribute_frontier_state": false
+  },
+  "repair_1_artifact_transport": {
+    "problem": "authenticated GitHub artifact archive request redirected to signed object storage while retaining the private source Authorization header, producing HTTP 401",
+    "prospective_rule": "authenticate the GitHub archive endpoint only; follow the signed HTTPS Location with no source Authorization/API headers",
+    "github_reported_sha256_must_match_downloaded_zip": true,
+    "unsafe_redirect_targets_fail_closed": true,
+    "selection_logic_changed": false
+  },
+  "repair_2_run_open_dependency": {
+    "problem": "jobs using always() could execute after bootstrap failure even though RUN_OPEN had not been sealed",
+    "prospective_rule": "bootstrap exposes run_open_sealed=true only after the continuation provenance plus RUN_OPEN artifact upload succeeds; every always()-based downstream scientific job must directly need bootstrap and require that exact output",
+    "performance_before_run_open_sealed_permitted": false,
+    "post_bootstrap_authority_jobs_before_run_open_sealed_permitted": false
+  },
+  "v2_static_gate": {
+    "must_download_all_54_prospectively_eligible_v5_artifacts": true,
+    "must_verify_each_available_github_artifact_sha256": true,
+    "must_execute_frozen_validate_source_before_launch": true,
+    "must_recheck_exact_private_v6_identity": true,
+    "must_recheck_e3b_corpus_without_performance_clocks": true,
+    "same_public_sha_success_required_for_qx_run_v2": true
+  },
+  "scientific_invariants": {
+    "private_scientific_code_changed": false,
+    "s6_protocol_changed": false,
+    "measurement_definition_changed": false,
+    "seeds_changed": false,
+    "replicas_changed": false,
+    "estimators_changed": false,
+    "thresholds_changed": false,
+    "resource_frontier_semantics_changed": false,
+    "v5_inheritance_selection_changed": false,
+    "v5_valid_measurement_rerun_permitted": false,
+    "missing_coordinate_set_changed": false,
+    "qx_run_v1_performance_values_consulted_for_repair": false
+  }
+}
