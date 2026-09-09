@@ -1,0 +1,38 @@
+{
+  "schema": "qx.replaymark.s6.v6-public-harness-static-failure.v1",
+  "status": "PRE_PERFORMANCE_STATIC_AUTHORITY_FAILURE_PRESERVED",
+  "failed_public_run_id": 34365249793,
+  "failed_public_job_id": 102512165028,
+  "failed_public_head_sha": "2ca3e895871793de0817bf3d51ab66561d3b2ade",
+  "failed_workflow": ".github/workflows/qx-v6-harness-static-v1.yml",
+  "failure_step": "Verify public substrate contract and frozen harness manifest",
+  "classification": {
+    "performance_executed": false,
+    "performance_values_observed": false,
+    "scientific_failure": false,
+    "resource_frontier_failure": false,
+    "private_source_validation_reached": false,
+    "run_open_reached": false,
+    "cause": "STATIC_SENTINEL_SELF_REFERENCE"
+  },
+  "root_cause": {
+    "description": "The privacy sentinel searched every tracked public file for the literal private repository identity while the sentinel source itself contained that same literal as its search needle. The assertion therefore deterministically matched its own source text.",
+    "scientific_or_measurement_logic_implicated": false,
+    "private_source_or_v5_evidence_implicated": false
+  },
+  "prospective_repair_rule": {
+    "allowed_change": "Construct the same forbidden repository identity from non-contiguous string fragments before performing the unchanged repository-wide scan.",
+    "forbidden_changes": [
+      "scientific code",
+      "measurement protocol",
+      "seeds",
+      "replicas",
+      "thresholds",
+      "estimators",
+      "V5 inheritance selection",
+      "missing-coordinate set",
+      "performance execution"
+    ],
+    "failed_attempt_must_not_be_erased_or_reclassified": true
+  }
+}
