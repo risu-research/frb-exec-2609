@@ -1,0 +1,423 @@
+name: HA-C3 authoritative native execution first complete
+
+on:
+  push:
+    branches:
+      - ha-c3-authoritative-first-complete-v1
+
+permissions:
+  contents: read
+
+env:
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  BLUEPRINT_COMMIT: 57d56f076c05ccaa9553e6bd4b673b6d43a8cf7f
+  BLUEPRINT_SHA256: 16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443
+  BT_COMMIT: b86561f61e5ba1259fc63e590f4847e9ac743d7f
+  BT_MANIFEST_SHA256: 710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28
+  BT_TREE_SHA256: bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0
+  FIXTURE_SHA256: 297ec8740a4604e60b3b64b150a2489bb4ada2ddaf988f0202bdaf8649204ab1
+  GATE_BLOB: ec8d445bcf6659bead696fa4868ff7778123dbf6
+  PRODUCER_BLOB: 3eb39a3cba5662a7158151a3c4473a09fd76d016
+  VALIDATOR_BLOB: 139998158eba99cffb7162243a3f3749da281dfd
+  AGGREGATE_BLOB: dc303c18bba8e6a4042f74d6f24242604cacb2c2
+
+jobs:
+  open-gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      open: ${{ steps.guard.outputs.open }}
+      source_freeze_head: ${{ steps.guard.outputs.source_freeze_head }}
+      private_freeze_head: ${{ steps.guard.outputs.private_freeze_head }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Refuse any non-first-attempt or unsealed branch state
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "open=false" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_RUN_ATTEMPT" != "1" ]; then
+            echo "HA-C3 scientific execution is never repeated on a workflow re-attempt."
+            exit 0
+          fi
+          if [ ! -f HA_C3_AUTHORITY_OPEN_V1.json ]; then
+            echo "Authoritative branch exists but scientific authority has not been opened."
+            exit 0
+          fi
+          parent="$(git rev-parse HEAD^)"
+          mapfile -t changed < <(git diff --name-only "$parent..HEAD")
+          if [ "${#changed[@]}" -ne 1 ] || [ "${changed[0]}" != "HA_C3_AUTHORITY_OPEN_V1.json" ]; then
+            echo "Authority-opening commit is not an exact one-file child of source freeze."
+            exit 1
+          fi
+          python - "$parent" <<'PY'
+          import json,sys
+          from pathlib import Path
+          parent=sys.argv[1]
+          value=json.loads(Path('HA_C3_AUTHORITY_OPEN_V1.json').read_text())
+          assert value == {
+              'schema':'replaymark.ha-c3.authority-open.v1',
+              'authority':'AUTHORITATIVE_LIVE_FIRST_COMPLETE',
+              'source_freeze_public_head':parent,
+              'private_source_freeze_head':value['private_source_freeze_head'],
+              'rerun_authorized':False,
+          }
+          private=value['private_source_freeze_head']
+          assert isinstance(private,str) and len(private)==40 and all(c in '0123456789abcdef' for c in private)
+          print(private)
+          PY
+          test "$(git hash-object --no-filters replaymark/runtime_ha_bt_execution_gate.py)" = "$GATE_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_live_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_aggregate.py)" = "$AGGREGATE_BLOB"
+          private="$(python - <<'PY'
+          import json
+          print(json.load(open('HA_C3_AUTHORITY_OPEN_V1.json'))['private_source_freeze_head'])
+          PY
+          )"
+          echo "source_freeze_head=$parent" >> "$GITHUB_OUTPUT"
+          echo "private_freeze_head=$private" >> "$GITHUB_OUTPUT"
+          echo "open=true" >> "$GITHUB_OUTPUT"
+
+  replica:
+    needs: open-gate
+    if: needs.open-gate.outputs.open == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [0, 1]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Reprove frozen executable source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "${{ needs.open-gate.outputs.source_freeze_head }}"
+          test "$(git hash-object --no-filters replaymark/runtime_ha_bt_execution_gate.py)" = "$GATE_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_live_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_aggregate.py)" = "$AGGREGATE_BLOB"
+          python -m py_compile \
+            replaymark/runtime_ha_bt_execution_gate.py \
+            replaymark_verification/ha_c3_live_execution.py \
+            replaymark_verification/ha_c3_independent_validate.py \
+            replaymark_verification/ha_c3_aggregate.py
+
+      - name: Materialize exact frozen semantic and runtime capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin capsule inputs results
+          mkdir -p origin capsule/replaymark capsule/replaymark_verification/fixtures inputs results
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+
+          core=(
+            replaymark/__init__.py
+            replaymark/adjudicator.py
+            replaymark/compiled_contract.py
+            replaymark/contracts.py
+            replaymark/evidence_image.py
+            replaymark/evidence_semantics.py
+            replaymark/execution_admission.py
+            replaymark/predictive_witness.py
+            replaymark/q_compiler.py
+            replaymark/rstar.py
+            replaymark/runtime_contract_identity.py
+            replaymark/runtime_realization.py
+            replaymark/support_envelope.py
+            replaymark/target_provenance.py
+            replaymark_verification/models.py
+          )
+          for path in "${core[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp "origin/$path" "capsule/$path"
+          done
+
+          for path in replaymark/runtime_ha_bt_observation.py replaymark/runtime_ha_bt_action.py; do
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C1_PUBLIC_HEAD}/${path}" \
+              --output "capsule/${path}"
+          done
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C1_PUBLIC_HEAD}/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64" \
+            --output capsule/replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64
+          test "$(sha256sum capsule/replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 | cut -d' ' -f1)" = "$FIXTURE_SHA256"
+
+          c2=(
+            replaymark/runtime_ha_bt_decision_boundary.py
+            replaymark/runtime_ha_bt_shadow_bridge.py
+            replaymark_verification/build_ha_c2_shadow_cells.py
+            replaymark_verification/ha_c2_bt_native_target.py
+          )
+          for path in "${c2[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C2_PUBLIC_HEAD}/${path}" \
+              --output "capsule/${path}"
+          done
+          cp replaymark/runtime_ha_bt_execution_gate.py capsule/replaymark/
+          cp replaymark_verification/ha_c3_live_execution.py capsule/replaymark_verification/
+          find capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > results/SEMANTIC_CAPSULE_SHA256.txt
+
+      - name: Fetch and pin exact external controller and Better Thermostat component
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/n3roGit/MyHomeAssistantMods/${BLUEPRINT_COMMIT}/automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml" \
+            --output inputs/better_thermostat_lean.yaml
+          test "$(sha256sum inputs/better_thermostat_lean.yaml | cut -d' ' -f1)" = "$BLUEPRINT_SHA256"
+
+          git init -q inputs/bt_checkout
+          git -C inputs/bt_checkout remote add upstream https://github.com/KartoffelToby/better_thermostat.git
+          git -C inputs/bt_checkout fetch --depth=1 upstream "$BT_COMMIT"
+          git -C inputs/bt_checkout checkout -q --detach FETCH_HEAD
+          test "$(git -C inputs/bt_checkout rev-parse HEAD)" = "$BT_COMMIT"
+          mkdir -p inputs/upstream_better_thermostat_component
+          cp -a inputs/bt_checkout/custom_components/better_thermostat/. inputs/upstream_better_thermostat_component/
+          rm -rf inputs/bt_checkout
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('inputs/upstream_better_thermostat_component')
+          payload=(root/'manifest.json').read_bytes()
+          manifest=hashlib.sha256(payload).hexdigest()
+          assert manifest == os.environ['BT_MANIFEST_SHA256']
+          parsed=json.loads(payload)
+          assert parsed['domain']=='better_thermostat' and parsed['version']=='1.9.2'
+          d=hashlib.sha256()
+          for path in sorted(p for p in root.rglob('*') if p.is_file()):
+              rel=path.relative_to(root).as_posix().encode(); body=path.read_bytes()
+              d.update(len(rel).to_bytes(8,'big')); d.update(rel)
+              d.update(len(body).to_bytes(8,'big')); d.update(body)
+          assert d.hexdigest() == os.environ['BT_TREE_SHA256']
+          PY
+
+      - name: Pull exact Home Assistant image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > results/HOME_ASSISTANT_IMAGE_INSPECT.json
+
+      - name: Execute immutable first-complete replica without result-dependent abort
+        id: execute
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set +e
+          docker run --rm --network none \
+            -e PYTHONPATH=/capsule:/origin/agentmark_e3b_lab:/origin \
+            -v "$PWD/capsule:/capsule:ro" \
+            -v "$PWD/origin:/origin:ro" \
+            -v "$PWD/inputs:/inputs:ro" \
+            -v "$PWD/results:/results" \
+            --entrypoint python3 \
+            "$HA_IMAGE" \
+            /capsule/replaymark_verification/ha_c3_live_execution.py \
+              --blueprint /inputs/better_thermostat_lean.yaml \
+              --ownership-component /inputs/upstream_better_thermostat_component \
+              --fixture /capsule/replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 \
+              --replica "$REPLICA" \
+              --out "/results/HA_C3_REPLICA_${REPLICA}.json" \
+            > "results/PRODUCER_STDOUT_${REPLICA}.txt" \
+            2> "results/PRODUCER_STDERR_${REPLICA}.txt"
+          rc=$?
+          printf '%s\n' "$rc" > "results/PRODUCER_EXIT_${REPLICA}.txt"
+          exit 0
+
+      - name: Validate only after complete producer close using independent pure-JSON oracle
+        id: validate
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set +e
+          python replaymark_verification/ha_c3_independent_validate.py \
+            "results/HA_C3_REPLICA_${REPLICA}.json" \
+            --out "results/HA_C3_VALIDATION_${REPLICA}.json" \
+            > "results/VALIDATOR_STDOUT_${REPLICA}.txt" \
+            2> "results/VALIDATOR_STDERR_${REPLICA}.txt"
+          rc=$?
+          printf '%s\n' "$rc" > "results/VALIDATOR_EXIT_${REPLICA}.txt"
+          exit 0
+
+      - name: Seal replica provenance and manifest regardless of outcome
+        if: always()
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+          SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+          PRIVATE_FREEZE_HEAD: ${{ needs.open-gate.outputs.private_freeze_head }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=int(os.environ['REPLICA'])
+          record={
+              'schema':'replaymark.ha-c3.replica-provenance.v1',
+              'authority':'AUTHORITATIVE_LIVE_FIRST_COMPLETE',
+              'repository':os.environ['GITHUB_REPOSITORY'],
+              'execution_head':os.environ['GITHUB_SHA'],
+              'source_freeze_public_head':os.environ['SOURCE_FREEZE_HEAD'],
+              'private_source_freeze_head':os.environ['PRIVATE_FREEZE_HEAD'],
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'replica':r,
+              'rerun_authorized':False,
+          }
+          Path(f'results/HA_C3_PROVENANCE_{r}.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+          PY
+          (
+            cd results
+            find . -type f ! -name 'CHECKSUMS.sha256' -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable replica capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c3-first-complete-r${{ matrix.replica }}
+          path: results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Preserve first-complete conclusion only after upload
+        if: always()
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set -euo pipefail
+          test -f "results/PRODUCER_EXIT_${REPLICA}.txt"
+          test -f "results/VALIDATOR_EXIT_${REPLICA}.txt"
+          test "$(cat results/PRODUCER_EXIT_${REPLICA}.txt)" = "0"
+          test "$(cat results/VALIDATOR_EXIT_${REPLICA}.txt)" = "0"
+          python - "$REPLICA" <<'PY'
+          import json,sys
+          r=int(sys.argv[1])
+          report=json.load(open(f'results/HA_C3_REPLICA_{r}.json'))
+          validation=json.load(open(f'results/HA_C3_VALIDATION_{r}.json'))
+          assert report.get('mode')=='AUTHORITATIVE_LIVE_FIRST_COMPLETE'
+          assert validation.get('status')=='PASS'
+          PY
+
+  aggregate:
+    needs: [open-gate, replica]
+    if: always() && needs.open-gate.outputs.open == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download both preserved replica capsules even if a replica concluded FAIL
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ha-c3-first-complete-r*
+          path: replicas
+
+      - name: Verify replica manifests and run frozen independent aggregate
+        id: aggregate
+        shell: bash
+        run: |
+          set +e
+          mkdir -p aggregate
+          for r in 0 1; do
+            d="replicas/ha-c3-first-complete-r${r}"
+            if [ -d "$d" ] && [ -f "$d/CHECKSUMS.sha256" ]; then
+              (cd "$d" && sha256sum -c CHECKSUMS.sha256) > "aggregate/MANIFEST_CHECK_${r}.txt" 2>&1
+            else
+              printf '%s\n' "MISSING_REPLICA_CAPSULE" > "aggregate/MANIFEST_CHECK_${r}.txt"
+            fi
+          done
+          python replaymark_verification/ha_c3_aggregate.py \
+            replicas/ha-c3-first-complete-r0/HA_C3_VALIDATION_0.json \
+            replicas/ha-c3-first-complete-r1/HA_C3_VALIDATION_1.json \
+            --out aggregate/HA_C3_REPLICATED_AGGREGATE.json \
+            > aggregate/AGGREGATE_STDOUT.txt 2> aggregate/AGGREGATE_STDERR.txt
+          rc=$?
+          printf '%s\n' "$rc" > aggregate/AGGREGATE_EXIT.txt
+          exit 0
+
+      - name: Seal cross-replica first-complete authority record
+        if: always()
+        shell: bash
+        env:
+          SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+          PRIVATE_FREEZE_HEAD: ${{ needs.open-gate.outputs.private_freeze_head }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          def sha(path):
+              p=Path(path)
+              return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None
+          record={
+              'schema':'replaymark.ha-c3.first-complete-authority.v1',
+              'authority':'FIRST_COMPLETE_IMMUTABLE',
+              'repository':os.environ['GITHUB_REPOSITORY'],
+              'execution_head':os.environ['GITHUB_SHA'],
+              'source_freeze_public_head':os.environ['SOURCE_FREEZE_HEAD'],
+              'private_source_freeze_head':os.environ['PRIVATE_FREEZE_HEAD'],
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'rerun_authorized':False,
+              'replica_report_sha256':{
+                  '0':sha('replicas/ha-c3-first-complete-r0/HA_C3_REPLICA_0.json'),
+                  '1':sha('replicas/ha-c3-first-complete-r1/HA_C3_REPLICA_1.json'),
+              },
+              'replica_validation_sha256':{
+                  '0':sha('replicas/ha-c3-first-complete-r0/HA_C3_VALIDATION_0.json'),
+                  '1':sha('replicas/ha-c3-first-complete-r1/HA_C3_VALIDATION_1.json'),
+              },
+              'aggregate_sha256':sha('aggregate/HA_C3_REPLICATED_AGGREGATE.json'),
+          }
+          Path('aggregate/HA_C3_FIRST_COMPLETE_AUTHORITY.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+          PY
+          (
+            cd aggregate
+            find . -type f ! -name 'CHECKSUMS.sha256' -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload aggregate authority capsule regardless of result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c3-first-complete-aggregate
+          path: aggregate
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Preserve aggregate conclusion only after authority upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat aggregate/AGGREGATE_EXIT.txt)" = "0"
+          python - <<'PY'
+          import json
+          value=json.load(open('aggregate/HA_C3_REPLICATED_AGGREGATE.json'))
+          assert value.get('status')=='PASS'
+          PY
