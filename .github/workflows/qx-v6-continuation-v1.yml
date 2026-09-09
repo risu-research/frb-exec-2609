@@ -1,0 +1,694 @@
+name: qx ReplayMark S6 V6 continuation v1
+
+on:
+  push:
+    branches:
+      - qx-run-v1
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: qx-replaymark-s6-v6-first-complete-authority
+  cancel-in-progress: false
+
+env:
+  SOURCE_SHA: b5d40b10e5741b493edcfceb2d5c98e43de6d56d
+  SOURCE_V5_RUN_ID: '34289543842'
+  SOURCE_V5_SHA: 35b57a9b70f94f430db73b50088565570b027dc8
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      f12_state_json: ${{ steps.f12state.outputs.state_json }}
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Require immutable public launch ref and same-SHA static authorities
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'qx-run-v1'
+          python -m json.tool authority/QX_V6_EXECUTION_SUBSTRATE_V1.json >/dev/null
+          python -m json.tool authority/QX_V6_HARNESS_MANIFEST_V1.json >/dev/null
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&event=push&status=success&per_page=100" \
+            -o /tmp/qx-static-runs.json
+          python - <<'PY'
+          import json, os
+          runs=json.load(open('/tmp/qx-static-runs.json'))['workflow_runs']
+          required={
+            '.github/workflows/qx-v6-harness-static-v1.yml':False,
+            '.github/workflows/qx-source-bound-static-v1.yml':False,
+          }
+          for r in runs:
+              p=r.get('path')
+              if p in required and r.get('head_branch')=='qx-static-v1' and r.get('head_sha')==os.environ['GITHUB_SHA'] and r.get('conclusion')=='success':
+                  required[p]=True
+          assert all(required.values()), required
+          print('QX_V6_SAME_SHA_STATIC_AUTHORITIES: PASS')
+          PY
+
+      - name: Bind exact frozen private source and prove frozen identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+          cd _src
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          m=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V6.json').read_text())
+          head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          parent=subprocess.check_output(['git','rev-parse','HEAD^'],text=True).strip()
+          assert head=='b5d40b10e5741b493edcfceb2d5c98e43de6d56d'
+          assert parent==m['parent_commit']=='35b57a9b70f94f430db73b50088565570b027dc8'
+          changed=sorted(subprocess.check_output(['git','diff','--name-only',parent,head],text=True).splitlines())
+          assert changed==sorted(m['expected_delta_paths']) and len(changed)==7
+          v5=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V5.json').read_text())
+          for category in ('frozen_authority_blobs','orchestration_blobs'):
+              for path,want in v5[category].items():
+                  got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+                  assert got==want,(category,path,got,want)
+          for path,want in m['new_v6_blobs'].items():
+              got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+              assert got==want,(path,got,want)
+          print('QX_V6_EXACT_PRIVATE_SCIENCE_IDENTITY: PASS')
+          PY
+
+      - name: Snapshot exact immutable V5 metadata through read-only source token
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/s6-v6-provenance/meta
+          python tools/qx_private_source.py snapshot \
+            --sha "$SOURCE_SHA" \
+            --run-id "$SOURCE_V5_RUN_ID" \
+            --out /tmp/s6-v6-provenance/meta
+
+      - name: Download every prospectively eligible V5 raw artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py download \
+            --sha "$SOURCE_SHA" \
+            --run-id "$SOURCE_V5_RUN_ID" \
+            --pattern 's6-f12-*' \
+            --pattern 's6-f4-*' \
+            --pattern 's6-secondary-*' \
+            --out /tmp/s6-v5-source \
+            --manifest /tmp/s6-v6-provenance/meta/source-artifact-download-manifest.json
+
+      - name: Validate deterministic inheritance without reading timing magnitude
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd _src && python -m replaymark_verification.s6_campaign_continuation_v1 validate-source \
+            --source-root /tmp/s6-v5-source \
+            --run-json /tmp/s6-v6-provenance/meta/run.json \
+            --jobs-json /tmp/s6-v6-provenance/meta/jobs-page1.json \
+            --jobs-json /tmp/s6-v6-provenance/meta/jobs-page2.json \
+            --artifacts-json /tmp/s6-v6-provenance/meta/artifacts.json \
+            --out /tmp/s6-v6-provenance/S6_V6_CONTINUATION_PROVENANCE.json)
+          python -m json.tool /tmp/s6-v6-provenance/S6_V6_CONTINUATION_PROVENANCE.json >/dev/null
+
+      - name: Export immutable inherited N32 frontier state
+        id: f12state
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          p=json.load(open('/tmp/s6-v6-provenance/S6_V6_CONTINUATION_PROVENANCE.json'))
+          state=p['inherited_f12_N32_frontier_state']
+          assert state['barrier_valid'] is True and state['N']==32
+          print('state_json='+json.dumps(state,sort_keys=True,separators=(',',':')))
+          PY
+
+      - name: Recheck exact frozen E3b dependency and no-clock corpus before opening
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          test "$(git hash-object agentmark_e3b_lab/e3_mqtt/app/requirements.txt)" = '96a27161c71b126522a8cfafbf303a0501ae694a'
+          python -m pip install --disable-pip-version-check --no-deps -r agentmark_e3b_lab/e3_mqtt/app/requirements.txt
+          python - <<'PY'
+          import importlib.metadata as md,sys
+          from pathlib import Path
+          root=Path('.').resolve(); app=root/'agentmark_e3b_lab'/'e3_mqtt'/'app'
+          for p in (root,root/'agentmark_e3b_lab',app):
+              if str(p) not in sys.path: sys.path.insert(0,str(p))
+          import s6_campaign_e3b_budget_v1 as b
+          from replaymark_shadow import compile_e3b_r1_shadow_contract
+          assert md.version('paho-mqtt')=='2.1.0'
+          corpus,_=b._load_frozen_corpus(); contract=compile_e3b_r1_shadow_contract()
+          assert contract.fingerprint()==corpus['acquisition_identity']['contract_fingerprint']
+          assert b._independent_requalification(contract,corpus)['cases_checked']==128
+          print('QX_V6_FINAL_NO_CLOCK_GATE: PASS')
+          PY
+
+      - name: Record public-substrate V6 performance opening boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/s6-v6-provenance/substrate
+          cp authority/QX_V6_EXECUTION_SUBSTRATE_V1.json /tmp/s6-v6-provenance/substrate/
+          cp authority/QX_V6_HARNESS_MANIFEST_V1.json /tmp/s6-v6-provenance/substrate/
+          python - <<'PY'
+          import json,os
+          r={
+            'schema':'replaymark.s6.x86-first-complete-v6-continuation-run-open.v1',
+            'status':'V6_CONTINUATION_PERFORMANCE_OPEN_AFTER_SOURCE_VALIDATION_AND_SOURCE_BOUND_PUBLIC_STATIC_PASS',
+            'source_head':'b5d40b10e5741b493edcfceb2d5c98e43de6d56d',
+            'public_harness_head':os.environ['GITHUB_SHA'],
+            'public_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'source_v5_run_id':34289543842,
+            'source_v5_sha':'35b57a9b70f94f430db73b50088565570b027dc8',
+            'source_valid_records_rerun':False,
+            'selection_by_performance_value':False,
+            'protocol_or_threshold_change':False,
+            'runnerless_records_promoted_to_resource_failure':False,
+            'scientific_code_changed_for_substrate':False,
+            'transport_only_substrate_change':True
+          }
+          open('/tmp/s6-v6-provenance/RUN_OPEN.json','w').write(json.dumps(r,indent=2,sort_keys=True)+'\n')
+          PY
+
+      - name: Seal continuation provenance and RUN_OPEN before new performance
+        uses: actions/upload-artifact@v4
+        with:
+          name: s6-v6-continuation-provenance
+          path: /tmp/s6-v6-provenance
+          if-no-files-found: error
+
+  f12_64:
+    needs: bootstrap
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with:
+      N: 64
+      previous_state_json: '${{ needs.bootstrap.outputs.f12_state_json }}'
+    secrets: inherit
+  f12_128:
+    needs: f12_64
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 128, previous_state_json: '${{ needs.f12_64.outputs.state_json }}'}
+    secrets: inherit
+  f12_256:
+    needs: f12_128
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 256, previous_state_json: '${{ needs.f12_128.outputs.state_json }}'}
+    secrets: inherit
+  f12_512:
+    needs: f12_256
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 512, previous_state_json: '${{ needs.f12_256.outputs.state_json }}'}
+    secrets: inherit
+  f12_1024:
+    needs: f12_512
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 1024, previous_state_json: '${{ needs.f12_512.outputs.state_json }}'}
+    secrets: inherit
+  f12_2048:
+    needs: f12_1024
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 2048, previous_state_json: '${{ needs.f12_1024.outputs.state_json }}'}
+    secrets: inherit
+  f12_4096:
+    needs: f12_2048
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 4096, previous_state_json: '${{ needs.f12_2048.outputs.state_json }}'}
+    secrets: inherit
+  f12_8192:
+    needs: f12_4096
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 8192, previous_state_json: '${{ needs.f12_4096.outputs.state_json }}'}
+    secrets: inherit
+  f12_16384:
+    needs: f12_8192
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 16384, previous_state_json: '${{ needs.f12_8192.outputs.state_json }}'}
+    secrets: inherit
+  f12_32768:
+    needs: f12_16384
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 32768, previous_state_json: '${{ needs.f12_16384.outputs.state_json }}'}
+    secrets: inherit
+  f12_65536:
+    needs: f12_32768
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 65536, previous_state_json: '${{ needs.f12_32768.outputs.state_json }}'}
+    secrets: inherit
+  f12_131072:
+    needs: f12_65536
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 131072, previous_state_json: '${{ needs.f12_65536.outputs.state_json }}'}
+    secrets: inherit
+  f12_262144:
+    needs: f12_131072
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 262144, previous_state_json: '${{ needs.f12_131072.outputs.state_json }}'}
+    secrets: inherit
+  f12_524288:
+    needs: f12_262144
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 524288, previous_state_json: '${{ needs.f12_262144.outputs.state_json }}'}
+    secrets: inherit
+  f12_1048576:
+    needs: f12_524288
+    uses: ./.github/workflows/qx-f12-level-v1.yml
+    with: {N: 1048576, previous_state_json: '${{ needs.f12_524288.outputs.state_json }}'}
+    secrets: inherit
+
+  f4_d1_completion:
+    needs: bootstrap
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {H: 1, replica: A, seed: 2026090801}
+          - {H: 1, replica: A, seed: 2026090802}
+          - {H: 2, replica: A, seed: 2026090801}
+    env:
+      PREVIOUS_STATE_JSON: '{"schema":"replaymark.s6.x86-first-complete-control.v2.f4-frontier-state.v1","streams":{"full":{"all_fail_streak":0,"closed":false},"q":{"all_fail_streak":0,"closed":false}},"barrier_valid":true}'
+      S6_H: ${{ matrix.H }}
+      S6_REPLICA: ${{ matrix.replica }}
+      S6_SEED: ${{ matrix.seed }}
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bind exact frozen private source
+        run: python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Execute only exact V5 runnerless F4 d1 shard
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/s6-f4
+          out="/tmp/s6-f4/f4-d1-H${S6_H}-${S6_REPLICA}-${S6_SEED}.json"
+          (cd _src && python -m replaymark_verification.s6_campaign_f4_shard_v1 shard --d 1 --H "$S6_H" --seed "$S6_SEED" --replica "$S6_REPLICA" --previous-state-json "$PREVIOUS_STATE_JSON" --out "$out")
+          rc=$?
+          set -e
+          if [ ! -s "$out" ]; then
+            python - "$out" "$rc" <<'PY'
+          import json,os,sys
+          out,rc=sys.argv[1],int(sys.argv[2]); H=int(os.environ['S6_H']); seed=int(os.environ['S6_SEED']); replica=os.environ['S6_REPLICA']; previous=json.loads(os.environ['PREVIOUS_STATE_JSON'])
+          spec={'family':'F4','d':1,'H':H,'B':4,'seed':seed}
+          points=[{'spec':spec,'plane':plane,'status':'ORCHESTRATION_ERROR','trials':[],'stage_decomposition':None,'orchestration_returncode':rc} for plane in ('full','q')]
+          record={'schema':'replaymark.s6.x86-first-complete-control.v2.f4-wave.v1','d':1,'N':256,'H':H,'seed':seed,'replica':replica,'previous_frontier_state':previous,'points':points,'orchestration_failure':True,'returncode':rc}
+          open(out,'w').write(json.dumps(record,indent=2,sort_keys=True)+'\n')
+          PY
+          fi
+          python -m json.tool "$out" >/dev/null
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s6-f4-d1-H${{ matrix.H }}-${{ matrix.replica }}-${{ matrix.seed }}
+          path: /tmp/s6-f4
+          if-no-files-found: error
+
+  f4_d1_barrier:
+    needs: f4_d1_completion
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      state_json: ${{ steps.state.outputs.state_json }}
+    env:
+      PREVIOUS_STATE_JSON: '{"schema":"replaymark.s6.x86-first-complete-control.v2.f4-frontier-state.v1","streams":{"full":{"all_fail_streak":0,"closed":false},"q":{"all_fail_streak":0,"closed":false}},"barrier_valid":true}'
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bind exact frozen private source
+        run: python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Download 15 immutable V5 d1 shards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py download --sha "$SOURCE_SHA" --run-id "$SOURCE_V5_RUN_ID" --pattern 's6-f4-d1-*' --out /tmp/s6-f4-input --flatten
+      - name: Download exactly 3 current completion shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 's6-f4-d1-*'
+          path: /tmp/s6-f4-input
+          merge-multiple: true
+      - name: Apply unchanged frozen d1 barrier over inherited plus completion union
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/s6-f4-barrier
+          (cd _src && python -m replaymark_verification.s6_campaign_f4_shard_v1 barrier --d 1 --previous-state-json "$PREVIOUS_STATE_JSON" --input-dir /tmp/s6-f4-input --out /tmp/s6-f4-barrier/f4-barrier-d1.json)
+          python -m json.tool /tmp/s6-f4-barrier/f4-barrier-d1.json >/dev/null
+      - name: Export exact next state
+        id: state
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          value=json.load(open('/tmp/s6-f4-barrier/f4-barrier-d1.json'))
+          assert value['barrier_valid'] is True and value['input_record_count']==18
+          print('state_json='+json.dumps(value,sort_keys=True,separators=(',',':')))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s6-f4-barrier-d1
+          path: /tmp/s6-f4-barrier
+          if-no-files-found: error
+
+  f4_2:
+    needs: f4_d1_barrier
+    uses: ./.github/workflows/qx-f4-level-v1.yml
+    with: {d: 2, h_values_json: '[0,1,2,3]', previous_state_json: '${{ needs.f4_d1_barrier.outputs.state_json }}'}
+    secrets: inherit
+  f4_4:
+    needs: f4_2
+    uses: ./.github/workflows/qx-f4-level-v1.yml
+    with: {d: 4, h_values_json: '[0,1,2,3,4,5]', previous_state_json: '${{ needs.f4_2.outputs.state_json }}'}
+    secrets: inherit
+  f4_8:
+    needs: f4_4
+    uses: ./.github/workflows/qx-f4-level-v1.yml
+    with: {d: 8, h_values_json: '[0,1,2,4,7,8,9]', previous_state_json: '${{ needs.f4_4.outputs.state_json }}'}
+    secrets: inherit
+  f4_16:
+    needs: f4_8
+    uses: ./.github/workflows/qx-f4-level-v1.yml
+    with: {d: 16, h_values_json: '[0,1,2,4,8,15,16,17]', previous_state_json: '${{ needs.f4_8.outputs.state_json }}'}
+    secrets: inherit
+  f4_32:
+    needs: f4_16
+    uses: ./.github/workflows/qx-f4-level-v1.yml
+    with: {d: 32, h_values_json: '[0,1,2,4,8,16,31,32,33]', previous_state_json: '${{ needs.f4_16.outputs.state_json }}'}
+    secrets: inherit
+
+  secondary_completion:
+    needs: bootstrap
+    runs-on: ubuntu-24.04
+    timeout-minutes: 210
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {group: f3full, replica: B, seed: 2026090801}
+          - {group: f5full, replica: B, seed: 2026090801}
+          - {group: f5full, replica: B, seed: 2026090804}
+          - {group: f6full, replica: B, seed: 2026090801}
+    env:
+      S6_GROUP: ${{ matrix.group }}
+      S6_REPLICA: ${{ matrix.replica }}
+      S6_SEED: ${{ matrix.seed }}
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bind exact frozen private source
+        run: python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Execute only exact V5 runnerless secondary shard
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/s6-secondary
+          out="/tmp/s6-secondary/secondary-${S6_GROUP}-${S6_REPLICA}-${S6_SEED}.json"
+          (cd _src && python -m replaymark_verification.s6_campaign_control_v2 secondary --group "$S6_GROUP" --replica "$S6_REPLICA" --seed "$S6_SEED" --out "$out")
+          rc=$?
+          set -e
+          if [ ! -s "$out" ]; then
+            python - "$out" "$rc" <<'PY'
+          import json,os,sys
+          out,rc=sys.argv[1],int(sys.argv[2]); r={'schema':'replaymark.s6.x86-first-complete-control.v2.secondary.v1','group':os.environ['S6_GROUP'],'replica':os.environ['S6_REPLICA'],'seed':int(os.environ['S6_SEED']),'points':[],'orchestration_failure':True,'returncode':rc}
+          open(out,'w').write(json.dumps(r,indent=2,sort_keys=True)+'\n')
+          PY
+          fi
+          python -m json.tool "$out" >/dev/null
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s6-secondary-${{ matrix.group }}-${{ matrix.replica }}-${{ matrix.seed }}
+          path: /tmp/s6-secondary
+          if-no-files-found: error
+
+  generated_online:
+    needs: [f12_1048576, f4_32, secondary_completion]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [f12, f3, f6]
+        replica: [A, B]
+    env:
+      S6_GROUP: ${{ matrix.group }}
+      S6_REPLICA: ${{ matrix.replica }}
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bind exact frozen private source
+        run: python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Download inherited V5 offline records for this group
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/s6-online-input
+          case "$S6_GROUP" in
+            f12) pattern='s6-f12-N*' ;;
+            f3) pattern='s6-secondary-f3full-*' ;;
+            f6) pattern='s6-secondary-f6full-*' ;;
+            *) exit 2 ;;
+          esac
+          python tools/qx_private_source.py download --sha "$SOURCE_SHA" --run-id "$SOURCE_V5_RUN_ID" --pattern "$pattern" --out /tmp/s6-online-input --flatten
+      - name: Download current continuation records for this group
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${{ matrix.group == 'f12' && 's6-f12-N*' || matrix.group == 'f3' && 's6-secondary-f3full-*' || 's6-secondary-f6full-*' }}
+          path: /tmp/s6-online-input
+          merge-multiple: true
+      - name: Execute unchanged generated semantic-authorization timing
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/s6-online-input /tmp/s6-online
+          out="/tmp/s6-online/online-${S6_GROUP}-${S6_REPLICA}.json"
+          (cd _src && python -m replaymark_verification.s6_campaign_online_v1 --group "$S6_GROUP" --replica "$S6_REPLICA" --input-root /tmp/s6-online-input --out "$out")
+          rc=$?
+          set -e
+          if [ ! -s "$out" ]; then
+            python - "$out" "$rc" <<'PY'
+          import json,os,sys
+          out,rc=sys.argv[1],int(sys.argv[2]); r={'schema':'replaymark.s6.x86-generated-online.v1','group':os.environ['S6_GROUP'],'replica':os.environ['S6_REPLICA'],'qualified_full_contract_specs_seen':0,'condition_records':[],'setup_errors':[{'error':'top-level orchestration failure','returncode':rc}],'all_qualified_specs_measured':False}
+          open(out,'w').write(json.dumps(r,indent=2,sort_keys=True)+'\n')
+          PY
+          fi
+          python -m json.tool "$out" >/dev/null
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s6-online-${{ matrix.group }}-${{ matrix.replica }}
+          path: /tmp/s6-online
+          if-no-files-found: error
+
+  e3b_budget:
+    needs: generated_online
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix: {replica: [A, B]}
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bind exact frozen private source
+        run: python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Install exact frozen E3b dependency before any timing
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          test "$(git hash-object agentmark_e3b_lab/e3_mqtt/app/requirements.txt)" = '96a27161c71b126522a8cfafbf303a0501ae694a'
+          python -m pip install --disable-pip-version-check --no-deps -r agentmark_e3b_lab/e3_mqtt/app/requirements.txt
+          python - <<'PY'
+          import importlib.metadata as md
+          import paho.mqtt.client as mqtt
+          assert md.version('paho-mqtt')=='2.1.0' and hasattr(mqtt,'CallbackAPIVersion')
+          PY
+      - name: Execute exact immutable-corpus E3b production budget
+        shell: bash
+        run: |
+          mkdir -p /tmp/s6-e3b
+          cd _src
+          python agentmark_e3b_lab/e3_mqtt/app/s6_campaign_e3b_budget_v1.py --replica "${{ matrix.replica }}" --out "/tmp/s6-e3b/e3b-${{ matrix.replica }}.json"
+          python -m json.tool "/tmp/s6-e3b/e3b-${{ matrix.replica }}.json" >/dev/null
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: {name: 's6-e3b-budget-${{ matrix.replica }}', path: /tmp/s6-e3b, if-no-files-found: error}
+
+  anchors:
+    needs: e3b_budget
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix: {replica: [A, B]}
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+      S6_REPLICA: ${{ matrix.replica }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bind exact frozen private source
+        run: python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Install exact frozen E3b dependency before anchor timing
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python -m pip install --disable-pip-version-check --no-deps -r agentmark_e3b_lab/e3_mqtt/app/requirements.txt
+          python - <<'PY'
+          import importlib.metadata as md
+          assert md.version('paho-mqtt')=='2.1.0'
+          PY
+      - name: Execute mandatory preexisting real-controller anchors
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/s6-anchors
+          out="/tmp/s6-anchors/anchors-${S6_REPLICA}.json"
+          (cd _src && python -m replaymark_verification.s6_campaign_anchors_v1 performance --replica "$S6_REPLICA" --out "$out")
+          rc=$?
+          set -e
+          if [ ! -s "$out" ]; then
+            python - "$out" "$rc" <<'PY'
+          import json,os,sys
+          out,rc=sys.argv[1],int(sys.argv[2]); r={'schema':'replaymark.s6.real-controller-anchors.v1','status':'EXECUTION_FAILURE','replica':os.environ.get('S6_REPLICA','unknown'),'anchors':{},'orchestration_failure':True,'returncode':rc}
+          open(out,'w').write(json.dumps(r,indent=2,sort_keys=True)+'\n')
+          PY
+          fi
+          python -m json.tool "$out" >/dev/null
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: {name: 's6-anchors-${{ matrix.replica }}', path: /tmp/s6-anchors, if-no-files-found: error}
+
+  aggregate:
+    needs: anchors
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bind exact frozen private source
+        run: python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Download immutable V5 source artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py download --sha "$SOURCE_SHA" --run-id "$SOURCE_V5_RUN_ID" --pattern 's6-*' --out /tmp/s6-source-all
+      - name: Download every current-run V6 artifact
+        uses: actions/download-artifact@v4
+        with: {pattern: 's6-*', path: /tmp/s6-current-all}
+      - name: Construct duplicate-free scientific raw union
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+          out=Path('/tmp/s6-authority/raw'); out.mkdir(parents=True,exist_ok=True)
+          allowed_source=('s6-f12-','s6-f4-','s6-secondary-')
+          allowed_current=('s6-f12-','s6-f4-','s6-secondary-','s6-online-','s6-e3b-budget-','s6-anchors-')
+          copied=[]
+          for root,prefixes in [(Path('/tmp/s6-source-all'),allowed_source),(Path('/tmp/s6-current-all'),allowed_current)]:
+              for d in sorted(p for p in root.iterdir() if p.is_dir() and p.name.startswith(prefixes)):
+                  dst=out/d.name
+                  if dst.exists(): raise RuntimeError('duplicate artifact identity in V5/V6 union: '+d.name)
+                  shutil.copytree(d,dst); copied.append(d.name)
+          assert copied
+          print('QX_S6_V6_RAW_UNION_ARTIFACT_DIRS',len(copied))
+          PY
+      - name: Copy sealed continuation provenance outside scientific scan root
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/s6-authority/provenance
+          cp -a /tmp/s6-current-all/s6-v6-continuation-provenance/. /tmp/s6-authority/provenance/
+          test -s /tmp/s6-authority/provenance/S6_V6_CONTINUATION_PROVENANCE.json
+          test -s /tmp/s6-authority/provenance/RUN_OPEN.json
+      - name: Independently aggregate unchanged science plus provenance binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/s6-authority/aggregate
+          (cd _src && python -m replaymark_verification.s6_campaign_aggregate_protocol_v4 aggregate \
+            --input-root /tmp/s6-authority/raw \
+            --continuation-provenance /tmp/s6-authority/provenance/S6_V6_CONTINUATION_PROVENANCE.json \
+            --out /tmp/s6-authority/aggregate/S6_X86_FIRST_COMPLETE_AGGREGATE_V1.json)
+          python -m json.tool /tmp/s6-authority/aggregate/S6_X86_FIRST_COMPLETE_AGGREGATE_V1.json >/dev/null
+          sha256sum /tmp/s6-authority/aggregate/S6_X86_FIRST_COMPLETE_AGGREGATE_V1.json > /tmp/s6-authority/aggregate/S6_X86_FIRST_COMPLETE_AGGREGATE_V1.sha256
+      - name: Upload authority before interpretation
+        uses: actions/upload-artifact@v4
+        with:
+          name: replaymark-s6-x86-first-complete-authority-v6-public-substrate
+          path: /tmp/s6-authority
+          if-no-files-found: error
+
+  enforce:
+    needs: aggregate
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Bind exact frozen private source
+        run: python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+      - name: Download already-uploaded immutable authority
+        uses: actions/download-artifact@v4
+        with: {name: replaymark-s6-x86-first-complete-authority-v6-public-substrate, path: /tmp/s6-sealed-authority}
+      - name: Enforce preregistered interpretations only after sealing
+        shell: bash
+        run: |
+          set -euo pipefail
+          authority=/tmp/s6-sealed-authority/aggregate/S6_X86_FIRST_COMPLETE_AGGREGATE_V1.json
+          test -s "$authority"
+          mkdir -p /tmp/s6-enforcement
+          (cd _src && python -m replaymark_verification.s6_campaign_aggregate_protocol_v4 enforce --authority "$authority" --out /tmp/s6-enforcement/S6_X86_FIRST_COMPLETE_ENFORCEMENT_V1.json)
+          python -m json.tool /tmp/s6-enforcement/S6_X86_FIRST_COMPLETE_ENFORCEMENT_V1.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: replaymark-s6-x86-first-complete-enforcement-v6-public-substrate
+          path: /tmp/s6-enforcement
+          if-no-files-found: error
