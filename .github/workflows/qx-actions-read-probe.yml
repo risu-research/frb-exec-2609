@@ -1,0 +1,59 @@
+name: qx private evidence read probe
+
+on:
+  push:
+    branches:
+      - qx-static-v1
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-read-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SOURCE_SHA: b5d40b10e5741b493edcfceb2d5c98e43de6d56d
+      SOURCE_RUN_ID: '34289543842'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve source privately and probe immutable evidence API only
+        shell: bash
+        env:
+          SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$SOURCE_READ_TOKEN"
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          token=os.environ['SOURCE_READ_TOKEN']; sha=os.environ['SOURCE_SHA']; run_id=os.environ['SOURCE_RUN_ID']
+          h={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'qx-evidence-read-probe'}
+          repos=[]
+          for page in range(1,11):
+              with urllib.request.urlopen(urllib.request.Request(f'https://api.github.com/user/repos?per_page=100&page={page}&visibility=private&affiliation=owner,organization_member,collaborator',headers=h),timeout=30) as r:
+                  batch=json.load(r)
+              repos.extend(batch)
+              if len(batch)<100: break
+          matches=[]
+          for item in repos:
+              full=item.get('full_name')
+              if not full: continue
+              try:
+                  with urllib.request.urlopen(urllib.request.Request(f'https://api.github.com/repos/{full}/commits/{sha}',headers=h),timeout=20) as r:
+                      if r.status==200: matches.append(full)
+              except urllib.error.HTTPError as e:
+                  if e.code in (403,404,409,422): continue
+                  raise
+          assert len(matches)==1, f'source_match_count={len(matches)}'
+          full=matches[0]
+          statuses={}
+          for label,suffix in [('run',f'actions/runs/{run_id}'),('jobs',f'actions/runs/{run_id}/jobs?per_page=1'),('artifacts',f'actions/runs/{run_id}/artifacts?per_page=1')]:
+              req=urllib.request.Request(f'https://api.github.com/repos/{full}/{suffix}',headers=h)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:
+                      statuses[label]=r.status
+              except urllib.error.HTTPError as e:
+                  statuses[label]=e.code
+          print('private_evidence_api_statuses='+json.dumps(statuses,sort_keys=True))
+          assert statuses=={'run':200,'jobs':200,'artifacts':200}, statuses
+          PY
