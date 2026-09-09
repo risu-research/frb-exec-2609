@@ -10,7 +10,7 @@ permissions:
 
 env:
   GENERIC_MAIN: bcf42964a3fa74e127f22a5364185049b4f94cff
-  PRIVATE_SOURCE_CODE_COMMIT: a585f5c7dcb186785940dd123efbba9d311054ba
+  PRIVATE_SOURCE_CODE_COMMIT: 7afe6dd985a7c4f997ef4b52c7f9ab4b1b73c183
   ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
   ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
   C1_PUBLIC_REPOSITORY: risu-research/frb-exec-2609
@@ -70,7 +70,7 @@ jobs:
             test "$actual" = "$expected"
           done < HA_C2_OVERLAY_GIT_BLOBS.expected
 
-      - name: Materialize exact 26-file scientific capsule without importing it
+      - name: Materialize exact 24-file scientific capsule without importing it
         shell: bash
         run: |
           set -euo pipefail
@@ -81,7 +81,6 @@ jobs:
           replaymark/adjudicator.py
           replaymark/compiled_contract.py
           replaymark/contracts.py
-          replaymark/evidence.py
           replaymark/evidence_image.py
           replaymark/evidence_semantics.py
           replaymark/execution_admission.py
@@ -92,7 +91,6 @@ jobs:
           replaymark/runtime_realization.py
           replaymark/support_envelope.py
           replaymark/target_provenance.py
-          replaymark_verification/__init__.py
           replaymark_verification/models.py
           EOF
           cat > HA_C2_C1_PATHS.txt <<'EOF'
@@ -132,8 +130,8 @@ jobs:
           awk '{print $2}' HA_C2_C1_PATHS.txt >> HA_C2_SCIENTIFIC_PATHS.txt
           cat HA_C2_OVERLAY_PATHS.txt >> HA_C2_SCIENTIFIC_PATHS.txt
           LC_ALL=C sort -o HA_C2_SCIENTIFIC_PATHS.txt HA_C2_SCIENTIFIC_PATHS.txt
-          test "$(wc -l < HA_C2_SCIENTIFIC_PATHS.txt)" -eq 26
-          test "$(sort -u HA_C2_SCIENTIFIC_PATHS.txt | wc -l)" -eq 26
+          test "$(wc -l < HA_C2_SCIENTIFIC_PATHS.txt)" -eq 24
+          test "$(sort -u HA_C2_SCIENTIFIC_PATHS.txt | wc -l)" -eq 24
 
           test "$(sha256sum capsule/replaymark/runtime_ha_bt_observation.py | cut -d' ' -f1)" = "e51345a921f1533cc40faa7c9a415de990157f8d0037b0b7beb8e9f46286b7ba"
           test "$(sha256sum capsule/replaymark/runtime_ha_bt_action.py | cut -d' ' -f1)" = "8243b9528c93b93c19cc0e3089a81c2d3a05459fed0370741ec8d40b5f8d090c"
@@ -170,7 +168,7 @@ jobs:
               'origin_commit': os.environ['ORIGIN_COMMIT'],
               'c1_public_repository': os.environ['C1_PUBLIC_REPOSITORY'],
               'c1_public_execution_head': os.environ['C1_PUBLIC_EXECUTION_HEAD'],
-              'scientific_path_count': 26,
+              'scientific_path_count': 24,
               'semantic_modules_imported': False,
               'semantic_verifier_executed': False,
               'target_lift_executed': False,
