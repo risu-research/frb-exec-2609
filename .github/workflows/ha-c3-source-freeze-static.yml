@@ -58,7 +58,7 @@ jobs:
                   found.append(node.module or '')
           bad=[name for name in found if name.startswith(banned)]
           assert not bad,bad
-          assert set(found) <= {'argparse','json','pathlib','typing'},found
+          assert set(found) <= {'__future__','argparse','json','pathlib','typing'},found
           PY
 
       - name: Audit authoritative workflow anti-repair and preservation invariants
@@ -85,7 +85,6 @@ jobs:
           ]
           missing=[x for x in required if x not in p]
           assert not missing,missing
-          # Promotion must not depend on latency or wall-clock thresholds.
           assert 'latency_threshold' not in p
           PY
 
@@ -147,7 +146,6 @@ jobs:
             'implementation_preflight_run_id':int(os.environ['PREFLIGHT_RUN_ID']),
             'implementation_preflight_artifact_sha256':os.environ['PREFLIGHT_ARTIFACT_DIGEST'],
             'files_sha256':{p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths},
-            'files_git_blob':{p:None for p in paths},
           }
           Path('static-results/HA_C3_SOURCE_STATIC_QUALIFICATION.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
           PY
