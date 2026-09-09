@@ -1,0 +1,270 @@
+name: HA-C3 implementation preflight
+
+on:
+  push:
+    branches:
+      - ha-c3-implementation-preflight-v1
+
+permissions:
+  contents: read
+
+env:
+  GENERIC_MAIN: bcf42964a3fa74e127f22a5364185049b4f94cff
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  BLUEPRINT_COMMIT: 57d56f076c05ccaa9553e6bd4b673b6d43a8cf7f
+  BLUEPRINT_SHA256: 16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443
+  BT_COMMIT: b86561f61e5ba1259fc63e590f4847e9ac743d7f
+  BT_MANIFEST_SHA256: 710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28
+  BT_TREE_SHA256: bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout isolated public staging branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prove additive staging topology and exact gate bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base "$GENERIC_MAIN" HEAD)" = "$GENERIC_MAIN"
+          git diff --name-status "$GENERIC_MAIN..HEAD" | tee HA_C3_PUBLIC_PREFLIGHT_DIFF.txt
+          python - <<'PY'
+          from pathlib import Path
+          expected = {
+              '.github/workflows/ha-c3-implementation-preflight.yml',
+              'ha_c3_native_path_preflight.py',
+              'replaymark/runtime_ha_bt_execution_gate.py',
+              'replaymark_verification/verify_ha_c3_gate_preflight.py',
+          }
+          rows=[x for x in Path('HA_C3_PUBLIC_PREFLIGHT_DIFF.txt').read_text().splitlines() if x]
+          seen=set()
+          for row in rows:
+              status,path=row.split('\t',1)
+              assert status == 'A', (status,path)
+              seen.add(path)
+          assert seen == expected, (seen,expected)
+          PY
+          # Exact candidate production gate blob from private HA-C3 branch.
+          test "$(git hash-object --no-filters replaymark/runtime_ha_bt_execution_gate.py)" = "ec8d445bcf6659bead696fa4868ff7778123dbf6"
+
+      - name: Materialize frozen semantic capsule and exact archived fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin capsule inputs
+          mkdir -p origin capsule/replaymark capsule/replaymark_verification/fixtures inputs
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+
+          core=(
+            replaymark/__init__.py
+            replaymark/adjudicator.py
+            replaymark/compiled_contract.py
+            replaymark/contracts.py
+            replaymark/evidence_image.py
+            replaymark/evidence_semantics.py
+            replaymark/execution_admission.py
+            replaymark/predictive_witness.py
+            replaymark/q_compiler.py
+            replaymark/rstar.py
+            replaymark/runtime_contract_identity.py
+            replaymark/runtime_realization.py
+            replaymark/support_envelope.py
+            replaymark/target_provenance.py
+            replaymark_verification/models.py
+          )
+          for path in "${core[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp "origin/$path" "capsule/$path"
+          done
+
+          for path in replaymark/runtime_ha_bt_observation.py replaymark/runtime_ha_bt_action.py; do
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C1_PUBLIC_HEAD}/${path}" \
+              --output "capsule/${path}"
+          done
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C1_PUBLIC_HEAD}/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64" \
+            --output capsule/replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64
+          test "$(sha256sum capsule/replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 | cut -d' ' -f1)" = \
+            "297ec8740a4604e60b3b64b150a2489bb4ada2ddaf988f0202bdaf8649204ab1"
+
+          c2=(
+            replaymark/runtime_ha_bt_decision_boundary.py
+            replaymark/runtime_ha_bt_shadow_bridge.py
+            replaymark_verification/build_ha_c2_shadow_cells.py
+            replaymark_verification/ha_c2_bt_native_target.py
+          )
+          for path in "${c2[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C2_PUBLIC_HEAD}/${path}" \
+              --output "capsule/${path}"
+          done
+          cp replaymark/runtime_ha_bt_execution_gate.py capsule/replaymark/
+          cp replaymark_verification/verify_ha_c3_gate_preflight.py capsule/replaymark_verification/
+
+          find capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > HA_C3_PREFLIGHT_CAPSULE_SHA256.txt
+          python -m py_compile replaymark/runtime_ha_bt_execution_gate.py replaymark_verification/verify_ha_c3_gate_preflight.py ha_c3_native_path_preflight.py
+
+      - name: Fetch and pin external controller plus Better Thermostat ownership component
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/n3roGit/MyHomeAssistantMods/${BLUEPRINT_COMMIT}/automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml" \
+            --output inputs/better_thermostat_lean.yaml
+          test "$(sha256sum inputs/better_thermostat_lean.yaml | cut -d' ' -f1)" = "$BLUEPRINT_SHA256"
+
+          git init -q inputs/bt_checkout
+          git -C inputs/bt_checkout remote add upstream https://github.com/KartoffelToby/better_thermostat.git
+          git -C inputs/bt_checkout fetch --depth=1 upstream "$BT_COMMIT"
+          git -C inputs/bt_checkout checkout -q --detach FETCH_HEAD
+          test "$(git -C inputs/bt_checkout rev-parse HEAD)" = "$BT_COMMIT"
+          mkdir -p inputs/upstream_better_thermostat_component
+          cp -a inputs/bt_checkout/custom_components/better_thermostat/. inputs/upstream_better_thermostat_component/
+          rm -rf inputs/bt_checkout
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('inputs/upstream_better_thermostat_component')
+          payload=(root/'manifest.json').read_bytes()
+          manifest=hashlib.sha256(payload).hexdigest()
+          assert manifest == os.environ['BT_MANIFEST_SHA256'], (manifest,os.environ['BT_MANIFEST_SHA256'])
+          parsed=json.loads(payload)
+          assert parsed['domain']=='better_thermostat' and parsed['version']=='1.9.2'
+          d=hashlib.sha256()
+          for path in sorted(p for p in root.rglob('*') if p.is_file()):
+              rel=path.relative_to(root).as_posix().encode(); body=path.read_bytes()
+              d.update(len(rel).to_bytes(8,'big')); d.update(rel); d.update(len(body).to_bytes(8,'big')); d.update(body)
+          actual=d.hexdigest()
+          assert actual == os.environ['BT_TREE_SHA256'], (actual,os.environ['BT_TREE_SHA256'])
+          PY
+
+      - name: Pull exact Home Assistant image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > HA_C3_HA_IMAGE_INSPECT.json
+
+      - name: Qualify exact execution gate on already-open C2 archive only
+        id: gate
+        shell: bash
+        run: |
+          set +e
+          docker run --rm --network none \
+            -e PYTHONPATH=/capsule \
+            -v "$PWD/capsule:/capsule:ro" \
+            --entrypoint python3 \
+            "$HA_IMAGE" \
+            -m replaymark_verification.verify_ha_c3_gate_preflight \
+              --fixture /capsule/replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 \
+              --out /tmp/HA_C3_GATE_PREFLIGHT.json \
+            > HA_C3_GATE_PREFLIGHT_STDOUT.txt 2> HA_C3_GATE_PREFLIGHT_STDERR.txt
+          rc=$?
+          # The container output path is ephemeral; rerun with a writable results mount only if rc=0 is not needed.
+          # We preserve stdout as the canonical JSON result emitted by the verifier.
+          printf '%s\n' "$rc" > HA_C3_GATE_PREFLIGHT_EXIT.txt
+          if [ "$rc" -eq 0 ]; then cp HA_C3_GATE_PREFLIGHT_STDOUT.txt HA_C3_GATE_PREFLIGHT.json; fi
+          exit 0
+
+      - name: Qualify caller-owned native invocation against natural controller execution
+        id: native
+        shell: bash
+        run: |
+          set +e
+          docker run --rm --network none \
+            -e PYTHONPATH=/origin/agentmark_e3b_lab:/origin \
+            -v "$PWD/origin:/origin:ro" \
+            -v "$PWD/inputs:/inputs:ro" \
+            -v "$PWD:/results" \
+            --entrypoint python3 \
+            "$HA_IMAGE" \
+            /results/ha_c3_native_path_preflight.py \
+              --blueprint /inputs/better_thermostat_lean.yaml \
+              --ownership-component /inputs/upstream_better_thermostat_component \
+              --out /results/HA_C3_NATIVE_PATH_PREFLIGHT.json \
+            > HA_C3_NATIVE_PATH_STDOUT.txt 2> HA_C3_NATIVE_PATH_STDERR.txt
+          rc=$?
+          printf '%s\n' "$rc" > HA_C3_NATIVE_PATH_EXIT.txt
+          exit 0
+
+      - name: Record non-scientific preflight provenance
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          def digest(name):
+              p=Path(name); return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None
+          record={
+              'schema':'replaymark.ha-c3.implementation-preflight-record.v1',
+              'status':'PENDING_CONCLUSION',
+              'scientific_result_opened':False,
+              'repository':os.environ['GITHUB_REPOSITORY'],
+              'branch':os.environ['GITHUB_REF_NAME'],
+              'execution_head':os.environ['GITHUB_SHA'],
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'generic_main':os.environ['GENERIC_MAIN'],
+              'gate_blob_sha1':'ec8d445bcf6659bead696fa4868ff7778123dbf6',
+              'gate_exit':Path('HA_C3_GATE_PREFLIGHT_EXIT.txt').read_text().strip() if Path('HA_C3_GATE_PREFLIGHT_EXIT.txt').exists() else None,
+              'native_exit':Path('HA_C3_NATIVE_PATH_EXIT.txt').read_text().strip() if Path('HA_C3_NATIVE_PATH_EXIT.txt').exists() else None,
+              'files_sha256':{name:digest(name) for name in [
+                  'HA_C3_GATE_PREFLIGHT.json','HA_C3_GATE_PREFLIGHT_STDOUT.txt','HA_C3_GATE_PREFLIGHT_STDERR.txt',
+                  'HA_C3_NATIVE_PATH_PREFLIGHT.json','HA_C3_NATIVE_PATH_STDOUT.txt','HA_C3_NATIVE_PATH_STDERR.txt',
+                  'HA_C3_PREFLIGHT_CAPSULE_SHA256.txt','HA_C3_HA_IMAGE_INSPECT.json']},
+          }
+          Path('HA_C3_PREFLIGHT_RECORD.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Upload complete preflight artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c3-implementation-preflight
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            HA_C3_PUBLIC_PREFLIGHT_DIFF.txt
+            HA_C3_PREFLIGHT_CAPSULE_SHA256.txt
+            HA_C3_HA_IMAGE_INSPECT.json
+            HA_C3_GATE_PREFLIGHT.json
+            HA_C3_GATE_PREFLIGHT_STDOUT.txt
+            HA_C3_GATE_PREFLIGHT_STDERR.txt
+            HA_C3_GATE_PREFLIGHT_EXIT.txt
+            HA_C3_NATIVE_PATH_PREFLIGHT.json
+            HA_C3_NATIVE_PATH_STDOUT.txt
+            HA_C3_NATIVE_PATH_STDERR.txt
+            HA_C3_NATIVE_PATH_EXIT.txt
+            HA_C3_PREFLIGHT_RECORD.json
+
+      - name: Preserve preflight conclusion
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f HA_C3_GATE_PREFLIGHT_EXIT.txt
+          test -f HA_C3_NATIVE_PATH_EXIT.txt
+          test "$(cat HA_C3_GATE_PREFLIGHT_EXIT.txt)" = "0"
+          test "$(cat HA_C3_NATIVE_PATH_EXIT.txt)" = "0"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          assert json.loads(Path('HA_C3_GATE_PREFLIGHT.json').read_text())['status']=='PASS'
+          assert json.loads(Path('HA_C3_NATIVE_PATH_PREFLIGHT.json').read_text())['status']=='PASS'
+          PY
