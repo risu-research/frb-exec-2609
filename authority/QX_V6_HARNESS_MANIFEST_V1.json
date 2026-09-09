@@ -7,22 +7,30 @@
   "performance_values_observed_at_freeze": false,
   "performance_launch_branch_created_at_freeze": false,
   "prior_read_only_actions_probe": {
-    "public_run_id": 34363712547,
-    "latest_attempt_status": "SUCCESS_EXPECTED_AND_RECHECKED_BY_STATIC_AUTHORITY",
+    "initial_failure_run_id": 34363712547,
+    "successful_exact_pre_repair_sha_recheck_run_id": 34365249834,
+    "latest_known_status": "SUCCESS_AND_RECHECKED_BY_STATIC_AUTHORITY",
     "required_private_api_statuses": {
       "run": 200,
       "jobs": 200,
       "artifacts": 200
     }
   },
+  "preserved_static_failure": {
+    "run_id": 34365249793,
+    "job_id": 102512165028,
+    "classification": "STATIC_SENTINEL_SELF_REFERENCE_NO_PERFORMANCE",
+    "record_path": "authority/QX_V6_STATIC_AUTHORITY_FAILURE_V1.json"
+  },
   "frozen_public_blobs": {
     "tools/qx_private_source.py": "3b84339a1212fac478e8fb3626d10b9a93fbc6d8",
     ".github/workflows/qx-f12-level-v1.yml": "dc2d7cdcc021df977c21004263b2999056c9814f",
     ".github/workflows/qx-f4-level-v1.yml": "a9e8fe70655dba49e3679a08dc8db4213b304d7c",
     ".github/workflows/qx-v6-continuation-v1.yml": "a7dc0a234467acf0f45a5ba8e4dfe6f2b08c3982",
-    ".github/workflows/qx-v6-harness-static-v1.yml": "ff7b537c2e3449d0c61e0a727cbb34ce61e230d6",
+    ".github/workflows/qx-v6-harness-static-v1.yml": "32350d2e3c46f2fe9395a90707a736d04c39b883",
     ".github/workflows/qx-source-bound-static-v1.yml": "d6ed1e46b5cad9bd91a356f9930ee7df14153023",
-    "authority/QX_V6_EXECUTION_SUBSTRATE_V1.json": "fb7cba1ce15f82fae27589bc7842bf4ac150dccd"
+    "authority/QX_V6_EXECUTION_SUBSTRATE_V1.json": "fb7cba1ce15f82fae27589bc7842bf4ac150dccd",
+    "authority/QX_V6_STATIC_AUTHORITY_FAILURE_V1.json": "fc67ccdf65778ed75687e1c7489d61d79077d9bc"
   },
   "freeze_invariants": {
     "private_source_files_copied_into_public_repository": false,
@@ -34,6 +42,7 @@
     "public_substrate_is_transport_only": true,
     "same_public_sha_static_success_required_before_launch": true,
     "launch_branch_must_never_move_after_creation": true,
-    "authority_must_precede_enforcement": true
+    "authority_must_precede_enforcement": true,
+    "failed_static_attempt_preserved_immutably": true
   }
 }
