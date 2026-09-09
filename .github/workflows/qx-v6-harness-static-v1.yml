@@ -34,6 +34,7 @@ jobs:
           python -m py_compile tools/qx_private_source.py
           python -m json.tool authority/QX_V6_EXECUTION_SUBSTRATE_V1.json >/dev/null
           python -m json.tool authority/QX_V6_HARNESS_MANIFEST_V1.json >/dev/null
+          python -m json.tool authority/QX_V6_STATIC_AUTHORITY_FAILURE_V1.json >/dev/null
           python - <<'PY'
           import json,subprocess
           from pathlib import Path
@@ -57,8 +58,13 @@ jobs:
           for path,want in m['frozen_public_blobs'].items():
               got=subprocess.check_output(['git','hash-object',path],text=True).strip()
               assert got==want,(path,got,want)
+          failure=json.loads(Path('authority/QX_V6_STATIC_AUTHORITY_FAILURE_V1.json').read_text())
+          assert failure['failed_public_run_id']==34365249793
+          assert failure['classification']['performance_executed'] is False
+          assert failure['classification']['run_open_reached'] is False
           tracked=subprocess.check_output(['git','ls-files'],text=True)
-          assert 'risu-research/replaymark' not in '\n'.join(Path(p).read_text(errors='ignore') for p in tracked.splitlines() if Path(p).is_file())
+          forbidden='risu-research'+'/'+'replaymark'
+          assert forbidden not in '\n'.join(Path(p).read_text(errors='ignore') for p in tracked.splitlines() if Path(p).is_file())
           assert not Path('replaymark_verification').exists()
           print('QX_PUBLIC_HARNESS_MANIFEST: PASS')
           PY
@@ -197,7 +203,8 @@ jobs:
             'runner_os':os.environ.get('RUNNER_OS'),
             'runner_arch':os.environ.get('RUNNER_ARCH'),
             'python':platform.python_version(),
-            'manifest_schema':m['schema']
+            'manifest_schema':m['schema'],
+            'preserved_prior_static_failure_run_id':34365249793
           }
           Path('/tmp/qx-v6-harness-static-authority.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
           print(json.dumps(out,sort_keys=True))
