@@ -1,0 +1,200 @@
+name: HA-C2 public hash-only preflight
+
+on:
+  push:
+    branches:
+      - ha-c2-shadow-hash-preflight-v1
+
+permissions:
+  contents: read
+
+env:
+  GENERIC_MAIN: bcf42964a3fa74e127f22a5364185049b4f94cff
+  PRIVATE_SOURCE_CODE_COMMIT: a585f5c7dcb186785940dd123efbba9d311054ba
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_REPOSITORY: risu-research/frb-exec-2609
+  C1_PUBLIC_EXECUTION_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+
+jobs:
+  hash-only-preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated staging branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prove additive staging topology
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base "$GENERIC_MAIN" HEAD)" = "$GENERIC_MAIN"
+          git diff --name-status "$GENERIC_MAIN..HEAD" | tee HA_C2_PUBLIC_DIFF.txt
+          python - <<'PY'
+          from pathlib import Path
+          expected = {
+              '.github/workflows/ha-c2-hash-preflight.yml',
+              'replaymark/runtime_ha_bt_decision_boundary.py',
+              'replaymark/runtime_ha_bt_shadow_bridge.py',
+              'replaymark_verification/build_ha_c2_shadow_cells.py',
+              'replaymark_verification/ha_c2_bt_native_target.py',
+              'replaymark_verification/ha_c2_literal_oracle.py',
+              'replaymark_verification/verify_ha_c2_shadow_semantics.py',
+          }
+          rows = [x for x in Path('HA_C2_PUBLIC_DIFF.txt').read_text().splitlines() if x]
+          seen = set()
+          for row in rows:
+              status, path = row.split('\t', 1)
+              assert status == 'A', (status, path)
+              seen.add(path)
+          assert seen == expected, (seen, expected)
+          PY
+
+      - name: Verify six C2 overlays against private Git blob identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > HA_C2_OVERLAY_GIT_BLOBS.expected <<'EOF'
+          08ff29eb8f6d70809e78ddae11c403c2c8f477a1 replaymark/runtime_ha_bt_decision_boundary.py
+          ff9124a053e818af486b6f73efb3310a29576aa6 replaymark/runtime_ha_bt_shadow_bridge.py
+          4e13e52793ef998a50e5ee189f92e82f18919fc4 replaymark_verification/build_ha_c2_shadow_cells.py
+          f28c7e04fd033dd3774c110f1954ce2ae851cd99 replaymark_verification/ha_c2_bt_native_target.py
+          a085f7afafc4888d121a9441929cf05bf4a44b81 replaymark_verification/ha_c2_literal_oracle.py
+          e8b02f4214dff267403fad26b551aef81bbc02e9 replaymark_verification/verify_ha_c2_shadow_semantics.py
+          EOF
+          : > HA_C2_OVERLAY_GIT_BLOBS.actual
+          while read -r expected path; do
+            actual="$(git hash-object --no-filters "$path")"
+            printf '%s %s\n' "$actual" "$path" >> HA_C2_OVERLAY_GIT_BLOBS.actual
+            test "$actual" = "$expected"
+          done < HA_C2_OVERLAY_GIT_BLOBS.expected
+
+      - name: Materialize exact 26-file scientific capsule without importing it
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf capsule
+          mkdir -p capsule
+          cat > HA_C2_CORE_ORIGIN_PATHS.txt <<'EOF'
+          replaymark/__init__.py
+          replaymark/adjudicator.py
+          replaymark/compiled_contract.py
+          replaymark/contracts.py
+          replaymark/evidence.py
+          replaymark/evidence_image.py
+          replaymark/evidence_semantics.py
+          replaymark/execution_admission.py
+          replaymark/predictive_witness.py
+          replaymark/q_compiler.py
+          replaymark/rstar.py
+          replaymark/runtime_contract_identity.py
+          replaymark/runtime_realization.py
+          replaymark/support_envelope.py
+          replaymark/target_provenance.py
+          replaymark_verification/__init__.py
+          replaymark_verification/models.py
+          EOF
+          cat > HA_C2_C1_PATHS.txt <<'EOF'
+          replaymark/runtime_ha_bt_observation.py replaymark/runtime_ha_bt_observation.py
+          replaymark/runtime_ha_bt_action.py replaymark/runtime_ha_bt_action.py
+          fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64
+          EOF
+          cat > HA_C2_OVERLAY_PATHS.txt <<'EOF'
+          replaymark/runtime_ha_bt_decision_boundary.py
+          replaymark/runtime_ha_bt_shadow_bridge.py
+          replaymark_verification/build_ha_c2_shadow_cells.py
+          replaymark_verification/ha_c2_bt_native_target.py
+          replaymark_verification/ha_c2_literal_oracle.py
+          replaymark_verification/verify_ha_c2_shadow_semantics.py
+          EOF
+
+          while IFS= read -r path; do
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/${ORIGIN_REPOSITORY}/${ORIGIN_COMMIT}/${path}" \
+              --output "capsule/${path}"
+          done < HA_C2_CORE_ORIGIN_PATHS.txt
+
+          while read -r source destination; do
+            mkdir -p "capsule/$(dirname "$destination")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/${C1_PUBLIC_REPOSITORY}/${C1_PUBLIC_EXECUTION_HEAD}/${source}" \
+              --output "capsule/${destination}"
+          done < HA_C2_C1_PATHS.txt
+
+          while IFS= read -r path; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp -- "$path" "capsule/$path"
+          done < HA_C2_OVERLAY_PATHS.txt
+
+          cat HA_C2_CORE_ORIGIN_PATHS.txt > HA_C2_SCIENTIFIC_PATHS.txt
+          awk '{print $2}' HA_C2_C1_PATHS.txt >> HA_C2_SCIENTIFIC_PATHS.txt
+          cat HA_C2_OVERLAY_PATHS.txt >> HA_C2_SCIENTIFIC_PATHS.txt
+          LC_ALL=C sort -o HA_C2_SCIENTIFIC_PATHS.txt HA_C2_SCIENTIFIC_PATHS.txt
+          test "$(wc -l < HA_C2_SCIENTIFIC_PATHS.txt)" -eq 26
+          test "$(sort -u HA_C2_SCIENTIFIC_PATHS.txt | wc -l)" -eq 26
+
+          test "$(sha256sum capsule/replaymark/runtime_ha_bt_observation.py | cut -d' ' -f1)" = "e51345a921f1533cc40faa7c9a415de990157f8d0037b0b7beb8e9f46286b7ba"
+          test "$(sha256sum capsule/replaymark/runtime_ha_bt_action.py | cut -d' ' -f1)" = "8243b9528c93b93c19cc0e3089a81c2d3a05459fed0370741ec8d40b5f8d090c"
+          test "$(sha256sum capsule/replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 | cut -d' ' -f1)" = "297ec8740a4604e60b3b64b150a2489bb4ada2ddaf988f0202bdaf8649204ab1"
+
+          : > HA_C2_SCIENTIFIC_SHA256.txt
+          while IFS= read -r path; do
+            sha256sum "capsule/$path" | sed 's#  capsule/#  #' >> HA_C2_SCIENTIFIC_SHA256.txt
+          done < HA_C2_SCIENTIFIC_PATHS.txt
+
+          : > HA_C2_SCIENTIFIC_GIT_BLOBS.txt
+          while IFS= read -r path; do
+            printf '%s  %s\n' "$(git hash-object --no-filters "capsule/$path")" "$path" >> HA_C2_SCIENTIFIC_GIT_BLOBS.txt
+          done < HA_C2_SCIENTIFIC_PATHS.txt
+
+      - name: Write non-scientific preflight metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          meta = {
+              'schema': 'replaymark.ha-c2.public-hash-preflight.v1',
+              'status': 'PASS_HASH_ONLY_NO_C2_SEMANTIC_RESULT_OPENED',
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'base_main': os.environ['GENERIC_MAIN'],
+              'branch': os.environ['GITHUB_REF_NAME'],
+              'execution_head': os.environ['GITHUB_SHA'],
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_run_attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'private_source_code_commit': os.environ['PRIVATE_SOURCE_CODE_COMMIT'],
+              'origin_repository': os.environ['ORIGIN_REPOSITORY'],
+              'origin_commit': os.environ['ORIGIN_COMMIT'],
+              'c1_public_repository': os.environ['C1_PUBLIC_REPOSITORY'],
+              'c1_public_execution_head': os.environ['C1_PUBLIC_EXECUTION_HEAD'],
+              'scientific_path_count': 26,
+              'semantic_modules_imported': False,
+              'semantic_verifier_executed': False,
+              'target_lift_executed': False,
+              'archived_semantic_cells_opened': False,
+          }
+          Path('HA_C2_HASH_PREFLIGHT.json').write_text(json.dumps(meta, sort_keys=True, indent=2) + '\n')
+          PY
+          tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner \
+            -czf HA_C2_HASH_PREFLIGHT_CAPSULE.tar.gz capsule
+          sha256sum HA_C2_HASH_PREFLIGHT_CAPSULE.tar.gz > HA_C2_CAPSULE_SHA256.txt
+
+      - name: Upload hash-only preflight artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c2-public-hash-preflight
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            HA_C2_HASH_PREFLIGHT.json
+            HA_C2_SCIENTIFIC_PATHS.txt
+            HA_C2_SCIENTIFIC_SHA256.txt
+            HA_C2_SCIENTIFIC_GIT_BLOBS.txt
+            HA_C2_OVERLAY_GIT_BLOBS.expected
+            HA_C2_OVERLAY_GIT_BLOBS.actual
+            HA_C2_PUBLIC_DIFF.txt
+            HA_C2_HASH_PREFLIGHT_CAPSULE.tar.gz
+            HA_C2_CAPSULE_SHA256.txt
