@@ -1,0 +1,76 @@
+{
+  "schema": "qx.replaymark.s6.v6-public-run-v1-quarantine.v1",
+  "status": "IMMUTABLE_PRE_OPEN_CONTAMINATED_ATTEMPT_EXCLUDED_FROM_AUTHORITY",
+  "public_run": {
+    "run_id": 34366933489,
+    "run_attempt": 1,
+    "head_branch": "qx-run-v1",
+    "head_sha": "91636737ea0e3462082006acc4d577fbf4c70e6c",
+    "workflow": ".github/workflows/qx-v6-continuation-v1.yml",
+    "terminal_status": "completed",
+    "terminal_conclusion": "failure"
+  },
+  "bootstrap_failure": {
+    "job_id": 102517955951,
+    "step": "Download every prospectively eligible V5 raw artifact",
+    "cause": "PRIVATE_ARTIFACT_SIGNED_REDIRECT_AUTHORIZATION_HEADER_FORWARDING",
+    "http_status": 401,
+    "source_metadata_read_passed": true,
+    "exact_private_source_checkout_passed": true,
+    "v5_inheritance_validation_reached": false,
+    "run_open_record_created": false,
+    "run_open_artifact_uploaded": false
+  },
+  "pre_open_downstream_contamination": {
+    "cause": "DOWNSTREAM_ALWAYS_CONDITIONS_NOT_HARD_GATED_ON_SEALED_RUN_OPEN",
+    "new_f12_measurements_executed": false,
+    "new_f4_completion_measurements_executed": false,
+    "secondary_completion_measurements_executed": false,
+    "generated_online_timing_executed": false,
+    "e3b_timing_executed_without_run_open": true,
+    "post_bootstrap_artifacts_observed": [
+      {
+        "name": "s6-e3b-budget-A",
+        "artifact_id": 10110346325,
+        "digest": "sha256:e6e339b7e9e7fae46567af5b8bac930293bdd7dd825af8eb1cec6f2c6d1409f0"
+      },
+      {
+        "name": "s6-e3b-budget-B",
+        "artifact_id": 10110330461,
+        "digest": "sha256:bcbefe6d5b9c79980fb4df36ae7ae00de749a888c9bb28764f97383415d08b69"
+      },
+      {
+        "name": "s6-anchors-A",
+        "artifact_id": 10110363054,
+        "digest": "sha256:4ba407d6ed2210956a6b230aad3b8e972eb8e5922e9619a2b7d285f52fd41e8f"
+      },
+      {
+        "name": "s6-anchors-B",
+        "artifact_id": 10110360689,
+        "digest": "sha256:e6ba2c83272a3c9adfde6e091744b5a6c8102027efb32c3afef57faed097a7af"
+      }
+    ]
+  },
+  "scientific_disposition": {
+    "all_qx_run_v1_post_bootstrap_measurement_or_anchor_artifacts_are_quarantined": true,
+    "may_be_used_as_v6_measurement_data": false,
+    "may_be_inherited_by_qx_run_v2": false,
+    "may_advance_any_resource_frontier": false,
+    "may_affect_estimator_or_threshold": false,
+    "may_affect_missing_coordinate_selection": false,
+    "performance_values_consulted_for_v2_repair": false,
+    "v5_valid_measurements_remain_the_only_inherited_measurements": true
+  },
+  "prospective_v2_repair_scope": {
+    "artifact_transport_only": true,
+    "run_open_fail_closed_dependency_only": true,
+    "scientific_code_changed": false,
+    "measurement_protocol_changed": false,
+    "seeds_changed": false,
+    "replicas_changed": false,
+    "estimators_changed": false,
+    "thresholds_changed": false,
+    "v5_inheritance_rule_changed": false,
+    "missing_coordinate_set_changed": false
+  }
+}
