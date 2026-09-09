@@ -1,0 +1,257 @@
+name: qx source-bound static authority v1
+
+on:
+  push:
+    branches:
+      - qx-static-v1
+
+permissions:
+  contents: read
+
+jobs:
+  source-bound-static:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_SHA: b5d40b10e5741b493edcfceb2d5c98e43de6d56d
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Resolve exact private source without publishing repository identity
+        shell: bash
+        env:
+          SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$SOURCE_READ_TOKEN"
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+          from pathlib import Path
+
+          token=os.environ['SOURCE_READ_TOKEN']
+          sha=os.environ['SOURCE_SHA']
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'qx-source-bound-static-v1',
+          }
+          repos=[]
+          for page in range(1,11):
+              req=urllib.request.Request(
+                  f'https://api.github.com/user/repos?per_page=100&page={page}&visibility=private&affiliation=owner,organization_member,collaborator',
+                  headers=headers,
+              )
+              with urllib.request.urlopen(req,timeout=30) as response:
+                  batch=json.load(response)
+              repos.extend(batch)
+              if len(batch)<100:
+                  break
+          matches=[]
+          for item in repos:
+              full=item.get('full_name')
+              if not full:
+                  continue
+              req=urllib.request.Request(
+                  f'https://api.github.com/repos/{full}/commits/{sha}',
+                  headers=headers,
+              )
+              try:
+                  with urllib.request.urlopen(req,timeout=20) as response:
+                      if response.status==200:
+                          matches.append(full)
+              except urllib.error.HTTPError as exc:
+                  if exc.code in (403,404,409,422):
+                      continue
+                  raise
+          if len(matches)!=1:
+              raise SystemExit(f'exact_source_match_count={len(matches)}; expected=1')
+          Path('/tmp/qx-source-repo').write_text(matches[0],encoding='utf-8')
+          print('exact_source_match_count=1')
+          PY
+
+          repo=$(cat /tmp/qx-source-repo)
+          rm -rf _src
+          git init -q _src
+          git -C _src remote add origin "https://x-access-token:${SOURCE_READ_TOKEN}@github.com/${repo}.git"
+          git -C _src fetch -q --depth=2 origin "$SOURCE_SHA"
+          got=$(git -C _src rev-parse FETCH_HEAD)
+          test "$got" = "$SOURCE_SHA"
+          git -C _src checkout -q --detach FETCH_HEAD
+          git -C _src remote remove origin
+          rm -f /tmp/qx-source-repo
+          echo 'exact_private_source_checkout=PASS'
+
+      - name: Verify exact parent, seven-file delta, and frozen blob authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          m=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V6.json').read_text())
+          head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          parent=subprocess.check_output(['git','rev-parse','HEAD^'],text=True).strip()
+          assert head=='b5d40b10e5741b493edcfceb2d5c98e43de6d56d'
+          assert parent==m['parent_commit']=='35b57a9b70f94f430db73b50088565570b027dc8'
+          changed=sorted(subprocess.check_output(['git','diff','--name-only',parent,head],text=True).splitlines())
+          assert changed==sorted(m['expected_delta_paths']),(changed,m['expected_delta_paths'])
+          assert len(changed)==7
+          v5=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V5.json').read_text())
+          for category in ('frozen_authority_blobs','orchestration_blobs'):
+              for path,want in v5[category].items():
+                  got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+                  assert got==want,(category,path,got,want)
+          for path,want in m['new_v6_blobs'].items():
+              got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+              assert got==want,(path,got,want)
+          print(json.dumps({'status':'PASS','delta_files':len(changed),'source_commit_exact':True},sort_keys=True))
+          PY
+
+      - name: Prove immutable interrupted-source record and continuation contract exactness
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          f=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_RUN_FAILURE_V3.json').read_text())
+          c=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_CONTINUATION_V1.json').read_text())
+          assert f['run_id']==c['source_opened_attempt']['run_id']==34289543842
+          assert f['run_attempt']==c['source_opened_attempt']['run_attempt']==1
+          assert f['head_sha']==c['source_opened_attempt']['head_sha']=='35b57a9b70f94f430db73b50088565570b027dc8'
+          assert f['classification']['scientific_failure'] is False
+          assert f['classification']['resource_frontier_failure'] is False
+          assert f['V6_design_hygiene']['performance_values_used_to_choose_inherited_records'] is False
+          assert f['V6_design_hygiene']['performance_values_used_to_choose_missing_records'] is False
+          assert c['frozen_inherited_identity_counts']=={
+              'F12_N32_barrier':1,'F12_N32_shards':10,'F4_d1_shards':15,'secondary_shards':28,'total_artifacts':54
+          }
+          assert c['scientific_non_delta']
+          print('continuation_contract_exact=PASS')
+          PY
+
+      - name: Static continuation identity self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python -m replaymark_verification.s6_campaign_continuation_v1 selftest
+
+      - name: Prove aggregate wrapper is provenance-only over frozen science
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python - <<'PY'
+          import json,tempfile
+          from pathlib import Path
+          from replaymark_verification.s6_campaign_aggregate_protocol_v4 import _attach_continuation
+          report={'completeness':{'complete':False},'sentinel':{'unchanged':True}}
+          p={
+            'schema':'replaymark.s6.x86-first-complete-v6-continuation-provenance.v1',
+            'status':'SOURCE_V5_VALIDATED_FOR_DETERMINISTIC_CONTINUATION',
+            'source_run':{'run_id':34289543842,'run_attempt':1,'head_sha':'35b57a9b70f94f430db73b50088565570b027dc8'},
+            'selection_rule':{
+              'all_eligible_source_records_inherited':True,
+              'source_record_rerun_permitted':False,
+              'runnerless_jobs_are_scientific_failures':False,
+              'performance_values_consulted_to_select_inherited_or_missing_records':False,
+            },
+            'counts':{'inherited_artifacts':54,'inherited_f12_n32_shards':10,'inherited_f4_d1_shards':15,'inherited_secondary_shards':28},
+            'missing_completion_coordinates':{}
+          }
+          with tempfile.TemporaryDirectory() as d:
+              path=Path(d)/'p.json'; path.write_text(json.dumps(p))
+              _attach_continuation(report,path)
+          assert report['completeness']['complete'] is False
+          assert report['sentinel']=={'unchanged':True}
+          assert report['continuation_provenance']['scientific_checks_or_estimators_modified'] is False
+          print('aggregate_provenance_only=PASS')
+          PY
+
+      - name: Compile continuation code and parse frozen contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python -m py_compile replaymark_verification/s6_campaign_continuation_v1.py replaymark_verification/s6_campaign_aggregate_protocol_v4.py
+          python -m json.tool replaymark/S6_X86_FIRST_COMPLETE_RUN_FAILURE_V3.json >/dev/null
+          python -m json.tool replaymark/S6_X86_FIRST_COMPLETE_CONTINUATION_V1.json >/dev/null
+          python -m json.tool replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V6.json >/dev/null
+          echo 'compile_and_contract_parse=PASS'
+
+      - name: Recheck mandatory anchors without performance clocks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          mkdir -p /tmp/qx-static
+          python -m replaymark_verification.s6_campaign_anchors_v1 static-audit --out /tmp/qx-static/anchors.json
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/qx-static/anchors.json'))
+          assert r['status']=='PASS'
+          assert r['mqtt_runtime_dependency_imported'] is False
+          assert r['performance_values_emitted'] is False
+          print('anchor_static_no_clock=PASS')
+          PY
+
+      - name: Recheck exact frozen runtime corpus without clocks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python -m pip install --disable-pip-version-check --no-deps -r agentmark_e3b_lab/e3_mqtt/app/requirements.txt
+          python - <<'PY'
+          import importlib.metadata as md,sys
+          from pathlib import Path
+          root=Path('.').resolve(); app=root/'agentmark_e3b_lab'/'e3_mqtt'/'app'
+          for p in (root,root/'agentmark_e3b_lab',app):
+              if str(p) not in sys.path: sys.path.insert(0,str(p))
+          import s6_campaign_e3b_budget_v1 as b
+          from replaymark_shadow import compile_e3b_r1_shadow_contract
+          assert md.version('paho-mqtt')=='2.1.0'
+          corpus,_=b._load_frozen_corpus(); contract=compile_e3b_r1_shadow_contract()
+          assert contract.fingerprint()==corpus['acquisition_identity']['contract_fingerprint']
+          assert b._independent_requalification(contract,corpus)['cases_checked']==128
+          print('frozen_runtime_corpus_no_clock=PASS')
+          PY
+
+      - name: Seal public static attestation only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, platform
+          from pathlib import Path
+          out={
+            'schema':'qx.source-bound-static-authority.v1',
+            'status':'PASS',
+            'source_commit':'b5d40b10e5741b493edcfceb2d5c98e43de6d56d',
+            'source_identity_resolved_privately':True,
+            'source_content_published':False,
+            'performance_executed_in_this_run':False,
+            'performance_values_emitted_in_this_run':False,
+            'runner_os':os.environ.get('RUNNER_OS'),
+            'runner_arch':os.environ.get('RUNNER_ARCH'),
+            'runner_name':os.environ.get('RUNNER_NAME'),
+            'python':platform.python_version(),
+            'public_harness_sha':os.environ['GITHUB_SHA'],
+          }
+          Path('/tmp/qx-source-bound-static-attestation.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,sort_keys=True))
+          PY
+
+      - name: Upload static attestation
+        uses: actions/upload-artifact@v4
+        with:
+          name: qx-source-bound-static-attestation-v1
+          path: /tmp/qx-source-bound-static-attestation.json
+          if-no-files-found: error
