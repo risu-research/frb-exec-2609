@@ -1,0 +1,56 @@
+{
+  "schema": "replaymark.ha-c2.first-complete-authority.v1",
+  "status": "FROZEN_FOR_SINGLE_AUTHORITATIVE_FIRST_COMPLETE",
+  "private_source_freeze_head": "6fd6169af39a3b4be0104157b63b98f7f4d61d9e",
+  "private_source_manifest_commit": "943359a14289b2e3fafcfa937a33c769bbf44bf3",
+  "parent_c1_head": "bdfa571e35f0e4a92a1f8569ff385d8632bf0d44",
+  "public_generic_main": "bcf42964a3fa74e127f22a5364185049b4f94cff",
+  "hash_preflight": {
+    "run_id": 34412050903,
+    "execution_head": "2079a7c948a6f118afc54dac1466867e05b019e1",
+    "artifact_id": 10127612623,
+    "artifact_zip_sha256": "2d249c083df408d53dab54dcfd6c9b9790d4435a221080ce13a4cae3a63c3f0a",
+    "semantic_verifier_executed": false
+  },
+  "source_provenance": {
+    "core_repository": "risu-research/appeal-discovery-consumer",
+    "core_commit": "c290786d92e7546345b348916b3b3d1c11780e4c",
+    "c1_repository": "risu-research/frb-exec-2609",
+    "c1_execution_head": "3f14ad1dc3028a7496da9115440f7809904681d5"
+  },
+  "attempt_policy": {
+    "input_ready_before_semantic_import": true,
+    "semantic_verifier_start_consumes_attempt": true,
+    "unfavorable_result_must_be_preserved": true,
+    "rerun_to_repair_unfavorable_result": false,
+    "pre_input_infrastructure_failure_consumes_attempt": false
+  },
+  "n1_status": "PRE_INPUT_INELIGIBLE_UNDER_C0_V1",
+  "shadow_service_sink": false,
+  "files": [
+    {"path":"replaymark/__init__.py","sha256":"3d10e136f5250dc9a0174ea2e55f14aa07c471c2e9152c4be1f681ae89be8999","git_blob_sha1":"01d266fbd970920cf55008d0fa97af8af9e689e9"},
+    {"path":"replaymark/adjudicator.py","sha256":"2ac06c4c7fe8ddcf10a87841e862d3002490e9fb177f2fa801c6e7301a5ad249","git_blob_sha1":"32ba03a9a987b16355c166cf56efbf1f6f3b8542"},
+    {"path":"replaymark/compiled_contract.py","sha256":"f30573165c23dd034b9cb73a390daa19ebebf8c76ba44f9bfaaaf8a1beaa35e5","git_blob_sha1":"9780550de9c9447ca4e488ff5797e08fdd548405"},
+    {"path":"replaymark/contracts.py","sha256":"d464ee61d38c3c5939f6d149e57c1605a1bcc8b8090b37b0cea4c8a1d1706d52","git_blob_sha1":"a8805eed01328061337290f0d5f2006bd2a7f1c4"},
+    {"path":"replaymark/evidence_image.py","sha256":"0aca23136cd1486b39d00874195cbc98bd38ade77dfe7ca9acf4d11e1f61f0d7","git_blob_sha1":"c5a589aba97ba57de9e82a69f812e4abeff1b42e"},
+    {"path":"replaymark/evidence_semantics.py","sha256":"34207b2c4a9ee6aad779acc14413493e80a404aeb21fe5481cfbc4f5908ad4f5","git_blob_sha1":"83106c59bcdab433d88be78be58e3330ab7aaa6c"},
+    {"path":"replaymark/execution_admission.py","sha256":"37fef7dcf8842deb758f26e6cf17f748e25751ccacdf7dd79f8339541aaacc52","git_blob_sha1":"015b2cfb7f084562eaead2dedd2fae00628eaffa"},
+    {"path":"replaymark/predictive_witness.py","sha256":"c08ff096aba29708762a4908e1cc9c3bc6cd10ac3880b8026b9d940c44adbb0e","git_blob_sha1":"6115ab4f2e4f21e1abda2f4f0d37a3e4ff09d9a3"},
+    {"path":"replaymark/q_compiler.py","sha256":"66a15a891a8cd85748c7791bc3e51c76bf68dc90830d723c26c5a64291039fdd","git_blob_sha1":"f74e765ef1872b54743b31ebf11a113f32d9840e"},
+    {"path":"replaymark/rstar.py","sha256":"0206240c6427df12585fabb77860702ae4a73ed4a28479dbb9c882213f8f6939","git_blob_sha1":"73e0a94f1be76272075d7f1050439ef6b321017e"},
+    {"path":"replaymark/runtime_contract_identity.py","sha256":"4136777fe31a2a3f92b119b43d5c9466556bdd1df864e744b10e1e81370e4f89","git_blob_sha1":"feb68c404e0fac4f37e0d2fe7fa3049493142197"},
+    {"path":"replaymark/runtime_ha_bt_action.py","sha256":"8243b9528c93b93c19cc0e3089a81c2d3a05459fed0370741ec8d40b5f8d090c","git_blob_sha1":"1adf1b58ccd317ce0603e701d41b6730d5c45748"},
+    {"path":"replaymark/runtime_ha_bt_decision_boundary.py","sha256":"ee1ea26735686201f35a1c39357e7455332f282e8227db3a38fc1e5d04bd0eaa","git_blob_sha1":"08ff29eb8f6d70809e78ddae11c403c2c8f477a1"},
+    {"path":"replaymark/runtime_ha_bt_observation.py","sha256":"e51345a921f1533cc40faa7c9a415de990157f8d0037b0b7beb8e9f46286b7ba","git_blob_sha1":"541bd13f78147acd5236477748f9a95d019e818d"},
+    {"path":"replaymark/runtime_ha_bt_shadow_bridge.py","sha256":"8612d226e6d4fdd403f0d36db6e1f29aefc5e031421c6cb68dd3b3dcfa276a40","git_blob_sha1":"ff9124a053e818af486b6f73efb3310a29576aa6"},
+    {"path":"replaymark/runtime_realization.py","sha256":"577bff3ab83bee19cec5fc9876aa5647bee7ed05fd1c1e6345ef79869670d89a","git_blob_sha1":"3345a8ca35a5917f0062625cb216db29470c7972"},
+    {"path":"replaymark/support_envelope.py","sha256":"d64b9e438d53ed9b67bcb24b7ef997fe3dab02675d1aba4520f5d4e6f63295bf","git_blob_sha1":"6a527573d130bde5649bcf891fc080f16e38cb0d"},
+    {"path":"replaymark/target_provenance.py","sha256":"e130af101d933e991d28bdb5386e239179a64b18f99c94988b76b1e31aa6ca71","git_blob_sha1":"e819cee216aa59ea40b1f4e66e3fb0f59b726fc7"},
+    {"path":"replaymark_verification/build_ha_c2_shadow_cells.py","sha256":"016eed691e85d13005b62f45fd55f52d8c207482b396093faffb3cd256afc704","git_blob_sha1":"4e13e52793ef998a50e5ee189f92e82f18919fc4"},
+    {"path":"replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64","sha256":"297ec8740a4604e60b3b64b150a2489bb4ada2ddaf988f0202bdaf8649204ab1","git_blob_sha1":"2fc776d3700bf214d4277ca3f9d81b2691ec8a49"},
+    {"path":"replaymark_verification/ha_c2_bt_native_target.py","sha256":"a7f7378c2b55cce210dc5918a6f3dab5c7cb66743c48825557961a8ee187544b","git_blob_sha1":"f28c7e04fd033dd3774c110f1954ce2ae851cd99"},
+    {"path":"replaymark_verification/ha_c2_literal_oracle.py","sha256":"71e7aa6f7001b0497008b0c15d03f365015eb12a45def5dbb505df6b42ccff80","git_blob_sha1":"a085f7afafc4888d121a9441929cf05bf4a44b81"},
+    {"path":"replaymark_verification/models.py","sha256":"c9448267f19d86ca1ee60936e86ab590cc886980701df6f3423ffe1ffc831961","git_blob_sha1":"dc798178962351e869abd6134c7c34d9152ed0e6"},
+    {"path":"replaymark_verification/verify_ha_c2_shadow_semantics.py","sha256":"c0704b4faa29456daa280945710d922500fa875f5be79a5eb16fe45632bcbace","git_blob_sha1":"e8b02f4214dff267403fad26b551aef81bbc02e9"}
+  ]
+}

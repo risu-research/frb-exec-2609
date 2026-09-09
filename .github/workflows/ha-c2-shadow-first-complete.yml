@@ -1,0 +1,244 @@
+name: HA-C2 authoritative shadow semantic first-complete
+
+on:
+  push:
+    branches:
+      - ha-c2-shadow-first-complete-v1
+
+permissions:
+  contents: read
+
+env:
+  GENERIC_MAIN: bcf42964a3fa74e127f22a5364185049b4f94cff
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_REPOSITORY: risu-research/frb-exec-2609
+  C1_PUBLIC_EXECUTION_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+
+jobs:
+  first-complete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout frozen execution branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prove isolated branch topology before input opening
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base "$GENERIC_MAIN" HEAD)" = "$GENERIC_MAIN"
+          git diff --name-status "$GENERIC_MAIN..HEAD" | tee HA_C2_PUBLIC_DIFF.txt
+          python - <<'PY'
+          from pathlib import Path
+          expected = {
+              '.github/workflows/ha-c2-shadow-first-complete.yml',
+              'HA_C2_FROZEN_SOURCE_AUTHORITY.json',
+              'replaymark/runtime_ha_bt_decision_boundary.py',
+              'replaymark/runtime_ha_bt_shadow_bridge.py',
+              'replaymark_verification/build_ha_c2_shadow_cells.py',
+              'replaymark_verification/ha_c2_bt_native_target.py',
+              'replaymark_verification/ha_c2_literal_oracle.py',
+              'replaymark_verification/verify_ha_c2_shadow_semantics.py',
+          }
+          rows = [x for x in Path('HA_C2_PUBLIC_DIFF.txt').read_text().splitlines() if x]
+          seen = set()
+          for row in rows:
+              status, path = row.split('\t', 1)
+              assert status == 'A', (status, path)
+              seen.add(path)
+          assert seen == expected, (seen, expected)
+          PY
+
+      - name: Materialize frozen 24-file capsule without semantic import
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf capsule
+          mkdir -p capsule
+          cat > HA_C2_CORE_ORIGIN_PATHS.txt <<'EOF'
+          replaymark/__init__.py
+          replaymark/adjudicator.py
+          replaymark/compiled_contract.py
+          replaymark/contracts.py
+          replaymark/evidence_image.py
+          replaymark/evidence_semantics.py
+          replaymark/execution_admission.py
+          replaymark/predictive_witness.py
+          replaymark/q_compiler.py
+          replaymark/rstar.py
+          replaymark/runtime_contract_identity.py
+          replaymark/runtime_realization.py
+          replaymark/support_envelope.py
+          replaymark/target_provenance.py
+          replaymark_verification/models.py
+          EOF
+          cat > HA_C2_C1_PATHS.txt <<'EOF'
+          replaymark/runtime_ha_bt_observation.py replaymark/runtime_ha_bt_observation.py
+          replaymark/runtime_ha_bt_action.py replaymark/runtime_ha_bt_action.py
+          fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 replaymark_verification/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64
+          EOF
+          cat > HA_C2_OVERLAY_PATHS.txt <<'EOF'
+          replaymark/runtime_ha_bt_decision_boundary.py
+          replaymark/runtime_ha_bt_shadow_bridge.py
+          replaymark_verification/build_ha_c2_shadow_cells.py
+          replaymark_verification/ha_c2_bt_native_target.py
+          replaymark_verification/ha_c2_literal_oracle.py
+          replaymark_verification/verify_ha_c2_shadow_semantics.py
+          EOF
+          while IFS= read -r path; do
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/${ORIGIN_REPOSITORY}/${ORIGIN_COMMIT}/${path}" \
+              --output "capsule/${path}"
+          done < HA_C2_CORE_ORIGIN_PATHS.txt
+          while read -r source destination; do
+            mkdir -p "capsule/$(dirname "$destination")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/${C1_PUBLIC_REPOSITORY}/${C1_PUBLIC_EXECUTION_HEAD}/${source}" \
+              --output "capsule/${destination}"
+          done < HA_C2_C1_PATHS.txt
+          while IFS= read -r path; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp -- "$path" "capsule/$path"
+          done < HA_C2_OVERLAY_PATHS.txt
+
+      - name: Verify every frozen byte before semantic import and open INPUT_READY
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, subprocess
+          from pathlib import Path
+          auth = json.loads(Path('HA_C2_FROZEN_SOURCE_AUTHORITY.json').read_text())
+          assert auth['status'] == 'FROZEN_FOR_SINGLE_AUTHORITATIVE_FIRST_COMPLETE'
+          assert auth['private_source_freeze_head'] == '6fd6169af39a3b4be0104157b63b98f7f4d61d9e'
+          rows = auth['files']
+          assert len(rows) == 24
+          paths = [row['path'] for row in rows]
+          assert paths == sorted(paths) and len(set(paths)) == 24
+          for row in rows:
+              p = Path('capsule') / row['path']
+              assert p.is_file(), row['path']
+              data = p.read_bytes()
+              assert hashlib.sha256(data).hexdigest() == row['sha256'], row['path']
+              blob = subprocess.check_output(['git','hash-object','--no-filters',str(p)], text=True).strip()
+              assert blob == row['git_blob_sha1'], (row['path'], blob, row['git_blob_sha1'])
+          authority_sha = hashlib.sha256(Path('HA_C2_FROZEN_SOURCE_AUTHORITY.json').read_bytes()).hexdigest()
+          ready = {
+              'schema': 'replaymark.ha-c2.input-ready.v1',
+              'status': 'INPUT_READY',
+              'private_source_freeze_head': auth['private_source_freeze_head'],
+              'authority_sha256': authority_sha,
+              'scientific_paths_verified': 24,
+              'semantic_modules_imported_before_ready': False,
+              'execution_head': __import__('os').environ['GITHUB_SHA'],
+              'workflow_run_id': int(__import__('os').environ['GITHUB_RUN_ID']),
+              'run_attempt': int(__import__('os').environ['GITHUB_RUN_ATTEMPT']),
+          }
+          Path('HA_C2_INPUT_READY.json').write_text(json.dumps(ready, sort_keys=True, indent=2) + '\n')
+          PY
+          : > HA_C2_SOURCE_HASHES.sha256
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          auth=json.loads(Path('HA_C2_FROZEN_SOURCE_AUTHORITY.json').read_text())
+          with Path('HA_C2_SOURCE_HASHES.sha256').open('w') as out:
+              for row in auth['files']:
+                  out.write(f"{row['sha256']}  {row['path']}\n")
+          PY
+
+      - name: Mark scientific attempt opened
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          assert json.loads(Path('HA_C2_INPUT_READY.json').read_text())['status'] == 'INPUT_READY'
+          Path('HA_C2_ATTEMPT_OPENED.json').write_text(json.dumps({
+              'schema':'replaymark.ha-c2.attempt-opened.v1',
+              'status':'SCIENTIFIC_ATTEMPT_OPENED',
+              'execution_head':os.environ['GITHUB_SHA'],
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'rule':'attempt consumed once authoritative semantic verifier starts after INPUT_READY'
+          }, sort_keys=True, indent=2) + '\n')
+          PY
+
+      - name: Execute single authoritative semantic first-complete
+        id: semantic
+        shell: bash
+        run: |
+          set +e
+          cd capsule
+          PYTHONPATH=. python -m replaymark_verification.verify_ha_c2_shadow_semantics \
+            --out ../HA_C2_RESULT.json \
+            --details-out ../HA_C2_DETAILS.json \
+            > ../HA_C2_STDOUT.txt 2> ../HA_C2_STDERR.txt
+          rc=$?
+          cd ..
+          printf '%s\n' "$rc" > HA_C2_EXIT_CODE.txt
+          echo "semantic_rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Record immutable first-complete execution
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          rc = int(Path('HA_C2_EXIT_CODE.txt').read_text().strip()) if Path('HA_C2_EXIT_CODE.txt').exists() else None
+          result = json.loads(Path('HA_C2_RESULT.json').read_text()) if Path('HA_C2_RESULT.json').exists() else None
+          record = {
+              'schema':'replaymark.ha-c2.first-complete-execution.v1',
+              'repository':os.environ['GITHUB_REPOSITORY'],
+              'branch':os.environ['GITHUB_REF_NAME'],
+              'execution_head':os.environ['GITHUB_SHA'],
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'private_source_freeze_head':'6fd6169af39a3b4be0104157b63b98f7f4d61d9e',
+              'input_ready':Path('HA_C2_INPUT_READY.json').exists(),
+              'attempt_opened':Path('HA_C2_ATTEMPT_OPENED.json').exists(),
+              'semantic_exit_code':rc,
+              'result_file_present':result is not None,
+              'result_decision':None if result is None else result.get('decision'),
+              'shadow_sink_opened':False,
+          }
+          for name in ('HA_C2_FROZEN_SOURCE_AUTHORITY.json','HA_C2_INPUT_READY.json','HA_C2_ATTEMPT_OPENED.json','HA_C2_SOURCE_HASHES.sha256','HA_C2_RESULT.json','HA_C2_DETAILS.json','HA_C2_STDOUT.txt','HA_C2_STDERR.txt','HA_C2_EXIT_CODE.txt'):
+              p=Path(name)
+              if p.exists(): record.setdefault('file_sha256',{})[name]=hashlib.sha256(p.read_bytes()).hexdigest()
+          Path('HA_C2_EXECUTION_RECORD.json').write_text(json.dumps(record, sort_keys=True, indent=2) + '\n')
+          PY
+
+      - name: Upload complete first-complete artifact regardless of result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c2-shadow-semantic-first-complete
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            HA_C2_FROZEN_SOURCE_AUTHORITY.json
+            HA_C2_PUBLIC_DIFF.txt
+            HA_C2_INPUT_READY.json
+            HA_C2_ATTEMPT_OPENED.json
+            HA_C2_SOURCE_HASHES.sha256
+            HA_C2_RESULT.json
+            HA_C2_DETAILS.json
+            HA_C2_STDOUT.txt
+            HA_C2_STDERR.txt
+            HA_C2_EXIT_CODE.txt
+            HA_C2_EXECUTION_RECORD.json
+
+      - name: Preserve authoritative semantic conclusion
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f HA_C2_EXIT_CODE.txt ]; then
+            echo 'No semantic exit code: pre-semantic infrastructure failure.' >&2
+            exit 1
+          fi
+          exit "$(cat HA_C2_EXIT_CODE.txt)"
