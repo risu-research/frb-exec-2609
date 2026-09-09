@@ -1,0 +1,39 @@
+{
+  "schema": "qx.replaymark.s6.v6-public-harness-manifest.v1",
+  "status": "FROZEN_PENDING_SAME_SHA_STATIC_SUCCESS",
+  "frozen_private_source_commit": "b5d40b10e5741b493edcfceb2d5c98e43de6d56d",
+  "source_v5_run_id": 34289543842,
+  "performance_executed_at_freeze": false,
+  "performance_values_observed_at_freeze": false,
+  "performance_launch_branch_created_at_freeze": false,
+  "prior_read_only_actions_probe": {
+    "public_run_id": 34363712547,
+    "latest_attempt_status": "SUCCESS_EXPECTED_AND_RECHECKED_BY_STATIC_AUTHORITY",
+    "required_private_api_statuses": {
+      "run": 200,
+      "jobs": 200,
+      "artifacts": 200
+    }
+  },
+  "frozen_public_blobs": {
+    "tools/qx_private_source.py": "3b84339a1212fac478e8fb3626d10b9a93fbc6d8",
+    ".github/workflows/qx-f12-level-v1.yml": "dc2d7cdcc021df977c21004263b2999056c9814f",
+    ".github/workflows/qx-f4-level-v1.yml": "a9e8fe70655dba49e3679a08dc8db4213b304d7c",
+    ".github/workflows/qx-v6-continuation-v1.yml": "a7dc0a234467acf0f45a5ba8e4dfe6f2b08c3982",
+    ".github/workflows/qx-v6-harness-static-v1.yml": "ff7b537c2e3449d0c61e0a727cbb34ce61e230d6",
+    ".github/workflows/qx-source-bound-static-v1.yml": "d6ed1e46b5cad9bd91a356f9930ee7df14153023",
+    "authority/QX_V6_EXECUTION_SUBSTRATE_V1.json": "fb7cba1ce15f82fae27589bc7842bf4ac150dccd"
+  },
+  "freeze_invariants": {
+    "private_source_files_copied_into_public_repository": false,
+    "private_repository_identity_hardcoded": false,
+    "private_token_write_permission_required": false,
+    "frozen_scientific_modules_executed_from_exact_private_commit": true,
+    "valid_v5_measurements_reexecuted": false,
+    "v5_missing_set_defined_without_performance_magnitude": true,
+    "public_substrate_is_transport_only": true,
+    "same_public_sha_static_success_required_before_launch": true,
+    "launch_branch_must_never_move_after_creation": true,
+    "authority_must_precede_enforcement": true
+  }
+}
