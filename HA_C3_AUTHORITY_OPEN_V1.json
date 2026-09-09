@@ -1,0 +1,7 @@
+{
+  "schema": "replaymark.ha-c3.authority-open.v1",
+  "authority": "AUTHORITATIVE_LIVE_FIRST_COMPLETE",
+  "source_freeze_public_head": "87b3b5f7a030c0892a6211ad0d0cf2c1ffaa0aef",
+  "private_source_freeze_head": "eba4a067326c2928b268b43b7d0264b96ac98bdc",
+  "rerun_authorized": false
+}
