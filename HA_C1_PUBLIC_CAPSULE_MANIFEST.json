@@ -1,0 +1,43 @@
+{
+  "schema": "replaymark.ha-c1.public-execution-capsule.v1",
+  "status": "FROZEN_BEFORE_PUBLIC_QUALIFICATION_RUN",
+  "private_source_authority": {
+    "repository": "risu-research/replaymark",
+    "source_freeze_head": "c9bf363a1e53b936436fbbbbb7422978985d5d69",
+    "parent_c0_head": "ed30c83f0ee54a567ab5d5f1b5c0419b976fb666"
+  },
+  "public_execution_repository": "risu-research/frb-exec-2609",
+  "pre_c1_main": "bcf42964a3fa74e127f22a5364185049b4f94cff",
+  "branch": "ha-c1-realization-qualification-v1",
+  "source_hashes": {
+    "replaymark/runtime_ha_bt_observation.py": "e51345a921f1533cc40faa7c9a415de990157f8d0037b0b7beb8e9f46286b7ba",
+    "replaymark/runtime_ha_bt_action.py": "8243b9528c93b93c19cc0e3089a81c2d3a05459fed0370741ec8d40b5f8d090c",
+    "ha_c1_literal_oracle.py": "b2f154b0fc685691e7ddf3720cd42c85d5ee697435f871933abbbfd4904bfbe5",
+    "verify_ha_c1_realization.py": "313d6a780c3715a335faf97756176afe85f061eaa1981b969160ca644f27b5f0",
+    "build_ha_c1_archived_fixtures.py": "7f9796a701f8a13549267a1609aab532ff0de802bb9900e829a982d224dfe5f7",
+    "fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64": "297ec8740a4604e60b3b64b150a2489bb4ada2ddaf988f0202bdaf8649204ab1"
+  },
+  "shim_hashes": {
+    "replaymark/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replaymark/contracts.py": "f01dafebdb7a9d005b7ff901ebb312b49f1a548c0db0f7159977d0a5e0a699a6",
+    "replaymark/runtime_realization.py": "18e946ea80a6e1c09172651dad4aba5fd6ceabee5993ca152bf0e5acbf327891"
+  },
+  "decoded_fixture_sha256": "d34de50c920643fcc9ed1d59c5127e09f2aa8d6805c11287739ee4267b865774",
+  "expected_population": {"observations": 144, "actions": 72, "negative_cases": 10},
+  "added_path_allowlist": [
+    ".github/workflows/ha-c1-realization-qualification.yml",
+    "HA_C1_PUBLIC_CAPSULE_MANIFEST.json",
+    "build_ha_c1_archived_fixtures.py",
+    "fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64",
+    "ha_c1_literal_oracle.py",
+    "replaymark/__init__.py",
+    "replaymark/contracts.py",
+    "replaymark/runtime_ha_bt_action.py",
+    "replaymark/runtime_ha_bt_observation.py",
+    "replaymark/runtime_realization.py",
+    "verify_ha_c1_public_capsule.py",
+    "verify_ha_c1_realization.py"
+  ],
+  "shim_scope": "value-interface only; no Home Assistant parsing, evidence/action derivation, expected outcomes, q, adjudication, R*, admission, or execution",
+  "execution_sink_opened": false
+}
