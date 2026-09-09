@@ -1,0 +1,104 @@
+name: HA C1 realization qualification
+
+on:
+  push:
+    branches:
+      - ha-c1-realization-qualification-v1
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify frozen public capsule and decode archived fixture
+        id: preflight
+        run: |
+          set -euo pipefail
+          python verify_ha_c1_public_capsule.py | tee HA_C1_PREFLIGHT.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          m=json.loads(Path('HA_C1_PUBLIC_CAPSULE_MANIFEST.json').read_text())
+          rec={
+            'schema':'replaymark.ha-c1.input-ready.v1',
+            'status':'INPUT_READY',
+            'private_source_freeze_head':m['private_source_authority']['source_freeze_head'],
+            'public_execution_head':os.environ['GITHUB_SHA'],
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+          }
+          Path('HA_C1_INPUT_READY.json').write_text(json.dumps(rec,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Execute frozen realization qualification
+        id: qualification
+        run: |
+          set +e
+          PYTHONPATH=. python verify_ha_c1_realization.py > HA_C1_RESULT.stdout 2> HA_C1_RESULT.stderr
+          code=$?
+          echo "$code" > HA_C1_EXIT_CODE.txt
+          if [ "$code" -eq 0 ]; then
+            cp HA_C1_RESULT.stdout HA_C1_RESULT.json
+          fi
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          def dig(path):
+              p=Path(path)
+              return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None
+          rec={
+            'schema':'replaymark.ha-c1.public-execution-record.v1',
+            'private_source_freeze_head':json.loads(Path('HA_C1_PUBLIC_CAPSULE_MANIFEST.json').read_text())['private_source_authority']['source_freeze_head'],
+            'public_execution_head':os.environ['GITHUB_SHA'],
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'input_ready':Path('HA_C1_INPUT_READY.json').exists(),
+            'qualification_exit_code':int(Path('HA_C1_EXIT_CODE.txt').read_text()),
+            'stdout_sha256':dig('HA_C1_RESULT.stdout'),
+            'stderr_sha256':dig('HA_C1_RESULT.stderr'),
+            'result_json_sha256':dig('HA_C1_RESULT.json'),
+          }
+          Path('HA_C1_EXECUTION_RECORD.json').write_text(json.dumps(rec,sort_keys=True,indent=2)+'\n')
+          PY
+          cat HA_C1_RESULT.stdout
+          cat HA_C1_RESULT.stderr >&2
+          exit "$code"
+
+      - name: Seal source hashes
+        if: always()
+        run: |
+          sha256sum \
+            replaymark/runtime_ha_bt_observation.py \
+            replaymark/runtime_ha_bt_action.py \
+            ha_c1_literal_oracle.py \
+            verify_ha_c1_realization.py \
+            build_ha_c1_archived_fixtures.py \
+            fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 \
+            replaymark/contracts.py \
+            replaymark/runtime_realization.py \
+            > HA_C1_SOURCE_HASHES.sha256
+
+      - name: Upload complete HA-C1 execution capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c1-realization-qualification-first-complete
+          if-no-files-found: warn
+          retention-days: 90
+          path: |
+            HA_C1_PUBLIC_CAPSULE_MANIFEST.json
+            HA_C1_PREFLIGHT.json
+            HA_C1_INPUT_READY.json
+            HA_C1_RESULT.stdout
+            HA_C1_RESULT.stderr
+            HA_C1_RESULT.json
+            HA_C1_EXIT_CODE.txt
+            HA_C1_EXECUTION_RECORD.json
+            HA_C1_SOURCE_HASHES.sha256
+            fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64
