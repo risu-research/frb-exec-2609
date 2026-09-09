@@ -19,6 +19,7 @@ EXPECTED_PER_REPLICA = {
     "n2b_cutovers": 10,
 }
 EXPECTED_TOTAL = {key: value * 2 for key, value in EXPECTED_PER_REPLICA.items()}
+# Error metrics must remain zero rather than be conceptually "doubled".
 for key in (
     "unsafe_historical_calls",
     "unnecessary_native_recoveries",
