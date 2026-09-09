@@ -1,0 +1,58 @@
+{
+  "schema": "replaymark.ha-c3.frozen-source-authority.v1",
+  "status": "FROZEN_PRE_LIVE_RESULT",
+  "scientific_result_opened": false,
+  "parent_c2_private_head": "caa05a0975723d409b34d90e455f52d999e0b75e",
+  "c2_public_head": "052cd5e1199784577fbb5ea5364909aa302fb4ee",
+  "candidate_static_execution_head": "12cba34e21b310a893805131048bd82cab0f3817",
+  "source_static_run": {
+    "run_id": 34418657171,
+    "run_attempt": 1,
+    "conclusion": "success",
+    "artifact_id": 10130056745,
+    "artifact_sha256": "94b113277ff12adee2c9fee88f602de45d174c9e804f1e5633d4c15e3a56d05f"
+  },
+  "implementation_preflight": {
+    "run_id": 34417489725,
+    "artifact_id": 10129661334,
+    "artifact_sha256": "2f4253f7eaeb204fb75edb95b5fcc02940292b26cac9191bef2e636b121d82b2",
+    "scientific_result_opened": false,
+    "status": "PASS"
+  },
+  "executable_git_blobs": {
+    "replaymark/runtime_ha_bt_execution_gate.py": "ec8d445bcf6659bead696fa4868ff7778123dbf6",
+    "replaymark_verification/ha_c3_live_execution.py": "3eb39a3cba5662a7158151a3c4473a09fd76d016",
+    "replaymark_verification/ha_c3_independent_validate.py": "139998158eba99cffb7162243a3f3749da281dfd",
+    "replaymark_verification/ha_c3_aggregate.py": "dc303c18bba8e6a4042f74d6f24242604cacb2c2",
+    ".github/workflows/ha-c3-authoritative-first-complete.yml": "5b867717e8b2a6a664e44af6e48fd463e1b928f8"
+  },
+  "executable_sha256": {
+    "replaymark/runtime_ha_bt_execution_gate.py": "046c1bbb456022d882dee1b31c08b152b27089073196db7a8adb4a6c14af74a6",
+    "replaymark_verification/ha_c3_live_execution.py": "4d7a6e498c970292a11061f24003d9dea409ffa9d97f144750f9afff698c31ae",
+    "replaymark_verification/ha_c3_independent_validate.py": "bc72458145db01d4f5b4beb803672ea3fe5bb036d57ece6b5c488a211ec82a66",
+    "replaymark_verification/ha_c3_aggregate.py": "e88a6d96de4ce4bb5b12217dda8722ca3e9c5841748d83f0588d1c19f377244e",
+    ".github/workflows/ha-c3-authoritative-first-complete.yml": "271c09fc01a82a45d00abaa5f8b00dfa985aba51cf1649370a009536261b4448"
+  },
+  "historical_population": {
+    "sampling": "none",
+    "n2_carriers": 10,
+    "n2b_pairs": 10,
+    "decisions_per_replica": 30,
+    "replicas": [0, 1],
+    "total_decisions": 60
+  },
+  "promotion": {
+    "safe_history_executed": 20,
+    "blocked_and_native_restored": 40,
+    "unsafe_historical_calls": 0,
+    "unnecessary_native_recoveries": 0,
+    "certificate_raw_mismatch_admitted": 0,
+    "direct_reference_disagreements": 0,
+    "n2b_cutovers": 20,
+    "latency_threshold": null
+  },
+  "authority_branch": "ha-c3-authoritative-first-complete-v1",
+  "open_marker_schema": "replaymark.ha-c3.authority-open.v1",
+  "workflow_reattempt_authorized": false,
+  "post_open_source_edits_authorized": false
+}
