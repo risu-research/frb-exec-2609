@@ -1,0 +1,209 @@
+name: qx V6 harness static authority v1
+
+on:
+  push:
+    branches:
+      - qx-static-v1
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  SOURCE_SHA: b5d40b10e5741b493edcfceb2d5c98e43de6d56d
+  SOURCE_V5_RUN_ID: '34289543842'
+
+jobs:
+  static-authority:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify public substrate contract and frozen harness manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile tools/qx_private_source.py
+          python -m json.tool authority/QX_V6_EXECUTION_SUBSTRATE_V1.json >/dev/null
+          python -m json.tool authority/QX_V6_HARNESS_MANIFEST_V1.json >/dev/null
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          c=json.loads(Path('authority/QX_V6_EXECUTION_SUBSTRATE_V1.json').read_text())
+          assert c['status']=='PROSPECTIVELY_FROZEN_BEFORE_PERFORMANCE_OPEN'
+          assert c['frozen_private_source_commit']=='b5d40b10e5741b493edcfceb2d5c98e43de6d56d'
+          assert c['immutable_source_v5_run_id']==34289543842
+          assert c['transport_only_delta']['scientific_code_changed'] is False
+          assert c['transport_only_delta']['protocol_changed'] is False
+          assert c['transport_only_delta']['measurement_definition_changed'] is False
+          assert c['transport_only_delta']['estimator_changed'] is False
+          assert c['transport_only_delta']['threshold_changed'] is False
+          assert c['inheritance']['all_eligible_v5_records_must_be_inherited'] is True
+          assert c['inheritance']['eligible_v5_artifact_count']==54
+          assert c['inheritance']['valid_v5_record_rerun_permitted'] is False
+          assert c['performance_open_rule']['run_open_record_uploaded_before_any_new_performance_coordinate_is_executed'] is True
+          m=json.loads(Path('authority/QX_V6_HARNESS_MANIFEST_V1.json').read_text())
+          assert m['schema']=='qx.replaymark.s6.v6-public-harness-manifest.v1'
+          assert m['performance_executed_at_freeze'] is False
+          assert m['performance_values_observed_at_freeze'] is False
+          for path,want in m['frozen_public_blobs'].items():
+              got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+              assert got==want,(path,got,want)
+          tracked=subprocess.check_output(['git','ls-files'],text=True)
+          assert 'risu-research/replaymark' not in '\n'.join(Path(p).read_text(errors='ignore') for p in tracked.splitlines() if Path(p).is_file())
+          assert not Path('replaymark_verification').exists()
+          print('QX_PUBLIC_HARNESS_MANIFEST: PASS')
+          PY
+
+      - name: Prove read-only private source and Actions evidence access
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+          python tools/qx_private_source.py snapshot --sha "$SOURCE_SHA" --run-id "$SOURCE_V5_RUN_ID" --out /tmp/qx-v5-meta
+          python - <<'PY'
+          import json
+          run=json.load(open('/tmp/qx-v5-meta/run.json'))
+          jobs1=json.load(open('/tmp/qx-v5-meta/jobs-page1.json'))
+          jobs2=json.load(open('/tmp/qx-v5-meta/jobs-page2.json'))
+          arts=json.load(open('/tmp/qx-v5-meta/artifacts.json'))
+          assert run['id']==34289543842
+          assert run['run_attempt']==1
+          assert run['head_sha']=='35b57a9b70f94f430db73b50088565570b027dc8'
+          assert run['status']=='completed' and run['conclusion']=='failure'
+          assert arts['total_count']==55 and len(arts['artifacts'])==55
+          assert len(jobs1.get('jobs',[]))+len(jobs2.get('jobs',[]))>0
+          print('QX_PRIVATE_ACTIONS_READ_AND_V5_METADATA: PASS')
+          PY
+
+      - name: Verify exact private V6 identity and all frozen blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          m=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V6.json').read_text())
+          head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          parent=subprocess.check_output(['git','rev-parse','HEAD^'],text=True).strip()
+          assert head=='b5d40b10e5741b493edcfceb2d5c98e43de6d56d'
+          assert parent==m['parent_commit']=='35b57a9b70f94f430db73b50088565570b027dc8'
+          changed=sorted(subprocess.check_output(['git','diff','--name-only',parent,head],text=True).splitlines())
+          assert changed==sorted(m['expected_delta_paths']) and len(changed)==7
+          v5=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V5.json').read_text())
+          for category in ('frozen_authority_blobs','orchestration_blobs'):
+              for path,want in v5[category].items():
+                  got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+                  assert got==want,(category,path,got,want)
+          for path,want in m['new_v6_blobs'].items():
+              got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+              assert got==want,(path,got,want)
+          print('QX_EXACT_SOURCE_AND_BLOB_AUTHORITY: PASS')
+          PY
+
+      - name: Prove frozen continuation identity and provenance-only aggregate wrapper
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          python -m replaymark_verification.s6_campaign_continuation_v1 selftest
+          python - <<'PY'
+          import json,tempfile
+          from pathlib import Path
+          from replaymark_verification.s6_campaign_aggregate_protocol_v4 import _attach_continuation
+          report={'completeness':{'complete':False},'sentinel':{'unchanged':True}}
+          p={
+            'schema':'replaymark.s6.x86-first-complete-v6-continuation-provenance.v1',
+            'status':'SOURCE_V5_VALIDATED_FOR_DETERMINISTIC_CONTINUATION',
+            'source_run':{'run_id':34289543842,'run_attempt':1,'head_sha':'35b57a9b70f94f430db73b50088565570b027dc8'},
+            'selection_rule':{'all_eligible_source_records_inherited':True,'source_record_rerun_permitted':False,'runnerless_jobs_are_scientific_failures':False,'performance_values_consulted_to_select_inherited_or_missing_records':False},
+            'counts':{'inherited_artifacts':54,'inherited_f12_n32_shards':10,'inherited_f4_d1_shards':15,'inherited_secondary_shards':28},
+            'missing_completion_coordinates':{}
+          }
+          with tempfile.TemporaryDirectory() as d:
+              path=Path(d)/'p.json'; path.write_text(json.dumps(p))
+              _attach_continuation(report,path)
+          assert report['completeness']['complete'] is False
+          assert report['sentinel']=={'unchanged':True}
+          assert report['continuation_provenance']['scientific_checks_or_estimators_modified'] is False
+          print('QX_AGGREGATE_PROVENANCE_ONLY: PASS')
+          PY
+
+      - name: Recheck mandatory anchors without performance clocks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          mkdir -p /tmp/qx-static
+          python -m replaymark_verification.s6_campaign_anchors_v1 static-audit --out /tmp/qx-static/anchors.json
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/qx-static/anchors.json'))
+          assert r['status']=='PASS'
+          assert r['mqtt_runtime_dependency_imported'] is False
+          assert r['performance_values_emitted'] is False
+          print('QX_ANCHOR_STATIC_NO_CLOCK: PASS')
+          PY
+
+      - name: Recheck exact frozen runtime corpus without clocks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          test "$(git hash-object agentmark_e3b_lab/e3_mqtt/app/requirements.txt)" = '96a27161c71b126522a8cfafbf303a0501ae694a'
+          python -m pip install --disable-pip-version-check --no-deps -r agentmark_e3b_lab/e3_mqtt/app/requirements.txt
+          python - <<'PY'
+          import importlib.metadata as md,sys
+          from pathlib import Path
+          root=Path('.').resolve(); app=root/'agentmark_e3b_lab'/'e3_mqtt'/'app'
+          for p in (root,root/'agentmark_e3b_lab',app):
+              if str(p) not in sys.path: sys.path.insert(0,str(p))
+          import s6_campaign_e3b_budget_v1 as b
+          from replaymark_shadow import compile_e3b_r1_shadow_contract
+          assert md.version('paho-mqtt')=='2.1.0'
+          corpus,_=b._load_frozen_corpus(); contract=compile_e3b_r1_shadow_contract()
+          assert contract.fingerprint()==corpus['acquisition_identity']['contract_fingerprint']
+          assert b._independent_requalification(contract,corpus)['cases_checked']==128
+          print('QX_FROZEN_RUNTIME_CORPUS_NO_CLOCK: PASS')
+          PY
+
+      - name: Seal static authority attestation only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,platform
+          from pathlib import Path
+          m=json.loads(Path('authority/QX_V6_HARNESS_MANIFEST_V1.json').read_text())
+          out={
+            'schema':'qx.replaymark.s6.v6-public-harness-static-authority.v1',
+            'status':'PASS',
+            'public_harness_sha':os.environ['GITHUB_SHA'],
+            'frozen_private_source_commit':'b5d40b10e5741b493edcfceb2d5c98e43de6d56d',
+            'source_v5_run_id':34289543842,
+            'source_v5_artifact_count':55,
+            'eligible_inherited_artifact_count':54,
+            'performance_executed_in_this_run':False,
+            'performance_values_emitted_in_this_run':False,
+            'runner_os':os.environ.get('RUNNER_OS'),
+            'runner_arch':os.environ.get('RUNNER_ARCH'),
+            'python':platform.python_version(),
+            'manifest_schema':m['schema']
+          }
+          Path('/tmp/qx-v6-harness-static-authority.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qx-v6-harness-static-authority-v1
+          path: /tmp/qx-v6-harness-static-authority.json
+          if-no-files-found: error
