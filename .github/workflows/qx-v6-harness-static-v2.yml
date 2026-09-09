@@ -1,0 +1,286 @@
+name: qx V6 harness static authority v2
+
+on:
+  push:
+    branches:
+      - qx-static-v2
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  BASE_PUBLIC_SHA: 91636737ea0e3462082006acc4d577fbf4c70e6c
+  SOURCE_SHA: b5d40b10e5741b493edcfceb2d5c98e43de6d56d
+  SOURCE_V5_RUN_ID: '34289543842'
+  SOURCE_V5_SHA: 35b57a9b70f94f430db73b50088565570b027dc8
+  QUARANTINED_V1_RUN_ID: '34366933489'
+
+jobs:
+  static-authority-v2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify exact prospective public v2 delta and frozen blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'qx-static-v2'
+          python -m py_compile tools/qx_private_source.py
+          python -m json.tool authority/QX_V6_HARNESS_MANIFEST_V2.json >/dev/null
+          python -m json.tool authority/QX_V6_TRANSPORT_AND_OPEN_REPAIR_V2.json >/dev/null
+          python -m json.tool authority/QX_V6_PUBLIC_RUN_V1_QUARANTINE.json >/dev/null
+          git cat-file -e "${BASE_PUBLIC_SHA}^{commit}"
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          base='91636737ea0e3462082006acc4d577fbf4c70e6c'
+          m=json.loads(Path('authority/QX_V6_HARNESS_MANIFEST_V2.json').read_text())
+          assert m['base_public_sha']==base
+          assert m['status']=='FROZEN_PENDING_SAME_SHA_STATIC_SUCCESS'
+          changed=sorted(subprocess.check_output(['git','diff','--name-only',base,'HEAD'],text=True).splitlines())
+          want=sorted(m['expected_delta_paths_from_base_public_sha'])
+          assert changed==want,(changed,want)
+          for category in ('frozen_v2_blobs','unchanged_inherited_public_blobs'):
+              for path,want_sha in m[category].items():
+                  got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+                  assert got==want_sha,(category,path,got,want_sha)
+          q=json.loads(Path('authority/QX_V6_PUBLIC_RUN_V1_QUARANTINE.json').read_text())
+          assert q['public_run']['run_id']==34366933489
+          assert q['bootstrap_failure']['run_open_record_created'] is False
+          assert q['bootstrap_failure']['run_open_artifact_uploaded'] is False
+          assert q['scientific_disposition']['may_be_used_as_v6_measurement_data'] is False
+          assert q['scientific_disposition']['may_be_inherited_by_qx_run_v2'] is False
+          r=json.loads(Path('authority/QX_V6_TRANSPORT_AND_OPEN_REPAIR_V2.json').read_text())
+          assert r['status']=='PROSPECTIVELY_FROZEN_BEFORE_QX_RUN_V2_PERFORMANCE_OPEN'
+          assert r['scientific_invariants']['private_scientific_code_changed'] is False
+          assert r['scientific_invariants']['v5_valid_measurement_rerun_permitted'] is False
+          print('QX_V2_PUBLIC_DELTA_AND_BLOBS: PASS')
+          PY
+
+      - name: Prove v2 workflow hard-fails closed before sealed RUN_OPEN
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('.github/workflows/qx-v6-continuation-v2.yml').read_text()
+          assert '      - qx-run-v2' in text
+          assert "run_open_sealed: ${{ steps.open_sealed.outputs.run_open_sealed }}" in text
+          assert "echo 'run_open_sealed=true' >> \"$GITHUB_OUTPUT\"" in text
+          assert '\n    if: always()\n' not in text
+          required={
+            'f4_d1_barrier': "needs: [bootstrap, f4_d1_completion]",
+            'generated_online': "needs: [bootstrap, f12_1048576, f4_32, secondary_completion]",
+            'e3b_budget': "needs: [bootstrap, generated_online]",
+            'anchors': "needs: [bootstrap, e3b_budget]",
+            'aggregate': "needs: [bootstrap, anchors]",
+            'enforce': "needs: [bootstrap, aggregate]",
+          }
+          for job,needle in required.items():
+              marker='\n  '+job+':\n'
+              pos=text.index(marker)
+              window=text[pos:pos+500]
+              assert needle in window,(job,'missing direct bootstrap need')
+              assert "needs.bootstrap.outputs.run_open_sealed == 'true'" in window,(job,'missing sealed-open gate')
+          upload=text.index('name: Seal continuation provenance and RUN_OPEN before any new performance')
+          token=text.index('name: Mark sealed opening as sole downstream performance admission token')
+          assert upload < token
+          print('QX_V2_RUN_OPEN_FAIL_CLOSED_GRAPH: PASS')
+          PY
+
+      - name: Verify immutable qx-run-v1 contamination evidence from Actions metadata only
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${QUARANTINED_V1_RUN_ID}" \
+            -o /tmp/qx-v1-run.json
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${QUARANTINED_V1_RUN_ID}/jobs?per_page=100" \
+            -o /tmp/qx-v1-jobs.json
+          python - <<'PY'
+          import json
+          run=json.load(open('/tmp/qx-v1-run.json'))
+          jobs=json.load(open('/tmp/qx-v1-jobs.json'))['jobs']
+          assert run['id']==34366933489 and run['run_attempt']==1
+          assert run['head_branch']=='qx-run-v1'
+          assert run['head_sha']=='91636737ea0e3462082006acc4d577fbf4c70e6c'
+          assert run['status']=='completed' and run['conclusion']=='failure'
+          by={j['name']:j for j in jobs}
+          b=by['bootstrap']; assert b['id']==102517955951 and b['conclusion']=='failure'
+          bs={s['name']:s['conclusion'] for s in b.get('steps',[])}
+          assert bs['Download every prospectively eligible V5 raw artifact']=='failure'
+          assert bs['Record public-substrate V6 performance opening boundary']=='skipped'
+          assert bs['Seal continuation provenance and RUN_OPEN before new performance']=='skipped'
+          for name in ('e3b_budget (A)','e3b_budget (B)'):
+              j=by[name]
+              ss={s['name']:s['conclusion'] for s in j.get('steps',[])}
+              assert ss['Execute exact immutable-corpus E3b production budget']=='success'
+          print('QX_V1_PREOPEN_CONTAMINATION_METADATA_BOUND: PASS')
+          PY
+
+      - name: Prove exact private V6 identity remains unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py clone --sha "$SOURCE_SHA" --dest _src
+          cd _src
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          m=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V6.json').read_text())
+          head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          parent=subprocess.check_output(['git','rev-parse','HEAD^'],text=True).strip()
+          assert head=='b5d40b10e5741b493edcfceb2d5c98e43de6d56d'
+          assert parent==m['parent_commit']=='35b57a9b70f94f430db73b50088565570b027dc8'
+          changed=sorted(subprocess.check_output(['git','diff','--name-only',parent,head],text=True).splitlines())
+          assert changed==sorted(m['expected_delta_paths']) and len(changed)==7
+          v5=json.loads(Path('replaymark/S6_X86_FIRST_COMPLETE_EXECUTION_V5.json').read_text())
+          for category in ('frozen_authority_blobs','orchestration_blobs'):
+              for path,want in v5[category].items():
+                  got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+                  assert got==want,(category,path,got,want)
+          for path,want in m['new_v6_blobs'].items():
+              got=subprocess.check_output(['git','hash-object',path],text=True).strip()
+              assert got==want,(path,got,want)
+          print('QX_V2_EXACT_PRIVATE_SCIENCE_IDENTITY: PASS')
+          PY
+
+      - name: Snapshot exact immutable V5 metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/qx-v2-static/meta
+          python tools/qx_private_source.py snapshot \
+            --sha "$SOURCE_SHA" \
+            --run-id "$SOURCE_V5_RUN_ID" \
+            --out /tmp/qx-v2-static/meta
+
+      - name: Exhaustively download all 54 eligible V5 artifacts and bind archive digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/qx_private_source.py download \
+            --sha "$SOURCE_SHA" \
+            --run-id "$SOURCE_V5_RUN_ID" \
+            --pattern 's6-f12-*' \
+            --pattern 's6-f4-*' \
+            --pattern 's6-secondary-*' \
+            --out /tmp/qx-v2-static/source \
+            --manifest /tmp/qx-v2-static/meta/download-manifest.json
+          python - <<'PY'
+          import json
+          rows=json.load(open('/tmp/qx-v2-static/meta/download-manifest.json'))
+          assert len(rows)==54,len(rows)
+          assert len({r['artifact_id'] for r in rows})==54
+          assert len({r['name'] for r in rows})==54
+          assert all(r['source_token_forwarded_to_redirect'] is False for r in rows)
+          for r in rows:
+              assert len(r['downloaded_zip_sha256'])==64
+              if r.get('github_digest'):
+                  assert r['github_digest'].lower()==('sha256:'+r['downloaded_zip_sha256']).lower(),r['name']
+          print('QX_V2_EXHAUSTIVE_54_ARTIFACT_TRANSPORT: PASS')
+          PY
+
+      - name: Execute frozen deterministic inheritance validator on downloaded bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd _src && python -m replaymark_verification.s6_campaign_continuation_v1 validate-source \
+            --source-root /tmp/qx-v2-static/source \
+            --run-json /tmp/qx-v2-static/meta/run.json \
+            --jobs-json /tmp/qx-v2-static/meta/jobs-page1.json \
+            --jobs-json /tmp/qx-v2-static/meta/jobs-page2.json \
+            --artifacts-json /tmp/qx-v2-static/meta/artifacts.json \
+            --out /tmp/qx-v2-static/meta/continuation-provenance.json)
+          python - <<'PY'
+          import hashlib,json
+          p='/tmp/qx-v2-static/meta/continuation-provenance.json'
+          data=open(p,'rb').read(); obj=json.loads(data)
+          assert obj['status']=='SOURCE_V5_VALIDATED_FOR_DETERMINISTIC_CONTINUATION'
+          assert obj['counts']['inherited_artifacts']==54
+          assert obj['selection_rule']['all_eligible_source_records_inherited'] is True
+          assert obj['selection_rule']['source_record_rerun_permitted'] is False
+          assert obj['selection_rule']['performance_values_consulted_to_select_inherited_or_missing_records'] is False
+          open('/tmp/qx-v2-static/meta/continuation-provenance.sha256','w').write(hashlib.sha256(data).hexdigest()+'\n')
+          print('QX_V2_FROZEN_VALIDATE_SOURCE: PASS')
+          PY
+
+      - name: Recheck exact frozen runtime corpus without performance clocks
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd _src
+          test "$(git hash-object agentmark_e3b_lab/e3_mqtt/app/requirements.txt)" = '96a27161c71b126522a8cfafbf303a0501ae694a'
+          python -m pip install --disable-pip-version-check --no-deps -r agentmark_e3b_lab/e3_mqtt/app/requirements.txt
+          python - <<'PY'
+          import importlib.metadata as md,sys
+          from pathlib import Path
+          root=Path('.').resolve(); app=root/'agentmark_e3b_lab'/'e3_mqtt'/'app'
+          for p in (root,root/'agentmark_e3b_lab',app):
+              if str(p) not in sys.path: sys.path.insert(0,str(p))
+          import s6_campaign_e3b_budget_v1 as b
+          from replaymark_shadow import compile_e3b_r1_shadow_contract
+          assert md.version('paho-mqtt')=='2.1.0'
+          corpus,_=b._load_frozen_corpus(); contract=compile_e3b_r1_shadow_contract()
+          assert contract.fingerprint()==corpus['acquisition_identity']['contract_fingerprint']
+          assert b._independent_requalification(contract,corpus)['cases_checked']==128
+          print('QX_V2_FROZEN_RUNTIME_CORPUS_NO_CLOCK: PASS')
+          PY
+
+      - name: Seal v2 static authority attestation without raw performance bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/qx-v2-static-authority
+          cp /tmp/qx-v2-static/meta/download-manifest.json /tmp/qx-v2-static-authority/
+          cp /tmp/qx-v2-static/meta/continuation-provenance.sha256 /tmp/qx-v2-static-authority/
+          python - <<'PY'
+          import json,os,platform,subprocess
+          rows=json.load(open('/tmp/qx-v2-static/meta/download-manifest.json'))
+          out={
+            'schema':'qx.replaymark.s6.v6-public-harness-static-authority.v2',
+            'status':'PASS',
+            'public_harness_sha':os.environ['GITHUB_SHA'],
+            'base_public_sha':'91636737ea0e3462082006acc4d577fbf4c70e6c',
+            'frozen_private_source_commit':'b5d40b10e5741b493edcfceb2d5c98e43de6d56d',
+            'source_v5_run_id':34289543842,
+            'source_v5_artifact_count':55,
+            'eligible_inherited_artifact_count':54,
+            'eligible_artifacts_actually_downloaded_and_digest_bound':len(rows),
+            'quarantined_qx_run_v1_id':34366933489,
+            'qx_run_v1_measurements_inherited':False,
+            'performance_executed_in_this_static_run':False,
+            'performance_values_emitted_in_this_static_run':False,
+            'run_open_created_in_this_static_run':False,
+            'runner_os':os.environ.get('RUNNER_OS'),
+            'runner_arch':os.environ.get('RUNNER_ARCH'),
+            'python':platform.python_version(),
+            'helper_blob':subprocess.check_output(['git','hash-object','tools/qx_private_source.py'],text=True).strip(),
+            'continuation_v2_blob':subprocess.check_output(['git','hash-object','.github/workflows/qx-v6-continuation-v2.yml'],text=True).strip()
+          }
+          open('/tmp/qx-v2-static-authority/QX_V6_STATIC_AUTHORITY_V2.json','w').write(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qx-v6-harness-static-authority-v2
+          path: /tmp/qx-v2-static-authority
+          if-no-files-found: error
