@@ -1,0 +1,174 @@
+name: HA-C3 source-freeze static qualification
+
+on:
+  push:
+    branches:
+      - ha-c3-source-freeze-v1
+
+permissions:
+  contents: read
+
+env:
+  GATE_BLOB: ec8d445bcf6659bead696fa4868ff7778123dbf6
+  PRODUCER_BLOB: 3eb39a3cba5662a7158151a3c4473a09fd76d016
+  VALIDATOR_BLOB: 139998158eba99cffb7162243a3f3749da281dfd
+  AGGREGATE_BLOB: dc303c18bba8e6a4042f74d6f24242604cacb2c2
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  PREFLIGHT_RUN_ID: '34417489725'
+  PREFLIGHT_ARTIFACT_DIGEST: 2f4253f7eaeb204fb75edb95b5fcc02940292b26cac9191bef2e636b121d82b2
+
+jobs:
+  static-source-freeze:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact private-to-public candidate blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object --no-filters replaymark/runtime_ha_bt_execution_gate.py)" = "$GATE_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_live_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/ha_c3_aggregate.py)" = "$AGGREGATE_BLOB"
+          python -m py_compile \
+            replaymark/runtime_ha_bt_execution_gate.py \
+            replaymark_verification/ha_c3_live_execution.py \
+            replaymark_verification/ha_c3_independent_validate.py \
+            replaymark_verification/ha_c3_aggregate.py
+
+      - name: Prove validator independence structurally
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          path=Path('replaymark_verification/ha_c3_independent_validate.py')
+          tree=ast.parse(path.read_text())
+          banned=('replaymark','homeassistant','agentmark')
+          found=[]
+          for node in ast.walk(tree):
+              if isinstance(node,ast.Import):
+                  for a in node.names:
+                      found.append(a.name)
+              elif isinstance(node,ast.ImportFrom):
+                  found.append(node.module or '')
+          bad=[name for name in found if name.startswith(banned)]
+          assert not bad,bad
+          assert set(found) <= {'argparse','json','pathlib','typing'},found
+          PY
+
+      - name: Audit authoritative workflow anti-repair and preservation invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/ha-c3-authoritative-first-complete.yml').read_text()
+          required=[
+            'fail-fast: false',
+            'matrix:',
+            'replica: [0, 1]',
+            'GITHUB_RUN_ATTEMPT',
+            'rerun_authorized',
+            'HA_C3_AUTHORITY_OPEN_V1.json',
+            'if: always()',
+            'ha-c3-first-complete-r${{ matrix.replica }}',
+            'ha-c3-first-complete-aggregate',
+            'ha_c3_independent_validate.py',
+            'ha_c3_aggregate.py',
+            'docker run --rm --network none',
+            'AUTHORITATIVE_LIVE_FIRST_COMPLETE',
+          ]
+          missing=[x for x in required if x not in p]
+          assert not missing,missing
+          # Promotion must not depend on latency or wall-clock thresholds.
+          assert 'latency_threshold' not in p
+          PY
+
+      - name: Exercise frozen aggregate verifier on exact preregistered totals only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p static-results
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          metrics={
+            'decisions':30,'admit':10,'block':20,
+            'safe_history_executed':10,'blocked_native_restored':20,
+            'unsafe_historical_calls':0,'unnecessary_native_recoveries':0,
+            'certificate_raw_mismatch_admitted':0,'direct_reference_disagreements':0,
+            'n2b_cutovers':10,
+          }
+          for r in (0,1):
+              Path(f'static-results/v{r}.json').write_text(json.dumps({
+                'schema':'replaymark.ha-c3.independent-validation.v1',
+                'status':'PASS','replica':r,'metrics':metrics,
+              },sort_keys=True,indent=2)+'\n')
+          PY
+          python replaymark_verification/ha_c3_aggregate.py \
+            static-results/v0.json static-results/v1.json \
+            --out static-results/aggregate.json
+          python - <<'PY'
+          import json
+          x=json.load(open('static-results/aggregate.json'))
+          assert x['status']=='PASS'
+          assert x['metrics']['decisions']==60
+          assert x['metrics']['safe_history_executed']==20
+          assert x['metrics']['blocked_native_restored']==40
+          PY
+
+      - name: Emit pre-live source qualification authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          paths=[
+            'replaymark/runtime_ha_bt_execution_gate.py',
+            'replaymark_verification/ha_c3_live_execution.py',
+            'replaymark_verification/ha_c3_independent_validate.py',
+            'replaymark_verification/ha_c3_aggregate.py',
+            '.github/workflows/ha-c3-authoritative-first-complete.yml',
+          ]
+          value={
+            'schema':'replaymark.ha-c3.source-static-qualification.v1',
+            'status':'PASS',
+            'scientific_result_opened':False,
+            'execution_head':os.environ['GITHUB_SHA'],
+            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'c2_public_head':os.environ['C2_PUBLIC_HEAD'],
+            'implementation_preflight_run_id':int(os.environ['PREFLIGHT_RUN_ID']),
+            'implementation_preflight_artifact_sha256':os.environ['PREFLIGHT_ARTIFACT_DIGEST'],
+            'files_sha256':{p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths},
+            'files_git_blob':{p:None for p in paths},
+          }
+          Path('static-results/HA_C3_SOURCE_STATIC_QUALIFICATION.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+          PY
+          for p in \
+            replaymark/runtime_ha_bt_execution_gate.py \
+            replaymark_verification/ha_c3_live_execution.py \
+            replaymark_verification/ha_c3_independent_validate.py \
+            replaymark_verification/ha_c3_aggregate.py \
+            .github/workflows/ha-c3-authoritative-first-complete.yml; do
+              printf '%s  %s\n' "$(git hash-object --no-filters "$p")" "$p" >> static-results/GIT_BLOBS.txt
+          done
+          (
+            cd static-results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload source qualification capsule
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c3-source-static-qualification
+          path: static-results
+          retention-days: 90
+          if-no-files-found: error
