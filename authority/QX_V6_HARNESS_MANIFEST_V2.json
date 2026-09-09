@@ -1,0 +1,53 @@
+{
+  "schema": "qx.replaymark.s6.v6-public-harness-manifest.v2",
+  "status": "FROZEN_PENDING_SAME_SHA_STATIC_SUCCESS",
+  "base_public_sha": "91636737ea0e3462082006acc4d577fbf4c70e6c",
+  "frozen_private_source_commit": "b5d40b10e5741b493edcfceb2d5c98e43de6d56d",
+  "source_v5_run_id": 34289543842,
+  "source_v5_sha": "35b57a9b70f94f430db73b50088565570b027dc8",
+  "quarantined_public_v1_run_id": 34366933489,
+  "qx_run_v2_performance_executed_at_freeze": false,
+  "qx_run_v2_performance_values_observed_at_freeze": false,
+  "qx_run_v2_launch_branch_created_at_freeze": false,
+  "v1_performance_values_consulted_for_v2_design": false,
+  "expected_delta_paths_from_base_public_sha": [
+    ".github/workflows/qx-v6-continuation-v2.yml",
+    ".github/workflows/qx-v6-harness-static-v2.yml",
+    "authority/QX_V6_HARNESS_MANIFEST_V2.json",
+    "authority/QX_V6_PUBLIC_RUN_V1_QUARANTINE.json",
+    "authority/QX_V6_TRANSPORT_AND_OPEN_REPAIR_V2.json",
+    "tools/qx_private_source.py"
+  ],
+  "frozen_v2_blobs": {
+    "tools/qx_private_source.py": "a7254b38f918319c1bb359d09daf16e9ba961056",
+    ".github/workflows/qx-v6-continuation-v2.yml": "cb98b03726c850a9722149bb95525b29a8516a55",
+    "authority/QX_V6_PUBLIC_RUN_V1_QUARANTINE.json": "fc5bbae6f63e7cad2722d75b99a9213bb13d3180",
+    "authority/QX_V6_TRANSPORT_AND_OPEN_REPAIR_V2.json": "4fe5b079f2117890277861262e93f32d01ee0e46"
+  },
+  "unchanged_inherited_public_blobs": {
+    ".github/workflows/qx-f12-level-v1.yml": "dc2d7cdcc021df977c21004263b2999056c9814f",
+    ".github/workflows/qx-f4-level-v1.yml": "a9e8fe70655dba49e3679a08dc8db4213b304d7c",
+    ".github/workflows/qx-v6-continuation-v1.yml": "a7dc0a234467acf0f45a5ba8e4dfe6f2b08c3982",
+    "authority/QX_V6_EXECUTION_SUBSTRATE_V1.json": "fb7cba1ce15f82fae27589bc7842bf4ac150dccd"
+  },
+  "v2_freeze_invariants": {
+    "private_source_files_copied_into_public_repository": false,
+    "private_repository_identity_hardcoded": false,
+    "source_token_is_read_only": true,
+    "source_token_forwarded_to_artifact_redirect": false,
+    "downloaded_artifact_digest_checked_when_github_digest_available": true,
+    "all_54_v5_eligible_artifacts_must_download_in_static_gate": true,
+    "frozen_validate_source_must_pass_in_static_gate": true,
+    "same_public_sha_static_success_required_before_launch": true,
+    "qx_run_v2_branch_must_never_move_after_creation": true,
+    "run_open_artifact_must_upload_before_run_open_sealed_output": true,
+    "all_always_downstream_scientific_jobs_directly_require_run_open_sealed": true,
+    "qx_run_v1_post_bootstrap_artifacts_quarantined": true,
+    "valid_v5_measurements_reexecuted": false,
+    "v5_missing_set_changed": false,
+    "scientific_protocol_changed": false,
+    "measurement_definition_changed": false,
+    "estimator_changed": false,
+    "threshold_changed": false
+  }
+}
