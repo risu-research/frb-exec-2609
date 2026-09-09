@@ -1,0 +1,56 @@
+name: qx static substrate probe
+
+on:
+  push:
+    branches:
+      - qx-static-v1
+
+permissions:
+  contents: read
+
+jobs:
+  substrate-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Assert static-only substrate and capture runner identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'qx-static-v1'
+          test -f STATIC_ONLY
+          test -f PERFORMANCE_LOCKED
+          test -f NO_TIMING
+          python - <<'PY'
+          import json, os, platform
+          from pathlib import Path
+          assert Path('STATIC_ONLY').read_text().strip() == 'performance_locked=true'
+          assert Path('PERFORMANCE_LOCKED').read_text().strip() == 'true'
+          assert Path('NO_TIMING').read_text().strip() == '1'
+          out = {
+              'schema':'frb.static-substrate-probe.v1',
+              'performance_executed':False,
+              'python':platform.python_version(),
+              'machine':platform.machine(),
+              'platform':platform.platform(),
+              'runner_name':os.environ.get('RUNNER_NAME'),
+              'runner_arch':os.environ.get('RUNNER_ARCH'),
+              'runner_os':os.environ.get('RUNNER_OS'),
+              'sha':os.environ['GITHUB_SHA'],
+          }
+          Path('/tmp/qx-substrate-probe.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,sort_keys=True))
+          PY
+          uname -a
+          nproc
+          free -h
+      - name: Upload static substrate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: qx-static-substrate-probe
+          path: /tmp/qx-substrate-probe.json
+          if-no-files-found: error
