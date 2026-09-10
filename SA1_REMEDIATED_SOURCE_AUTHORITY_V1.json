@@ -1,0 +1,78 @@
+{
+  "schema": "replaymark.sa1.remediated-source-authority.v1",
+  "status": "FROZEN_PRE_NATIVE_RESULT",
+  "live_result_opened": false,
+  "assembly_parent": "65538741edca7dca2de921c6eb5cbf8054325e0f",
+  "authoritative_workflow": ".github/workflows/sa1-authoritative-first-complete-v3.yml",
+  "authoritative_workflow_git_blob": "fb23dd68ea469867354618e0e2bbcb6204cd65df",
+  "authoritative_workflow_sha256": "9896df9650c1d54262c47248aa890344978bba260f701ca6305d7ccf61798e5f",
+  "private_source_freeze_head": "623f83f0411506ec4d4efe3291177c1b4a8cadc8",
+  "prelive_expected_authority": "cbb28b45bec65c98845123358c05c14d5b83a805",
+  "static_qualification": {
+    "head": "3ec06e1d07c357c9b4cefb467dda5025ba806e4d",
+    "run_id": 34427855537,
+    "artifact_id": 10133341203,
+    "artifact_sha256": "96b94ff1a98d03db67065a6c64a2bd0b763f6f5765d8cbd53d74465f8e005f8d",
+    "conclusion": "success"
+  },
+  "failed_v2": {
+    "execution_head": "92a5c2f1edf52ca8994ef2f52ad293b70d2d011b",
+    "run_id": 34428350371,
+    "classification": "PRE_WORKLOAD_IMPLEMENTATION_FAILURE_NO_NATIVE_CELL_CONSUMED",
+    "native_cells_executed": 0,
+    "semantic_rows_observed": 0,
+    "rerun_authorized": false
+  },
+  "remediation_preflight": {
+    "execution_head": "65538741edca7dca2de921c6eb5cbf8054325e0f",
+    "run_id": 34428854935,
+    "artifact_id": 10133704950,
+    "artifact_sha256": "5fddd0c3e492a571145f965608678aafca2272fbe6279a35fdbb9e22a4196e55",
+    "status": "PASS_IMPORT_ONLY_NO_NATIVE_RESULT",
+    "home_assistant_runtime_created": false,
+    "native_cells_executed": 0,
+    "semantic_result_opened": false
+  },
+  "only_scientific_execution_change": {
+    "field": "Docker PYTHONPATH",
+    "before": "/origin:/sa1",
+    "after": "/origin/agentmark_e3b_lab:/origin:/sa1"
+  },
+  "scientific_source": {
+    "producer_git_blob": "9a63ee18485373eecbaf92cc6a585fc3f9579e64",
+    "validator_git_blob": "f51891f3ff796488a22a5d10dac2e04137ce62fd",
+    "aggregate_git_blob": "f321f5dd5869413e95bcda537b326f73250ccc1b",
+    "materializer_git_blob": "a3bc643873403143a8a6b5880497e9cb98583079",
+    "origin_commit": "c290786d92e7546345b348916b3b3d1c11780e4c",
+    "origin_agentmark_kernel_git_blob": "fe6254a7f3dae9f4479faa859fe1d72974c24c5d"
+  },
+  "expected": {
+    "rows_sha256": "e70b8db3ee6d2644c46dc2c8c6bef9d11b86e98a1cd2f59947632308b798c9c0",
+    "table_file_sha256": "7fef313e1c716169038ae1bcb9331bfb9cf7ad1481acbf433503aa28a94b5e72",
+    "population": "32 complete profile states per replica; replicas 0 and 1; no sampling",
+    "promotion": "64/64 exact frozen-table agreement; 48 exact service calls; 16 no-call rows; 0 unexpected/missing native outcomes"
+  },
+  "runtime_pins": {
+    "home_assistant_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "blueprint_commit": "57d56f076c05ccaa9553e6bd4b673b6d43a8cf7f",
+    "blueprint_sha256": "16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443",
+    "better_thermostat_commit": "b86561f61e5ba1259fc63e590f4847e9ac743d7f",
+    "better_thermostat_manifest_sha256": "710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28",
+    "better_thermostat_tree_sha256": "bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0"
+  },
+  "execution_rules": {
+    "matrix_replicas": [0, 1],
+    "fail_fast": false,
+    "network_disabled_during_native_producer": true,
+    "independent_validation_after_complete_producer": true,
+    "result_dependent_early_abort": false,
+    "workflow_reattempt_authorized": false,
+    "automatic_retry_authorized": false,
+    "artifact_upload_before_scientific_conclusion_enforcement": true
+  },
+  "source_freeze_delta": [
+    ".github/workflows/sa1-authoritative-first-complete-v3.yml",
+    "SA1_REMEDIATED_SOURCE_AUTHORITY_V1.json"
+  ],
+  "next_rule": "Create exactly one detached one-file authority-open child, then create sa1-authoritative-first-complete-v3 at that already-open commit. No source or expected-table edits are authorized after branch creation."
+}
