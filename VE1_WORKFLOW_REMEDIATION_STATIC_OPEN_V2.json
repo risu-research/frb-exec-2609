@@ -1,0 +1,10 @@
+{
+  "schema": "replaymark.ve1.workflow-remediation-static-open.v2",
+  "authority": "PRE_SCIENTIFIC_WORKFLOW_STATIC_QUALIFICATION",
+  "source_candidate_head": "f99b451f34f9995c61baccffb1be26dd9807fcaa",
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "failed_v1_run_id": 34465860182,
+  "scientific_result_opened": false,
+  "scientific_cells": 0,
+  "rerun_authorized": false
+}
