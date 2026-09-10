@@ -1,0 +1,148 @@
+name: VE2 runtime substrate discovery qualification v2
+
+on:
+  push:
+    branches:
+      - ve2-runtime-discovery-qualification-v2
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      FAILED_V1_HEAD: 7b988e8cc946cd90b97dc3615876c45295e2440f
+      PRIVATE_V2_AUTHORITY: ee6e7bf307ccdfcf094e054c7b154c0d67448bc4
+      CONSTITUTION_BLOB: 6fdc772525c9259097fc2cde9c6b010bee6fa180
+      CANDIDATES_BLOB: 4a317c9c6158ef7ce28e9c425789ac3901071f41
+      V1_AUTHORITY_BLOB: b4349b75f89b0e50157a2cb14e7c7ea025eaf0e8
+      INSIDE_PROBE_BLOB: ed51ff3763f650c1815259642efd0e8f343f161a
+      V1_FAILURE_BLOB: 1d0f4ea4568b22b1ce8ab8320685f709d366469a
+      REMEDIATION_BLOB: 8af3012dc7077d8ac0e4013b178c9065893f4886
+      PUBLIC_CONTRACT_BLOB: 7510ba1e24277b05210e5aeba6c38c90d2b7b448
+      V2_VERIFIER_BLOB: b1dfc6377f8d8b85a4be65aa7a3477898be14d78
+      V2_COORDINATOR_BLOB: cbba647350830debefa92861aa9f34004afb0357
+    steps:
+      - name: Checkout exact v2 discovery authority
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Require prospective transport-only remediation lineage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          source_candidate="$(git rev-parse HEAD^)"
+          test "$(git rev-parse "$source_candidate^")" = "$FAILED_V1_HEAD"
+          mapfile -t marker_delta < <(git diff --name-only "$source_candidate..HEAD")
+          test "${#marker_delta[@]}" -eq 1
+          test "${marker_delta[0]}" = "VE2_RUNTIME_DISCOVERY_OPEN_V2.json"
+          printf '%s\n' \
+            '.github/workflows/ve2-runtime-discovery-qualification-v2.yml' \
+            'VE2_RUNTIME_DISCOVERY_PUBLIC_CONTRACT_V2.json' \
+            'VE2_RUNTIME_DISCOVERY_REMEDIATION_CONTRACT_V2_MIRROR.json' \
+            'VE2_RUNTIME_DISCOVERY_V1_FAILURE_RECEIPT_MIRROR.json' \
+            've2_runtime_discovery_public_v2.py' \
+            'verify_ve2_runtime_discovery_remediation_v2.py' | LC_ALL=C sort > /tmp/expected-v2-delta
+          git diff --name-only "$FAILED_V1_HEAD..$source_candidate" | LC_ALL=C sort > /tmp/actual-v2-delta
+          diff -u /tmp/expected-v2-delta /tmp/actual-v2-delta
+          test "$(git hash-object --no-filters VE2_RUNTIME_DISCOVERY_CONSTITUTION_V1.json)" = "$CONSTITUTION_BLOB"
+          test "$(git hash-object --no-filters VE2_RUNTIME_DISCOVERY_CANDIDATES_V1.json)" = "$CANDIDATES_BLOB"
+          test "$(git hash-object --no-filters VE2_RUNTIME_DISCOVERY_PRE_RESULT_AUTHORITY_V1.json)" = "$V1_AUTHORITY_BLOB"
+          test "$(git hash-object --no-filters ve2_runtime_inside_probe_v1.py)" = "$INSIDE_PROBE_BLOB"
+          test "$(git hash-object --no-filters VE2_RUNTIME_DISCOVERY_V1_FAILURE_RECEIPT_MIRROR.json)" = "$V1_FAILURE_BLOB"
+          test "$(git hash-object --no-filters VE2_RUNTIME_DISCOVERY_REMEDIATION_CONTRACT_V2_MIRROR.json)" = "$REMEDIATION_BLOB"
+          test "$(git hash-object --no-filters VE2_RUNTIME_DISCOVERY_PUBLIC_CONTRACT_V2.json)" = "$PUBLIC_CONTRACT_BLOB"
+          test "$(git hash-object --no-filters verify_ve2_runtime_discovery_remediation_v2.py)" = "$V2_VERIFIER_BLOB"
+          test "$(git hash-object --no-filters ve2_runtime_discovery_public_v2.py)" = "$V2_COORDINATOR_BLOB"
+          SOURCE="$source_candidate" PRIVATE_AUTH="$PRIVATE_V2_AUTHORITY" python -c 'import json,os; v=json.load(open("VE2_RUNTIME_DISCOVERY_OPEN_V2.json")); assert v=={"schema":"replaymark.ve2.runtime-discovery-open.v2","authority":"RUNTIME_DISCOVERY_REMEDIATION_V2_ONLY","source_candidate_head":os.environ["SOURCE"],"failed_v1_head":"7b988e8cc946cd90b97dc3615876c45295e2440f","private_v2_pre_result_authority":os.environ["PRIVATE_AUTH"],"scientific_result_opened":False,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0,"v1_rerun_authorized":False,"rerun_authorized":False}'
+          python verify_ve2_runtime_discovery_remediation_v2.py
+          python -m py_compile ve2_runtime_discovery_public_v2.py
+          python -m py_compile ve2_runtime_inside_probe_v1.py
+          python -c 'import ast; p="ve2_runtime_discovery_public_v2.py"; ast.parse(open(p).read()); t=open(p).read(); forbidden=("VE2_T01_EXPECTED_FRONTIER","VE2_T02_EXPECTED_FRONTIER","6d4b4ac7738885bcf","6292de3f4889bb69","c4c3d495df1659aa","f791b6b93ee3febe","ve2_transition_semantics_v1","verify_ve2_transition_freeze_v1"); assert all(x not in t for x in forbidden)'
+
+      - name: Build isolated v2 discovery capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/ve2-runtime-discovery-v2-capsule
+          mkdir -p /tmp/ve2-runtime-discovery-v2-capsule
+          for f in \
+            VE2_RUNTIME_DISCOVERY_CONSTITUTION_V1.json \
+            VE2_RUNTIME_DISCOVERY_CANDIDATES_V1.json \
+            VE2_RUNTIME_DISCOVERY_PRE_RESULT_AUTHORITY_V1.json \
+            VE2_RUNTIME_DISCOVERY_V1_FAILURE_RECEIPT_MIRROR.json \
+            VE2_RUNTIME_DISCOVERY_REMEDIATION_CONTRACT_V2_MIRROR.json \
+            VE2_RUNTIME_DISCOVERY_PUBLIC_CONTRACT_V2.json \
+            ve2_runtime_inside_probe_v1.py \
+            ve2_runtime_discovery_public_v2.py \
+            VE2_RUNTIME_DISCOVERY_OPEN_V2.json; do cp "$f" /tmp/ve2-runtime-discovery-v2-capsule/; done
+          test "$(find /tmp/ve2-runtime-discovery-v2-capsule -maxdepth 1 -type f | wc -l)" -eq 9
+          ! find /tmp/ve2-runtime-discovery-v2-capsule -type f -iname '*frontier*' | grep -q .
+
+      - name: Execute frozen v2 first-pass runtime discovery
+        id: discovery
+        shell: bash
+        working-directory: /tmp/ve2-runtime-discovery-v2-capsule
+        run: |
+          set -euo pipefail
+          rm -rf work results
+          mkdir -p work results
+          python ve2_runtime_discovery_public_v2.py \
+            --inside-probe ve2_runtime_inside_probe_v1.py \
+            --work work \
+            --out results/VE2_RUNTIME_DISCOVERY_RESULT_V2.json
+
+      - name: Seal v2 discovery provenance and checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf ve2-runtime-discovery-v2-results
+          mkdir -p ve2-runtime-discovery-v2-results
+          for f in \
+            VE2_RUNTIME_DISCOVERY_OPEN_V2.json \
+            VE2_RUNTIME_DISCOVERY_CONSTITUTION_V1.json \
+            VE2_RUNTIME_DISCOVERY_CANDIDATES_V1.json \
+            VE2_RUNTIME_DISCOVERY_PRE_RESULT_AUTHORITY_V1.json \
+            VE2_RUNTIME_DISCOVERY_V1_FAILURE_RECEIPT_MIRROR.json \
+            VE2_RUNTIME_DISCOVERY_REMEDIATION_CONTRACT_V2_MIRROR.json \
+            VE2_RUNTIME_DISCOVERY_PUBLIC_CONTRACT_V2.json; do cp "/tmp/ve2-runtime-discovery-v2-capsule/$f" ve2-runtime-discovery-v2-results/; done
+          if [ -f /tmp/ve2-runtime-discovery-v2-capsule/results/VE2_RUNTIME_DISCOVERY_RESULT_V2.json ]; then cp /tmp/ve2-runtime-discovery-v2-capsule/results/VE2_RUNTIME_DISCOVERY_RESULT_V2.json ve2-runtime-discovery-v2-results/; fi
+          status=MISSING
+          rsha=""
+          if [ -f ve2-runtime-discovery-v2-results/VE2_RUNTIME_DISCOVERY_RESULT_V2.json ]; then
+            status="$(python -c 'import json; print(json.load(open("ve2-runtime-discovery-v2-results/VE2_RUNTIME_DISCOVERY_RESULT_V2.json")).get("status","FAIL"))')"
+            rsha="$(sha256sum ve2-runtime-discovery-v2-results/VE2_RUNTIME_DISCOVERY_RESULT_V2.json | cut -d' ' -f1)"
+          fi
+          STATUS="$status" RSHA="$rsha" SOURCE="$(git rev-parse HEAD^)" python -c 'import json,os,pathlib; pathlib.Path("ve2-runtime-discovery-v2-results/VE2_RUNTIME_DISCOVERY_PROVENANCE_V2.json").write_text(json.dumps({"schema":"replaymark.ve2.runtime-discovery-provenance.v2","repository":os.environ["GITHUB_REPOSITORY"],"execution_head":os.environ["GITHUB_SHA"],"source_candidate_head":os.environ["SOURCE"],"failed_v1_head":os.environ["FAILED_V1_HEAD"],"private_v2_pre_result_authority":os.environ["PRIVATE_V2_AUTHORITY"],"workflow_run_id":int(os.environ["GITHUB_RUN_ID"]),"run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),"discovery_status":os.environ["STATUS"],"result_sha256":os.environ["RSHA"] or None,"scientific_result_opened":False,"frontier_result_seen":False,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0,"v1_rerun_authorized":False,"rerun_authorized":False},sort_keys=True,indent=2)+"\n")'
+          (
+            cd ve2-runtime-discovery-v2-results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+            echo "CHECKSUMS_SHA256=$(sha256sum CHECKSUMS.sha256 | cut -d' ' -f1)"
+            cat CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable v2 runtime discovery capsule
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-runtime-discovery-qualification-v2
+          path: ve2-runtime-discovery-v2-results
+          retention-days: 90
+          if-no-files-found: error
+          compression-level: 6
+          overwrite: false
+          include-hidden-files: false
+
+      - name: Surface PASS only after sealed v2 artifact upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f ve2-runtime-discovery-v2-results/VE2_RUNTIME_DISCOVERY_RESULT_V2.json
+          python -c 'import json; v=json.load(open("ve2-runtime-discovery-v2-results/VE2_RUNTIME_DISCOVERY_RESULT_V2.json")); assert v["status"]=="PASS"; assert v["scientific_result_opened"] is False and v["frontier_result_seen"] is False and v["ve2_home_assistant_scientific_cells"]==0 and v["ve2_replaymark_scientific_cells"]==0 and v["transition_fixture_executed"] is False and v["historical_action_dispatched"] is False and v["v1_failed_run_preserved"] is True; assert v["transport_preflight"]["status"]=="PASS"; assert all(v["selected"][x] is not None for x in ("T01_OLD_HISTORY","T01_NEW_TARGET","T02_COMMON"))'

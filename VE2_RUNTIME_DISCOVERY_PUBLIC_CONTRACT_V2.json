@@ -1,0 +1,21 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-public-contract.v2",
+  "status": "FROZEN_PRE_V2_PUBLIC_EXECUTION",
+  "failed_v1_head": "7b988e8cc946cd90b97dc3615876c45295e2440f",
+  "failed_v1_run_id": 34506501065,
+  "private_remediation_contract_commit": "dd1e824696caf10c4ed87dc720e715723e627e03",
+  "candidate_lattice_file": "VE2_RUNTIME_DISCOVERY_CANDIDATES_V1.json",
+  "candidate_lattice_unchanged": true,
+  "inside_probe_file": "ve2_runtime_inside_probe_v1.py",
+  "inside_probe_unchanged": true,
+  "authorized_delta": [
+    "absolute host bind paths",
+    "source-independent bind transport preflight",
+    "probe-result sentinel",
+    "fail-fast discovery infrastructure taxonomy"
+  ],
+  "science_open_authorized": false,
+  "frontier_files_permitted_in_capsule": false,
+  "v1_rerun_authorized": false,
+  "scientific_exposure": {"frontier_result_seen":false,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0}
+}

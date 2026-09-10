@@ -1,0 +1,42 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-remediation-contract.v2",
+  "status": "FROZEN_PROSPECTIVE_PRE_V2_EXECUTION",
+  "parent_failure_receipt_commit": "9d10d1c588e438793d1866bf8e1190dabe42ea27",
+  "failed_public_run": {"run_id":34506501065,"attempt":1,"head":"7b988e8cc946cd90b97dc3615876c45295e2440f"},
+  "failure_scope": "PRE_PROBE_HOST_BIND_TRANSPORT_ONLY",
+  "immutable_from_v1": {
+    "candidate_lattice": true,
+    "candidate_order": true,
+    "first_pass_selection_law": true,
+    "upstream_source_commits": true,
+    "source_identity_checks": true,
+    "preferred_T02_2026_9_0_digest": true,
+    "inside_component_probe_semantics": true,
+    "scientific_transition_semantics": true,
+    "scientific_state_frontiers": true
+  },
+  "authorized_changes_only": [
+    "Canonicalize every host-side bind source path with pathlib.Path(...).resolve() before docker invocation.",
+    "Require every host bind source path to be absolute before candidate execution.",
+    "Introduce an orthogonal source-independent bind-transport preflight before consuming the frozen candidate lattice.",
+    "Classify docker daemon/CLI failure before container start, including exit 125 caused by invalid bind syntax, as DISCOVERY_INFRASTRUCTURE_FAILURE rather than SOURCE_RUNTIME_INCOMPATIBLE.",
+    "Abort the v2 authority immediately on discovery infrastructure failure; do not consume later candidates.",
+    "Record container_started/probe_result_present evidence so candidate incompatibility is only assigned after the inside probe actually starts and emits a readable result."
+  ],
+  "forbidden_changes": [
+    "reorder, remove, add, or skip candidate tags",
+    "change any Better Thermostat source commit or blueprint identity",
+    "change inside component import obligations in response to a candidate result",
+    "execute or expose VE2 transition fixtures, expected frontiers, or historical actions",
+    "rerun the failed v1 authority",
+    "reinterpret an actual inside-probe incompatibility as infrastructure failure"
+  ],
+  "v2_failure_taxonomy": {
+    "IMAGE_UNAVAILABLE": "candidate-specific only when docker pull fails with a registry/image availability error",
+    "DISCOVERY_INFRASTRUCTURE_FAILURE": "host/docker transport failure before a candidate inside probe begins or before a readable probe result is emitted",
+    "SOURCE_RUNTIME_INCOMPATIBLE": "candidate-specific only when container start succeeded and the inside probe emitted a readable FAIL result or exited nonzero after probe start",
+    "PASS": "inside probe emitted PASS, docker exit is zero, and image/source identities satisfy all frozen obligations"
+  },
+  "scientific_exposure_at_freeze": {"frontier_result_seen":false,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0},
+  "next_gate": "Build a minimal v2 public remediation source from the failed v1 source, independently verify only the authorized transport/taxonomy delta, then open one fresh v2 authority."
+}

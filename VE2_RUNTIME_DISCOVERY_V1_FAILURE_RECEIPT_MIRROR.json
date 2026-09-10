@@ -1,0 +1,38 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-failure-receipt.v1",
+  "status": "SEALED_PRE_SCIENCE_INFRASTRUCTURE_FAILURE",
+  "private_discovery_authority": "e92c6b919b7fd9744410ee400641a2c16106227a",
+  "public_execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "head": "7b988e8cc946cd90b97dc3615876c45295e2440f",
+    "run_id": 34506501065,
+    "run_attempt": 1,
+    "job_id": 102969876687,
+    "conclusion": "failure",
+    "artifact_id": 10164428845,
+    "artifact_name": "ve2-runtime-discovery-qualification-v1",
+    "artifact_zip_sha256": "73ca6333c1a07d9587499ae0d25c82f78d9bed0b0ed555dec74888094cc27ae5",
+    "result_sha256": "cf8743c385f2be576a92f218093e28caf5277b74c54877076c32e667cd13e3c3",
+    "checksums_manifest_sha256": "ecf40b3ab81c5d4364809edd33cb1ad32baba95a0454fc90bfffc2e27f3d2597"
+  },
+  "diagnosis": {
+    "root_cause": "The coordinator passed relative host paths such as work/sources/t01_old_history to docker --volume. Docker interpreted them as named-volume identifiers and rejected the slash-containing names before container start.",
+    "docker_exit_code": 125,
+    "affected_candidate_attempts": 16,
+    "separate_image_unavailable_attempt": {"role":"T01_OLD_HISTORY","tag":"2022.1.0","reason":"manifest unknown"},
+    "candidate_component_probe_started_for_affected_attempts": false,
+    "original_failure_class_was_overbroad": "SOURCE_RUNTIME_INCOMPATIBLE",
+    "correct_failure_class": "PRE_PROBE_BIND_MOUNT_TRANSPORT_FAILURE"
+  },
+  "selection_result": {"T01_OLD_HISTORY":null,"T01_NEW_TARGET":null,"T02_COMMON":null},
+  "scientific_exposure": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "transition_fixture_executed": false,
+    "historical_action_dispatched": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "rerun_of_v1_authority_authorized": false,
+  "next_gate": "Prospective transport-only remediation contract and fresh v2 public authority. Candidate lattice and scientific semantics remain unchanged."
+}
