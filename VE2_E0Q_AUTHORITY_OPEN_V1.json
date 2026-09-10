@@ -1,0 +1,10 @@
+{
+  "schema": "replaymark.ve2.e0q-authority-open.v1",
+  "authority": "ORTHOGONAL_VERSION_SPANNING_BOUNDARY_FIRST_COMPLETE",
+  "source_freeze_public_head": "b5194f9dcb792f9e993dfb78cd7c94172abf5ea4",
+  "private_e0q_authority": "227e4e75528d8b73d7225ef68bc2c63d29978be5",
+  "boundary_git_blob": "0e566517bbb83c8573b0835e850ab5020ac97988",
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "rerun_authorized": false
+}
