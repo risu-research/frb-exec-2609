@@ -1,0 +1,107 @@
+{
+  "schema": "replaymark.ve2.science-transport-v2-pre-neutral-failure-seal.v1",
+  "status": "SEALED_PRE_SCIENCE_TRANSPORT_FAILURE_NOT_CONSUMED",
+  "authority": {
+    "private_preopen_commit": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "v1_failure_seal_commit": "f38790085763f4ee7d6536c43bd8e5902d88dd30",
+    "v2_source_freeze_public_head": "dad1e579be9dd38d85716f275d7c294f283d214f",
+    "v2_open_commit": "96588c3a10bca3375a684fd455e6684e8b66f75b",
+    "run_id": 34543478249,
+    "run_attempt": 1,
+    "run_conclusion": "failure"
+  },
+  "v1_repair_verification": {
+    "version_namespace_repair_effective": true,
+    "T01_OLD_observed_version": "2022.10.0",
+    "T01_NEW_observed_version": "2026.1.0",
+    "T02_observed_version": "2026.9.0",
+    "all_three_exact_image_version_preflights_passed": true
+  },
+  "role_outcomes": {
+    "T01_OLD_RUNTIME": {
+      "artifact_id": 10178154571,
+      "artifact_zip_sha256": "06ae124f2882813a7d1ce45a6628996df80d5eae0798853f6d9d308a5ceb0d16",
+      "runtime_exit": 1,
+      "result_json_present": false,
+      "rows_opened": 0,
+      "failure_phase": "MODULE_IMPORT_BEFORE_QUALIFIER_MAIN",
+      "root_cause": "Importing homeassistant.components.automation directly in a minimally bootstrapped HA 2022.10 process enters the blueprint/websocket/entity/config_entries/persistent_notification cycle and raises ImportError for async_generate_entity_id from a partially initialized homeassistant.helpers.entity module.",
+      "stderr_sha256": "3aa0cdf37ccf863542f7b3963560a81f8cfcc5c080bef4dbf2598600637afcb9",
+      "exit_file_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "T01_NEW_RUNTIME": {
+      "artifact_id": 10178168303,
+      "artifact_zip_sha256": "f0dd93aa87f582823d8e52ab733c740a4c85245c1fb6383e26486b0a348440fb",
+      "runtime_exit": 2,
+      "result_json_present": true,
+      "result_json_sha256": "d34b1fedac37783cccfffb66b80fd53928336aa75c1e12732d14c74bdf791ecd",
+      "result_status": "INFRASTRUCTURE_INCOMPLETE",
+      "rows_opened": 0,
+      "failure_phase": "FRESH_HASS_PRE_CASE_CONFIGURATION",
+      "root_cause": "Qualifier called Config.set_time_zone on HA 2026.1, where the native API is async_set_time_zone.",
+      "recorded_failure": "AttributeError: 'Config' object has no attribute 'set_time_zone'"
+    },
+    "T02_RUNTIME": {
+      "artifact_id": 10178163356,
+      "artifact_zip_sha256": "8adf84965e63a2f0c08895fdafe5aaca5198a0552a192c92f12c979d13c16284",
+      "runtime_exit": 2,
+      "result_json_present": true,
+      "result_json_sha256": "061c5842c154dd4cb59b1ef0051c59169b7ac1a3bd98ed89d0498415987ef2e2",
+      "result_status": "INFRASTRUCTURE_INCOMPLETE",
+      "rows_opened": 0,
+      "failure_phase": "FRESH_HASS_PRE_CASE_CONFIGURATION",
+      "root_cause": "Qualifier called Config.set_time_zone on HA 2026.9, where the native API is async_set_time_zone.",
+      "recorded_failure": "AttributeError: 'Config' object has no attribute 'set_time_zone'"
+    }
+  },
+  "adjudication_outcome": {
+    "independent_validator_invoked": false,
+    "reason": "Role capsule structural gate correctly rejected nonzero runtime exit before scientific transport adjudication.",
+    "aggregate_artifact_present": false,
+    "secondary_harness_defect": "The failure-provenance step assumed aggregate/ already existed after the validator was skipped, causing FileNotFoundError and preventing aggregate failure-artifact upload.",
+    "secondary_defect_scientific_effect": "none"
+  },
+  "source_provenance_for_successor": {
+    "HA_2022_10_bootstrap_import_order": "homeassistant.bootstrap imports config/config_entries/core/loader and persistent_notification before normal component setup; direct automation import in the bare process does not reproduce that initialized module order.",
+    "HA_2022_10_timezone_api": "Config.set_time_zone is synchronous.",
+    "HA_2026_1_timezone_api": "Config.async_set_time_zone is asynchronous.",
+    "HA_2026_9_timezone_api": "Config.async_set_time_zone is asynchronous.",
+    "already_qualified_cross_version_precedent": "ve2_e0q_role_runtime_v2.py prospectively adapts HomeAssistant constructor and loader initialization by API surface rather than by result-dependent retry."
+  },
+  "scientific_hygiene": {
+    "transition_blueprint_executed": false,
+    "scientific_fixture_executed": false,
+    "expected_frontier_read": false,
+    "historical_better_thermostat_action_dispatched": false,
+    "neutral_automation_invocations_completed": 0,
+    "neutral_transport_rows_opened": 0,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "remediation_law": {
+    "same_authority_rerun": false,
+    "v2_open_remains_failed_and_immutable": true,
+    "authorized_successor": "VE2_SCIENCE_TRANSPORT_QUALIFICATION_V3",
+    "successor_goal": "Replace fragile bare-process Home Assistant construction/import/configuration with one prospectively selected cross-version bootstrap adapter, and make failure provenance creation total even when validation is skipped.",
+    "permitted_changes": [
+      "Delay automation/trace integration imports until the Home Assistant bootstrap prerequisites are initialized.",
+      "Use the already-E0Q-qualified constructor/loader compatibility strategy rather than assuming one HomeAssistant constructor signature.",
+      "Set UTC through a prospectively selected version-stable adapter: synchronous Config.set_time_zone when present, otherwise await Config.async_set_time_zone; choose by API presence before any case result exists, never by retry after an exception.",
+      "Create aggregate output directory before any role-exit gate so failed qualification evidence is always sealable.",
+      "Version runtime, validator, workflow, and remediation metadata as needed to prove the exact successor surface."
+    ],
+    "forbidden_changes": [
+      "T01/T02 scientific state populations",
+      "expected-frontier files or labels",
+      "transport pass criteria",
+      "neutral qualification case population",
+      "clock-driver semantic target",
+      "scientific promotion criteria",
+      "scientific source/runtime pins"
+    ],
+    "result_dependent_transport_fallback": false,
+    "scientific_estimand_or_promotion_change": false
+  }
+}
