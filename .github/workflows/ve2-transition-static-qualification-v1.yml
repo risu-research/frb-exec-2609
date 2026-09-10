@@ -1,0 +1,133 @@
+name: VE2 transition semantic freeze public qualification v1
+
+on:
+  push:
+    branches:
+      - ve2-transition-static-qualification-v1
+
+permissions:
+  contents: read
+
+env:
+  BASE_CENSUS_PASS: 4c4151a3675605218fed6a6847a7b22df96dc92b
+  PRIVATE_AUTHORITY_HEAD: 3b941bce64dbb5c38a1125fb007f9eaa102dceb4
+  META_BLOB: b73d1a4ba37c204827ace95826b4b8c97d9cb8ad
+  T01_NATIVE_BLOB: 57db97c6275e2eb70da73d62e5c495e2010fea4b
+  T01_FRONTIER_BLOB: edad64a2b289f103712f9fe74877e713b8af5551
+  T01_MANIFEST_BLOB: c1731d24387ec4c2dcb33167a286d89fc45ef254
+  T02_NATIVE_BLOB: e02a0b40b1ba700c4752533b14d615839ce46986
+  T02_FRONTIER_BLOB: 76d4ecabf6938e13b719d6350deb191106df5c57
+  T02_MANIFEST_BLOB: c9d543be934dd0cc33b67a2f987f0eae9705a83b
+  RUNTIME_BLOB: 876c30167785c505cea47906c408b03774399a8b
+  PRIVATE_GENERATOR_BLOB: cc57cd825b6d8bf68d2c661efbdc5d6357699b53
+  PRIVATE_VERIFY_BLOB: 8fbeee9329c17286921a06cbd68b95ccb7b422c9
+  PRIVATE_AUTHORITY_BLOB: 878288af489081d0c94d8afa3c19682298b421c6
+  QUALIFIER_BLOB: 51373dfa91c66270bc2b6209346ebb000c394ca4
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact qualification authority
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Require exact lineage, one-file open, mirrors, and independent oracle
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          source_candidate="$(git rev-parse HEAD^)"
+          test "$(git rev-parse HEAD^^)" = "$BASE_CENSUS_PASS"
+          mapfile -t marker_delta < <(git diff --name-only "$source_candidate..HEAD")
+          test "${#marker_delta[@]}" -eq 1
+          test "${marker_delta[0]}" = "VE2_TRANSITION_STATIC_QUALIFICATION_OPEN_V1.json"
+          printf '%s\n' \
+            '.github/workflows/ve2-transition-static-qualification-v1.yml' \
+            'VE2_LABEL_FIREWALLED_RUNTIME_CONSTITUTION_V1.json' \
+            'VE2_T01_EXECUTION_STATE_MANIFEST_V1.json' \
+            'VE2_T01_EXPECTED_FRONTIER_V1.json' \
+            'VE2_T01_NATIVE_SEMANTICS_V1.json' \
+            'VE2_T02_EXECUTION_STATE_MANIFEST_V1.json' \
+            'VE2_T02_EXPECTED_FRONTIER_V1.json' \
+            'VE2_T02_NATIVE_SEMANTICS_V1.json' \
+            'VE2_TRANSITION_META_CONSTITUTION_V1.json' \
+            'VE2_TRANSITION_PRE_RESULT_AUTHORITY_V1.json' \
+            've2_transition_independent_qualify_v1.py' \
+            've2_transition_semantics_v1.py' \
+            'verify_ve2_transition_freeze_v1.py' \
+            | LC_ALL=C sort > /tmp/expected-delta
+          git diff --name-only "$BASE_CENSUS_PASS..$source_candidate" | LC_ALL=C sort > /tmp/actual-delta
+          diff -u /tmp/expected-delta /tmp/actual-delta
+          test "$(git hash-object --no-filters VE2_TRANSITION_META_CONSTITUTION_V1.json)" = "$META_BLOB"
+          test "$(git hash-object --no-filters VE2_T01_NATIVE_SEMANTICS_V1.json)" = "$T01_NATIVE_BLOB"
+          test "$(git hash-object --no-filters VE2_T01_EXPECTED_FRONTIER_V1.json)" = "$T01_FRONTIER_BLOB"
+          test "$(git hash-object --no-filters VE2_T01_EXECUTION_STATE_MANIFEST_V1.json)" = "$T01_MANIFEST_BLOB"
+          test "$(git hash-object --no-filters VE2_T02_NATIVE_SEMANTICS_V1.json)" = "$T02_NATIVE_BLOB"
+          test "$(git hash-object --no-filters VE2_T02_EXPECTED_FRONTIER_V1.json)" = "$T02_FRONTIER_BLOB"
+          test "$(git hash-object --no-filters VE2_T02_EXECUTION_STATE_MANIFEST_V1.json)" = "$T02_MANIFEST_BLOB"
+          test "$(git hash-object --no-filters VE2_LABEL_FIREWALLED_RUNTIME_CONSTITUTION_V1.json)" = "$RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_transition_semantics_v1.py)" = "$PRIVATE_GENERATOR_BLOB"
+          test "$(git hash-object --no-filters verify_ve2_transition_freeze_v1.py)" = "$PRIVATE_VERIFY_BLOB"
+          test "$(git hash-object --no-filters VE2_TRANSITION_PRE_RESULT_AUTHORITY_V1.json)" = "$PRIVATE_AUTHORITY_BLOB"
+          test "$(git hash-object --no-filters ve2_transition_independent_qualify_v1.py)" = "$QUALIFIER_BLOB"
+          SOURCE_CANDIDATE="$source_candidate" python -c 'import json,os; v=json.load(open("VE2_TRANSITION_STATIC_QUALIFICATION_OPEN_V1.json")); assert v=={"schema":"replaymark.ve2.transition-static-qualification-open.v1","authority":"STATIC_TRANSITION_FREEZE_QUALIFICATION_ONLY","source_candidate_head":os.environ["SOURCE_CANDIDATE"],"private_authority_head":os.environ["PRIVATE_AUTHORITY_HEAD"],"base_census_pass":os.environ["BASE_CENSUS_PASS"],"scientific_result_opened":False,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0,"runtime_E0Q_opened":False,"rerun_authorized":False}'
+          python -m py_compile ve2_transition_independent_qualify_v1.py
+          python -c 'import ast,pathlib; p=pathlib.Path("ve2_transition_independent_qualify_v1.py"); t=ast.parse(p.read_text()); mods={n.module for n in ast.walk(t) if isinstance(n,ast.ImportFrom) and n.module} | {a.name for n in ast.walk(t) if isinstance(n,ast.Import) for a in n.names}; assert "ve2_transition_semantics_v1" not in mods; assert "verify_ve2_transition_freeze_v1" not in mods; assert not any(m=="replaymark" or m.startswith("replaymark.") for m in mods)'
+          test "$(grep -c 've2_transition_semantics_v1' ve2_transition_independent_qualify_v1.py || true)" -eq 0
+          test "$(grep -c 'verify_ve2_transition_freeze_v1' ve2_transition_independent_qualify_v1.py || true)" -eq 0
+
+      - name: Independently rederive both frozen transition frontiers
+        id: qualify
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          rm -rf ve2-transition-work ve2-transition-results
+          PRIVATE_AUTHORITY_HEAD="$PRIVATE_AUTHORITY_HEAD" python ve2_transition_independent_qualify_v1.py --work ve2-transition-work --out-dir ve2-transition-results
+
+      - name: Seal public qualification capsule regardless of outcome
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ve2-transition-results
+          cp VE2_TRANSITION_STATIC_QUALIFICATION_OPEN_V1.json ve2-transition-results/
+          cp VE2_TRANSITION_META_CONSTITUTION_V1.json ve2-transition-results/
+          cp VE2_T01_NATIVE_SEMANTICS_V1.json ve2-transition-results/
+          cp VE2_T01_EXPECTED_FRONTIER_V1.json ve2-transition-results/
+          cp VE2_T01_EXECUTION_STATE_MANIFEST_V1.json ve2-transition-results/
+          cp VE2_T02_NATIVE_SEMANTICS_V1.json ve2-transition-results/
+          cp VE2_T02_EXPECTED_FRONTIER_V1.json ve2-transition-results/
+          cp VE2_T02_EXECUTION_STATE_MANIFEST_V1.json ve2-transition-results/
+          cp VE2_LABEL_FIREWALLED_RUNTIME_CONSTITUTION_V1.json ve2-transition-results/
+          cp VE2_TRANSITION_PRE_RESULT_AUTHORITY_V1.json ve2-transition-results/
+          cp ve2_transition_independent_qualify_v1.py ve2-transition-results/
+          cp .github/workflows/ve2-transition-static-qualification-v1.yml ve2-transition-results/
+          (
+            cd ve2-transition-results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+            echo "CHECKSUMS_SHA256=$(sha256sum CHECKSUMS.sha256 | cut -d' ' -f1)"
+            cat CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable transition-freeze qualification capsule
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-transition-static-qualification-v1
+          path: ve2-transition-results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface PASS only after capsule upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f ve2-transition-results/VE2_PUBLIC_TRANSITION_STATIC_QUALIFICATION_V1.json
+          python -c 'import json; v=json.load(open("ve2-transition-results/VE2_PUBLIC_TRANSITION_STATIC_QUALIFICATION_V1.json")); assert v["status"]=="PASS"; assert v["T01"]["states"]==2 and v["T01"]["compatible"]==0 and v["T01"]["retired"]==2; assert v["T01"]["canonical_rows_sha256"]=="6d4b4ac7738885bcf1226161d84726926b15d3139502dd5e31499a4850328f2a"; assert v["T02"]["abstract_states"]==144 and v["T02"]["abstract_compatible"]==97 and v["T02"]["abstract_retired"]==47; assert v["T02"]["quotient_classes"]==42 and v["T02"]["quotient_compatible"]==18 and v["T02"]["quotient_retired"]==24 and v["T02"]["class_weights_sum"]==144; assert v["T02"]["abstract_rows_sha256"]=="6292de3f4889bb69491faf40cdc3c421576ea750e4d70cb032a6b0bbc81c60ae"; assert v["T02"]["quotient_rows_sha256"]=="c4c3d495df1659aaf94fb1d517b9fdd483759344c429e58aa51a45d415b74c25"; assert v["T02"]["label_free_execution_manifest_sha256"]=="f791b6b93ee3febe483c9f85aa977db04c3e431479bf4404f5c9d7d6194fed94"; assert v["scientific_exposure"]["ve2_home_assistant_scientific_cells"]==0 and v["scientific_exposure"]["ve2_replaymark_scientific_cells"]==0; assert v["science_open_authorized"] is False'

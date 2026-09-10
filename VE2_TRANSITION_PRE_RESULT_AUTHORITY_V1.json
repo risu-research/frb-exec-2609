@@ -1,0 +1,75 @@
+{
+  "schema": "replaymark.ve2.transition-pre-result-authority.v1",
+  "status": "SEALED_PRIVATE_PRE_RESULT_AUTHORITY",
+  "census_parent": {
+    "private_receipt_commit": "5faeccef2514885695b79a51c63a6284d99ceb89",
+    "public_census_pass_commit": "4c4151a3675605218fed6a6847a7b22df96dc92b"
+  },
+  "source_freeze": {
+    "commit": "a3ed432160aebcc7ea305d24036014b688ecda87",
+    "tree": "3248b3e63a6525a686d83830531992c5d878686c",
+    "parent": "5faeccef2514885695b79a51c63a6284d99ceb89",
+    "atomic_delta_file_count": 10,
+    "artifacts": {
+      "VE2_TRANSITION_META_CONSTITUTION_V1.json": ["b73d1a4ba37c204827ace95826b4b8c97d9cb8ad", "5cd650bf18e4024492290f2b70927907db68d33d3f8b593dacc3783814d07648"],
+      "VE2_T01_NATIVE_SEMANTICS_V1.json": ["57db97c6275e2eb70da73d62e5c495e2010fea4b", "1feec696dba67c3e055d90c7ef81cad100eaf806feef543634c6cb5fecd3b9a7"],
+      "VE2_T01_EXPECTED_FRONTIER_V1.json": ["edad64a2b289f103712f9fe74877e713b8af5551", "2fa7408cab7b5df09fe7c2996e884fdb4f5a9bd517aa6b0a9ab28f1b03296cdf"],
+      "VE2_T01_EXECUTION_STATE_MANIFEST_V1.json": ["c1731d24387ec4c2dcb33167a286d89fc45ef254", "0507f5c23f42ae4e01d2b390bde1bff8c4f0ad144b9e0f7720951e7eacdb97be"],
+      "VE2_T02_NATIVE_SEMANTICS_V1.json": ["e02a0b40b1ba700c4752533b14d615839ce46986", "e9e34a2f67b8b666338b807667d6c347993216add7b1d8578d1b8336bf9cd5b2"],
+      "VE2_T02_EXPECTED_FRONTIER_V1.json": ["76d4ecabf6938e13b719d6350deb191106df5c57", "25066425c90853836d7f6ef4c285fb6a45e67925b6dbf710de29264120927093"],
+      "VE2_T02_EXECUTION_STATE_MANIFEST_V1.json": ["c9d543be934dd0cc33b67a2f987f0eae9705a83b", "646828d79ef5a7a719dccaf894b5ba16674c5eab114c012aa11bca50b13f5060"],
+      "VE2_LABEL_FIREWALLED_RUNTIME_CONSTITUTION_V1.json": ["876c30167785c505cea47906c408b03774399a8b", "5d936f0958762ecd33adcb50fc747b184b13f24a09deb1b06ed94dcac91dd330"],
+      "ve2_transition_semantics_v1.py": ["cc57cd825b6d8bf68d2c661efbdc5d6357699b53", "9a71da93486929e5f4f5dda3aef79542b2d7babebc72b3e5709f41149cc5a0a3"],
+      "verify_ve2_transition_freeze_v1.py": ["8fbeee9329c17286921a06cbd68b95ccb7b422c9", "135844cc92cc671732d8a86ba0a3240cc29ace00e679af0ebd70ba8ef6a187bb"]
+    }
+  },
+  "frontiers": {
+    "T01": {
+      "transition_id": "VE2-T01-NIGHT-ACTION-FAMILY",
+      "states_per_replica": 2,
+      "replicas": 2,
+      "compatible": 0,
+      "retired": 2,
+      "canonical_rows_sha256": "6d4b4ac7738885bcf1226161d84726926b15d3139502dd5e31499a4850328f2a"
+    },
+    "T02": {
+      "transition_id": "VE2-T02-WEEKLY-GUARD-REALIZATION",
+      "abstract_states": 144,
+      "abstract_compatible": 97,
+      "abstract_retired": 47,
+      "quotient_classes": 42,
+      "states_per_replica": 42,
+      "replicas": 2,
+      "quotient_compatible": 18,
+      "quotient_retired": 24,
+      "abstract_rows_sha256": "6292de3f4889bb69491faf40cdc3c421576ea750e4d70cb032a6b0bbc81c60ae",
+      "quotient_rows_sha256": "c4c3d495df1659aaf94fb1d517b9fdd483759344c429e58aa51a45d415b74c25",
+      "label_free_execution_states_sha256": "f791b6b93ee3febe483c9f85aa977db04c3e431479bf4404f5c9d7d6194fed94"
+    }
+  },
+  "claim_boundary": "home-assistant.native-service-call",
+  "label_firewall": {
+    "runtime_receives_expected_labels": false,
+    "runtime_receives_expected_actions": false,
+    "replaymark_receives_new_direct_results": false,
+    "source_diff_is_authorization_oracle": false,
+    "version_mismatch_is_authorization_oracle": false,
+    "expected_tables_join_only_after_raw_result_seal": true
+  },
+  "excluded_unattached_transport_blobs": [
+    "385c8d31a377ecb32556dcd9bbb9e67729e77841",
+    "937a66206c6a34b341a421ebb4efe62628cd3978",
+    "cfe25c521d7cac1a034fb9229da0d5c46575134b"
+  ],
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "authorization": {
+    "public_static_qualification_required": true,
+    "runtime_E0Q_required": true,
+    "science_open_authorized": false
+  },
+  "next_gate": "Publicly mirror and independently rederive all frozen transition semantics, exact frontiers, quotient coverage, label-firewall properties, source identities, and digests without executing Home Assistant or ReplayMark scientific workloads."
+}

@@ -1,0 +1,59 @@
+{
+  "abstract_table": {
+    "canonical_rows_sha256": "6292de3f4889bb69491faf40cdc3c421576ea750e4d70cb032a6b0bbc81c60ae",
+    "compatible": 97,
+    "retired": 47,
+    "row_count": 144
+  },
+  "baselines": {
+    "replay_all": {
+      "policy": "always dispatch actual old historical action"
+    },
+    "replaymark": {
+      "policy": "semantic authorization only"
+    },
+    "version_lock": {
+      "policy": "reject every historical action because old/new upstream revisions differ"
+    }
+  },
+  "causal_path_quotient_table": {
+    "canonical_rows_sha256": "c4c3d495df1659aaf94fb1d517b9fdd483759344c429e58aa51a45d415b74c25",
+    "class_weights_sum": 144,
+    "compatible": 18,
+    "execution_manifest_states_sha256": "f791b6b93ee3febe483c9f85aa977db04c3e431479bf4404f5c9d7d6194fed94",
+    "retired": 24,
+    "row_count": 42
+  },
+  "claim_boundary": "home-assistant.native-service-call",
+  "materialization_rule": "Exact rows are generated only by ve2_transition_semantics_v1.py from the frozen native law. A materialization is authoritative only if all canonical digests below match; public qualification must export the fully materialized rows before any scientific open.",
+  "no_post_freeze_table_change": true,
+  "promotion_per_replica": {
+    "direct_reference_disagreement": 0,
+    "new_direct_source_agreement": "42/42",
+    "old_native_source_agreement": "42/42",
+    "replaymark_compatible_classes_executed": 18,
+    "replaymark_retired_classes_blocked": 24,
+    "unnecessary_native_recovery": 0,
+    "unsafe_retired_historical_dispatch": 0,
+    "weighted_abstract_frontier": {
+      "compatible": 97,
+      "retired": 47
+    }
+  },
+  "promotion_unit": "all 42 causal-path-preserving quotient representatives per replica",
+  "schema": "replaymark.ve2.t02.expected-frontier.v1",
+  "status": "FROZEN_BEFORE_NATIVE_OR_REPLAYMARK_RESULT",
+  "transition_id": "VE2-T02-WEEKLY-GUARD-REALIZATION",
+  "two_replica_total": {
+    "compatible_class_reuse": 36,
+    "direct_reference_disagreement": 0,
+    "quotient_state_instances": 84,
+    "retired_class_block": 48,
+    "unnecessary_native_recovery": 0,
+    "unsafe_retired_historical_dispatch": 0,
+    "weighted_abstract_state_instances": 288,
+    "weighted_compatible": 194,
+    "weighted_retired": 94
+  },
+  "weighted_frontier_role": "The 97/47 abstract-state counts are reconstructed from frozen class weights after raw execution is sealed; the runner never receives weights or labels."
+}

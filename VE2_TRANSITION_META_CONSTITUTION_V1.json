@@ -1,0 +1,52 @@
+{
+  "anti_homogenization_rule": "No requirement that transitions exhibit the same frontier shape. Degenerate all-retired, partial, or all-compatible frontiers are accepted if source semantics imply them.",
+  "included_transitions": [
+    "VE2-T01-NIGHT-ACTION-FAMILY",
+    "VE2-T02-WEEKLY-GUARD-REALIZATION"
+  ],
+  "next_gate": "Public independent static/semantic qualification of source identities, state-space derivations, expected frontier tables, and label firewall. No scientific cell may open until PASS is sealed.",
+  "parent_private_authority": {
+    "branch": "ve2-public-census-pass-receipt-v3",
+    "head": "5faeccef2514885695b79a51c63a6284d99ceb89",
+    "public_census_pass_blob": "9dd75adbc277608478131aaddebf84cf2fb86a93",
+    "public_census_pass_commit": "4c4151a3675605218fed6a6847a7b22df96dc92b"
+  },
+  "replication": {
+    "complete_population_per_replica": true,
+    "hosted_replicas": 2,
+    "partial_replica_promotable": false
+  },
+  "result_hygiene": {
+    "current_ve2_home_assistant_scientific_cells": 0,
+    "current_ve2_replaymark_scientific_cells": 0,
+    "eligible_but_runtime_nonexecutable_transition_remains_visible": true,
+    "frontier_tables_frozen_before_native_execution": true,
+    "no_post_result_quotient_change": true,
+    "no_post_result_state_substitution": true,
+    "no_transition_drop_after_result": true,
+    "runtime_execution_manifests_exclude_expected_labels": true
+  },
+  "schema": "replaymark.ve2.transition-semantic-meta-constitution.v1",
+  "scientific_question": "Across every semantic transition admitted by the frozen exhaustive upstream census, does ReplayMark recover the prospectively frozen historical-action compatibility frontier without unsafe reuse or unnecessary native recovery?",
+  "state_space_law": {
+    "compression": "Any runtime compression must be an exact causal-path-preserving quotient of a prospectively enumerated finite semantic superspace.",
+    "historical_frontier_domain": "shared old/new valid configuration domain only",
+    "new_only_features": "allowed only as non-promotional extension witnesses",
+    "representative_selection": "deterministic and outcome-independent",
+    "sampling": "none"
+  },
+  "status": "FROZEN_PRE_RESULT",
+  "transition_specific_shapes": {
+    "T01": "binary schedule-state domain; full retirement is permitted and expected if the old operation family has no identical New Direct action",
+    "T02": "144-state reachable finite superspace compressed to all 42 causal-path-preserving classes"
+  },
+  "uniform_claim_boundary": {
+    "endpoint": "home-assistant.native-service-call",
+    "projected_dimensions": [
+      "operation",
+      "concrete_target",
+      "variant"
+    ],
+    "reason": "Preserves the same native consequential-action boundary used by the prior VE1 Home Assistant experiment and avoids post hoc effect-level equivalence."
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "calibration_value": "This transition is intentionally allowed to have a degenerate all-retired frontier. It tests that ReplayMark does not force reuse when a real API family has been retired.",
+  "change_family": "FULL_STACK_ACTION_API_MIGRATION",
+  "claim_boundary": {
+    "effect_level_equivalence_not_used_for_promotion": true,
+    "endpoint": "home-assistant.native-service-call",
+    "historical_action_reuse_means": "delegate the exact historical HA service action; semantic substitution/regeneration is not ReplayMark reuse",
+    "projected_dimensions": [
+      "operation",
+      "concrete_target",
+      "variant"
+    ]
+  },
+  "common_event_domain": [
+    "schedule_state=off",
+    "schedule_state=on"
+  ],
+  "expected_frontier_summary": {
+    "compatible": 0,
+    "reason": "At the frozen native-service-call boundary both old operations differ from the New Direct operations; ReplayMark cannot call a semantically substituted operation and still call it reuse.",
+    "retired": 2
+  },
+  "fixed_configuration": {
+    "new_sleep_preset_must_be_enabled": true,
+    "night_temp_c": 18.0,
+    "night_times_schedule": "schedule.ve2_t01_night",
+    "thermostat_target": "climate.ve2_t01_thermostat"
+  },
+  "new_native_law": {
+    "new_services_yaml_excludes": [
+      "better_thermostat.save_current_target_temperature",
+      "better_thermostat.set_temp_target_temperature",
+      "better_thermostat.restore_saved_target_temperature"
+    ],
+    "new_target_component_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+    "removed_old_service_surface": true,
+    "schedule_off": {
+      "data": {
+        "preset_mode": "none"
+      },
+      "operation": "climate.set_preset_mode",
+      "target": "climate.ve2_t01_thermostat"
+    },
+    "schedule_on": {
+      "data": {
+        "preset_mode": "sleep"
+      },
+      "operation": "climate.set_preset_mode",
+      "target": "climate.ve2_t01_thermostat"
+    }
+  },
+  "nonclaims": [
+    "This frontier does not claim the old and new downstream temperature effects are always different.",
+    "This frontier does not treat migration to a new service as replay of the old service.",
+    "Current migration documentation may show effect-equivalent simple round trips; that is outside this exact historical-action reuse boundary."
+  ],
+  "old_native_law": {
+    "historical_target_component_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+    "schedule_off": {
+      "data": {},
+      "operation": "better_thermostat.restore_saved_target_temperature",
+      "target": "climate.ve2_t01_thermostat"
+    },
+    "schedule_on": {
+      "data": {
+        "temperature": 18.0
+      },
+      "operation": "better_thermostat.set_temp_target_temperature",
+      "target": "climate.ve2_t01_thermostat"
+    },
+    "service_effect_witness": {
+      "restore": "if saved temperature present, restore it, clear saved value, and enqueue control",
+      "set": "if saved temperature absent, save current target; set target to requested temperature; enqueue control; subsequent set changes target without overwriting saved value"
+    },
+    "service_registration_witness": "old services.yaml declares save/restore/set_temp_target_temperature and old climate.py registers set/restore entity services"
+  },
+  "schema": "replaymark.ve2.t01.native-semantics.v1",
+  "state_space": {
+    "abstract_state_count": 2,
+    "causal_path_preserving_quotient_count": 2,
+    "completeness_argument": "Both old and new blueprints use the same two state-change triggers and one binary state test; no third thermostat action path exists.",
+    "minimality_argument": "The blueprint has exactly two reachable trigger-result branches under the fixed configuration: schedule on and schedule off. night_temp is configuration, not a dynamic state dimension, and is frozen at 18.0 C."
+  },
+  "status": "FROZEN_PRE_RESULT",
+  "transition_id": "VE2-T01-NIGHT-ACTION-FAMILY",
+  "upstream": {
+    "blueprint_path": "blueprints/night_mode.yaml",
+    "new_blueprint_blob": "19c99196ed611729338f01bc77ea1b5deda7aa02",
+    "new_blueprint_sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363",
+    "new_file_touch_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+    "old_blueprint_blob": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+    "old_blueprint_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8",
+    "old_file_touch_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+    "pair_patch_sha256": "ddf6a1316693bf521969669f74e77e1f7dc71508ea856b45aedecbf9426c1ffd",
+    "repository": "KartoffelToby/better_thermostat"
+  }
+}

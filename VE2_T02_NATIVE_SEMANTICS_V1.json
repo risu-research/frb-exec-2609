@@ -1,0 +1,166 @@
+{
+  "causal_path_preserving_quotient": {
+    "class_count": 42,
+    "compatible_class_count": 18,
+    "key": [
+      "old_projected_action",
+      "new_projected_action",
+      "old_causal_path",
+      "new_causal_path"
+    ],
+    "representative_selection": "lexicographically smallest canonical raw fixture within each class; representatives then lexicographically ordered before opaque execution IDs are assigned",
+    "retired_class_count": 24,
+    "why_not_action_pair_only": "Action-pair-only quotient would collapse distinct guard paths and could hide a runtime realization defect even when the final action is equal."
+  },
+  "change_family": "GUARD_TYPE_REALIZATION_AND_AGGREGATION_EVOLUTION",
+  "changed_causal_axes": [
+    "schedule_paused false branch: old bare lowercase false remains truthy string; new renders boolean false",
+    "current_schedule_preset: old compares literal-evaluated integer active_slot to string digits and falls through to slot4; new casts active_slot to int",
+    "new source normalizes scalar/list selectors and aggregates presence/pause existentially",
+    "pause_off adds aggregate not-schedule-paused recheck",
+    "left_home rechecks aggregate anyone_home instead of only triggering entity"
+  ],
+  "claim_boundary": {
+    "endpoint": "home-assistant.native-service-call",
+    "projected_dimensions": [
+      "operation",
+      "concrete_target",
+      "variant"
+    ]
+  },
+  "finite_superspace": {
+    "compatible_state_count": 97,
+    "reachable_state_count": 144,
+    "retired_state_count": 47
+  },
+  "fixed_profile": {
+    "all_named_presets_must_be_enabled_on_target": true,
+    "day_routing_condition": "matched for slot triggers",
+    "day_type": "weekday",
+    "notifications_enabled": false,
+    "pause_switch": "input_boolean.ve2_pause",
+    "presence_entity": "binary_sensor.ve2_presence",
+    "slot_presets": {
+      "1": "comfort",
+      "2": "eco",
+      "3": "home",
+      "4": "sleep"
+    },
+    "thermostat_target": "climate.ve2_t02_thermostat",
+    "times": "four strictly ordered zero-padded slot times; fixtures place now() inside the requested active_slot",
+    "vacation_preset": "away"
+  },
+  "frontier_axes": {
+    "active_slot": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "enable_pause_switch": [
+      false,
+      true
+    ],
+    "enable_presence_mode": [
+      false,
+      true
+    ],
+    "pause_on": [
+      false,
+      true
+    ],
+    "presence_home": [
+      false,
+      true
+    ],
+    "trigger_kind": [
+      "slot1",
+      "slot2",
+      "slot3",
+      "slot4",
+      "startup",
+      "pause_off",
+      "arrived_home",
+      "left_home"
+    ]
+  },
+  "new_native_law": {
+    "action_surface": "climate.set_preset_mode or NO_ACTION",
+    "anyone_home_disabled_render": true,
+    "current_schedule_preset": "slot preset selected by int(active_slot)",
+    "schedule_paused_disabled_render": false,
+    "single old entity_id": "normalized to one-element list and then existentially evaluated"
+  },
+  "new_only_extension_witnesses": {
+    "cases": [
+      {
+        "name": "other_presence_entity_still_home",
+        "new_configuration": [
+          "binary_sensor.ve2_presence_a",
+          "binary_sensor.ve2_presence_b"
+        ],
+        "required_new_behavior": "left_home path must not apply vacation preset",
+        "states": {
+          "a": "off",
+          "b": "on"
+        },
+        "triggering_entity": "binary_sensor.ve2_presence_a"
+      },
+      {
+        "name": "other_pause_switch_still_on",
+        "new_configuration": [
+          "input_boolean.ve2_pause_a",
+          "input_boolean.ve2_pause_b"
+        ],
+        "required_new_behavior": "pause_off path must not resume schedule",
+        "states": {
+          "a": "off",
+          "b": "on"
+        },
+        "triggering_entity": "input_boolean.ve2_pause_a"
+      }
+    ],
+    "promotion_role": "NON_PROMOTIONAL"
+  },
+  "nonclaims": [
+    "The 144-state historical frontier does not count configurations containing multiple selected presence/pause entities because the old selector did not admit that configuration shape.",
+    "Notification-service interpolation changes are outside the thermostat consequential-action claim.",
+    "Mismatched weekday/Saturday/Sunday routing is frozen as an unchanged precondition and is not a frontier dimension."
+  ],
+  "old_native_law": {
+    "action_surface": "climate.set_preset_mode or NO_ACTION",
+    "anyone_home_disabled_render": "string:true (truthy)",
+    "current_schedule_preset": "always slot4 on active_slot values 1..4 because active_slot is literal-evaluated to int but compared with strings '1','2','3'",
+    "other_enabled single-entity presence/pause predicates": "boolean result of states()/is_state()",
+    "schedule_paused_disabled_render": "string:false (truthy)"
+  },
+  "reachability_constraints": [
+    "slotN fixes active_slot=N",
+    "pause_off fixes pause_on=false after the triggering transition",
+    "arrived_home fixes presence_home=true after the triggering transition",
+    "left_home fixes presence_home=false after the triggering transition",
+    "for non-presence state-trigger paths, presence_home is canonicalized to false when presence mode is disabled because the value is semantically ignored",
+    "for non-pause state-trigger paths, pause_on is canonicalized to false when pause mode is disabled because the value is semantically ignored"
+  ],
+  "schema": "replaymark.ve2.t02.native-semantics.v1",
+  "shared_historical_configuration_domain": {
+    "new_only_multi_entity_behavior_role": "secondary extension witness only; it cannot change compatibility counts",
+    "new_only_multi_entity_configurations_in_frontier": false,
+    "pause_switch_shape": "single scalar entity_id",
+    "presence_entity_shape": "single scalar entity_id",
+    "principle": "Frontier membership is defined only over configurations that an old-version installation could already possess and that the new source explicitly accepts after upgrade."
+  },
+  "status": "FROZEN_PRE_RESULT",
+  "transition_id": "VE2-T02-WEEKLY-GUARD-REALIZATION",
+  "upstream": {
+    "blueprint_path": "blueprints/weekly_heating_schedule.yaml",
+    "new_blueprint_blob": "3255957740ec44285d866d8be7d78bf905c1257c",
+    "new_blueprint_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e",
+    "new_file_touch_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+    "old_blueprint_blob": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+    "old_blueprint_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115",
+    "old_file_touch_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+    "pair_patch_sha256": "1559c4938ccd883ca1e8b2f2b08ac71c1bb8615a35776adc89f76de4c9254648",
+    "repository": "KartoffelToby/better_thermostat"
+  }
+}
