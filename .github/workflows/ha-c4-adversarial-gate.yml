@@ -1,0 +1,300 @@
+name: HA-C4 adversarial gate qualification
+
+on:
+  push:
+    branches:
+      - ha-c4-adversarial-gate-v1
+
+permissions:
+  contents: read
+
+env:
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  C3_PUBLIC_SOURCE_FREEZE: 87b3b5f7a030c0892a6211ad0d0cf2c1ffaa0aef
+  C3_PRIVATE_HEAD: 94d1fbe4882028ffcc3b639d0a1004e064022c35
+  C4_PRIVATE_PROTOCOL_FREEZE: 54d031015e1fbf1f47e5573ac0003178f0bb0b8c
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  FIXTURE_SHA256: 297ec8740a4604e60b3b64b150a2489bb4ada2ddaf988f0202bdaf8649204ab1
+  C3_GATE_BLOB: ec8d445bcf6659bead696fa4868ff7778123dbf6
+  C4_PROTOCOL_BLOB: 219d10852dd2417d9b2e645a2167eff4073b305d
+  C4_HARNESS_BLOB: 093e50c9fa2fb181412075010c114b2966a544c3
+
+jobs:
+  replica:
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [0, 1]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prove C4 is additive to the frozen C3 public source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$C3_PUBLIC_SOURCE_FREEZE" HEAD
+          git diff --name-status "$C3_PUBLIC_SOURCE_FREEZE..HEAD" | tee C4_PUBLIC_DIFF.txt
+          python - <<'PY'
+          from pathlib import Path
+          expected={
+            '.github/workflows/ha-c4-adversarial-gate.yml',
+            'HA_C4_ADVERSARIAL_GATE_PROTOCOL_V1.json',
+            'replaymark_verification/verify_ha_c4_adversarial_gate.py',
+          }
+          rows=[x for x in Path('C4_PUBLIC_DIFF.txt').read_text().splitlines() if x]
+          seen=set()
+          for row in rows:
+              status,path=row.split('\t',1)
+              assert status=='A',(status,path)
+              seen.add(path)
+          assert seen==expected,(seen,expected)
+          PY
+          test "$(git hash-object --no-filters replaymark/runtime_ha_bt_execution_gate.py)" = "$C3_GATE_BLOB"
+          test "$(git hash-object --no-filters HA_C4_ADVERSARIAL_GATE_PROTOCOL_V1.json)" = "$C4_PROTOCOL_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/verify_ha_c4_adversarial_gate.py)" = "$C4_HARNESS_BLOB"
+          python - <<'PY'
+          import json
+          x=json.load(open('HA_C4_ADVERSARIAL_GATE_PROTOCOL_V1.json'))
+          assert x['status']=='FROZEN_PRE_EXECUTION'
+          assert x['parent_c3_head']=='94d1fbe4882028ffcc3b639d0a1004e064022c35'
+          assert x['post_freeze_policy']['c3_gate_semantics_change'] is False
+          assert x['post_freeze_policy']['expectation_change_after_result_open'] is False
+          PY
+
+      - name: Materialize exact frozen semantic capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin capsule inputs results
+          mkdir -p origin capsule/replaymark capsule/replaymark_verification inputs results
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+
+          core=(
+            replaymark/__init__.py
+            replaymark/adjudicator.py
+            replaymark/compiled_contract.py
+            replaymark/contracts.py
+            replaymark/evidence_image.py
+            replaymark/evidence_semantics.py
+            replaymark/execution_admission.py
+            replaymark/predictive_witness.py
+            replaymark/q_compiler.py
+            replaymark/rstar.py
+            replaymark/runtime_contract_identity.py
+            replaymark/runtime_realization.py
+            replaymark/support_envelope.py
+            replaymark/target_provenance.py
+            replaymark_verification/models.py
+            replaymark_verification/evidence_models.py
+          )
+          for path in "${core[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp "origin/$path" "capsule/$path"
+          done
+
+          for path in replaymark/runtime_ha_bt_observation.py replaymark/runtime_ha_bt_action.py; do
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C1_PUBLIC_HEAD}/${path}" \
+              --output "capsule/${path}"
+          done
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C1_PUBLIC_HEAD}/fixtures/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64" \
+            --output inputs/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64
+          test "$(sha256sum inputs/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 | cut -d' ' -f1)" = "$FIXTURE_SHA256"
+
+          c2=(
+            replaymark/runtime_ha_bt_decision_boundary.py
+            replaymark/runtime_ha_bt_shadow_bridge.py
+            replaymark_verification/build_ha_c2_shadow_cells.py
+            replaymark_verification/ha_c2_bt_native_target.py
+          )
+          for path in "${c2[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C2_PUBLIC_HEAD}/${path}" \
+              --output "capsule/${path}"
+          done
+          cp replaymark/runtime_ha_bt_execution_gate.py capsule/replaymark/
+          cp replaymark_verification/verify_ha_c4_adversarial_gate.py capsule/replaymark_verification/
+          python -m py_compile capsule/replaymark/runtime_ha_bt_execution_gate.py capsule/replaymark_verification/verify_ha_c4_adversarial_gate.py
+          find capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > results/SEMANTIC_CAPSULE_SHA256.txt
+
+      - name: Pull exact Home Assistant image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > "results/HOME_ASSISTANT_IMAGE_INSPECT_${{ matrix.replica }}.json"
+
+      - name: Execute frozen adversarial matrix without network
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set +e
+          docker run --rm --network none \
+            -e PYTHONPATH=/capsule \
+            -v "$PWD/capsule:/capsule:ro" \
+            -v "$PWD/inputs:/inputs:ro" \
+            -v "$PWD/results:/results" \
+            --entrypoint python3 \
+            "$HA_IMAGE" \
+            /capsule/replaymark_verification/verify_ha_c4_adversarial_gate.py \
+              --fixture /inputs/HA_C1_ARCHIVED_FIXTURES_V1.json.gz.b64 \
+              --out "/results/HA_C4_REPLICA_${REPLICA}.json" \
+            > "results/STDOUT_${REPLICA}.txt" 2> "results/STDERR_${REPLICA}.txt"
+          rc=$?
+          printf '%s\n' "$rc" > "results/EXIT_${REPLICA}.txt"
+          exit 0
+
+      - name: Seal replica provenance and checksums regardless of result
+        if: always()
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=int(os.environ['REPLICA'])
+          value={
+            'schema':'replaymark.ha-c4.replica-provenance.v1',
+            'role':'ARTIFACT_TRUST_BOUNDARY_CLOSURE_NOT_SCIENTIFIC_HEADLINE',
+            'repository':os.environ['GITHUB_REPOSITORY'],
+            'execution_head':os.environ['GITHUB_SHA'],
+            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'replica':r,
+            'c3_public_source_freeze':os.environ['C3_PUBLIC_SOURCE_FREEZE'],
+            'c3_private_head':os.environ['C3_PRIVATE_HEAD'],
+            'c4_private_protocol_freeze':os.environ['C4_PRIVATE_PROTOCOL_FREEZE'],
+            'c3_gate_blob':os.environ['C3_GATE_BLOB'],
+            'c4_protocol_blob':os.environ['C4_PROTOCOL_BLOB'],
+            'c4_harness_blob':os.environ['C4_HARNESS_BLOB'],
+          }
+          Path(f'results/HA_C4_PROVENANCE_{r}.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+          PY
+          (
+            cd results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload complete C4 replica capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c4-adversarial-gate-r${{ matrix.replica }}
+          path: results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Preserve replica conclusion only after upload
+        if: always()
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set -euo pipefail
+          test "$(cat results/EXIT_${REPLICA}.txt)" = "0"
+          test ! -s "results/STDERR_${REPLICA}.txt"
+          python - <<'PY'
+          import json,os
+          r=int(os.environ['REPLICA'])
+          x=json.load(open(f'results/HA_C4_REPLICA_{r}.json'))
+          assert x['status']=='PASS'
+          assert x['promotion']['all_12_cases_pass'] is True
+          assert x['promotion']['pre_sink_adversarial_cases_zero_historical_calls'] is True
+          assert x['promotion']['trust_failures_never_reclassified_as_semantic_unresolved'] is True
+          assert x['promotion']['concurrent_32_duplicate_total_historical_calls_one'] is True
+          assert x['promotion']['sink_exception_retry_attempts_zero'] is True
+          assert x['promotion']['sink_exception_native_fallback_calls_zero'] is True
+          assert x['promotion']['sink_exception_regeneration_calls_zero'] is True
+          PY
+
+  aggregate:
+    needs: replica
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ha-c4-adversarial-gate-r*
+          path: downloaded
+      - name: Verify both preserved replicas and byte-identical result
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p aggregate
+          for r in 0 1; do
+            d="downloaded/ha-c4-adversarial-gate-r${r}"
+            (cd "$d" && sha256sum -c CHECKSUMS.sha256)
+            test "$(cat "$d/EXIT_${r}.txt")" = "0"
+            test ! -s "$d/STDERR_${r}.txt"
+          done
+          sha0="$(sha256sum downloaded/ha-c4-adversarial-gate-r0/HA_C4_REPLICA_0.json | cut -d' ' -f1)"
+          sha1="$(sha256sum downloaded/ha-c4-adversarial-gate-r1/HA_C4_REPLICA_1.json | cut -d' ' -f1)"
+          test "$sha0" = "$sha1"
+          export SHA0="$sha0"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.load(open('downloaded/ha-c4-adversarial-gate-r0/HA_C4_REPLICA_0.json'))
+          b=json.load(open('downloaded/ha-c4-adversarial-gate-r1/HA_C4_REPLICA_1.json'))
+          assert a==b
+          assert a['status']=='PASS'
+          value={
+            'schema':'replaymark.ha-c4.replicated-qualification.v1',
+            'status':'PASS',
+            'role':'ARTIFACT_TRUST_BOUNDARY_CLOSURE_NOT_SCIENTIFIC_HEADLINE',
+            'replicas':[0,1],
+            'qualification_reports_byte_identical':True,
+            'qualification_report_sha256':os.environ['SHA0'],
+            'all_12_cases_pass':True,
+            'pre_sink_adversarial_cases_zero_historical_calls':a['promotion']['pre_sink_adversarial_cases_zero_historical_calls'],
+            'trust_failures_never_reclassified_as_semantic_unresolved':a['promotion']['trust_failures_never_reclassified_as_semantic_unresolved'],
+            'concurrent_32_duplicate_total_historical_calls_one':a['promotion']['concurrent_32_duplicate_total_historical_calls_one'],
+            'sink_exception_exactly_one_failing_attempt':a['promotion']['sink_exception_exactly_one_failing_attempt'],
+            'sink_exception_retry_attempts_zero':a['promotion']['sink_exception_retry_attempts_zero'],
+            'sink_exception_native_fallback_calls_zero':a['promotion']['sink_exception_native_fallback_calls_zero'],
+            'sink_exception_regeneration_calls_zero':a['promotion']['sink_exception_regeneration_calls_zero'],
+            'static_repair_surface_zero':a['promotion']['static_repair_surface_zero'],
+          }
+          Path('aggregate/HA_C4_REPLICATED_QUALIFICATION.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+          PY
+          (
+            cd aggregate
+            sha256sum HA_C4_REPLICATED_QUALIFICATION.json > CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+      - name: Upload replicated C4 authority capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ha-c4-adversarial-gate-aggregate
+          path: aggregate
+          retention-days: 90
+          if-no-files-found: error
+      - name: Preserve aggregate conclusion only after upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          x=json.load(open('aggregate/HA_C4_REPLICATED_QUALIFICATION.json'))
+          assert x['status']=='PASS'
+          assert x['qualification_reports_byte_identical'] is True
+          PY
