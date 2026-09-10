@@ -1,0 +1,13 @@
+{
+  "schema": "replaymark.ve2.census-qualification-open.v3",
+  "authority": "CORRECTED_EXHAUSTIVE_CENSUS_QUALIFICATION_ONLY",
+  "source_candidate_head": "5701f4e2cb8d76e50aa435275e70297c7a7fe88c",
+  "private_v2_authority_head": "1902c10c870298728ac7622d0d1bbf25cc7826e1",
+  "public_recovery_result_seal": "d9914c6814a79244733a72024a2bc006cc592ec9",
+  "upstream_snapshot": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+  "ve2_scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "frontier_prediction_opened": false,
+  "rerun_authorized": false
+}
