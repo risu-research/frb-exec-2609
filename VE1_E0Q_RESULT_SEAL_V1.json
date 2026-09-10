@@ -1,0 +1,83 @@
+{
+  "schema": "replaymark.ve1.e0q-result-seal.v1",
+  "status": "PASS",
+  "authority": "IMMUTABLE_ORTHOGONAL_RUNTIME_QUALIFICATION_PASS",
+  "repository": "risu-research/frb-exec-2609",
+  "branch": "ve1-e0q-result-seal-v1",
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "capsule_source_head": "84a898520c807d4b80dbfba897e2f664be8adf39",
+  "e0q_authority_open_head": "da675860facde1e1c217818f9547cb6996c40c6a",
+  "e0q_authority_open_file": "VE1_E0Q_AUTHORITY_OPEN_V1.json",
+  "workflow": {
+    "name": "VE1 E0Q orthogonal native runtime qualification v1",
+    "path": ".github/workflows/ve1-e0q-v1.yml",
+    "run_id": 34440163676,
+    "run_attempt": 1,
+    "head_sha": "da675860facde1e1c217818f9547cb6996c40c6a",
+    "conclusion": "success"
+  },
+  "pre_open_guard_rejection": {
+    "run_id": 34440152938,
+    "head_sha": "84a898520c807d4b80dbfba897e2f664be8adf39",
+    "reason": "branch creation triggered the workflow before the exact one-file E0Q authority marker existed",
+    "open_gate": "failure",
+    "e0q_job": "skipped",
+    "scientific_result_opened": false,
+    "ve1_scientific_cells": 0
+  },
+  "artifact": {
+    "id": 10137651239,
+    "name": "ve1-e0q-first-complete-v1",
+    "artifact_sha256": "6649ef3e2c422dda146cba05bc4247770c49fae4dac7b7652f2b950a9ac3b9e2",
+    "independently_redownloaded_and_verified": true,
+    "internal_checksums_all_pass": true,
+    "files": {
+      "VE1_E0Q_RESULT_V1.json": "ad1537c53d13814c62e649dea276878852ef7bda5189575fd87c38460d7515e4",
+      "VE1_E0Q_PROVENANCE_V1.json": "c93e7e3ef9e6b601da4c6957e2cdddeddafb31634ad4f6fb57ab1d54c061d693",
+      "E0Q_RUNTIME_CAPSULE_SHA256.txt": "30b0b6ef3b71e1f0654e26bfb358c05266ab77ca6c9c4c5dfda24b28ed5de483",
+      "HOME_ASSISTANT_IMAGE_INSPECT.json": "6955acd720200900162d7fee6257bcef33d9a642552ba9284eb79fc938cc3f0d",
+      "CHECKSUMS.sha256": "322972687715c9d444d7440812862d257a5308b6ae279622e06f0b4d8f7bca8e"
+    }
+  },
+  "runtime_qualification": {
+    "home_assistant_version": "2026.9.0",
+    "better_thermostat_commit": "b86561f61e5ba1259fc63e590f4847e9ac743d7f",
+    "better_thermostat_version": "1.9.2",
+    "better_thermostat_manifest_sha256": "710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28",
+    "better_thermostat_tree_sha256": "bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0",
+    "same_runtime_boundary_implementation_as_science": true,
+    "completion_witness": "three_homeassistant_async_block_till_done_fixed_point_passes",
+    "positive_consequential_action": {
+      "status": "PASS",
+      "observed_event_count": 1,
+      "capture_armed_before_invocation": true
+    },
+    "completed_execution_verified_absence": {
+      "status": "PASS",
+      "observed_event_count": 0,
+      "capture_armed_before_invocation": true,
+      "timeout_alone_used_as_absence": false
+    },
+    "negative_cases": {
+      "malformed_extra_consequential_field": "PASS_REJECTED",
+      "wrong_concrete_target": "PASS_REJECTED",
+      "missing_completion_pass": "PASS_REJECTED",
+      "duplicate_consequential_event": "PASS_REJECTED",
+      "foreign_invocation_context": "PASS_REJECTED"
+    }
+  },
+  "scientific_firewall": {
+    "ve1_state_manifest_consumed": false,
+    "ve1_result_bearing_controller_installed": false,
+    "ve1_old_controller_installed": false,
+    "ve1_new_controller_installed": false,
+    "ve1_historical_action_dispatched": false,
+    "scientific_result_opened": false,
+    "ve1_scientific_cells": 0
+  },
+  "execution_exit": 0,
+  "independent_inspection_exit": 0,
+  "scientific_result_opened": false,
+  "rerun_authorized": false,
+  "promotion": "E0Q runtime/instrumentation boundary qualified for the frozen VE1 scientific first-complete workflow. This seal does not authorize any alteration of scientific source, state population, expected table, measurement boundary, absence semantics, retry/fallback ownership, or promotion criteria."
+}
