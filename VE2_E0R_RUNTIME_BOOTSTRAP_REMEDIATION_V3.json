@@ -1,0 +1,69 @@
+{
+  "schema": "replaymark.ve2.e0r-runtime-bootstrap-remediation.v3",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_root_cause_seal": "55a4dede47193ca46e12bad5620bc3ba3d361963",
+  "predecessor_diagnostic": {
+    "run_id": 34534892465,
+    "run_attempt": 1,
+    "artifact_id": 10175024423,
+    "artifact_zip_sha256": "412d15a8947312cb3ff940683c0454aae782ce30235c7166b47fd0e897d110be",
+    "runtime_exit_code": 1,
+    "exception": "KeyError: 'triggers'"
+  },
+  "root_cause": "Standalone Home Assistant harness omitted the official trigger helper async_setup() before the first async_validate_trigger_config().",
+  "repair": {
+    "old_runtime_blob": "740800a13b541423b0bce4702faff31e85ac90b2",
+    "new_runtime_blob": "a29db68233ffe77fad7233fd4bd128d696071b1e",
+    "exact_source_transformation": "Insert exactly one line '    await trigger_helper.async_setup(hass)' immediately after '    loader_info = prepare_loader(hass)' in main_async().",
+    "official_upstream_initializer": "homeassistant.helpers.trigger.async_setup(hass)",
+    "upstream_trigger_helper_blob": "9451757998c63efcf8c7a01249f730594b3f68dd",
+    "manual_registry_injection": false,
+    "synthetic_trigger_payload": false,
+    "scientific_semantics_changed": false,
+    "e0q_boundary_changed": false,
+    "historical_behavior_semantics_changed": false,
+    "target_only_contract_semantics_changed": false
+  },
+  "frozen_unchanged_authorities": {
+    "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "e0q_pass_seal": "d9a1a55e8bb83a8fc89e67ee71918f32d2249a43",
+    "e0q_boundary_blob": "765680028bde49ead76a22bebe5aace1bfbea60e",
+    "e0r_semantic_boundary_blob": "52d3b6e5ab3816266424ca61feef7cbb7f431d51",
+    "target_only_spec_blob": "464882347fc2f95ceb479a0a58ba2cee05c4d48a",
+    "target_only_builder_blob": "bc04cf3a6a908a38daa36b3d95a75d4cd826d11a",
+    "target_only_independent_verifier_blob": "3db00230a2f5049c26f7204eedefd784694f6116",
+    "e0r_independent_post_validator_blob": "37e3c3983ae84f7f9800fd61f95276d09154c8a5",
+    "t01_manifest_blob": "c1731d24387ec4c2dcb33167a286d89fc45ef254",
+    "t02_manifest_blob": "c9d543be934dd0cc33b67a2f987f0eae9705a83b",
+    "replaymark_origin_commit": "c290786d92e7546345b348916b3b3d1c11780e4c",
+    "home_assistant_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293"
+  },
+  "successor_execution_policy": {
+    "fresh_first_complete_authority": true,
+    "same_v1_authority_rerun": false,
+    "diagnostic_v2_reused_as_promotion": false,
+    "run_attempt_must_equal": 1,
+    "compiler_label_firewall_must_be_requalified": true,
+    "target_only_contracts_must_be_recompiled_from_allowlisted_capsule": true,
+    "native_trigger_runtime_must_execute_corrected_runtime_blob": true,
+    "independent_post_execution_validator_required": true,
+    "complete_artifact_checksum_gate_required": true,
+    "runtime_failure_diagnostics_must_be_uploaded_even_on_nonzero_exit": true,
+    "incomplete_attempt_non_promotable": true
+  },
+  "forbidden": {
+    "expected_frontier_use": true,
+    "old_semantics_use_by_compiler_or_runtime": true,
+    "new_direct_result_use": true,
+    "t01_or_t02_result_bearing_blueprint_execution": true,
+    "ve2_scientific_fixture_execution": true,
+    "historical_better_thermostat_action_dispatch": true,
+    "post_hoc_scientific_reclassification": true
+  },
+  "scientific_exposure": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  }
+}

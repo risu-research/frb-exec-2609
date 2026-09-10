@@ -1,0 +1,389 @@
+name: VE2 E0R pre-science execution qualification v3
+
+on:
+  push:
+    branches:
+      - ve2-e0r-v3
+
+permissions:
+  contents: read
+
+env:
+  ROOT_CAUSE_SEAL: 55a4dede47193ca46e12bad5620bc3ba3d361963
+  PRIVATE_CONSTITUTION: f0cca6726b634a35c523b0caab89694bd7fb18e5
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  HA_TRIGGER_HELPER_BLOB: 9451757998c63efcf8c7a01249f730594b3f68dd
+  E0Q_BOUNDARY_BLOB: 765680028bde49ead76a22bebe5aace1bfbea60e
+  REMEDIATION_BLOB: 0ff0deaba3c2ae9aa1fcce90d56dd7ac9cb1de58
+  CONTRACT_BLOB: 3650bf16422e5ebe540f344dc91d63f7908b6f83
+  TARGET_SPEC_BLOB: 464882347fc2f95ceb479a0a58ba2cee05c4d48a
+  BUILDER_BLOB: bc04cf3a6a908a38daa36b3d95a75d4cd826d11a
+  CONTRACT_VERIFIER_BLOB: 3db00230a2f5049c26f7204eedefd784694f6116
+  E0R_SEMANTIC_BLOB: 52d3b6e5ab3816266424ca61feef7cbb7f431d51
+  OLD_RUNTIME_BLOB: 740800a13b541423b0bce4702faff31e85ac90b2
+  V3_RUNTIME_BLOB: a29db68233ffe77fad7233fd4bd128d696071b1e
+  E0R_INDEPENDENT_BLOB: 37e3c3983ae84f7f9800fd61f95276d09154c8a5
+  T01_MANIFEST_BLOB: c1731d24387ec4c2dcb33167a286d89fc45ef254
+  T02_MANIFEST_BLOB: c9d543be934dd0cc33b67a2f987f0eae9705a83b
+
+jobs:
+  e0r:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact v3 authority
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 6
+
+      - name: Require exact lineage, four-file remediation freeze, and one-file OPEN
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          test -f VE2_E0R_AUTHORITY_OPEN_V3.json
+          source_freeze="$(git rev-parse HEAD^)"
+          test "$(git rev-parse "$source_freeze^")" = "$ROOT_CAUSE_SEAL"
+
+          mapfile -t open_changed < <(git diff --name-only "$source_freeze..HEAD")
+          test "${#open_changed[@]}" = "1"
+          test "${open_changed[0]}" = "VE2_E0R_AUTHORITY_OPEN_V3.json"
+
+          mapfile -t source_changed < <(git diff --name-only "$ROOT_CAUSE_SEAL..$source_freeze")
+          expected=(
+            ".github/workflows/ve2-e0r-v3.yml"
+            "VE2_E0R_PUBLIC_EXECUTION_CONTRACT_V3.json"
+            "VE2_E0R_RUNTIME_BOOTSTRAP_REMEDIATION_V3.json"
+            "ve2_e0r_runtime_v3.py"
+          )
+          test "${#source_changed[@]}" = "${#expected[@]}"
+          for i in "${!expected[@]}"; do test "${source_changed[$i]}" = "${expected[$i]}"; done
+
+          test "$(git hash-object --no-filters VE2_E0R_RUNTIME_BOOTSTRAP_REMEDIATION_V3.json)" = "$REMEDIATION_BLOB"
+          test "$(git hash-object --no-filters VE2_E0R_PUBLIC_EXECUTION_CONTRACT_V3.json)" = "$CONTRACT_BLOB"
+          test "$(git hash-object --no-filters ve2_e0r_runtime_v1.py)" = "$OLD_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_e0r_runtime_v3.py)" = "$V3_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters VE2_TARGET_ONLY_CONTRACT_SPEC_V1.json)" = "$TARGET_SPEC_BLOB"
+          test "$(git hash-object --no-filters ve2_target_only_contract_v1.py)" = "$BUILDER_BLOB"
+          test "$(git hash-object --no-filters verify_ve2_target_only_contract_v1.py)" = "$CONTRACT_VERIFIER_BLOB"
+          test "$(git hash-object --no-filters ve2_e0r_semantic_boundary_v1.py)" = "$E0R_SEMANTIC_BLOB"
+          test "$(git hash-object --no-filters ve2_e0r_independent_validate_v1.py)" = "$E0R_INDEPENDENT_BLOB"
+          test "$(git hash-object --no-filters ve2_boundary_microkernel_v2.py)" = "$E0Q_BOUNDARY_BLOB"
+          test "$(git hash-object --no-filters VE2_T01_EXECUTION_STATE_MANIFEST_V1.json)" = "$T01_MANIFEST_BLOB"
+          test "$(git hash-object --no-filters VE2_T02_EXECUTION_STATE_MANIFEST_V1.json)" = "$T02_MANIFEST_BLOB"
+
+          python - "$source_freeze" <<'PY'
+          import json,sys
+          from pathlib import Path
+          old=Path("ve2_e0r_runtime_v1.py").read_text(encoding="utf-8")
+          new=Path("ve2_e0r_runtime_v3.py").read_text(encoding="utf-8")
+          needle="    loader_info = prepare_loader(hass)\n"
+          insertion="    await trigger_helper.async_setup(hass)\n"
+          assert old.count(needle)==1
+          assert insertion not in old
+          assert new == old.replace(needle, needle+insertion, 1)
+
+          r=json.load(open("VE2_E0R_RUNTIME_BOOTSTRAP_REMEDIATION_V3.json"))
+          assert r["schema"]=="replaymark.ve2.e0r-runtime-bootstrap-remediation.v3"
+          assert r["status"]=="FROZEN_PROSPECTIVE_PRE_SCIENCE"
+          assert r["predecessor_root_cause_seal"]=="55a4dede47193ca46e12bad5620bc3ba3d361963"
+          assert r["repair"]["old_runtime_blob"]=="740800a13b541423b0bce4702faff31e85ac90b2"
+          assert r["repair"]["new_runtime_blob"]=="a29db68233ffe77fad7233fd4bd128d696071b1e"
+          assert r["repair"]["scientific_semantics_changed"] is False
+
+          c=json.load(open("VE2_E0R_PUBLIC_EXECUTION_CONTRACT_V3.json"))
+          assert c["schema"]=="replaymark.ve2.e0r-public-execution-contract.v3"
+          assert c["status"]=="FROZEN_PRE_SCIENCE"
+          assert c["private_science_constitution"]["commit"]=="f0cca6726b634a35c523b0caab89694bd7fb18e5"
+          assert c["forbidden"]["expected_frontier_use_by_builder_or_runtime"] is True
+          assert c["runtime"]["corrected_runtime_blob"]=="a29db68233ffe77fad7233fd4bd128d696071b1e"
+
+          o=json.load(open("VE2_E0R_AUTHORITY_OPEN_V3.json"))
+          assert o == {
+            "schema":"replaymark.ve2.e0r-public-authority-open.v3",
+            "authority":"PRE_SCIENCE_EXECUTION_SUBSTRATE_FIRST_COMPLETE_V3",
+            "source_freeze_public_head":sys.argv[1],
+            "predecessor_root_cause_seal":"55a4dede47193ca46e12bad5620bc3ba3d361963",
+            "private_science_constitution":"f0cca6726b634a35c523b0caab89694bd7fb18e5",
+            "corrected_runtime_blob":"a29db68233ffe77fad7233fd4bd128d696071b1e",
+            "scientific_result_opened":False,
+            "frontier_result_seen":False,
+            "ve2_home_assistant_scientific_cells":0,
+            "ve2_replaymark_scientific_cells":0,
+            "same_authority_rerun":False
+          }
+          PY
+          echo "source_freeze=$source_freeze" >> "$GITHUB_OUTPUT"
+
+      - name: Materialize exact ReplayMark compiler allowlist capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin compiler_capsule results
+          git init -q origin
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+
+          mkdir -p compiler_capsule/replaymark results/contracts results/runtime
+          declare -A core=(
+            [replaymark/__init__.py]=01d266fbd970920cf55008d0fa97af8af9e689e9
+            [replaymark/adjudicator.py]=32ba03a9a987b16355c166cf56efbf1f6f3b8542
+            [replaymark/compiled_contract.py]=9780550de9c9447ca4e488ff5797e08fdd548405
+            [replaymark/contracts.py]=a8805eed01328061337290f0d5f2006bd2a7f1c4
+            [replaymark/evidence_image.py]=c5a589aba97ba57de9e82a69f812e4abeff1b42e
+            [replaymark/evidence_semantics.py]=83106c59bcdab433d88be78be58e3330ab7aaa6c
+            [replaymark/predictive_witness.py]=6115ab4f2e4f21e1abda2f4f0d37a3e4ff09d9a3
+            [replaymark/q_compiler.py]=f74e765ef1872b54743b31ebf11a113f32d9840e
+            [replaymark/rstar.py]=73e0a94f1be76272075d7f1050439ef6b321017e
+            [replaymark/support_envelope.py]=6a527573d130bde5649bcf891fc080f16e38cb0d
+            [replaymark/target_provenance.py]=e819cee216aa59ea40b1f4e66e3fb0f59b726fc7
+          )
+          for path in "${!core[@]}"; do
+            test "$(git -C origin hash-object --no-filters "$path")" = "${core[$path]}"
+            mkdir -p "compiler_capsule/$(dirname "$path")"
+            cp "origin/$path" "compiler_capsule/$path"
+            test "$(git hash-object --no-filters "compiler_capsule/$path")" = "${core[$path]}"
+          done
+          cp VE2_TARGET_ONLY_CONTRACT_SPEC_V1.json compiler_capsule/replaymark/
+          cp VE2_T01_EXECUTION_STATE_MANIFEST_V1.json compiler_capsule/replaymark/
+          cp VE2_T02_EXECUTION_STATE_MANIFEST_V1.json compiler_capsule/replaymark/
+          cp ve2_target_only_contract_v1.py compiler_capsule/replaymark/
+          cp verify_ve2_target_only_contract_v1.py compiler_capsule/replaymark/
+
+          test ! -e compiler_capsule/replaymark/VE2_T01_EXPECTED_FRONTIER_V1.json
+          test ! -e compiler_capsule/replaymark/VE2_T02_EXPECTED_FRONTIER_V1.json
+          test ! -e compiler_capsule/replaymark/VE2_T01_NATIVE_SEMANTICS_V1.json
+          test ! -e compiler_capsule/replaymark/VE2_T02_NATIVE_SEMANTICS_V1.json
+          find compiler_capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > results/COMPILER_CAPSULE_SHA256.txt
+
+      - name: Compile target-only contracts and independently verify serialized semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH="$PWD/compiler_capsule" python compiler_capsule/replaymark/ve2_target_only_contract_v1.py \
+            --out-dir results/contracts/generated \
+            > results/contracts/BUILDER_STDOUT.txt 2> results/contracts/BUILDER_STDERR.txt
+          PYTHONPATH="$PWD/compiler_capsule" python compiler_capsule/replaymark/verify_ve2_target_only_contract_v1.py \
+            --generated results/contracts/generated \
+            --out results/contracts/generated/VE2_TARGET_ONLY_CONTRACT_INDEPENDENT_VALIDATION_V1.json \
+            > results/contracts/INDEPENDENT_STDOUT.txt 2> results/contracts/INDEPENDENT_STDERR.txt
+          python - <<'PY'
+          import json
+          a=json.load(open("results/contracts/generated/VE2_TARGET_ONLY_CONTRACT_FREEZE_RECEIPT_V1.json"))
+          b=json.load(open("results/contracts/generated/VE2_TARGET_ONLY_CONTRACT_INDEPENDENT_VALIDATION_V1.json"))
+          assert a["status"]=="PASS_PRE_SCIENCE"
+          assert a["contracts"]["T01"]["states"]==2
+          assert a["contracts"]["T02"]["states"]==42
+          assert a["inputs"]["expected_frontier_files_read"] is False
+          assert a["inputs"]["old_semantics_files_read"] is False
+          assert a["inputs"]["new_direct_results_read"] is False
+          assert b["status"]=="PASS" and b["scientific_cells"]==0
+          PY
+
+      - name: Pull and verify exact Home Assistant image and trigger-helper source seam
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > results/runtime/HOME_ASSISTANT_IMAGE_INSPECT.json
+          observed="$(docker run --rm --network none --entrypoint python3 "$HA_IMAGE" -c 'from pathlib import Path; import hashlib,homeassistant.helpers.trigger as t; b=Path(t.__file__).read_bytes(); print(hashlib.sha1(b"blob "+str(len(b)).encode()+b"\0"+b).hexdigest())')"
+          test "$observed" = "$HA_TRIGGER_HELPER_BLOB"
+          printf '%s\n' "$observed" > results/runtime/HOME_ASSISTANT_TRIGGER_HELPER_GIT_BLOB.txt
+
+      - name: Execute corrected orthogonal native invocation and Historical Behavior qualification
+        id: runtime
+        shell: bash
+        run: |
+          set -uo pipefail
+          chmod 0777 results/runtime
+          printf '%s\n' 'RUNTIME_COMMAND_START' > results/runtime/PHASE.txt
+          set +e
+          docker run --rm --network none \
+            -v "$PWD/ve2_boundary_microkernel_v2.py:/work/ve2_boundary_microkernel_v2.py:ro" \
+            -v "$PWD/ve2_e0r_semantic_boundary_v1.py:/work/ve2_e0r_semantic_boundary_v1.py:ro" \
+            -v "$PWD/ve2_e0r_runtime_v3.py:/work/ve2_e0r_runtime_v3.py:ro" \
+            -v "$PWD/results/runtime:/results" \
+            --entrypoint python3 "$HA_IMAGE" \
+            /work/ve2_e0r_runtime_v3.py --out /results/VE2_E0R_RUNTIME_RESULT_V1.json \
+            > results/runtime/RUNTIME_STDOUT.txt 2> results/runtime/RUNTIME_STDERR.txt
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > results/runtime/RUNTIME_EXIT_CODE.txt
+          printf '%s\n' 'RUNTIME_COMMAND_COMPLETE' > results/runtime/PHASE.txt
+          python - "$rc" <<'PY'
+          import hashlib,json,os,sys
+          from pathlib import Path
+          rc=int(sys.argv[1]); root=Path("results/runtime")
+          def info(name):
+              p=root/name
+              if not p.exists(): return {"exists":False}
+              b=p.read_bytes(); return {"exists":True,"bytes":len(b),"sha256":hashlib.sha256(b).hexdigest()}
+          e={
+            "schema":"replaymark.ve2.e0r-v3-runtime-execution-envelope.v1",
+            "runtime_exit_code":rc,
+            "runtime_blob":os.environ["V3_RUNTIME_BLOB"],
+            "stdout":info("RUNTIME_STDOUT.txt"),
+            "stderr":info("RUNTIME_STDERR.txt"),
+            "runtime_result":info("VE2_E0R_RUNTIME_RESULT_V1.json"),
+            "scientific_result_opened":False,
+            "frontier_result_seen":False,
+            "ve2_home_assistant_scientific_cells":0,
+            "ve2_replaymark_scientific_cells":0
+          }
+          (root/"VE2_E0R_V3_RUNTIME_EXECUTION_ENVELOPE.json").write_text(json.dumps(e,sort_keys=True,indent=2)+"\n")
+          PY
+          echo "runtime_rc=$rc" >> "$GITHUB_OUTPUT"
+          if [ "$rc" -ne 0 ]; then
+            echo "===== RETAINED RUNTIME STDERR BEGIN ====="
+            cat results/runtime/RUNTIME_STDERR.txt || true
+            echo "===== RETAINED RUNTIME STDERR END ====="
+          fi
+          echo "Runtime evidence captured with rc=$rc; promotion is deferred until after artifact sealing."
+
+      - name: Independent post-execution validation with retained outcome
+        id: validator
+        if: steps.runtime.outputs.runtime_rc == '0'
+        shell: bash
+        run: |
+          set -uo pipefail
+          set +e
+          python ve2_e0r_independent_validate_v1.py \
+            --runtime results/runtime/VE2_E0R_RUNTIME_RESULT_V1.json \
+            --contracts results/contracts/generated \
+            --out results/VE2_E0R_INDEPENDENT_VALIDATION_V1.json \
+            > results/INDEPENDENT_VALIDATOR_STDOUT.txt 2> results/INDEPENDENT_VALIDATOR_STDERR.txt
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > results/INDEPENDENT_VALIDATOR_EXIT_CODE.txt
+          echo "validator_rc=$rc" >> "$GITHUB_OUTPUT"
+          if [ "$rc" -ne 0 ]; then
+            echo "===== RETAINED INDEPENDENT VALIDATOR STDERR BEGIN ====="
+            cat results/INDEPENDENT_VALIDATOR_STDERR.txt || true
+            echo "===== RETAINED INDEPENDENT VALIDATOR STDERR END ====="
+          fi
+          echo "Independent validator evidence captured with rc=$rc; promotion is deferred until after artifact sealing."
+
+      - name: Seal complete first-attempt evidence and provenance
+        if: always()
+        shell: bash
+        env:
+          SOURCE_FREEZE: ${{ steps.gate.outputs.source_freeze }}
+          RUNTIME_RC: ${{ steps.runtime.outputs.runtime_rc }}
+          VALIDATOR_RC: ${{ steps.validator.outputs.validator_rc }}
+        run: |
+          set -euo pipefail
+          test -d results
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          runtime_rc=os.environ.get("RUNTIME_RC","")
+          validator_rc=os.environ.get("VALIDATOR_RC","")
+          runtime_ok=runtime_rc=="0"
+          validator_ok=validator_rc=="0"
+          contracts_path=Path("results/contracts/generated/VE2_TARGET_ONLY_CONTRACT_FREEZE_RECEIPT_V1.json")
+          contracts=json.loads(contracts_path.read_text()) if contracts_path.exists() else None
+          result_path=Path("results/runtime/VE2_E0R_RUNTIME_RESULT_V1.json")
+          runtime=json.loads(result_path.read_text()) if result_path.exists() else None
+          independent_path=Path("results/VE2_E0R_INDEPENDENT_VALIDATION_V1.json")
+          independent=json.loads(independent_path.read_text()) if independent_path.exists() else None
+          complete=bool(
+              runtime_ok and validator_ok and contracts and runtime and independent
+              and contracts.get("status")=="PASS_PRE_SCIENCE"
+              and runtime.get("status")=="PASS"
+              and independent.get("status")=="PASS"
+              and independent.get("scientific_cells")==0
+          )
+          p={
+            "schema":"replaymark.ve2.e0r-v3-public-provenance.v1",
+            "status":"PASS_PRE_SCIENCE" if complete else "INCOMPLETE_NON_PROMOTABLE",
+            "repository":os.environ["GITHUB_REPOSITORY"],
+            "execution_head":os.environ["GITHUB_SHA"],
+            "source_freeze_public_head":os.environ.get("SOURCE_FREEZE",""),
+            "workflow_run_id":int(os.environ["GITHUB_RUN_ID"]),
+            "run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),
+            "root_cause_seal":os.environ["ROOT_CAUSE_SEAL"],
+            "runtime_bootstrap_remediation_blob":os.environ["REMEDIATION_BLOB"],
+            "corrected_runtime_blob":os.environ["V3_RUNTIME_BLOB"],
+            "runtime_exit_code":None if runtime_rc=="" else int(runtime_rc),
+            "independent_validator_exit_code":None if validator_rc=="" else int(validator_rc),
+            "origin_repository":os.environ["ORIGIN_REPOSITORY"],
+            "origin_commit":os.environ["ORIGIN_COMMIT"],
+            "home_assistant_image":os.environ["HA_IMAGE"],
+            "promoted_e0q_boundary_blob":os.environ["E0Q_BOUNDARY_BLOB"],
+            "expected_frontier_available_to_builder_capsule":False,
+            "transition_blueprint_executed":False,
+            "scientific_fixture_executed":False,
+            "historical_better_thermostat_action_dispatched":False,
+            "scientific_result_opened":False,
+            "frontier_result_seen":False,
+            "ve2_home_assistant_scientific_cells":0,
+            "ve2_replaymark_scientific_cells":0,
+            "same_authority_rerun":False,
+            "promotion":complete
+          }
+          Path("results/VE2_E0R_V3_PUBLIC_PROVENANCE.json").write_text(json.dumps(p,sort_keys=True,indent=2)+"\n")
+          PY
+          (
+            cd results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable v3 first-attempt evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-e0r-v3-first-attempt-evidence
+          path: results/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Final v3 E0R promotion gate
+        if: always()
+        shell: bash
+        env:
+          RUNTIME_RC: ${{ steps.runtime.outputs.runtime_rc }}
+          VALIDATOR_RC: ${{ steps.validator.outputs.validator_rc }}
+        run: |
+          set -euo pipefail
+          test -f results/CHECKSUMS.sha256
+          (cd results && sha256sum -c CHECKSUMS.sha256)
+          test "$RUNTIME_RC" = "0"
+          test "$VALIDATOR_RC" = "0"
+          python - <<'PY'
+          import json
+          c=json.load(open("results/contracts/generated/VE2_TARGET_ONLY_CONTRACT_FREEZE_RECEIPT_V1.json"))
+          cv=json.load(open("results/contracts/generated/VE2_TARGET_ONLY_CONTRACT_INDEPENDENT_VALIDATION_V1.json"))
+          r=json.load(open("results/runtime/VE2_E0R_RUNTIME_RESULT_V1.json"))
+          v=json.load(open("results/VE2_E0R_INDEPENDENT_VALIDATION_V1.json"))
+          p=json.load(open("results/VE2_E0R_V3_PUBLIC_PROVENANCE.json"))
+          assert c["status"]=="PASS_PRE_SCIENCE"
+          assert c["inputs"]["expected_frontier_files_read"] is False
+          assert c["inputs"]["old_semantics_files_read"] is False
+          assert c["inputs"]["new_direct_results_read"] is False
+          assert c["contracts"]["T01"]["states"]==2
+          assert c["contracts"]["T02"]["states"]==42
+          assert cv["status"]=="PASS" and cv["scientific_cells"]==0
+          assert r["status"]=="PASS"
+          assert r["qualified_families"]==["STATE","TIME","HOMEASSISTANT_START","SERVICE","CERTIFIED_NO_ACTION"]
+          assert r["timeout_as_no_action"] is False
+          assert r["transition_blueprint_executed"] is False
+          assert r["scientific_fixture_executed"] is False
+          assert r["historical_better_thermostat_action_dispatched"] is False
+          assert r["scientific_result_opened"] is False
+          assert r["frontier_result_seen"] is False
+          assert r["ve2_home_assistant_scientific_cells"]==0
+          assert r["ve2_replaymark_scientific_cells"]==0
+          assert v["status"]=="PASS" and v["scientific_cells"]==0
+          assert p["status"]=="PASS_PRE_SCIENCE"
+          assert p["promotion"] is True
+          assert p["scientific_result_opened"] is False
+          assert p["ve2_home_assistant_scientific_cells"]==0
+          assert p["ve2_replaymark_scientific_cells"]==0
+          PY
+          echo "VE2 E0R v3: GREEN; exact target-only ReplayMark contracts + official HA trigger bootstrap + native invocation/Historical Behavior qualified; SCIENTIFIC CELLS=0"
