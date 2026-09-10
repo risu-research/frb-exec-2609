@@ -1,0 +1,85 @@
+{
+  "schema": "replaymark.ve2.e0q-failure-seal.v1",
+  "status": "SEALED_PRE_SCIENCE_HARNESS_DEFINITION_FAILURE",
+  "authority": "ORTHOGONAL_VERSION_SPANNING_BOUNDARY_FIRST_COMPLETE",
+  "execution": {
+    "branch": "ve2-e0q-v1",
+    "head": "d41402f10db048f369f8a743600ad2498af068fc",
+    "source_freeze_public_head": "b5194f9dcb792f9e993dfb78cd7c94172abf5ea4",
+    "run_id": 34522119022,
+    "run_attempt": 1,
+    "job_id": 103021933797,
+    "conclusion": "failure"
+  },
+  "artifact": {
+    "id": 10170195534,
+    "name": "ve2-e0q-first-complete-v1",
+    "github_digest": "sha256:b452b714280273f983dcac74a86023112213506a8ab31f099792ee76b83aeea8",
+    "independently_recomputed_zip_sha256": "b452b714280273f983dcac74a86023112213506a8ab31f099792ee76b83aeea8",
+    "checksums_file_sha256": "18d8b11e585529890a0a80c1b539b086acb518d9c38b3cb28324b8003bffa33d",
+    "internal_checksum_verification": "PASS"
+  },
+  "source_materialization": {
+    "status": "PASS_ALL_FOUR_ROLES",
+    "T01_OLD_HISTORY_component_canonical_sha256": "2169bc75c5e36ebeab0f5f774f3b229f556bd7071585b09633dd24b309d273f5",
+    "T01_NEW_TARGET_component_canonical_sha256": "73f96e96eb44d63cf0e6014b7c1891c69183ab56f71a3b963743a96f074a65c2",
+    "T02_OLD_component_canonical_sha256": "0d6a289d19a63cd03858ee52cb712d68ccaa21b68fd6bde0885138b8c79ae921",
+    "T02_NEW_component_canonical_sha256": "2bd2ca157a51e84d8df79f95a6b1900d6f70901e6ba521a3cbc02adbb55f8537"
+  },
+  "role_outcomes": {
+    "T01_OLD_HISTORY": {
+      "exit": 4,
+      "status": "FAIL",
+      "result_sha256": "c3b39a376d35b6dc33652f40d4569752c88d5b71e23a85e52004acec8c51a1aa",
+      "failure_type": "AttributeError",
+      "failure": "module 'homeassistant.loader' has no attribute 'async_setup'",
+      "classification": "PRE_CASE_VERSION_API_HARNESS_FAILURE"
+    },
+    "T01_NEW_TARGET": {
+      "exit": 4,
+      "status": "FAIL",
+      "result_sha256": "ba0f474a2c741b5b20fc4b2299d096b8d7cb4edfa976ced6ffd1aec799fbd303",
+      "failure_type": "ValueError",
+      "failure": "service-before-parent",
+      "classification": "OBSERVER_SCHEDULING_ORDER_OVERCONSTRAINT"
+    },
+    "T02_OLD": {
+      "exit": 4,
+      "status": "FAIL",
+      "result_sha256": "e8a14ed53cab54c4b224a02ac14ce3bced7b00d2c95f640651ce1acdd466f1ec",
+      "failure_type": "ValueError",
+      "failure": "service-before-parent",
+      "classification": "OBSERVER_SCHEDULING_ORDER_OVERCONSTRAINT"
+    },
+    "T02_NEW": {
+      "exit": 0,
+      "status": "PASS",
+      "result_sha256": "edef77e1804e58b5346eb29b4e069b578e6bfc3c4c906bdc91ade52c9c100f11",
+      "classification": "PARTIAL_ROLE_PASS_NON_PROMOTABLE_NON_CARRYING"
+    }
+  },
+  "post_run_causal_diagnosis": {
+    "T01_OLD_HISTORY": {
+      "exact_source_basis": "Home Assistant 2022.10.0 homeassistant/loader.py async_get_integrations lazily mounts the config directory and initializes DATA_INTEGRATIONS when absent; the v1 harness unconditionally called a newer loader.async_setup API that does not exist in this runtime.",
+      "source_ref": "home-assistant/core@2022.10.0:homeassistant/loader.py"
+    },
+    "ordering_failures": {
+      "exact_source_basis": "The v1 BoundaryObserver handlers were ordinary synchronous functions, not Home Assistant @callback handlers. Across the selected HA implementations, ordinary synchronous HassJobs may be scheduled through executor/task paths while callback jobs remain on the event-loop path. Therefore perf_counter timestamps taken inside those observer handlers were scheduling timestamps, not a valid causal ordering witness between the already-fired state_changed and call_service events.",
+      "source_refs": [
+        "home-assistant/core@2022.10.0:homeassistant/core.py",
+        "home-assistant/core@2026.1.0:homeassistant/core.py"
+      ]
+    }
+  },
+  "immutable_interpretation": {
+    "e0q_v1_promotable": false,
+    "T02_NEW_partial_pass_carried_forward": false,
+    "same_authority_rerun_permitted": false,
+    "substrate_incompatibility_inferred": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "next_permitted_action": "Freeze a prospective E0Q-v2 remediation contract that preserves every selected source/OCI and promotion criterion, repairs only loader version adaptation and observer scheduling/ordering instrumentation, then open a fresh full four-role authority with no partial-pass carry."
+}
