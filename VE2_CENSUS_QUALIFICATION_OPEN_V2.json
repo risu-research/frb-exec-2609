@@ -1,0 +1,12 @@
+{
+  "schema": "replaymark.ve2.census-qualification-open.v2",
+  "authority": "PRE_SCIENTIFIC_EXHAUSTIVE_UPSTREAM_CENSUS_QUALIFICATION",
+  "source_candidate_head": "bb95b31210e8f3db6de0caea869601c4b8f1b653",
+  "private_ve2_authority_head": "fa4ba173e955200da8cf7a6278f5b66aa8e9fa2c",
+  "upstream_snapshot_head": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+  "failed_v1_run_id": 34483538569,
+  "ve2_scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "rerun_authorized": false
+}
