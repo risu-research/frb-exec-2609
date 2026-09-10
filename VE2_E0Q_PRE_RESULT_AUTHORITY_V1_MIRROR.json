@@ -1,0 +1,36 @@
+{
+  "schema": "replaymark.ve2.e0q-pre-result-authority.v1",
+  "status": "FROZEN_PRE_E0Q_AUTHORITY",
+  "constitution_source_commit": "7fe44b08ecf404147c1fe8d08702d4140f2332ab",
+  "constitution_file": "replaymark/VE2_E0Q_CONSTITUTION_V1.json",
+  "constitution_blob": "3e2c9737e485d45498e6df7780fa8bb5a652e196",
+  "runtime_discovery_private_receipt_parent": "455ed877e4de288d421bc9d60549f8680b8de14e",
+  "runtime_discovery_public_result_seal": "395ccd138b93c5c40a17fd906d497df1851cfeb1",
+  "selected_runtime_digests": {
+    "T01_OLD_HISTORY": "sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e",
+    "T01_NEW_TARGET": "sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7",
+    "T02_COMMON": "sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293"
+  },
+  "selected_source_commits": {
+    "T01_OLD_HISTORY": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+    "T01_NEW_TARGET": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+    "T02_OLD": "ac189909982c5edea1260e767027d6fad90ef4bd",
+    "T02_NEW": "5b4496de5659fd2c6ec5c67a9797e6659797866c"
+  },
+  "public_execution_requirements": {
+    "one_file_open_child": true,
+    "run_attempt": 1,
+    "all_four_roles": true,
+    "exact_boundary_blob_frozen_before_open": true,
+    "isolated_capsule_excludes_transition_blueprints_state_manifests_and_expected_frontiers": true,
+    "artifact_upload_before_pass_surface": true,
+    "independent_post_execution_validator": true
+  },
+  "science_open_authorized": false,
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "same_authority_rerun": false,
+  "next_permitted_action": "Freeze public E0Q implementation bytes, statically verify the exact isolated capsule, and execute one orthogonal E0Q authority on the selected source/OCI substrates."
+}

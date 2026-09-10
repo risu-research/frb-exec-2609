@@ -1,0 +1,317 @@
+name: VE2 E0Q version-spanning boundary qualification v1
+
+on:
+  push:
+    branches:
+      - ve2-e0q-v1
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_E0Q_AUTHORITY: 227e4e75528d8b73d7225ef68bc2c63d29978be5
+  RUNTIME_DISCOVERY_PUBLIC_SEAL: 395ccd138b93c5c40a17fd906d497df1851cfeb1
+  CONSTITUTION_BLOB: 3e2c9737e485d45498e6df7780fa8bb5a652e196
+  PRIVATE_AUTHORITY_MIRROR_BLOB: ec0f610d85ed138c7dd1b4f18da12b9a3739accb
+  BOUNDARY_BLOB: 0e566517bbb83c8573b0835e850ab5020ac97988
+  ROLE_RUNTIME_BLOB: d0ee64c170dbee64ef94aca10d0565ea739d5b98
+  INDEPENDENT_VALIDATOR_BLOB: 85f50eb12c39960ad0b8852f0595f5e584288400
+  EXECUTION_CONTRACT_BLOB: 3855c7fd12a25658fbff17c8d65b3841b858b1a0
+  STATIC_VERIFIER_BLOB: d2931dbaa3b6f79990acc0d8839e5064f326f88c
+
+jobs:
+  e0q:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - name: Checkout exact E0Q authority
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Require exact one-file first-attempt E0Q open
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          test -f VE2_E0Q_AUTHORITY_OPEN_V1.json
+          parent="$(git rev-parse HEAD^)"
+          mapfile -t changed < <(git diff --name-only "$parent..HEAD")
+          test "${#changed[@]}" = "1"
+          test "${changed[0]}" = "VE2_E0Q_AUTHORITY_OPEN_V1.json"
+
+          python - "$parent" "$PRIVATE_E0Q_AUTHORITY" "$BOUNDARY_BLOB" <<'PY'
+          import json,sys
+          parent,private,boundary=sys.argv[1:4]
+          value=json.load(open("VE2_E0Q_AUTHORITY_OPEN_V1.json"))
+          assert value == {
+              "schema":"replaymark.ve2.e0q-authority-open.v1",
+              "authority":"ORTHOGONAL_VERSION_SPANNING_BOUNDARY_FIRST_COMPLETE",
+              "source_freeze_public_head":parent,
+              "private_e0q_authority":private,
+              "boundary_git_blob":boundary,
+              "scientific_result_opened":False,
+              "frontier_result_seen":False,
+              "rerun_authorized":False,
+          }
+          PY
+
+          test "$(git hash-object --no-filters VE2_E0Q_CONSTITUTION_V1_MIRROR.json)" = "$CONSTITUTION_BLOB"
+          test "$(git hash-object --no-filters VE2_E0Q_PRE_RESULT_AUTHORITY_V1_MIRROR.json)" = "$PRIVATE_AUTHORITY_MIRROR_BLOB"
+          test "$(git hash-object --no-filters ve2_boundary_microkernel_v1.py)" = "$BOUNDARY_BLOB"
+          test "$(git hash-object --no-filters ve2_e0q_role_runtime_v1.py)" = "$ROLE_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_e0q_independent_validate_v1.py)" = "$INDEPENDENT_VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V1.json)" = "$EXECUTION_CONTRACT_BLOB"
+          test "$(git hash-object --no-filters verify_ve2_e0q_source_freeze_v1.py)" = "$STATIC_VERIFIER_BLOB"
+
+          python verify_ve2_e0q_source_freeze_v1.py \
+            --workflow .github/workflows/ve2-e0q-v1.yml
+
+          echo "source_freeze_public_head=$parent" >> "$GITHUB_OUTPUT"
+
+      - name: Build isolated boundary-only capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf capsule roles source-checkouts results
+          mkdir -p capsule roles source-checkouts results
+          cp ve2_boundary_microkernel_v1.py ve2_e0q_role_runtime_v1.py capsule/
+          test "$(find capsule -maxdepth 1 -type f | wc -l)" = "2"
+          test "$(git hash-object --no-filters capsule/ve2_boundary_microkernel_v1.py)" = "$BOUNDARY_BLOB"
+          test "$(git hash-object --no-filters capsule/ve2_e0q_role_runtime_v1.py)" = "$ROLE_RUNTIME_BLOB"
+          find capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > results/E0Q_CAPSULE_SHA256.txt
+
+      - name: Materialize exact Better Thermostat source roles under real config paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' > roles.tsv
+          import json
+          c=json.load(open("VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V1.json"))
+          for role,v in c["roles"].items():
+              print("\t".join([
+                  role,v["source_commit"],v["component_tree_sha1"],
+                  v["manifest_sha256"],v["manifest_version"],
+                  v["ha_version"],v["ha_image"],
+              ]))
+          PY
+
+          materialize_role () {
+            local role="$1" commit="$2" tree="$3" manifest_sha="$4" manifest_version="$5"
+            local checkout="$PWD/source-checkouts/$role"
+            local config="$PWD/roles/$role/config"
+            mkdir -p "$checkout" "$config"
+            git -C "$checkout" init -q
+            git -C "$checkout" remote add upstream https://github.com/KartoffelToby/better_thermostat.git
+            git -C "$checkout" fetch --quiet --depth=1 upstream "$commit"
+            git -C "$checkout" checkout -q --detach FETCH_HEAD
+            test "$(git -C "$checkout" rev-parse HEAD)" = "$commit"
+            test "$(git -C "$checkout" rev-parse HEAD:custom_components/better_thermostat)" = "$tree"
+            git -C "$checkout" archive HEAD custom_components/better_thermostat | tar -x -C "$config"
+            test "$(sha256sum "$config/custom_components/better_thermostat/manifest.json" | awk '{print $1}')" = "$manifest_sha"
+            python - "$role" "$commit" "$tree" "$manifest_sha" "$manifest_version" "$config" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          role,commit,tree,manifest_sha,manifest_version,config=sys.argv[1:7]
+          root=Path(config)/"custom_components/better_thermostat"
+          manifest=json.loads((root/"manifest.json").read_text())
+          assert manifest["domain"]=="better_thermostat"
+          assert manifest["version"]==manifest_version
+          digest=hashlib.sha256()
+          for path in sorted(p for p in root.rglob("*") if p.is_file()):
+              rel=path.relative_to(root).as_posix().encode()
+              body=path.read_bytes()
+              digest.update(len(rel).to_bytes(8,"big")); digest.update(rel)
+              digest.update(len(body).to_bytes(8,"big")); digest.update(body)
+          value={
+              "schema":"replaymark.ve2.e0q-source-identity.v1",
+              "role":role,
+              "source_commit":commit,
+              "component_tree_sha1":tree,
+              "manifest_sha256":manifest_sha,
+              "manifest_version":manifest_version,
+              "component_canonical_sha256":digest.hexdigest(),
+          }
+          (Path(config)/"VE2_SOURCE_IDENTITY.json").write_text(
+              json.dumps(value,sort_keys=True,indent=2)+"\n"
+          )
+          PY
+          }
+
+          while IFS=$'\t' read -r role commit tree manifest_sha manifest_version ha_version ha_image; do
+            materialize_role "$role" "$commit" "$tree" "$manifest_sha" "$manifest_version"
+          done < roles.tsv
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract=json.load(open("VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V1.json"))
+          values={}
+          for role in contract["roles"]:
+              value=json.load(open(Path("roles")/role/"config/VE2_SOURCE_IDENTITY.json"))
+              assert value["role"]==role
+              assert value["source_commit"]==contract["roles"][role]["source_commit"]
+              assert value["component_tree_sha1"]==contract["roles"][role]["component_tree_sha1"]
+              values[role]=value
+          Path("results/VE2_E0Q_SOURCE_PROVENANCE_V1.json").write_text(
+              json.dumps({
+                  "schema":"replaymark.ve2.e0q-source-provenance.v1",
+                  "status":"PASS",
+                  "roles":values,
+                  "scientific_result_opened":False,
+                  "scientific_cells":0,
+              },sort_keys=True,indent=2)+"\n"
+          )
+          PY
+
+      - name: Pull and record exact selected OCI substrates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t images < <(python - <<'PY'
+          import json
+          c=json.load(open("VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V1.json"))
+          for image in dict.fromkeys(v["ha_image"] for v in c["roles"].values()):
+              print(image)
+          PY
+          )
+          test "${#images[@]}" = "3"
+          : > results/HOME_ASSISTANT_IMAGE_INSPECT.jsonl
+          for image in "${images[@]}"; do
+            case "$image" in
+              ghcr.io/home-assistant/home-assistant@sha256:*) ;;
+              *) echo "mutable-or-unexpected-image-ref: $image"; exit 1 ;;
+            esac
+            docker pull "$image"
+            docker image inspect "$image" >> results/HOME_ASSISTANT_IMAGE_INSPECT.jsonl
+          done
+
+      - name: Execute four isolated orthogonal E0Q roles
+        id: execute
+        shell: bash
+        run: |
+          set -u
+          overall=0
+          while IFS=$'\t' read -r role commit tree manifest_sha manifest_version ha_version ha_image; do
+            set +e
+            docker run --rm \
+              --network none \
+              --read-only \
+              --tmpfs /tmp:rw,nosuid,nodev,size=64m \
+              -e PYTHONDONTWRITEBYTECODE=1 \
+              -e HOME=/tmp \
+              -e PYTHONPATH=/capsule:/config \
+              -v "$PWD/capsule:/capsule:ro" \
+              -v "$PWD/roles/$role/config:/config:ro" \
+              -v "$PWD/results:/results" \
+              --entrypoint python \
+              "$ha_image" \
+              /capsule/ve2_e0q_role_runtime_v1.py \
+                --role "$role" \
+                --expected-ha-version "$ha_version" \
+                --ha-image "$ha_image" \
+                --source-commit "$commit" \
+                --component-tree-sha1 "$tree" \
+                --manifest-sha256 "$manifest_sha" \
+                --manifest-version "$manifest_version" \
+                --boundary-blob "$BOUNDARY_BLOB" \
+                --out "/results/$role.json" \
+              > "results/$role.stdout" \
+              2> "results/$role.stderr"
+            rc=$?
+            set -e
+            printf '%s\n' "$rc" > "results/$role.exit"
+            if [ "$rc" != "0" ]; then overall=1; fi
+          done < roles.tsv
+          printf '%s\n' "$overall" > results/ROLE_EXECUTION_AGGREGATE.exit
+          exit 0
+
+      - name: Independently validate complete four-role E0Q
+        id: validate
+        shell: bash
+        run: |
+          set +e
+          python ve2_e0q_independent_validate_v1.py \
+            --results results \
+            --contract VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V1.json \
+            --boundary-blob "$BOUNDARY_BLOB" \
+            --out results/VE2_E0Q_INDEPENDENT_VALIDATION_V1.json \
+            > results/INDEPENDENT_VALIDATOR.stdout \
+            2> results/INDEPENDENT_VALIDATOR.stderr
+          rc=$?
+          printf '%s\n' "$rc" > results/INDEPENDENT_VALIDATOR.exit
+          exit 0
+
+      - name: Seal E0Q provenance and checksums regardless of outcome
+        if: always()
+        shell: bash
+        env:
+          SOURCE_FREEZE_PUBLIC_HEAD: ${{ steps.gate.outputs.source_freeze_public_head }}
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          role_exit={}
+          for role in ("T01_OLD_HISTORY","T01_NEW_TARGET","T02_OLD","T02_NEW"):
+              p=Path("results")/(role+".exit")
+              role_exit[role]=None if not p.exists() else int(p.read_text().strip())
+          validator=Path("results/INDEPENDENT_VALIDATOR.exit")
+          value={
+              "schema":"replaymark.ve2.e0q-public-provenance.v1",
+              "authority":"ORTHOGONAL_VERSION_SPANNING_BOUNDARY_FIRST_COMPLETE",
+              "repository":os.environ["GITHUB_REPOSITORY"],
+              "execution_head":os.environ["GITHUB_SHA"],
+              "source_freeze_public_head":os.environ.get("SOURCE_FREEZE_PUBLIC_HEAD", ""),
+              "private_e0q_authority":os.environ["PRIVATE_E0Q_AUTHORITY"],
+              "runtime_discovery_public_result_seal":os.environ["RUNTIME_DISCOVERY_PUBLIC_SEAL"],
+              "boundary_git_blob":os.environ["BOUNDARY_BLOB"],
+              "workflow_run_id":int(os.environ["GITHUB_RUN_ID"]),
+              "run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "role_exit":role_exit,
+              "independent_validator_exit":None if not validator.exists() else int(validator.read_text().strip()),
+              "scientific_result_opened":False,
+              "frontier_result_seen":False,
+              "ve2_home_assistant_scientific_cells":0,
+              "ve2_replaymark_scientific_cells":0,
+              "same_authority_rerun":False,
+          }
+          Path("results/VE2_E0Q_PROVENANCE_V1.json").write_text(
+              json.dumps(value,sort_keys=True,indent=2)+"\n"
+          )
+          PY
+          (
+            cd results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable E0Q first-complete capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve2-e0q-first-complete-v1
+          path: results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface E0Q PASS only after immutable artifact upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat results/ROLE_EXECUTION_AGGREGATE.exit)" = "0"
+          test "$(cat results/INDEPENDENT_VALIDATOR.exit)" = "0"
+          python - <<'PY'
+          import json
+          v=json.load(open("results/VE2_E0Q_INDEPENDENT_VALIDATION_V1.json"))
+          assert v["status"]=="PASS"
+          assert v["all_four_roles_pass"] is True
+          assert v["scientific_result_opened"] is False
+          assert v["ve2_home_assistant_scientific_cells"]==0
+          assert v["ve2_replaymark_scientific_cells"]==0
+          PY

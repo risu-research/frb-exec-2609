@@ -1,0 +1,78 @@
+{
+  "schema": "replaymark.ve2.e0q-constitution.v1",
+  "status": "FROZEN_PRE_E0Q",
+  "parent_runtime_discovery_receipt": "455ed877e4de288d421bc9d60549f8680b8de14e",
+  "purpose": "Qualify a single version-spanning Home Assistant observation/completion boundary and real /config custom-component load context on every selected VE2 source/runtime substrate without executing any T01/T02 scientific fixture or historical action.",
+  "selected_substrates": {
+    "T01_OLD_HISTORY": {
+      "source_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+      "ha_image": "ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e"
+    },
+    "T01_NEW_TARGET": {
+      "source_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+      "ha_image": "ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7"
+    },
+    "T02_OLD": {
+      "source_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "ha_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293"
+    },
+    "T02_NEW": {
+      "source_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+      "ha_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293"
+    }
+  },
+  "hard_scope_firewall": {
+    "transition_blueprint_mounted": false,
+    "execution_state_manifest_mounted": false,
+    "expected_frontier_mounted": false,
+    "historical_action_dispatched": false,
+    "climate_or_better_thermostat_action_invoked": false,
+    "synthetic_service_domain": "ve2_e0q",
+    "synthetic_service": "sink",
+    "network_inside_candidate_container": false,
+    "package_install_inside_candidate_container": false
+  },
+  "required_per_role": [
+    "The exact Better Thermostat component subtree is materialized under /config/custom_components/better_thermostat and imported from that path.",
+    "The component manifest identity equals the frozen source identity.",
+    "The exact selected Home Assistant OCI digest is used.",
+    "A state-parent event carrying a fresh Context is captured.",
+    "Exactly one synthetic consequential service event is captured and context-bound to that invocation.",
+    "A second state-parent invocation closes via the same completion witness with zero qualifying synthetic service events.",
+    "The completion witness is exactly three HomeAssistant.async_block_till_done fixed-point passes.",
+    "Foreign-context, duplicate-event, malformed-event, and incomplete-completion cases are rejected fail-closed."
+  ],
+  "version_adapter_law": {
+    "homeassistant_constructor_selection": "Use inspect.signature(HomeAssistant.__init__) only: if config_dir is a required positional parameter, construct HomeAssistant('/config'); otherwise construct HomeAssistant() and set hass.config.config_dir='/config'.",
+    "result_dependent_adapter_choice": false,
+    "fallback_after_runtime_observation": false
+  },
+  "shared_boundary_law": {
+    "future_science_must_use_exact_e0q_boundary_blob": true,
+    "event_types": ["state_changed", "call_service"],
+    "clock_domain": "python.perf_counter_ns",
+    "context_binding": "service context id equals invocation context id OR service context parent_id equals invocation context id",
+    "completion_witness": "three_homeassistant_async_block_till_done_fixed_point_passes",
+    "timeout_alone_can_establish_absence": false
+  },
+  "promotion": {
+    "roles_required": ["T01_OLD_HISTORY", "T01_NEW_TARGET", "T02_OLD", "T02_NEW"],
+    "all_roles_must_pass": true,
+    "positive_service_events_per_role": 1,
+    "verified_absence_events_per_role": 0,
+    "negative_cases_must_all_reject": true,
+    "partial_role_pass_promotable": false,
+    "same_authority_rerun": false
+  },
+  "failure_law": {
+    "pre_case_container_or_harness_failure": "Preserve as infrastructure failure and require a versioned successor; do not infer substrate incompatibility from a harness defect.",
+    "well_formed_boundary_mismatch": "Preserve as E0Q qualification failure; do not weaken the boundary to obtain PASS.",
+    "scientific_interpretation": false
+  },
+  "scientific_boundary": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  }
+}
