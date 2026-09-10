@@ -1,0 +1,125 @@
+{
+  "schema": "replaymark.ve1.public-execution-capsule-static-result-seal.v3",
+  "status": "PASS",
+  "authority": "IMMUTABLE_PUBLIC_EXECUTION_CAPSULE_STATIC_PASS",
+  "repository": "risu-research/frb-exec-2609",
+  "branch": "ve1-native-execution-capsule-static-seal-v3",
+  "private_constitution": {
+    "repository": "risu-research/replaymark",
+    "head": "7c53b5bdc70b600156380877a406b5988d35125a"
+  },
+  "capsule_source": {
+    "branch": "ve1-native-execution-capsule-v3",
+    "head": "c9a07bdaeff33c88dea17a42e9f1b6d97cf7c18b",
+    "tree": "e3e26c635726942956ca4853a8aa386470218894",
+    "parent_v2_source": "19cbe1ca32b8020724016d3d5c84df4727c594bb",
+    "v3_delta": [
+      ".github/workflows/ve1-capsule-static-freeze-v1.yml",
+      "VE1_EXECUTION_CAPSULE_CONTRACT_V3.json",
+      "VE1_PRE_STATIC_REMEDIATION_HISTORY_V3.json",
+      "ve1_capsule_static_verify.py"
+    ],
+    "v3_delta_commits": 1,
+    "v3_delta_behind": 0,
+    "scientific_producer_changed_from_v2_source": false,
+    "scientific_validator_changed_from_v2_source": false,
+    "scientific_adjudicator_changed_from_v2_source": false,
+    "e0q_runner_changed_from_v2_source": false,
+    "execution_state_manifest_changed_from_v2_source": false
+  },
+  "static_open": {
+    "head": "a476cf8316664935136318fee5a68d3b26af52c4",
+    "parent": "c9a07bdaeff33c88dea17a42e9f1b6d97cf7c18b",
+    "only_added_file": "VE1_STATIC_QUALIFICATION_OPEN_V3.json",
+    "rerun_authorized": false
+  },
+  "pre_open_guard_rejection": {
+    "run_id": 34438126865,
+    "run_attempt": 1,
+    "head": "c9a07bdaeff33c88dea17a42e9f1b6d97cf7c18b",
+    "conclusion": "failure",
+    "cause": "branch creation emitted a push before the required one-file static-open marker existed",
+    "guard_step": "Require exact one-file static-open child and constrained v3 source delta",
+    "guard_step_conclusion": "failure",
+    "exact_byte_verification_step": "skipped",
+    "semantic_materialization_step": "skipped",
+    "target_lift_reproof_step": "skipped",
+    "artifact_id": 10136915793,
+    "artifact_sha256": "ddc09985877fc5a8b16b9875f91d1a7ed2c7e3af34ee614e0ae3b703aefc3043",
+    "scientific_result_opened": false,
+    "e0q_opened": false,
+    "interpretation": "PRE_OPEN_GUARD_REJECTION_NOT_SCIENTIFIC_RESULT"
+  },
+  "authoritative_static_qualification": {
+    "run_id": 34438146416,
+    "run_attempt": 1,
+    "head": "a476cf8316664935136318fee5a68d3b26af52c4",
+    "conclusion": "success",
+    "all_required_steps_passed": true,
+    "one_file_open_child_check": "PASS",
+    "constrained_v3_delta_check": "PASS",
+    "exact_capsule_blob_check": "PASS",
+    "static_firewall_audit": "PASS",
+    "semantic_capsule_materialization": "PASS",
+    "inherited_32_state_target_lift_reproof": "PASS",
+    "provenance_seal": "PASS",
+    "artifact_upload": "PASS",
+    "artifact_id": 10136923704,
+    "artifact_name": "ve1-native-execution-capsule-static-freeze-v3",
+    "artifact_sha256": "f8e9891911a68d151623bea6729aef8bbab9a2f4baf98eaf963f8e06c1cdafa9",
+    "artifact_download_sha256_reverified": "f8e9891911a68d151623bea6729aef8bbab9a2f4baf98eaf963f8e06c1cdafa9",
+    "artifact_internal_checksums_reverified": true
+  },
+  "static_audit": {
+    "schema": "replaymark.ve1.execution-capsule-static-audit.v2",
+    "status": "PASS",
+    "scientific_result_opened": false,
+    "state_count": 32,
+    "state_manifest_rows_sha256": "a5cb1f789189918f09da3066a6c6d48cbfdc6b723d3a73cbeae81c538669caff",
+    "producer_answer_table_access": false,
+    "e0q_ve1_source_pin_access": false,
+    "validator_stdlib_only": true,
+    "adjudicator_stdlib_only": true,
+    "science_stage_order": ["old_history", "new_direct", "replaymark", "replay_all"]
+  },
+  "inherited_target_contract": {
+    "status": "PASS",
+    "states": 32,
+    "horizon": 0,
+    "contract_fingerprint": "7eb89450caf6c25142e568e04977809ff637c8216a238b910c02e1c52d875262",
+    "native_target_fingerprint": "9d37c99ea0645057bb91b2a60dde7b3cb665589631915b861082c8457611273b",
+    "q_class_counts_h0_h1_h2": [5, 14, 16],
+    "partition_equal_to_frozen_model": true,
+    "new_semantic_model_introduced_for_ve1": false
+  },
+  "frozen_capsule_file_sha256": {
+    "VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json": "43f8b3fb8cf7bdd6cb51a98d6f4999639132e21752b334887e289ea37e1e2f8c",
+    "ve1_native_execution.py": "93b8c278eb5847d265c5896d68167d45775b98e2b7dc1848c75a050a28c961b3",
+    "ve1_independent_validate.py": "9378b0393153710b02de0d2fa2e2fd9979e8b01787ff0ac8eed9600e0cf09e5f",
+    "ve1_postrun_adjudicate.py": "2b09bf42b8f3e5522615b022165cdfd054726999be6f9a6a7963333c7f8b75f7",
+    "ve1_e0q_runtime.py": "6f66cfcce74b385acd1342a0f3c0d5fe421083d6fc148a4bc102700ebdccf04b",
+    "ve1_capsule_static_verify.py": "aa07b09b473115da2fa9c6b769f15128d436631d1c7e440d4e334e9078cd3a56",
+    "VE1_EXECUTION_CAPSULE_CONTRACT_V3.json": "9e09506b4661ed7147f7d0816d2334d44fd5595ca0220dabb80d8dfcb7ab8cc5",
+    "VE1_PRE_STATIC_REMEDIATION_HISTORY_V3.json": "2c7b1e364bb19a9fbabac30aefdb06d76c3482f83919ba4c4feae72fae7a7886",
+    ".github/workflows/ve1-capsule-static-freeze-v1.yml": "0f3d99c239b9500ba212a3789a56780be520d79647d3bd0671f3d75b734a345a",
+    ".github/workflows/ve1-e0q-v1.yml": "c5fe07f0c707a0f1c579e7843826ff18df8d8c2883c130bbc56af6e1755b9cef",
+    ".github/workflows/ve1-authoritative-first-complete-v1.yml": "561425a3e905f565c037a2212ee60df0dea3dada33cffb2e6cf2d37388ab4801"
+  },
+  "frozen_analysis_side_frontier": {
+    "canonical_expected_rows_sha256": "0ef80acf64bcc192837ee17f6b57ab2e79ee4182c9b793d8cf388d59d2558c20",
+    "runtime_producer_has_expected_table_access": false
+  },
+  "result_exposure_at_seal": {
+    "home_assistant_scientific_cells": 0,
+    "replaymark_scientific_cells": 0,
+    "replay_all_scientific_cells": 0,
+    "scientific_outcome_seen": false,
+    "e0q_opened": false
+  },
+  "authority_law": {
+    "static_pass_may_be_rerun_under_same_authority": false,
+    "static_source_may_be_edited_in_place": false,
+    "scientific_open_authorized_by_this_seal": false,
+    "next_only": "Create an exact E0Q authority-open child on a branch that does not retrigger the v3 static workflow; execute the frozen orthogonal E0Q once. Only a PASS E0Q result seal may enable later VE1 scientific authority opening."
+  }
+}
