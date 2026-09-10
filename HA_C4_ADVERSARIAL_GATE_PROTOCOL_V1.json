@@ -1,0 +1,99 @@
+{
+  "schema": "replaymark.ha-c4.adversarial-gate-protocol.v1",
+  "status": "FROZEN_PRE_EXECUTION",
+  "parent_c3_head": "94d1fbe4882028ffcc3b639d0a1004e064022c35",
+  "purpose": "artifact/trust-boundary closure; not a live scientific headline and not a replacement for HA-C3",
+  "frozen_c3_gate_blob": "ec8d445bcf6659bead696fa4868ff7778123dbf6",
+  "target_runtime": "exact HA-C3 execution gate inside the pinned Home Assistant 2026.9.0 image",
+  "execution_model": {
+    "historical_sink": "spy/fault-injecting implementation of hass.services.async_call at the exact gate delegate boundary",
+    "native_recovery": "absent from the C4 harness by construction",
+    "fallback": false,
+    "retry": false,
+    "regeneration": false,
+    "caller_action_override": false
+  },
+  "interpretation_rules": {
+    "semantic_block": "VALIDity is adjudicated successfully but R* authorizes DO_NOT_REUSE; gate returns BLOCK_REUSE with zero historical sink calls",
+    "trust_failure": "malformed/foreign/mismatched material is rejected before a semantic admission receipt and must not be relabeled UNRESOLVED",
+    "sink_exception": "the only case intentionally permitted to cross the historical sink boundary once; the injected delegate exception must propagate and the consumed certificate must prevent any second sink call, retry, regeneration, or gate-owned native fallback"
+  },
+  "cases": [
+    {
+      "id": "C4-P0-VALID-CONTROL",
+      "class": "positive_control",
+      "expected": {"admission": "ADMIT_REUSE", "historical_sink_calls": 1, "exception": null}
+    },
+    {
+      "id": "C4-P1-INVALID-CONTROL",
+      "class": "semantic_block_control",
+      "expected": {"admission": "BLOCK_REUSE", "historical_sink_calls": 0, "exception": null}
+    },
+    {
+      "id": "C4-A1-UNRESOLVED",
+      "class": "semantic_block",
+      "construction": "well-formed HA runtime material under a frozen synthetic ambiguity contract whose historical action lies in possible but not guaranteed support",
+      "expected": {"verdict": "UNRESOLVED", "admission": "BLOCK_REUSE", "historical_sink_calls": 0, "exception": null}
+    },
+    {
+      "id": "C4-A2-MALFORMED-OBSERVATION",
+      "class": "trust_failure",
+      "expected": {"admission": null, "historical_sink_calls": 0, "exception_required": true}
+    },
+    {
+      "id": "C4-A3-FOREIGN-ACTION",
+      "class": "trust_failure",
+      "expected": {"admission": null, "historical_sink_calls": 0, "exception_required": true}
+    },
+    {
+      "id": "C4-A4-CROSS-TASK-CERTIFICATE",
+      "class": "trust_failure",
+      "expected": {"admission": null, "historical_sink_calls": 0, "exception_required": true, "certificate_exact": false}
+    },
+    {
+      "id": "C4-A5-CERTIFICATE-CANONICAL-BYTE-MUTATION",
+      "class": "trust_failure",
+      "expected": {"admission": null, "historical_sink_calls": 0, "exception_required": true, "certificate_exact": false}
+    },
+    {
+      "id": "C4-A6-RAW-AFTER-CERTIFICATION-MUTATION",
+      "class": "trust_failure",
+      "expected": {"admission": null, "historical_sink_calls": 0, "exception_required": true}
+    },
+    {
+      "id": "C4-A7-DUPLICATE-SEQUENTIAL",
+      "class": "single_use",
+      "expected": {"first_admission": "ADMIT_REUSE", "total_historical_sink_calls": 1, "second_exception_required": true}
+    },
+    {
+      "id": "C4-A8-DUPLICATE-CONCURRENT-32",
+      "class": "single_use_async",
+      "expected": {"callers": 32, "admitted": 1, "duplicate_rejections": 31, "total_historical_sink_calls": 1}
+    },
+    {
+      "id": "C4-A9-SINK-EXCEPTION",
+      "class": "delegate_failure",
+      "expected": {"initial_historical_sink_attempts": 1, "exception_propagates": true, "certificate_consumed_before_delegate": true, "retry_sink_attempts": 0, "native_fallback_calls": 0, "regeneration_calls": 0}
+    },
+    {
+      "id": "C4-A10-STATIC-SURFACE-AUDIT",
+      "class": "structural",
+      "expected": {"historical_sink_call_sites": 1, "fallback_surface": 0, "retry_surface": 0, "regeneration_surface": 0, "native_automation_trigger_surface": 0, "caller_action_override_parameters": 0}
+    }
+  ],
+  "promotion": {
+    "all_cases_pass": true,
+    "pre_sink_adversarial_cases_zero_historical_calls": true,
+    "duplicate_cases_at_most_one_historical_call": true,
+    "sink_exception_exactly_one_failing_attempt_and_zero_followup_attempts": true,
+    "trust_failures_never_reclassified_as_semantic_unresolved": true,
+    "no_latency_threshold": true,
+    "no_performance_claim": true
+  },
+  "post_freeze_policy": {
+    "case_addition_or_removal_after_result_open": false,
+    "expectation_change_after_result_open": false,
+    "c3_gate_semantics_change": false,
+    "c3_result_reinterpretation": false
+  }
+}
