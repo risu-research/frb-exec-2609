@@ -1,0 +1,54 @@
+{
+  "authority": "PRE_SCIENTIFIC_DYNAMIC_TRANSPORT_QUALIFICATION",
+  "dynamic_audit_sha256": "cfbf1edff954735e9854a965cf69d0129c7405aff8d5d53573465c83bbac62cb",
+  "dynamic_guarantees": {
+    "downstream_read_only_mount_enforced": true,
+    "host_precreated_single_file_output_mount": true,
+    "host_seal_mode": "0444",
+    "old_history_survived_intervening_new_direct": true,
+    "output_owner_preserved": true,
+    "runtime_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "separate_stage_process_contract": true,
+    "shell_function_state_sharing_used": false,
+    "synthetic_old_history_sha256": "ff8b998d9249b7914c3cc963f3ebe59ae55241c4ace881862a09e68437916c6b"
+  },
+  "dynamic_transport_status": "PASS",
+  "failed_qualification_preserved": {
+    "artifact_id": 10150596048,
+    "artifact_zip_sha256": "3a53653dc9fdd8397a2a30b834e986f3a0f3a2096606b72ab487b297f0774145",
+    "classification": "PRE_SCIENTIFIC_STATIC_VERIFIER_FALSE_POSITIVE",
+    "result_bearing_controller_invocations": 0,
+    "run_id": 34473759805,
+    "scientific_cells": 0,
+    "scientific_result_opened": false
+  },
+  "fresh_scientific_successor_required": true,
+  "independent_redownload_verification": {
+    "artifact_zip_digest_match": true,
+    "internal_checksum_manifest_verified": true
+  },
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "qualification_artifact_id": 10150759777,
+  "qualification_artifact_zip_sha256": "6cb5da3f004c206a871896a255c8cad631bd7de643103a4c0805cca3adef31a6",
+  "qualification_marker_head": "9c7a5e71352374ae45dec8dca30a58429c6e1e71",
+  "qualification_provenance_sha256": "0211079b8cd9404ebb414994827aa016b24a8c630e6ad6c86106261e8d186a8b",
+  "qualification_run_attempt": 1,
+  "qualification_run_id": 34474078849,
+  "rerun_authorized": false,
+  "result_bearing_controller_invocations": 0,
+  "schema": "replaymark.ve1.transport-qualification-pass.v3",
+  "scientific_cells": 0,
+  "scientific_result_opened": false,
+  "source_candidate_head": "539b5e87d10366278ef83137bc0a2ebba3137f1f",
+  "source_files_sha256": {
+    ".github/workflows/ve1-authoritative-first-complete-v3.yml": "fed7b5793ff06c0ec4b3ced0916bc222faf743b5889e32e28234b1aace9c42bb",
+    ".github/workflows/ve1-science-transport-qualification-v3.yml": "5f2261e7bc00b1cfd4b6e16d55480dcda8e250859aaa4c25406e96aa152cd5af",
+    "VE1_POST_OPEN_REMEDIATION_V3.json": "1485891388562d49bf05c287d4854a21344ca79119983c2f4662a98cdfe7f450",
+    "ve1_science_workflow_static_verify_v3.py": "c9b408ff8596005584767bf532f05609ac1848fb9a35383579dff52cd7af1133",
+    "ve1_stage_transport_v3.py": "4e5828a0d883f7792078b25331bb19fe0481396ba0bf274fd3cc10660f2e59b5"
+  },
+  "static_audit_sha256": "4a5e95e926a6e6abeb22af4ed790149db8c8455facea4bdcd7cb56b739344852",
+  "static_status": "PASS",
+  "status": "PASS",
+  "v2_post_open_seal_sha256": "055df628df72df5aeb2523f0166a6dfbb186c9656efd3802ac6f60b76f887ecb"
+}
