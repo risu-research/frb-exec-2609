@@ -1,0 +1,50 @@
+{
+  "authority": "IMMUTABLE_PRE_SCIENTIFIC_WORKFLOW_QUALIFICATION",
+  "base_evidence_head": "ea9fc4225d408009dc42b06f756cc46dda1fe771",
+  "preserved_failed_static_attempt": {
+    "artifact_id": 10147888827,
+    "artifact_sha256": "7b2d10b1671607818fef4d32ab0a8a7638b0c5444f81412c168fd144a8655aa1",
+    "failure": "redundant substring checker matched explanatory docstring text; no scientific execution",
+    "head_sha": "edbb62d598f736bbd60c4051e066c20535615198",
+    "run_id": 34466908170,
+    "scientific_cells": 0
+  },
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "qualified_assertions": {
+    "all_scientific_run_blocks_bash_n_pass": true,
+    "expected_table_not_available_to_result_bearing_workflow": true,
+    "failed_v1_run_preserved": 34465860182,
+    "scientific_code_blobs_unchanged": true,
+    "scientific_workflow_heredoc_operator_count": 0,
+    "scientific_workflow_run_blocks": 12,
+    "state_manifest_unchanged": true,
+    "transport_helper_semantic_imports": false
+  },
+  "repository": "risu-research/frb-exec-2609",
+  "rerun_authorized": false,
+  "schema": "replaymark.ve1.science-workflow-static-pass.v2",
+  "scientific_cells": 0,
+  "scientific_result_opened": false,
+  "source_candidate_head": "e709bb0521c13458e63bc6f84a9a975de7efb4f1",
+  "source_files_sha256": {
+    ".github/workflows/ve1-authoritative-first-complete-v2.yml": "63767ffc1d96ed8ef812b53861a058523017b9952d705571b0d40aadb6c8c60a",
+    ".github/workflows/ve1-science-workflow-static-v2.yml": "bbbca5cb286149f3c3555e588f3d15e368861340baafbfb80002033f98b37eeb",
+    "VE1_PRE_INPUT_FAILURE_REMEDIATION_V2.json": "f116d3cf34aaa82f27719915472aa5115249f2b021ef053caae36ad5e998d335",
+    "ve1_science_transport_v2.py": "14bb1664791531644c1335a936946685bec16d73e677ad39d4308a52aeff95dc",
+    "ve1_science_workflow_static_verify_v2.py": "61f7131da0fcf98450f781add52182266e3875d5459b6126725ce044675bca50"
+  },
+  "static_open_head": "3ac2d32d6f49f1204147bf054582fbef8875d1e9",
+  "status": "PASS",
+  "successful_static_run": {
+    "artifact_id": 10147968207,
+    "artifact_independently_redownloaded": true,
+    "artifact_sha256": "74a1b73fec9d99553749aa86e35259de68725753dfabbfcb8f2742c11a623cec",
+    "conclusion": "success",
+    "head_sha": "3ac2d32d6f49f1204147bf054582fbef8875d1e9",
+    "internal_checksums_all_pass": true,
+    "public_provenance_sha256": "0e189f03faf88936f23b370e23c056ea18edbf0671a56208f461eab3000cf887",
+    "run_attempt": 1,
+    "run_id": 34467113754,
+    "static_audit_sha256": "5b478ba2a4a0dcfa4403c7d3eb16508d34b0bae936f1d767ea590f6b0f227d5a"
+  }
+}
