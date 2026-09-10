@@ -1,0 +1,13 @@
+{
+  "authority": "AUTHORITATIVE_FIRST_COMPLETE_VERSION_EVOLUTION",
+  "e0q_result_seal_sha256": "0487a389a21de184ad12f643ae8fc6ce358925961f3d5e5f8c19224adf585e4f",
+  "fresh_population_required": true,
+  "prior_post_open_infrastructure_run_id": 34467293478,
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "rerun_authorized": false,
+  "schema": "replaymark.ve1.scientific-authority-open.v3",
+  "source_candidate_head": "539b5e87d10366278ef83137bc0a2ebba3137f1f",
+  "source_freeze_public_head": "ddedd6dcb78dbd4a881a8e27a7c9a3763aaae630",
+  "transport_qualification_pass_sha256": "0f0974bd4248d9706bd6e77d96dd79a4fdb7971040f4c21d00b0a412b755ac0d",
+  "v2_post_open_seal_sha256": "055df628df72df5aeb2523f0166a6dfbb186c9656efd3802ac6f60b76f887ecb"
+}
