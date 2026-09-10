@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """Transport-only support for VE1 scientific workflow v2.
 
-This module must not import ReplayMark, Home Assistant, or experiment target semantics.
+This module is transport-only and has no dependency on ReplayMark, Home Assistant, or experiment target semantics.
 It creates and validates provenance/failure envelopes only.
 """
 
