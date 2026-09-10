@@ -1,0 +1,11 @@
+{
+  "schema": "replaymark.ve2.transition-qualification-open.v1",
+  "authority": "STATIC_SEMANTIC_QUALIFICATION_ONLY",
+  "source_candidate_head": "1d0990c70723b66bcf66371e472219a37429ee4e",
+  "private_pre_result_authority": "3b941bce64dbb5c38a1125fb007f9eaa102dceb4",
+  "public_census_pass_parent": "4c4151a3675605218fed6a6847a7b22df96dc92b",
+  "scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "rerun_authorized": false
+}
