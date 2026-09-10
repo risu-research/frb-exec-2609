@@ -1,0 +1,69 @@
+{
+  "schema": "replaymark.ve2.science-transport-v1-pre-runtime-failure-seal.v1",
+  "status": "SEALED_PRE_SCIENCE_TRANSPORT_FAILURE_NOT_CONSUMED",
+  "authority": {
+    "private_preopen_commit": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "source_freeze_public_head": "2d5f40dc9efab7f0d33a0cca47b0a75cd6b70080",
+    "open_commit": "b2475ad666bf3f0940e0578c1ce3708cbf8d1dca",
+    "run_id": 34543187018,
+    "run_attempt": 1,
+    "conclusion": "failure"
+  },
+  "failure_phase": "IMAGE_VERSION_PREFLIGHT_BEFORE_NEUTRAL_RUNTIME_EXECUTION",
+  "root_cause": {
+    "class": "HOME_ASSISTANT_VERSION_NAMESPACE_DEFECT",
+    "failing_expression": "import homeassistant; print(homeassistant.__version__)",
+    "observed_exception": "AttributeError: module 'homeassistant' has no attribute '__version__'",
+    "correct_authority": "homeassistant.const.__version__",
+    "source_witness_2022_10": {
+      "path": "homeassistant/const.py",
+      "git_blob": "139b3a157b21f01a35a4c8cce9a6ec8a2c316ab0",
+      "declares_version": "2022.10.0"
+    },
+    "semantic_effect": "none; image pull and digest identity succeeded, and qualification runtime was never invoked"
+  },
+  "roles": {
+    "T01_OLD_RUNTIME": {
+      "job_id": 103090113740,
+      "image_pull": "PASS_EXACT_DIGEST",
+      "runtime_invoked": false,
+      "artifact_id": 10178049250,
+      "artifact_zip_sha256": "e9ef5c70fdf6c4d35dc48ded3c85b6bd15d0ff2fcbeb7f949d4ab3c9c04dce55"
+    },
+    "T01_NEW_RUNTIME": {
+      "job_id": 103090113729,
+      "image_pull": "PASS_EXACT_DIGEST",
+      "runtime_invoked": false,
+      "artifact_id": 10178058225,
+      "artifact_zip_sha256": "ca417a3da8bfeaed6a8efe9dcc8a8717a03a34cd64960782217e94c06f979950"
+    },
+    "T02_RUNTIME": {
+      "job_id": 103090113745,
+      "image_pull": "PASS_EXACT_DIGEST",
+      "runtime_invoked": false,
+      "artifact_id": 10178063849,
+      "artifact_zip_sha256": "c2e1fa0edbbfe3f18b0b79f68c74e44613342c870477ab654e3531b3569e7ef6"
+    }
+  },
+  "scientific_hygiene": {
+    "transition_blueprint_executed": false,
+    "scientific_fixture_executed": false,
+    "neutral_transport_runtime_executed": false,
+    "expected_frontier_read": false,
+    "historical_better_thermostat_action_dispatched": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "remediation_law": {
+    "same_authority_rerun": false,
+    "v1_open_remains_failed_and_immutable": true,
+    "authorized_successor": "VE2_SCIENCE_TRANSPORT_QUALIFICATION_V2",
+    "permitted_change": "replace only the image-version preflight lookup with homeassistant.const.__version__, plus versioned workflow/remediation metadata needed to prove that exact delta",
+    "runtime_blob_must_remain": "0d8ce1b7e5f4a0fa8df3970d9cc971f0ca8bdf02",
+    "validator_blob_must_remain": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "transport_contract_blob_must_remain": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "scientific_estimand_or_promotion_change": false
+  }
+}
