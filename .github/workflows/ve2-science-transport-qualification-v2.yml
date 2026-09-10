@@ -1,0 +1,277 @@
+name: VE2 cross-version science transport qualification v2
+
+on:
+  push:
+    branches:
+      - ve2-science-transport-qualification-v2
+
+permissions:
+  contents: read
+
+env:
+  V1_FAILURE_SEAL: f38790085763f4ee7d6536c43bd8e5902d88dd30
+  V1_FAILED_OPEN: b2475ad666bf3f0940e0578c1ce3708cbf8d1dca
+  V1_WORKFLOW_BLOB: e3d24b64a1711ee63922e09e1422410bc7f0e60e
+  PRIVATE_PREOPEN_AUTHORITY: e8c32489b113724d20fb57b34d4464aeb4626c9d
+  PRIVATE_SCIENCE_CONSTITUTION: f0cca6726b634a35c523b0caab89694bd7fb18e5
+  CONTRACT_BLOB: 2b79daab2de89a11890adca7f1d804d42b34e2d1
+  RUNTIME_BLOB: 0d8ce1b7e5f4a0fa8df3970d9cc971f0ca8bdf02
+  VALIDATOR_BLOB: 5dcf67b9bdb349032670c127bd756e40f0acdc1c
+  REMEDIATION_BLOB: 40515b9a5c42d9a22ad2a2ef4a6c49a1357813ad
+  T01_OLD_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e
+  T01_NEW_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7
+  T02_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+
+jobs:
+  open-gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      open: ${{ steps.gate.outputs.open }}
+      source_freeze: ${{ steps.gate.outputs.source_freeze }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 30
+      - id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'open=false' >> "$GITHUB_OUTPUT"
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test -f VE2_SCIENCE_TRANSPORT_QUALIFICATION_OPEN_V2.json
+          test -f VE2_SCIENCE_TRANSPORT_V1_PRE_RUNTIME_FAILURE_SEAL.json
+          test -f VE2_SCIENCE_TRANSPORT_V2_VERSION_PREFLIGHT_REMEDIATION.json
+          source_freeze="$(git rev-parse HEAD^)"
+          test "$(git rev-parse "$V1_FAILURE_SEAL")" = "$V1_FAILURE_SEAL"
+          git merge-base --is-ancestor "$V1_FAILURE_SEAL" "$source_freeze"
+
+          mapfile -t open_delta < <(git diff --name-only "$source_freeze..HEAD")
+          test "${#open_delta[@]}" = '1'
+          test "${open_delta[0]}" = 'VE2_SCIENCE_TRANSPORT_QUALIFICATION_OPEN_V2.json'
+
+          mapfile -t source_delta < <(git diff --name-only "$V1_FAILURE_SEAL..$source_freeze")
+          expected=(
+            '.github/workflows/ve2-science-transport-qualification-v2.yml'
+            'VE2_SCIENCE_TRANSPORT_V2_VERSION_PREFLIGHT_REMEDIATION.json'
+          )
+          test "${#source_delta[@]}" = "${#expected[@]}"
+          for i in "${!expected[@]}"; do test "${source_delta[$i]}" = "${expected[$i]}"; done
+
+          test "$(git hash-object --no-filters .github/workflows/ve2-science-transport-qualification-v1.yml)" = "$V1_WORKFLOW_BLOB"
+          test "$(git hash-object --no-filters VE2_SCIENCE_TRANSPORT_QUALIFICATION_CONTRACT_V1.json)" = "$CONTRACT_BLOB"
+          test "$(git hash-object --no-filters ve2_science_transport_qualify_v1.py)" = "$RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_science_transport_independent_validate_v1.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters VE2_SCIENCE_TRANSPORT_V2_VERSION_PREFLIGHT_REMEDIATION.json)" = "$REMEDIATION_BLOB"
+
+          python - "$source_freeze" <<'PY'
+          import json,sys
+          r=json.load(open('VE2_SCIENCE_TRANSPORT_V2_VERSION_PREFLIGHT_REMEDIATION.json'))
+          assert r['schema']=='replaymark.ve2.science-transport-v2-version-preflight-remediation.v1'
+          assert r['status']=='FROZEN_PROSPECTIVE_PRE_SCIENCE'
+          assert r['predecessor_failure_seal']=='f38790085763f4ee7d6536c43bd8e5902d88dd30'
+          assert r['root_cause']=='HOME_ASSISTANT_VERSION_NAMESPACE_DEFECT'
+          assert r['repair']['old_expression']=='import homeassistant; print(homeassistant.__version__)'
+          assert r['repair']['new_expression']=='from homeassistant.const import __version__; print(__version__)'
+          assert r['repair']['runtime_blob_unchanged']=='0d8ce1b7e5f4a0fa8df3970d9cc971f0ca8bdf02'
+          assert r['repair']['validator_blob_unchanged']=='5dcf67b9bdb349032670c127bd756e40f0acdc1c'
+          assert r['repair']['transport_contract_blob_unchanged']=='2b79daab2de89a11890adca7f1d804d42b34e2d1'
+          assert r['repair']['scientific_semantics_changed'] is False
+          assert r['repair']['transport_semantics_changed'] is False
+          assert r['attempt_law']['v1_is_never_rerun'] is True
+          assert r['attempt_law']['v2_promotable_run_attempt']==1
+
+          o=json.load(open('VE2_SCIENCE_TRANSPORT_QUALIFICATION_OPEN_V2.json'))
+          assert o=={
+            'schema':'replaymark.ve2.science-transport-qualification-open.v2',
+            'authority':'VE2_CROSS_VERSION_SCIENCE_TRANSPORT_PRE_SCIENCE_V2',
+            'source_freeze_public_head':sys.argv[1],
+            'predecessor_failure_seal':'f38790085763f4ee7d6536c43bd8e5902d88dd30',
+            'private_preopen_authority':'e8c32489b113724d20fb57b34d4464aeb4626c9d',
+            'scientific_result_opened':False,
+            'frontier_result_seen':False,
+            'scientific_cells':0,
+            'same_authority_rerun':False,
+          }
+          PY
+          python -m py_compile ve2_science_transport_qualify_v1.py ve2_science_transport_independent_validate_v1.py
+          echo "source_freeze=$source_freeze" >> "$GITHUB_OUTPUT"
+          echo 'open=true' >> "$GITHUB_OUTPUT"
+
+  qualify-role:
+    needs: open-gate
+    if: needs.open-gate.outputs.open == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        role: [T01_OLD_RUNTIME, T01_NEW_RUNTIME, T02_RUNTIME]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      ROLE: ${{ matrix.role }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+      - name: Select exact frozen runtime image
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$ROLE" in
+            T01_OLD_RUNTIME) image="$T01_OLD_IMAGE"; expected='2022.10.0' ;;
+            T01_NEW_RUNTIME) image="$T01_NEW_IMAGE"; expected='2026.1.0' ;;
+            T02_RUNTIME) image="$T02_IMAGE"; expected='2026.9.0' ;;
+            *) exit 2 ;;
+          esac
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+          echo "expected=$expected" >> "$GITHUB_OUTPUT"
+      - name: Pull exact Home Assistant image and verify source-proven version before neutral execution
+        shell: bash
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+          EXPECTED: ${{ steps.image.outputs.expected }}
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          docker pull "$IMAGE"
+          docker image inspect "$IMAGE" > "results/${ROLE}_IMAGE_INSPECT.json"
+          observed="$(docker run --rm --network none --entrypoint python3 "$IMAGE" -c 'from homeassistant.const import __version__; print(__version__)')"
+          test "$observed" = "$EXPECTED"
+          printf '%s\n' "$observed" > "results/${ROLE}_HA_VERSION.txt"
+      - name: Execute unchanged orthogonal neutral transport qualifier with no scientific inputs mounted
+        id: runtime
+        shell: bash
+        env:
+          IMAGE: ${{ steps.image.outputs.image }}
+        run: |
+          set -uo pipefail
+          chmod 0777 results
+          set +e
+          docker run --rm --network none \
+            -v "$PWD/ve2_science_transport_qualify_v1.py:/work/qualify.py:ro" \
+            -v "$PWD/results:/results" \
+            --entrypoint python3 "$IMAGE" \
+            /work/qualify.py --role "$ROLE" --out "/results/${ROLE}.json" \
+            > "results/${ROLE}_STDOUT.txt" 2> "results/${ROLE}_STDERR.txt"
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > "results/${ROLE}_EXIT.txt"
+          echo "runtime_rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Seal role evidence checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd results && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+      - name: Upload immutable v2 neutral role evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-science-transport-v2-${{ matrix.role }}
+          path: results/
+          if-no-files-found: error
+          retention-days: 90
+
+  adjudicate:
+    needs: [open-gate, qualify-role]
+    if: always() && needs.open-gate.outputs.open == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+      - name: Download every sealed v2 role capsule
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ve2-science-transport-v2-*
+          path: downloads
+          merge-multiple: false
+      - name: Verify role capsule checksums before independent adjudication
+        shell: bash
+        run: |
+          set -euo pipefail
+          for role in T01_OLD_RUNTIME T01_NEW_RUNTIME T02_RUNTIME; do
+            root="downloads/ve2-science-transport-v2-${role}"
+            test -d "$root"
+            (cd "$root" && sha256sum -c CHECKSUMS.sha256)
+            test "$(cat "$root/${role}_EXIT.txt")" = '0'
+          done
+      - name: Independently adjudicate unchanged transport qualification
+        id: validate
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p aggregate
+          set +e
+          python ve2_science_transport_independent_validate_v1.py \
+            --t01-old downloads/ve2-science-transport-v2-T01_OLD_RUNTIME/T01_OLD_RUNTIME.json \
+            --t01-new downloads/ve2-science-transport-v2-T01_NEW_RUNTIME/T01_NEW_RUNTIME.json \
+            --t02 downloads/ve2-science-transport-v2-T02_RUNTIME/T02_RUNTIME.json \
+            --out aggregate/VE2_SCIENCE_TRANSPORT_QUALIFICATION_RESULT_V2.json \
+            > aggregate/VALIDATOR_STDOUT.txt 2> aggregate/VALIDATOR_STDERR.txt
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > aggregate/VALIDATOR_EXIT.txt
+          echo "validator_rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Seal v2 aggregate provenance before surfacing promotion
+        if: always()
+        shell: bash
+        env:
+          SOURCE_FREEZE: ${{ needs.open-gate.outputs.source_freeze }}
+          VALIDATOR_RC: ${{ steps.validate.outputs.validator_rc }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          pth=Path('aggregate/VE2_SCIENCE_TRANSPORT_QUALIFICATION_RESULT_V2.json')
+          result=json.loads(pth.read_text()) if pth.exists() else None
+          ok=bool(os.environ.get('VALIDATOR_RC')=='0' and result and result.get('status')=='PASS')
+          p={
+            'schema':'replaymark.ve2.science-transport-qualification-provenance.v2',
+            'status':'PASS_PRE_SCIENCE' if ok else 'INCOMPLETE_NON_PROMOTABLE',
+            'execution_head':os.environ['GITHUB_SHA'],
+            'source_freeze_public_head':os.environ.get('SOURCE_FREEZE',''),
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'predecessor_v1_failure_seal':os.environ['V1_FAILURE_SEAL'],
+            'private_preopen_authority':os.environ['PRIVATE_PREOPEN_AUTHORITY'],
+            'scientific_result_opened':False,
+            'frontier_result_seen':False,
+            'transition_blueprint_executed':False,
+            'scientific_cells':0,
+            'same_authority_rerun':False,
+            'promotion':ok,
+          }
+          Path('aggregate/VE2_SCIENCE_TRANSPORT_QUALIFICATION_PROVENANCE_V2.json').write_text(json.dumps(p,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd aggregate && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+      - name: Upload immutable v2 aggregate qualification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-science-transport-qualification-v2-aggregate
+          path: aggregate/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Surface promotion only after aggregate seal
+        if: always()
+        shell: bash
+        env:
+          VALIDATOR_RC: ${{ steps.validate.outputs.validator_rc }}
+        run: |
+          set -euo pipefail
+          test "$VALIDATOR_RC" = '0'
+          python - <<'PY'
+          import json
+          r=json.load(open('aggregate/VE2_SCIENCE_TRANSPORT_QUALIFICATION_RESULT_V2.json'))
+          assert r['status']=='PASS'
+          assert r['promotion']['cross_version_invocation_double_witness']=='PASS'
+          assert r['promotion']['T02_clock_transport']=='PASS'
+          assert r['promotion']['scientific_cells']==0
+          assert r['promotion']['frontier_result_seen'] is False
+          assert r['promotion']['transition_blueprint_executed'] is False
+          assert r['promotion']['eligible_for_scientific_capsule_freeze'] is True
+          PY
