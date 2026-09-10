@@ -1,0 +1,60 @@
+{
+  "firewall": {
+    "expected_artifact_download_forbidden_until": "ALL_RAW_STAGE_ARTIFACTS_SEALED",
+    "only_consumer": "independent post-seal adjudicator",
+    "producer_access": false,
+    "replay_all_access": false,
+    "replaymark_worker_access": false,
+    "runtime_outputs_must_be_sealed_before_any_expected_bytes_are_fetched": true,
+    "this_commit_must_not_be_ancestor_of_scientific_execution": true
+  },
+  "frozen_summary": {
+    "T01": {
+      "compatible": 0,
+      "retired": 2
+    },
+    "T02_quotient": {
+      "compatible": 18,
+      "retired": 24
+    },
+    "T02_weighted": {
+      "compatible": 97,
+      "retired": 47
+    }
+  },
+  "parent_transition_qualification_pass_seal": "8fde248ed981e48eecc166f39d818551f1c6559b",
+  "schema": "replaymark.ve2.science-expected-adjudicator-authority.v1",
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "home_assistant_cells": 0,
+    "replaymark_cells": 0,
+    "scientific_result_opened": false
+  },
+  "source_artifact": {
+    "artifact_id": 10162994628,
+    "artifact_name": "ve2-transition-static-semantic-qualification-v1",
+    "artifact_zip_sha256": "9c22414f9b5d61dc56683a4c9513a913c4140f99dc2af200278d34eac910effa",
+    "external_redownload_verified": true,
+    "run_attempt": 1,
+    "workflow_run_id": 34503906796
+  },
+  "status": "FROZEN_PRE_SCIENTIFIC_EXECUTION_ADJUDICATOR_ONLY",
+  "tables_in_artifact": {
+    "T01_ROWS.json": {
+      "canonical_rows_sha256": "6d4b4ac7738885bcf1226161d84726926b15d3139502dd5e31499a4850328f2a",
+      "file_sha256": "85ab8b52ac547de1cbceb4351789c525b589c260cb609f57eba4e04e07f83f9b",
+      "rows": 2
+    },
+    "T02_ABSTRACT_ROWS.json": {
+      "canonical_rows_sha256": "6292de3f4889bb69491faf40cdc3c421576ea750e4d70cb032a6b0bbc81c60ae",
+      "file_sha256": "fd85a194501b41cbe3f6b2b1eaabe3433504d39b5a9d22e1ebd3606e422fa07b",
+      "rows": 144
+    },
+    "T02_QUOTIENT_ROWS.json": {
+      "canonical_rows_sha256": "c4c3d495df1659aaf94fb1d517b9fdd483759344c429e58aa51a45d415b74c25",
+      "class_weights_sum": 144,
+      "file_sha256": "d9810474e7a6458e46492a774dbfe2545afbd3a8dc19fedb27bc450aebc5c242",
+      "rows": 42
+    }
+  }
+}
