@@ -1,0 +1,84 @@
+{
+  "schema": "replaymark.ve2.transition-qualification-result-seal.v1",
+  "status": "PASS_SEALED_PUBLIC_PRE_SCIENTIFIC_RUNTIME",
+  "lineage": {
+    "public_census_pass_parent": "4c4151a3675605218fed6a6847a7b22df96dc92b",
+    "source_candidate": "1d0990c70723b66bcf66371e472219a37429ee4e",
+    "source_tree": "e4d5249ca8179b48be3acd0c255bbebd2c2e0827",
+    "qualification_open": "c21456417646dea8aa91e0f81be326e2899d49f4",
+    "qualification_open_tree": "9e75ce966496e0845df5406753db412c51437f26",
+    "private_pre_result_authority": "3b941bce64dbb5c38a1125fb007f9eaa102dceb4"
+  },
+  "execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "ve2-transition-freeze-qualification-v1",
+    "workflow": ".github/workflows/ve2-transition-freeze-qualification-v1.yml",
+    "workflow_run_id": 34503906796,
+    "run_attempt": 1,
+    "job_id": 102961212233,
+    "conclusion": "success",
+    "all_required_steps_success": true,
+    "runner": "ubuntu-24.04",
+    "git_version": "2.55.0"
+  },
+  "artifact": {
+    "artifact_id": 10162994628,
+    "artifact_name": "ve2-transition-static-semantic-qualification-v1",
+    "artifact_size_bytes": 40393,
+    "zip_sha256": "9c22414f9b5d61dc56683a4c9513a913c4140f99dc2af200278d34eac910effa",
+    "checksums_manifest_sha256": "2c30cbf6303dc270af7623428497ee2f4cb855fc640ffba22413fccd4bf014ab",
+    "qualification_json_sha256": "9eb500f042c026d1ee84fd79bd6121a1f3f8509116e4af5f36e83567e00ea616",
+    "provenance_json_sha256": "9b821d7757c199afe4dc4e8d3cf9c81db7ac611f1010ab935180fcd05a266ddb",
+    "t01_materialized_rows_file_sha256": "85ab8b52ac547de1cbceb4351789c525b589c260cb609f57eba4e04e07f83f9b",
+    "t02_materialized_abstract_rows_file_sha256": "fd85a194501b41cbe3f6b2b1eaabe3433504d39b5a9d22e1ebd3606e422fa07b",
+    "t02_materialized_quotient_rows_file_sha256": "d9810474e7a6458e46492a774dbfe2545afbd3a8dc19fedb27bc450aebc5c242",
+    "internal_checksum_verification": "23/23 files OK"
+  },
+  "independent_source_witnesses": {
+    "T01_old_blueprint_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8",
+    "T01_new_blueprint_sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363",
+    "T01_patch_sha256": "ddf6a1316693bf521969669f74e77e1f7dc71508ea856b45aedecbf9426c1ffd",
+    "T02_old_blueprint_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115",
+    "T02_new_blueprint_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e",
+    "T02_patch_sha256": "1559c4938ccd883ca1e8b2f2b08ac71c1bb8615a35776adc89f76de4c9254648"
+  },
+  "qualified_frontiers": {
+    "T01": {
+      "states": 2,
+      "compatible": 0,
+      "retired": 2,
+      "canonical_rows_sha256": "6d4b4ac7738885bcf1226161d84726926b15d3139502dd5e31499a4850328f2a"
+    },
+    "T02": {
+      "abstract_states": 144,
+      "abstract_compatible": 97,
+      "abstract_retired": 47,
+      "abstract_rows_sha256": "6292de3f4889bb69491faf40cdc3c421576ea750e4d70cb032a6b0bbc81c60ae",
+      "quotient_classes": 42,
+      "quotient_compatible": 18,
+      "quotient_retired": 24,
+      "quotient_rows_sha256": "c4c3d495df1659aaf94fb1d517b9fdd483759344c429e58aa51a45d415b74c25",
+      "label_free_execution_states_sha256": "f791b6b93ee3febe483c9f85aa977db04c3e431479bf4404f5c9d7d6194fed94",
+      "class_weights_sum": 144
+    }
+  },
+  "independence": {
+    "private_semantics_generator_executed": false,
+    "private_freeze_verifier_executed": false,
+    "upstream_git_objects_verified_independently": true,
+    "source_change_witnesses_verified_independently": true,
+    "t01_frontier_rederived_independently": true,
+    "t02_144_state_superspace_rederived_independently": true,
+    "t02_42_class_causal_path_quotient_rederived_independently": true,
+    "label_free_execution_manifests_verified_against_rederived_representatives": true
+  },
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "claim_boundary": "home-assistant.native-service-call",
+  "claim_scope": "This seal establishes the prospective transition state spaces, native semantic laws, exact expected frontiers, quotient completeness, and label firewall. It does not establish ReplayMark scientific success on T01 or T02.",
+  "science_open_authorized": false,
+  "only_next_gate": "Discover and freeze exact runtime substrates, then pass transition-specific orthogonal E0Q. No T01/T02 scientific cell may open before those runtime authorities are immutably sealed."
+}
