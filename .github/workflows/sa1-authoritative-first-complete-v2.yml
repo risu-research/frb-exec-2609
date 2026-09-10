@@ -1,0 +1,346 @@
+name: SA1 authoritative native source-adequacy first complete v2
+
+on:
+  push:
+    branches:
+      - sa1-authoritative-first-complete-v2
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_SOURCE_FREEZE: 623f83f0411506ec4d4efe3291177c1b4a8cadc8
+  PRELIVE_EXPECTED_AUTHORITY: cbb28b45bec65c98845123358c05c14d5b83a805
+  STATIC_HEAD: 3ec06e1d07c357c9b4cefb467dda5025ba806e4d
+  STATIC_RUN_ID: '34427855537'
+  STATIC_ARTIFACT_ID: '10133341203'
+  STATIC_ARTIFACT_SHA256: 96b94ff1a98d03db67065a6c64a2bd0b763f6f5765d8cbd53d74465f8e005f8d
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  BLUEPRINT_COMMIT: 57d56f076c05ccaa9553e6bd4b673b6d43a8cf7f
+  BLUEPRINT_SHA256: 16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443
+  BT_COMMIT: b86561f61e5ba1259fc63e590f4847e9ac743d7f
+  BT_MANIFEST_SHA256: 710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28
+  BT_TREE_SHA256: bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0
+  EXPECTED_ROWS_SHA256: e70b8db3ee6d2644c46dc2c8c6bef9d11b86e98a1cd2f59947632308b798c9c0
+  EXPECTED_TABLE_FILE_SHA256: 7fef313e1c716169038ae1bcb9331bfb9cf7ad1481acbf433503aa28a94b5e72
+  PRODUCER_BLOB: 9a63ee18485373eecbaf92cc6a585fc3f9579e64
+  VALIDATOR_BLOB: f51891f3ff796488a22a5d10dac2e04137ce62fd
+  AGGREGATE_BLOB: f321f5dd5869413e95bcda537b326f73250ccc1b
+  MATERIALIZER_BLOB: a3bc643873403143a8a6b5880497e9cb98583079
+  C2_TARGET_BLOB: f28c7e04fd033dd3774c110f1954ce2ae851cd99
+  LEGACY_MODEL_BLOB: dc798178962351e869abd6134c7c34d9152ed0e6
+
+jobs:
+  open-gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      open: ${{ steps.guard.outputs.open }}
+      source_freeze_head: ${{ steps.guard.outputs.source_freeze_head }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+
+      - name: Refuse reruns and prove exact authority lineage
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "open=false" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_RUN_ATTEMPT" != "1" ]; then
+            echo "SA1 scientific execution is never repeated on a workflow re-attempt."
+            exit 0
+          fi
+          test -f SA1_AUTHORITY_OPEN_V1.json
+          test -f SA1_FROZEN_SOURCE_AUTHORITY_V1.json
+          source_freeze="$(git rev-parse HEAD^)"
+          source_parent="$(git rev-parse HEAD^^)"
+          mapfile -t open_delta < <(git diff --name-only "$source_freeze..HEAD")
+          test "${#open_delta[@]}" -eq 1
+          test "${open_delta[0]}" = "SA1_AUTHORITY_OPEN_V1.json"
+          mapfile -t freeze_delta < <(git diff --name-only "$source_parent..$source_freeze")
+          test "${#freeze_delta[@]}" -eq 1
+          test "${freeze_delta[0]}" = "SA1_FROZEN_SOURCE_AUTHORITY_V1.json"
+          python - "$source_freeze" "$source_parent" <<'PY'
+          import json,subprocess,sys
+          source_freeze,source_parent=sys.argv[1:]
+          opened=json.load(open('SA1_AUTHORITY_OPEN_V1.json'))
+          assert opened == {
+              'schema':'replaymark.sa1.authority-open.v1',
+              'authority':'AUTHORITATIVE_NATIVE_SOURCE_ADEQUACY_FIRST_COMPLETE',
+              'source_freeze_public_head':source_freeze,
+              'private_source_freeze_head':'623f83f0411506ec4d4efe3291177c1b4a8cadc8',
+              'prelive_expected_authority':'cbb28b45bec65c98845123358c05c14d5b83a805',
+              'rerun_authorized':False,
+          }
+          authority=json.load(open('SA1_FROZEN_SOURCE_AUTHORITY_V1.json'))
+          assert authority['schema']=='replaymark.sa1.frozen-source-authority.v1'
+          assert authority['status']=='FROZEN_PRE_LIVE_RESULT'
+          assert authority['live_result_opened'] is False
+          assert authority['workflow_source_parent']==source_parent
+          workflow='.github/workflows/sa1-authoritative-first-complete-v2.yml'
+          blob=subprocess.check_output(['git','hash-object','--no-filters',workflow],text=True).strip()
+          assert authority['authoritative_workflow_git_blob']==blob
+          assert authority['private_source_freeze_head']=='623f83f0411506ec4d4efe3291177c1b4a8cadc8'
+          assert authority['prelive_expected_authority']=='cbb28b45bec65c98845123358c05c14d5b83a805'
+          assert authority['static_qualification']['run_id']==34427855537
+          assert authority['static_qualification']['conclusion']=='success'
+          assert authority['static_qualification']['artifact_id']==10133341203
+          assert authority['static_qualification']['artifact_sha256']=='96b94ff1a98d03db67065a6c64a2bd0b763f6f5765d8cbd53d74465f8e005f8d'
+          assert authority['expected']['rows_sha256']=='e70b8db3ee6d2644c46dc2c8c6bef9d11b86e98a1cd2f59947632308b798c9c0'
+          PY
+          test "$(git hash-object --no-filters replaymark_verification/sa1_native_source_adequacy.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_aggregate.py)" = "$AGGREGATE_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/build_sa1_expected_semantic_table.py)" = "$MATERIALIZER_BLOB"
+          echo "source_freeze_head=$source_freeze" >> "$GITHUB_OUTPUT"
+          echo "open=true" >> "$GITHUB_OUTPUT"
+
+  replica:
+    needs: open-gate
+    if: needs.open-gate.outputs.open == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [0, 1]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+
+      - name: Reprove executable source identity and separation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "${{ needs.open-gate.outputs.source_freeze_head }}"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_native_source_adequacy.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_aggregate.py)" = "$AGGREGATE_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/build_sa1_expected_semantic_table.py)" = "$MATERIALIZER_BLOB"
+          python -m py_compile replaymark_verification/sa1_native_source_adequacy.py replaymark_verification/sa1_independent_validate.py replaymark_verification/sa1_aggregate.py replaymark_verification/build_sa1_expected_semantic_table.py
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          def imports(path):
+              tree=ast.parse(Path(path).read_text()); out=[]
+              for node in ast.walk(tree):
+                  if isinstance(node,ast.Import): out.extend(a.name for a in node.names)
+                  elif isinstance(node,ast.ImportFrom): out.append(node.module or '')
+              return out
+          producer=imports('replaymark_verification/sa1_native_source_adequacy.py')
+          assert not any(x=='replaymark' or x.startswith('replaymark.') or x.startswith('replaymark_verification') for x in producer),producer
+          validator=imports('replaymark_verification/sa1_independent_validate.py')
+          assert set(validator) <= {'__future__','argparse','hashlib','json','pathlib'},validator
+          PY
+
+      - name: Materialize exact origin and frozen expected table before native execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin inputs results
+          mkdir -p origin inputs results
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+          test "$(git -C origin rev-parse HEAD:replaymark_verification/models.py)" = "$LEGACY_MODEL_BLOB"
+          curl --fail --silent --show-error --location "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C2_PUBLIC_HEAD}/replaymark_verification/ha_c2_bt_native_target.py" --output origin/replaymark_verification/ha_c2_bt_native_target.py
+          test "$(git hash-object --no-filters origin/replaymark_verification/ha_c2_bt_native_target.py)" = "$C2_TARGET_BLOB"
+          cp replaymark_verification/build_sa1_expected_semantic_table.py origin/replaymark_verification/
+          PYTHONPATH="$PWD/origin" python origin/replaymark_verification/build_sa1_expected_semantic_table.py --output inputs/SA1_EXPECTED_TABLE.json > results/EXPECTED_TABLE_STDOUT.txt
+          test "$(sha256sum inputs/SA1_EXPECTED_TABLE.json | cut -d' ' -f1)" = "$EXPECTED_TABLE_FILE_SHA256"
+          python - <<'PY'
+          import json,os
+          value=json.load(open('inputs/SA1_EXPECTED_TABLE.json'))
+          assert value['rows_sha256']==os.environ['EXPECTED_ROWS_SHA256']
+          assert len(value['rows'])==32
+          assert value['outcome_counts']=={'EXACT_HA_SERVICE_CALL':24,'NO_CONSEQUENTIAL_CALL':8}
+          PY
+
+      - name: Fetch and pin unchanged external controller and Better Thermostat component
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location "https://raw.githubusercontent.com/n3roGit/MyHomeAssistantMods/${BLUEPRINT_COMMIT}/automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml" --output inputs/better_thermostat_lean.yaml
+          test "$(sha256sum inputs/better_thermostat_lean.yaml | cut -d' ' -f1)" = "$BLUEPRINT_SHA256"
+          git init -q inputs/bt_checkout
+          git -C inputs/bt_checkout remote add upstream https://github.com/KartoffelToby/better_thermostat.git
+          git -C inputs/bt_checkout fetch --depth=1 upstream "$BT_COMMIT"
+          git -C inputs/bt_checkout checkout -q --detach FETCH_HEAD
+          test "$(git -C inputs/bt_checkout rev-parse HEAD)" = "$BT_COMMIT"
+          mkdir -p inputs/upstream_better_thermostat_component
+          cp -a inputs/bt_checkout/custom_components/better_thermostat/. inputs/upstream_better_thermostat_component/
+          rm -rf inputs/bt_checkout
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('inputs/upstream_better_thermostat_component')
+          payload=(root/'manifest.json').read_bytes()
+          assert hashlib.sha256(payload).hexdigest()==os.environ['BT_MANIFEST_SHA256']
+          manifest=json.loads(payload)
+          assert manifest['domain']=='better_thermostat' and manifest['version']=='1.9.2'
+          digest=hashlib.sha256()
+          for path in sorted(p for p in root.rglob('*') if p.is_file()):
+              rel=path.relative_to(root).as_posix().encode(); body=path.read_bytes()
+              digest.update(len(rel).to_bytes(8,'big')); digest.update(rel)
+              digest.update(len(body).to_bytes(8,'big')); digest.update(body)
+          assert digest.hexdigest()==os.environ['BT_TREE_SHA256']
+          PY
+
+      - name: Pull exact HA image and establish INPUT_READY
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+          SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > results/HOME_ASSISTANT_IMAGE_INSPECT.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=int(os.environ['REPLICA'])
+          value={'schema':'replaymark.sa1.input-ready.v1','input_ready':True,'live_result_opened':False,'replica':r,'execution_head':os.environ['GITHUB_SHA'],'source_freeze_public_head':os.environ['SOURCE_FREEZE_HEAD'],'private_source_freeze_head':os.environ['PRIVATE_SOURCE_FREEZE'],'prelive_expected_authority':os.environ['PRELIVE_EXPECTED_AUTHORITY'],'expected_rows_sha256':os.environ['EXPECTED_ROWS_SHA256'],'run_id':int(os.environ['GITHUB_RUN_ID']),'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT'])}
+          Path(f'results/SA1_INPUT_READY_{r}.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Open the single authoritative scientific replica attempt
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=int(os.environ['REPLICA'])
+          value={'schema':'replaymark.sa1.attempt-opened.v1','authority':'AUTHORITATIVE_NATIVE_SOURCE_ADEQUACY_FIRST_COMPLETE','replica':r,'run_id':int(os.environ['GITHUB_RUN_ID']),'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),'rerun_authorized':False}
+          Path(f'results/SA1_ATTEMPT_OPENED_{r}.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Execute all 32 raw-only native cells without result-dependent abort
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set +e
+          docker run --rm --network none -e PYTHONPATH=/origin:/sa1 -v "$PWD:/sa1:ro" -v "$PWD/origin:/origin:ro" -v "$PWD/inputs:/inputs:ro" -v "$PWD/results:/results" --entrypoint python3 "$HA_IMAGE" /sa1/replaymark_verification/sa1_native_source_adequacy.py --blueprint /inputs/better_thermostat_lean.yaml --ownership-component /inputs/upstream_better_thermostat_component --replica "$REPLICA" --out "/results/SA1_RAW_${REPLICA}.json" > "results/PRODUCER_STDOUT_${REPLICA}.txt" 2> "results/PRODUCER_STDERR_${REPLICA}.txt"
+          printf '%s\n' "$?" > "results/PRODUCER_EXIT_${REPLICA}.txt"
+          exit 0
+
+      - name: Independently validate only after complete producer close
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set +e
+          python replaymark_verification/sa1_independent_validate.py "results/SA1_RAW_${REPLICA}.json" inputs/SA1_EXPECTED_TABLE.json --out "results/SA1_VALIDATION_${REPLICA}.json" > "results/VALIDATOR_STDOUT_${REPLICA}.txt" 2> "results/VALIDATOR_STDERR_${REPLICA}.txt"
+          rc=$?
+          printf '%s\n' "$rc" > "results/VALIDATOR_EXIT_${REPLICA}.txt"
+          if [ ! -f "results/SA1_VALIDATION_${REPLICA}.json" ]; then
+            python -c "import json,os,pathlib; r=int(os.environ['REPLICA']); v={'schema':'replaymark.sa1.independent-validation.v1','replica':r,'pass':False,'exact_rows':0,'total_rows':32,'observed_exact_service_calls':0,'observed_no_consequential_call_rows':0,'expected_rows_sha256':os.environ['EXPECTED_ROWS_SHA256'],'details':[],'validator_output_missing':True}; pathlib.Path(f'results/SA1_VALIDATION_{r}.json').write_text(json.dumps(v,sort_keys=True,indent=2)+'\\n')"
+          fi
+          exit 0
+
+      - name: Seal immutable replica capsule regardless of outcome
+        if: always()
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+          SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+        run: |
+          set -euo pipefail
+          cp inputs/SA1_EXPECTED_TABLE.json results/SA1_EXPECTED_TABLE.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=int(os.environ['REPLICA'])
+          value={'schema':'replaymark.sa1.replica-provenance.v1','authority':'AUTHORITATIVE_NATIVE_SOURCE_ADEQUACY_FIRST_COMPLETE','repository':os.environ['GITHUB_REPOSITORY'],'execution_head':os.environ['GITHUB_SHA'],'source_freeze_public_head':os.environ['SOURCE_FREEZE_HEAD'],'private_source_freeze_head':os.environ['PRIVATE_SOURCE_FREEZE'],'prelive_expected_authority':os.environ['PRELIVE_EXPECTED_AUTHORITY'],'run_id':int(os.environ['GITHUB_RUN_ID']),'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),'replica':r,'rerun_authorized':False}
+          Path(f'results/SA1_PROVENANCE_{r}.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd results && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+
+      - name: Upload immutable SA1 replica capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sa1-first-complete-v2-r${{ matrix.replica }}
+          path: results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Preserve authoritative replica conclusion only after upload
+        if: always()
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+        run: |
+          set -euo pipefail
+          test "$(cat results/PRODUCER_EXIT_${REPLICA}.txt)" = "0"
+          test "$(cat results/VALIDATOR_EXIT_${REPLICA}.txt)" = "0"
+          python - <<'PY'
+          import json,os
+          r=int(os.environ['REPLICA'])
+          value=json.load(open(f'results/SA1_VALIDATION_{r}.json'))
+          assert value['pass'] is True
+          assert value['exact_rows']==32
+          assert value['observed_exact_service_calls']==24
+          assert value['observed_no_consequential_call_rows']==8
+          PY
+
+  aggregate:
+    needs: [open-gate, replica]
+    if: always() && needs.open-gate.outputs.open == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sa1-first-complete-v2-r*
+          path: downloaded
+      - name: Aggregate both immutable replica verdicts
+        shell: bash
+        run: |
+          set +e
+          mkdir -p aggregate-results
+          python replaymark_verification/sa1_aggregate.py downloaded/sa1-first-complete-v2-r0/SA1_VALIDATION_0.json downloaded/sa1-first-complete-v2-r1/SA1_VALIDATION_1.json --out aggregate-results/SA1_REPLICATED_AGGREGATE.json > aggregate-results/AGGREGATE_STDOUT.txt 2> aggregate-results/AGGREGATE_STDERR.txt
+          printf '%s\n' "$?" > aggregate-results/AGGREGATE_EXIT.txt
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          value={'schema':'replaymark.sa1.aggregate-provenance.v1','repository':os.environ['GITHUB_REPOSITORY'],'execution_head':os.environ['GITHUB_SHA'],'run_id':int(os.environ['GITHUB_RUN_ID']),'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),'rerun_authorized':False}
+          Path('aggregate-results/SA1_AGGREGATE_PROVENANCE.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd aggregate-results && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+          exit 0
+      - name: Upload immutable replicated aggregate regardless of outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sa1-first-complete-v2-aggregate
+          path: aggregate-results
+          retention-days: 90
+          if-no-files-found: error
+      - name: Preserve authoritative aggregate conclusion only after upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat aggregate-results/AGGREGATE_EXIT.txt)" = "0"
+          python - <<'PY'
+          import json
+          value=json.load(open('aggregate-results/SA1_REPLICATED_AGGREGATE.json'))
+          assert value['pass'] is True
+          assert value['exact_frozen_table_agreements']==64
+          assert value['observed_exact_service_calls']==48
+          assert value['observed_no_consequential_call_rows']==16
+          assert value['unexpected_or_missing_native_outcomes']==0
+          PY
