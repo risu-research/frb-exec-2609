@@ -1,0 +1,34 @@
+{
+  "schema": "replaymark.ve2.census-qualification-remediation.v2",
+  "status": "FROZEN_PRE_SCIENTIFIC_QUALIFICATION_REMEDIATION",
+  "failed_v1": {
+    "workflow_run_id": 34483538569,
+    "qualification_marker_head": "1096ea6e9412dead29b5e8d4643c4111ebbc3831",
+    "classification": "PRE_EXECUTION_WORKFLOW_PARSE_FAILURE",
+    "jobs_created": 0,
+    "qualifier_executed": false,
+    "upstream_census_accessed_by_runner": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0,
+    "ve2_scientific_result_opened": false
+  },
+  "root_cause": "A multiline python -c payload in the provenance shell block escaped YAML block-scalar indentation, making the workflow syntactically invalid before any job could be created.",
+  "remediation": {
+    "workflow_version": 2,
+    "census_constitution_changed": false,
+    "census_manifest_changed": false,
+    "census_membership_changed": false,
+    "qualifier_semantic_code_changed": false,
+    "private_ve2_authority_changed": false,
+    "frontier_prediction_opened": false,
+    "scientific_execution_opened": false,
+    "transport_change_only": true,
+    "rule": "Use only YAML-safe single-line Python commands or ordinary shell control flow inside run block scalars; preserve v1 failure and open a fresh v2 qualification authority from the VE1 public result seal."
+  },
+  "frozen_mirror_blobs": {
+    "constitution": "58e6cc7e1a46af3f14ba8b9e75d71b7c2292cb1d",
+    "manifest": "cd0e4f02cc1d3f1b8088c91a6b651659465d9aa6",
+    "authority": "9ef22d44242fa505c7e59769e3cef8882c144382",
+    "qualifier": "dde96d8c74cb56a2bc3483e8f093ecf8d5495ba1"
+  }
+}

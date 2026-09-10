@@ -1,0 +1,189 @@
+{
+  "schema": "replaymark.ve2.upstream-corpus-manifest.v1",
+  "status": "FROZEN_PRE_RESULT_COMPLETE_CENSUS",
+  "universe": {
+    "repository": "KartoffelToby/better_thermostat",
+    "snapshot_branch": "develop",
+    "snapshot_head": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+    "directory": "blueprints/",
+    "files_at_snapshot": [
+      "battery_low_notify.yaml",
+      "device_error_notify.yaml",
+      "heating_active_notify.yaml",
+      "humidity_high_alert.yaml",
+      "night_mode.yaml",
+      "presence_away_preset.yaml",
+      "weekly_heating_schedule.yaml"
+    ],
+    "file_count": 7
+  },
+  "included_semantic_transitions": [
+    {
+      "transition_id": "VE2-T01-NIGHT-ACTION-FAMILY",
+      "path": "blueprints/night_mode.yaml",
+      "old_file_touch_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+      "old_git_blob_sha1": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+      "new_file_touch_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+      "new_git_blob_sha1": "19c99196ed611729338f01bc77ea1b5deda7aa02",
+      "adjacent_file_versions": true,
+      "eligibility": "ELIGIBLE_SEMANTIC_TRANSITION",
+      "families": ["ACTION_OR_SERVICE_FAMILY_SUBSTITUTION", "PAYLOAD_OR_TARGET_REBINDING"],
+      "static_witness": {
+        "old_schedule_on": "better_thermostat.set_temp_target_temperature(temperature=night_temp) -> thermostat_target",
+        "old_schedule_off": "better_thermostat.restore_saved_target_temperature() -> thermostat_target",
+        "new_schedule_on": "climate.set_preset_mode(preset_mode=sleep) -> thermostat_target",
+        "new_schedule_off": "climate.set_preset_mode(preset_mode=none) -> thermostat_target",
+        "overlap_domain_exists": true,
+        "thermostat_mapping_changes": true
+      },
+      "selection_reason": "The same schedule on/off events and thermostat target are valid under both versions, but the consequential service family and payload change."
+    },
+    {
+      "transition_id": "VE2-T02-WEEKLY-GUARD-REALIZATION",
+      "path": "blueprints/weekly_heating_schedule.yaml",
+      "old_file_touch_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "old_git_blob_sha1": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+      "new_file_touch_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+      "new_git_blob_sha1": "3255957740ec44285d866d8be7d78bf905c1257c",
+      "adjacent_file_versions": true,
+      "eligibility": "ELIGIBLE_SEMANTIC_TRANSITION",
+      "families": ["GUARD_OR_TRIGGER_LOGIC_CHANGE", "TYPE_OR_REALIZATION_CHANGE_AT_ACTION_BOUNDARY", "INPUT_AGGREGATION_CHANGE_AFFECTING_GUARD_OR_ACTION"],
+      "static_witness": {
+        "old_presence_semantics": "single presence_entity; anyone_home evaluates states(presence_entity) in ['home','on'] with a bare lowercase true fallback",
+        "old_pause_semantics": "single pause_switch; schedule_paused uses is_state(pause_switch,'on') with a bare lowercase false fallback",
+        "new_presence_semantics": "normalized presence entity collection; existential aggregation across all selected entities; typed {{ true }}/{{ false }} rendering",
+        "new_pause_semantics": "normalized pause-switch collection; existential aggregation across all selected switches; typed {{ true }}/{{ false }} rendering",
+        "new_left_home_semantics": "rechecks the aggregated anyone_home guard so one still-home selected entity blocks vacation actuation",
+        "overlap_domain_exists": true,
+        "thermostat_mapping_changes": true
+      },
+      "selection_reason": "On configurations executable under both versions, action-gating truth realization changes; the new version also expands the guard from one entity to existential aggregation over a selected set."
+    }
+  ],
+  "excluded_or_nonpair_records": [
+    {
+      "record_id": "VE2-X01-NIGHT-METADATA",
+      "path": "blueprints/night_mode.yaml",
+      "old_commit": "3785543e30e7af52a742e9ba129527147c813480",
+      "old_blob": "59a60207a1f931d42832f557fc61f0c011dd65db",
+      "new_commit": "c6d9f4cd15dd381f803b96ac3d184d2ff41db4fb",
+      "new_blob": "7a82647c62f720a68ce8a0fbe16ae1d251dcccdd",
+      "classification": "EXCLUDED_NO_THERMOSTAT_MAPPING_CHANGE",
+      "reason": "source_url metadata changes from tree/master to blob/master; consequential thermostat action mapping unchanged"
+    },
+    {
+      "record_id": "VE2-X02-NIGHT-SELECTOR",
+      "path": "blueprints/night_mode.yaml",
+      "old_commit": "c6d9f4cd15dd381f803b96ac3d184d2ff41db4fb",
+      "old_blob": "7a82647c62f720a68ce8a0fbe16ae1d251dcccdd",
+      "new_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+      "new_blob": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+      "classification": "EXCLUDED_NO_THERMOSTAT_MAPPING_CHANGE",
+      "reason": "name/schedule selector shape changes; for overlapping valid configurations, schedule guards and thermostat service traces are unchanged"
+    },
+    {
+      "record_id": "VE2-X03-PRESENCE-NOTIFICATION",
+      "path": "blueprints/presence_away_preset.yaml",
+      "old_commit": "d496da5f283db323673d97efc27d6193791c17ac",
+      "old_blob": "8214ad835822e674cb630ca1e809da92817bb23a",
+      "new_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "new_blob": "b9229b4f097f08b083bf756672bd461831787d62",
+      "classification": "EXCLUDED_NO_THERMOSTAT_MAPPING_CHANGE",
+      "reason": "notification enable/default behavior changes; thermostat mapping remains nobody-home -> climate.set_preset_mode(away), anyone-home -> climate.set_preset_mode(home_preset)"
+    },
+    {
+      "record_id": "VE2-X04-WEEKLY-DEFAULTS",
+      "path": "blueprints/weekly_heating_schedule.yaml",
+      "old_commit": "d496da5f283db323673d97efc27d6193791c17ac",
+      "old_blob": "a93b86207dd242173ed92b62f497a7aac1faca0e",
+      "new_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "new_blob": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+      "classification": "EXCLUDED_NO_THERMOSTAT_MAPPING_CHANGE",
+      "reason": "placeholder/default and notification-enablement changes; thermostat slot/vacation service traces and old single-entity guard mapping are retained for overlapping valid enabled configurations"
+    },
+    {
+      "record_id": "VE2-X05-HUMIDITY-NONTHERMOSTAT",
+      "path": "blueprints/humidity_high_alert.yaml",
+      "old_commit": "d496da5f283db323673d97efc27d6193791c17ac",
+      "old_blob": "1c522d567901a2eff3a72bcd321dc07aaedd0a8b",
+      "new_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "new_blob": "c08b20cc15f40f9794372cbcbc1613fe2c522430",
+      "classification": "EXCLUDED_OUTSIDE_THERMOSTAT_ACTUATION_SURFACE",
+      "reason": "both versions only notify and optionally switch.turn_on a ventilation switch; new version adds explicit enable gates/defaults but no thermostat/climate consequential action"
+    },
+    {
+      "record_id": "VE2-N01-BATTERY-INTRODUCTION",
+      "path": "blueprints/battery_low_notify.yaml",
+      "file_touch_commits": ["d496da5f283db323673d97efc27d6193791c17ac"],
+      "classification": "INTRODUCTION_NO_PAIR",
+      "reason": "complete file-touch history through frozen snapshot contains one version only"
+    },
+    {
+      "record_id": "VE2-N02-DEVICE-ERROR-INTRODUCTION",
+      "path": "blueprints/device_error_notify.yaml",
+      "file_touch_commits": ["d496da5f283db323673d97efc27d6193791c17ac"],
+      "classification": "INTRODUCTION_NO_PAIR",
+      "reason": "complete file-touch history through frozen snapshot contains one version only"
+    },
+    {
+      "record_id": "VE2-N03-HEATING-NOTIFY-INTRODUCTION",
+      "path": "blueprints/heating_active_notify.yaml",
+      "file_touch_commits": ["d496da5f283db323673d97efc27d6193791c17ac"],
+      "classification": "INTRODUCTION_NO_PAIR",
+      "reason": "complete file-touch history through frozen snapshot contains one version only"
+    }
+  ],
+  "complete_file_touch_histories": {
+    "night_mode.yaml": [
+      {"commit":"3785543e30e7af52a742e9ba129527147c813480","blob":"59a60207a1f931d42832f557fc61f0c011dd65db"},
+      {"commit":"c6d9f4cd15dd381f803b96ac3d184d2ff41db4fb","blob":"7a82647c62f720a68ce8a0fbe16ae1d251dcccdd"},
+      {"commit":"cd4c3121c92f59d5ac1f3533424bc570209ce6ef","blob":"8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0"},
+      {"commit":"96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f","blob":"19c99196ed611729338f01bc77ea1b5deda7aa02"}
+    ],
+    "presence_away_preset.yaml": [
+      {"commit":"d496da5f283db323673d97efc27d6193791c17ac","blob":"8214ad835822e674cb630ca1e809da92817bb23a"},
+      {"commit":"ac189909982c5edea1260e767027d6fad90ef4bd","blob":"b9229b4f097f08b083bf756672bd461831787d62"}
+    ],
+    "weekly_heating_schedule.yaml": [
+      {"commit":"d496da5f283db323673d97efc27d6193791c17ac","blob":"a93b86207dd242173ed92b62f497a7aac1faca0e"},
+      {"commit":"ac189909982c5edea1260e767027d6fad90ef4bd","blob":"2172a1a3ad1955132911aa0fd0f8a546ab6e2b76"},
+      {"commit":"5b4496de5659fd2c6ec5c67a9797e6659797866c","blob":"3255957740ec44285d866d8be7d78bf905c1257c"}
+    ],
+    "humidity_high_alert.yaml": [
+      {"commit":"d496da5f283db323673d97efc27d6193791c17ac","blob":"1c522d567901a2eff3a72bcd321dc07aaedd0a8b"},
+      {"commit":"ac189909982c5edea1260e767027d6fad90ef4bd","blob":"c08b20cc15f40f9794372cbcbc1613fe2c522430"}
+    ],
+    "battery_low_notify.yaml": [
+      {"commit":"d496da5f283db323673d97efc27d6193791c17ac","blob":null}
+    ],
+    "device_error_notify.yaml": [
+      {"commit":"d496da5f283db323673d97efc27d6193791c17ac","blob":null}
+    ],
+    "heating_active_notify.yaml": [
+      {"commit":"d496da5f283db323673d97efc27d6193791c17ac","blob":null}
+    ]
+  },
+  "census_counts": {
+    "universe_files": 7,
+    "file_versions_with_known_blob_identity": 11,
+    "single_version_nonpair_files": 3,
+    "adjacent_file_version_pairs": 7,
+    "eligible_semantic_transitions": 2,
+    "excluded_adjacent_pairs": 5
+  },
+  "no_result_dependence": {
+    "ve2_native_execution_opened": false,
+    "ve2_replaymark_execution_opened": false,
+    "frontier_predictions_opened": false,
+    "membership_will_not_change_after_results": true
+  },
+  "public_static_qualification_requirements": [
+    "reconstruct the seven-file universe from the frozen develop head",
+    "reconstruct every file-touch history independently through the frozen head",
+    "fill and verify Git blob identities for the three single-version notification files even though they form no pair",
+    "verify each adjacent-pair old/new blob identity",
+    "verify all included semantic witnesses from raw source bytes",
+    "verify excluded pairs have no thermostat consequential-action mapping change under the frozen overlap-domain rule",
+    "prove eligible set equals exactly VE2-T01 and VE2-T02; any discrepancy invalidates this census freeze before scientific execution"
+  ]
+}

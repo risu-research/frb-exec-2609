@@ -1,0 +1,96 @@
+{
+  "schema": "replaymark.ve2.version-evolution-census-constitution.v1",
+  "status": "FROZEN_PRE_RESULT_CORPUS_SELECTION",
+  "purpose": "Generalize VE1 from one real adjacent upstream semantic update to an exhaustively selected class of real upstream version-evolution transitions without result-dependent patch selection.",
+  "lineage": {
+    "private_parent_repository": "risu-research/replaymark",
+    "private_parent_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+    "ve1_public_result_repository": "risu-research/frb-exec-2609",
+    "ve1_public_result_seal_commit": "11f915c874d8841e9a2e4dc3fd86df38549698e2",
+    "ve1_public_result_seal_blob": "73be1d72e8b205397c9423cc384e82137498e998",
+    "ve1_role": "prior existence proof only; VE1 observations are not reused as VE2 observations"
+  },
+  "frozen_universe": {
+    "repository": "KartoffelToby/better_thermostat",
+    "branch_snapshot": "develop",
+    "snapshot_head": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+    "directory": "blueprints/",
+    "file_membership_rule": "All regular files present in blueprints/ at the frozen snapshot head.",
+    "history_rule": "For each universe file, enumerate every commit reachable from the frozen snapshot head at which that path's Git blob changes. Order those file versions chronologically and form every adjacent file-version pair. Unrelated repository commits between file touches do not create pairs.",
+    "introduction_rule": "A file's first observed version has no predecessor and is retained as INTRODUCTION_NO_PAIR rather than treated as an evolution transition.",
+    "deletion_rule": "If a universe path has a prior version and is later deleted before the frozen snapshot, the deletion pair is retained and adjudicated under the same runtime-mapping rule if the path is still part of the universe definition through an explicitly frozen historical-universe successor. VE2 v1 itself fixes membership to files present at the snapshot head."
+  },
+  "semantic_surface": {
+    "name": "THERMOSTAT_CONSEQUENTIAL_ACTUATION",
+    "consequential_actions": [
+      "Home Assistant climate service calls targeting thermostat/climate entities",
+      "Better Thermostat service calls targeting Better Thermostat/climate entities"
+    ],
+    "nonconsequential_for_ve2_core": [
+      "notifications",
+      "logging",
+      "documentation",
+      "source_url metadata",
+      "selector presentation alone",
+      "switch/fan side effects that do not alter thermostat/climate actuation",
+      "test-only changes"
+    ],
+    "runtime_mapping": "For an old/new file-version pair, map an overlapping valid configuration plus native trigger/event/state to the ordered thermostat consequential-action trace, including NO_ACTION.",
+    "overlap_domain_rule": "Eligibility is decided on at least one configuration/event/state that is valid and executable under both versions. New-only configuration expressiveness is not, by itself, enough to make a pair eligible.",
+    "eligibility": "A pair is ELIGIBLE_SEMANTIC_TRANSITION iff the old and new runtime mappings differ for at least one point in the overlapping valid domain because of a changed action service/domain, consequential payload, concrete or templated thermostat target binding, action presence/absence, trigger or guard controlling thermostat actuation, input aggregation used by such a trigger/guard/action, or type/realization semantics that changes truth evaluation at the thermostat action boundary.",
+    "ineligibility": "A pair is EXCLUDED_NO_THERMOSTAT_MAPPING_CHANGE when source bytes differ but the thermostat consequential-action mapping is unchanged throughout the overlapping valid domain. The source difference and reason remain in the census manifest."
+  },
+  "anti_cherry_pick_law": {
+    "all_eligible_pairs_in_frozen_universe_included": true,
+    "all_excluded_pairs_and_reasons_retained": true,
+    "minimum_effect_size_required": false,
+    "mixed_compatible_and_retired_classes_required": false,
+    "replaymark_success_required_for_inclusion": false,
+    "interestingness_required": false,
+    "expected_frontier_shape_required": false,
+    "post_result_substitution": false,
+    "post_result_pair_deletion": false,
+    "post_result_pair_addition": false,
+    "post_result_change_family_redefinition": false,
+    "testability_is_not_membership": "If an eligible pair cannot be faithfully executed after prospective implementation qualification, retain it as ELIGIBLE_BUT_NONEXECUTABLE with the failure evidence; do not silently remove or replace it."
+  },
+  "ve2_confirmatory_question": "Across every eligible thermostat-actuation semantic transition in the frozen Better Thermostat official-blueprint history census, can ReplayMark recover the exact state-dependent compatibility frontier between historical actions and the newer native behavior, while Replay All remains over-permissive where history is retired and Version Lock remains over-conservative where history remains compatible?",
+  "evaluation_law": {
+    "population": "Defined separately and prospectively for each eligible transition from that transition's actual input/guard/action semantics; no artificial common 32-state domain is required.",
+    "native_reference": "Each transition requires an unchanged old-native history arm and an independently isolated unchanged new-native Direct arm before ReplayMark adjudication.",
+    "history": "Historical actions must be naturally generated by the exact frozen old source; no expected-action construction or substitution.",
+    "replaymark": "ReplayMark decision inputs may not contain the expected frontier, new-Direct per-state outcomes, source-diff labels, or version-equality authorization shortcuts.",
+    "baselines": ["Replay All", "Version Lock"],
+    "per_transition_primary_endpoint": "Exact state-by-state agreement between ReplayMark authorize/block consequence and the prospectively frozen compatibility frontier independently validated against old-native history and new-native Direct behavior.",
+    "per_transition_safety_endpoint": "Zero retired historical actions cross the historical sink under ReplayMark.",
+    "per_transition_efficiency_endpoint": "Zero compatible histories are needlessly sent to caller-owned native recovery under ReplayMark.",
+    "corpus_level_primary": "Report each eligible transition separately and the conjunction across all eligible executable transitions. Do not hide heterogeneity behind a pooled average.",
+    "corpus_level_promotion": "All eligible executable transitions must satisfy their prospectively frozen per-transition promotion criteria. ELIGIBLE_BUT_NONEXECUTABLE transitions prevent a universal corpus-level PASS claim and remain visible as such."
+  },
+  "family_heterogeneity": {
+    "pre_result_taxonomy": [
+      "ACTION_SUPPRESSION_OR_INSERTION",
+      "ACTION_OR_SERVICE_FAMILY_SUBSTITUTION",
+      "PAYLOAD_OR_TARGET_REBINDING",
+      "GUARD_OR_TRIGGER_LOGIC_CHANGE",
+      "TYPE_OR_REALIZATION_CHANGE_AT_ACTION_BOUNDARY",
+      "INPUT_AGGREGATION_CHANGE_AFFECTING_GUARD_OR_ACTION",
+      "OTHER_THERMOSTAT_MAPPING_CHANGE"
+    ],
+    "multi_label_allowed": true,
+    "taxonomy_is_descriptive_not_eligibility_determinative": true
+  },
+  "scientific_hygiene": {
+    "ve1_result_frozen_and_unmodified": true,
+    "ve2_runtime_result_opened": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0,
+    "corpus_membership_frozen_before_ve2_native_execution": true,
+    "expected_frontiers_not_yet_opened": true,
+    "next_permitted_gate": "Independent public static census qualification: reconstruct the complete frozen universe and file-touch histories from GitHub objects, verify source blob identities and included/excluded semantic witnesses, and prove no eligible pair was omitted before defining or running any VE2 native population."
+  },
+  "claim_boundary": {
+    "if_ve2_passes": "Supports repeated exact frontier recovery across all eligible real thermostat-actuation evolution mechanisms in the frozen official Better Thermostat blueprint census, in addition to VE1's independent real upstream update. It does not by itself establish universal correctness for arbitrary software/version evolution.",
+    "if_any_transition_fails": "Preserve and report the transition-level failure; do not narrow the class claim or alter corpus membership post hoc."
+  }
+}

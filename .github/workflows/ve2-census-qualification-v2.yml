@@ -1,0 +1,113 @@
+name: VE2 pre-scientific exhaustive upstream census qualification v2
+
+on:
+  push:
+    branches:
+      - ve2-census-qualification-v2
+
+permissions:
+  contents: read
+
+env:
+  VE1_PUBLIC_RESULT_SEAL_HEAD: 11f915c874d8841e9a2e4dc3fd86df38549698e2
+  VE1_PUBLIC_RESULT_SEAL_BLOB: 73be1d72e8b205397c9423cc384e82137498e998
+  PRIVATE_VE2_AUTHORITY_HEAD: fa4ba173e955200da8cf7a6278f5b66aa8e9fa2c
+  PRIVATE_CONSTITUTION_BLOB: 58e6cc7e1a46af3f14ba8b9e75d71b7c2292cb1d
+  PRIVATE_MANIFEST_BLOB: cd0e4f02cc1d3f1b8088c91a6b651659465d9aa6
+  PRIVATE_AUTHORITY_BLOB: 9ef22d44242fa505c7e59769e3cef8882c144382
+  QUALIFIER_BLOB: dde96d8c74cb56a2bc3483e8f093ecf8d5495ba1
+  REMEDIATION_BLOB: 278747a1ca950590b429619e851cfde0f5641006
+  UPSTREAM_SNAPSHOT: d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942
+  FAILED_V1_RUN_ID: 34483538569
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require exact v2 census-qualification authority and frozen census bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test -f VE2_CENSUS_QUALIFICATION_OPEN_V2.json
+          test -f VE1_AUTHORITATIVE_FIRST_COMPLETE_RESULT_SEAL_V3.json
+          source_candidate="$(git rev-parse HEAD^)"
+          test "$(git rev-parse HEAD^^)" = "$VE1_PUBLIC_RESULT_SEAL_HEAD"
+          mapfile -t marker_delta < <(git diff --name-only "$source_candidate..HEAD")
+          test "${#marker_delta[@]}" -eq 1
+          test "${marker_delta[0]}" = "VE2_CENSUS_QUALIFICATION_OPEN_V2.json"
+          mapfile -t source_delta < <(git diff --name-only "$VE1_PUBLIC_RESULT_SEAL_HEAD..$source_candidate")
+          allowed=(
+            .github/workflows/ve2-census-qualification-v2.yml
+            VE2_CENSUS_QUALIFICATION_REMEDIATION_V2.json
+            VE2_PRE_RESULT_CENSUS_AUTHORITY_V1_MIRROR.json
+            VE2_UPSTREAM_CORPUS_MANIFEST_V1_MIRROR.json
+            VE2_VERSION_EVOLUTION_CENSUS_CONSTITUTION_V1_MIRROR.json
+            ve2_census_qualify.py
+          )
+          test "${#source_delta[@]}" -eq "${#allowed[@]}"
+          for i in "${!allowed[@]}"; do test "${source_delta[$i]}" = "${allowed[$i]}"; done
+          test "$(git hash-object --no-filters VE1_AUTHORITATIVE_FIRST_COMPLETE_RESULT_SEAL_V3.json)" = "$VE1_PUBLIC_RESULT_SEAL_BLOB"
+          test "$(git hash-object --no-filters VE2_VERSION_EVOLUTION_CENSUS_CONSTITUTION_V1_MIRROR.json)" = "$PRIVATE_CONSTITUTION_BLOB"
+          test "$(git hash-object --no-filters VE2_UPSTREAM_CORPUS_MANIFEST_V1_MIRROR.json)" = "$PRIVATE_MANIFEST_BLOB"
+          test "$(git hash-object --no-filters VE2_PRE_RESULT_CENSUS_AUTHORITY_V1_MIRROR.json)" = "$PRIVATE_AUTHORITY_BLOB"
+          test "$(git hash-object --no-filters VE2_CENSUS_QUALIFICATION_REMEDIATION_V2.json)" = "$REMEDIATION_BLOB"
+          test "$(git hash-object --no-filters ve2_census_qualify.py)" = "$QUALIFIER_BLOB"
+          SOURCE_CANDIDATE="$source_candidate" python -c 'import json,os; v=json.load(open("VE2_CENSUS_QUALIFICATION_OPEN_V2.json")); assert v=={"schema":"replaymark.ve2.census-qualification-open.v2","authority":"PRE_SCIENTIFIC_EXHAUSTIVE_UPSTREAM_CENSUS_QUALIFICATION","source_candidate_head":os.environ["SOURCE_CANDIDATE"],"private_ve2_authority_head":os.environ["PRIVATE_VE2_AUTHORITY_HEAD"],"upstream_snapshot_head":os.environ["UPSTREAM_SNAPSHOT"],"failed_v1_run_id":int(os.environ["FAILED_V1_RUN_ID"]),"ve2_scientific_result_opened":False,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0,"rerun_authorized":False}'
+          python -m py_compile ve2_census_qualify.py
+
+      - name: Independently reconstruct frozen upstream universe, histories, blobs, and semantic witnesses
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf ve2-census-work ve2-census-results
+          mkdir -p ve2-census-work ve2-census-results
+          python ve2_census_qualify.py --work ve2-census-work --out ve2-census-results/VE2_PUBLIC_CENSUS_QUALIFICATION_V1.json
+          python -c 'import json; v=json.load(open("ve2-census-results/VE2_PUBLIC_CENSUS_QUALIFICATION_V1.json")); assert v["status"]=="PASS"; assert v["scientific_result_opened"] is False; assert v["ve2_home_assistant_scientific_cells"]==0; assert v["ve2_replaymark_scientific_cells"]==0; assert v["universe_file_count"]==7; assert v["adjacent_pair_count"]==7; assert v["eligible_count"]==2; assert v["excluded_pair_count"]==5; assert v["eligible_transition_ids"]==["VE2-T01-NIGHT-ACTION-FAMILY","VE2-T02-WEEKLY-GUARD-REALIZATION"]'
+
+      - name: Seal public census qualification provenance regardless of outcome
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ve2-census-results
+          cp VE2_CENSUS_QUALIFICATION_OPEN_V2.json ve2-census-results/
+          cp VE2_CENSUS_QUALIFICATION_REMEDIATION_V2.json ve2-census-results/
+          cp VE2_VERSION_EVOLUTION_CENSUS_CONSTITUTION_V1_MIRROR.json ve2-census-results/
+          cp VE2_UPSTREAM_CORPUS_MANIFEST_V1_MIRROR.json ve2-census-results/
+          cp VE2_PRE_RESULT_CENSUS_AUTHORITY_V1_MIRROR.json ve2-census-results/
+          cp ve2_census_qualify.py ve2-census-results/
+          status=MISSING
+          qsha=""
+          if [ -f ve2-census-results/VE2_PUBLIC_CENSUS_QUALIFICATION_V1.json ]; then
+            status="$(python -c 'import json; print(json.load(open("ve2-census-results/VE2_PUBLIC_CENSUS_QUALIFICATION_V1.json")).get("status","FAIL"))')"
+            qsha="$(sha256sum ve2-census-results/VE2_PUBLIC_CENSUS_QUALIFICATION_V1.json | cut -d' ' -f1)"
+          fi
+          STATUS="$status" QSHA="$qsha" SOURCE_CANDIDATE="$(git rev-parse HEAD^)" python -c 'import json,os,pathlib; p=pathlib.Path("ve2-census-results/VE2_PUBLIC_CENSUS_PROVENANCE_V2.json"); p.write_text(json.dumps({"schema":"replaymark.ve2.public-census-provenance.v2","repository":os.environ["GITHUB_REPOSITORY"],"execution_head":os.environ["GITHUB_SHA"],"source_candidate_head":os.environ["SOURCE_CANDIDATE"],"private_ve2_authority_head":os.environ["PRIVATE_VE2_AUTHORITY_HEAD"],"upstream_snapshot_head":os.environ["UPSTREAM_SNAPSHOT"],"failed_v1_run_preserved":int(os.environ["FAILED_V1_RUN_ID"]),"workflow_run_id":int(os.environ["GITHUB_RUN_ID"]),"run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),"qualification_status":os.environ["STATUS"],"qualification_sha256":os.environ["QSHA"] or None,"scientific_result_opened":False,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0,"rerun_authorized":False},sort_keys=True,indent=2)+"\n",encoding="utf-8")'
+          (
+            cd ve2-census-results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable VE2 census qualification capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve2-public-census-qualification-v2
+          path: ve2-census-results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface census qualification conclusion only after artifact upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -c 'import json; v=json.load(open("ve2-census-results/VE2_PUBLIC_CENSUS_QUALIFICATION_V1.json")); assert v["status"]=="PASS"'
