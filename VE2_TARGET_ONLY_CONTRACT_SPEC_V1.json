@@ -1,0 +1,46 @@
+{
+  "schema": "replaymark.ve2.target-only-contract-spec.v1",
+  "status": "FROZEN_PRE_SCIENCE",
+  "claim": {
+    "dimensions": ["operation", "concrete_target", "variant"],
+    "consequence_endpoint": "home-assistant.native-service-call",
+    "horizon": 0
+  },
+  "inputs": {
+    "T01_manifest": "replaymark/VE2_T01_EXECUTION_STATE_MANIFEST_V1.json",
+    "T02_manifest": "replaymark/VE2_T02_EXECUTION_STATE_MANIFEST_V1.json"
+  },
+  "T01": {
+    "transition_id": "VE2-T01-NIGHT-ACTION-FAMILY",
+    "target": "climate.ve2_t01_thermostat",
+    "new_source_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+    "law": {
+      "schedule_state=off": {"operation": "climate.set_preset_mode", "variant": {"preset_mode": "none"}},
+      "schedule_state=on": {"operation": "climate.set_preset_mode", "variant": {"preset_mode": "sleep"}}
+    }
+  },
+  "T02": {
+    "transition_id": "VE2-T02-WEEKLY-GUARD-REALIZATION",
+    "target": "climate.ve2_t02_thermostat",
+    "new_source_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+    "slot_presets": {"1": "comfort", "2": "eco", "3": "home", "4": "sleep"},
+    "vacation_preset": "away",
+    "law": "new weekly schedule law: disabled pause=>false; disabled presence=>true; active_slot is integer; state/time/startup trigger fixture determines the current action; pause/presence guards are evaluated before climate.set_preset_mode; otherwise NO_ACTION"
+  },
+  "evidence": {
+    "token": "canonical JSON of the raw label-free fixture only",
+    "opaque_state_id_is_not_semantic_evidence": true,
+    "one_exact_token_per_frozen_execution_fixture": true
+  },
+  "compiler_forbidden_inputs": [
+    "VE2_T01_EXPECTED_FRONTIER_V1.json",
+    "VE2_T02_EXPECTED_FRONTIER_V1.json",
+    "old_projected_action",
+    "compatibility",
+    "compatible/retired counts",
+    "class weights",
+    "source diff",
+    "New Direct runtime output"
+  ],
+  "scientific_exposure": {"home_assistant_cells": 0, "replaymark_cells": 0, "frontier_result_seen": false}
+}

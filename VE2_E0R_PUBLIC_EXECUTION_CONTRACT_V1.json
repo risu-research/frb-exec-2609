@@ -1,0 +1,69 @@
+{
+  "schema": "replaymark.ve2.e0r-public-execution-contract.v1",
+  "status": "FROZEN_PRE_SCIENCE",
+  "parent_public_e0q_pass_seal": "d9a1a55e8bb83a8fc89e67ee71918f32d2249a43",
+  "private_science_constitution": {
+    "commit": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "blob": "ab9dce0b282b00f5a99c99d153fad2ec855d1a95"
+  },
+  "preserved_private_pre_input_failures": [
+    {"run_id": 34528019661, "attempt": 1, "job_steps": 0},
+    {"run_id": 34528411786, "attempt": 1, "job_steps": 0}
+  ],
+  "target_only_contract": {
+    "spec_blob": "464882347fc2f95ceb479a0a58ba2cee05c4d48a",
+    "builder_blob": "bc04cf3a6a908a38daa36b3d95a75d4cd826d11a",
+    "independent_verifier_blob": "3db00230a2f5049c26f7204eedefd784694f6116",
+    "T01_manifest_blob": "c1731d24387ec4c2dcb33167a286d89fc45ef254",
+    "T02_manifest_blob": "c9d543be934dd0cc33b67a2f987f0eae9705a83b",
+    "expected_frontier_files_available_to_builder_capsule": false,
+    "old_semantics_files_available_to_builder_capsule": false,
+    "new_direct_results_available_to_builder_capsule": false
+  },
+  "replaymark_origin": {
+    "repository": "risu-research/appeal-discovery-consumer",
+    "commit": "c290786d92e7546345b348916b3b3d1c11780e4c",
+    "exact_private_f0cca_core_blobs": {
+      "replaymark/__init__.py": "01d266fbd970920cf55008d0fa97af8af9e689e9",
+      "replaymark/adjudicator.py": "32ba03a9a987b16355c166cf56efbf1f6f3b8542",
+      "replaymark/compiled_contract.py": "9780550de9c9447ca4e488ff5797e08fdd548405",
+      "replaymark/contracts.py": "a8805eed01328061337290f0d5f2006bd2a7f1c4",
+      "replaymark/evidence_image.py": "c5a589aba97ba57de9e82a69f812e4abeff1b42e",
+      "replaymark/evidence_semantics.py": "83106c59bcdab433d88be78be58e3330ab7aaa6c",
+      "replaymark/predictive_witness.py": "6115ab4f2e4f21e1abda2f4f0d37a3e4ff09d9a3",
+      "replaymark/q_compiler.py": "f74e765ef1872b54743b31ebf11a113f32d9840e",
+      "replaymark/rstar.py": "73e0a94f1be76272075d7f1050439ef6b321017e",
+      "replaymark/support_envelope.py": "6a527573d130bde5649bcf891fc080f16e38cb0d",
+      "replaymark/target_provenance.py": "e819cee216aa59ea40b1f4e66e3fb0f59b726fc7"
+    }
+  },
+  "runtime": {
+    "home_assistant_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "home_assistant_version": "2026.9.0",
+    "home_assistant_trigger_helper_blob_at_2026_9_0": "9451757998c63efcf8c7a01249f730594b3f68dd",
+    "promoted_e0q_boundary_blob": "765680028bde49ead76a22bebe5aace1bfbea60e",
+    "generic_invocation_behavior_blob": "52d3b6e5ab3816266424ca61feef7cbb7f431d51",
+    "runtime_qualification_blob": "740800a13b541423b0bce4702faff31e85ac90b2",
+    "independent_validator_blob": "37e3c3983ae84f7f9800fd61f95276d09154c8a5"
+  },
+  "qualification_scope": {
+    "native_trigger_families": ["STATE", "TIME", "HOMEASSISTANT_START"],
+    "historical_behavior_kinds": ["SERVICE", "CERTIFIED_NO_ACTION"],
+    "single_use_consume_before_delegate": true,
+    "block_zero_sink": true,
+    "no_action_admit_zero_sink": true,
+    "fallback": false,
+    "retry": false,
+    "regeneration": false,
+    "timeout_alone_means_no_action": false
+  },
+  "forbidden": {
+    "T01_or_T02_result_bearing_blueprint_execution": true,
+    "VE2_scientific_fixture_execution": true,
+    "historical_Better_Thermostat_action_dispatch": true,
+    "expected_frontier_use_by_builder_or_runtime": true,
+    "scientific_score_emission": true
+  },
+  "promotion": "One first-complete public run must PASS target-only compilation, independent serialized-contract verification, exact HA native trigger qualification, SERVICE/NO_ACTION boundary qualification, single-use gate tests, independent post-execution validation, and artifact checksums. Any incomplete run is preserved and non-promotable.",
+  "scientific_exposure": {"home_assistant_cells": 0, "replaymark_cells": 0, "frontier_result_seen": false}
+}
