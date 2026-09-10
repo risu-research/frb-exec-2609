@@ -1,0 +1,37 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-remediation-contract.v3",
+  "status": "FROZEN_PROSPECTIVE_PRE_V3_EXECUTION",
+  "failed_v2": {
+    "run_id": 34509550697,
+    "head": "c4f2c7ffac3679d820865f5451d28f2e7d25b0e3",
+    "classification": "PRE_SCIENCE_PROBE_DEFINITION_OVERCONSTRAINT"
+  },
+  "immutable_from_prior_authorities": {
+    "candidate_lattice": true,
+    "candidate_order": true,
+    "first_pass_selection_law": true,
+    "upstream_source_commits": true,
+    "source_identity_checks": true,
+    "preferred_T02_digest": true,
+    "transport_absolute_bind_rules": true,
+    "scientific_transition_semantics": true,
+    "scientific_state_frontiers": true
+  },
+  "authorized_probe_change_only": [
+    "Replace the obsolete mandatory standalone import custom_components.better_thermostat.const with the actual source-independent integration entrypoint obligations custom_components.better_thermostat and custom_components.better_thermostat.climate.",
+    "Retain complete custom-component Python syntax compilation and manifest-requirement importability checks.",
+    "Record whether an optional standalone const module exists, but do not require it when the frozen source tree does not contain it.",
+    "Rerun every role from its first frozen candidate; do not reuse the v2 partial T01 Old PASS."
+  ],
+  "forbidden_changes": [
+    "No candidate reorder, insertion, deletion, substitution, or skip.",
+    "No source commit or blueprint identity change.",
+    "No frontier/expected-label access.",
+    "No transition fixture or historical-action execution.",
+    "No weakening of package/climate import obligations in response to v3 candidate outcomes.",
+    "No same-authority rerun of v2."
+  ],
+  "science_open_authorized": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0
+}

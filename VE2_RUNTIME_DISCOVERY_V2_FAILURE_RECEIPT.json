@@ -1,0 +1,17 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-v2-failure-receipt.v1",
+  "status": "SEALED_EXTERNAL_PRE_SCIENCE_PROBE_DEFINITION_FAILURE",
+  "public_run_id": 34509550697,
+  "public_execution_head": "c4f2c7ffac3679d820865f5451d28f2e7d25b0e3",
+  "public_artifact_id": 10165435528,
+  "public_artifact_zip_sha256": "0d09e478859a915ee776c8a465b064b3713a5246c7a63693399a8381724da2be",
+  "public_result_sha256": "a413a2d24fbfe689a98f831279bc354808fe4e56e23aa146f6ff770b02415c0d",
+  "classification": "PRE_SCIENCE_PROBE_DEFINITION_OVERCONSTRAINT",
+  "transport_preflight_pass": true,
+  "T01_old_2022_10_pass_observed": true,
+  "partial_selection_promotable": false,
+  "scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "same_authority_rerun_authorized": false
+}

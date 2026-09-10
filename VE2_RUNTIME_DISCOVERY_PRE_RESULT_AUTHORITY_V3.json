@@ -1,0 +1,32 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-pre-result-authority.v3",
+  "status": "FROZEN_PRE_SCIENCE_SUCCESSOR_AUTHORITY",
+  "parent_v2_remediation_authority": "32c55177d7fd8705a811cb26fc64c314e9e07a60",
+  "external_v2_failure": {
+    "public_run_id": 34509550697,
+    "public_execution_head": "c4f2c7ffac3679d820865f5451d28f2e7d25b0e3",
+    "public_failure_seal": "9f34c80649753e3bce331d9e2da986a0f73c7eff",
+    "artifact_id": 10165435528,
+    "artifact_zip_sha256": "0d09e478859a915ee776c8a465b064b3713a5246c7a63693399a8381724da2be",
+    "classification": "PRE_SCIENCE_PROBE_DEFINITION_OVERCONSTRAINT"
+  },
+  "v3_rules": {
+    "candidate_order_unchanged": true,
+    "candidate_set_unchanged": true,
+    "source_identities_unchanged": true,
+    "first_pass_selection_law_unchanged": true,
+    "rerun_all_roles_from_first_candidate": true,
+    "mandatory_import_entrypoints": [
+      "custom_components.better_thermostat",
+      "custom_components.better_thermostat.climate"
+    ],
+    "standalone_const_module_required": false,
+    "complete_python_tree_syntax_check_required": true,
+    "manifest_requirements_importability_required": true
+  },
+  "science_open_authorized": false,
+  "scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "next_permitted_action": "Publish a fresh v3 discovery capsule, statically verify the constrained probe-only delta, and execute one new discovery authority from the first candidate of every role."
+}
