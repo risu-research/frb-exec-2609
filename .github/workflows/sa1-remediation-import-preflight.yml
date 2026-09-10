@@ -1,0 +1,118 @@
+name: SA1 remediation import-only preflight
+
+on:
+  push:
+    branches:
+      - sa1-remediation-source-v1
+
+permissions:
+  contents: read
+
+env:
+  FAILED_RUN_ID: '34428350371'
+  PRIVATE_REMEDIATION_PROTOCOL: fe0e6bcc83633d9f55b07badab584be846cd83d8
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  ORIGIN_AGENTMARK_BLOB: fe6254a7f3dae9f4479faa859fe1d72974c24c5d
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  PRODUCER_BLOB: 9a63ee18485373eecbaf92cc6a585fc3f9579e64
+  VALIDATOR_BLOB: f51891f3ff796488a22a5d10dac2e04137ce62fd
+  AGGREGATE_BLOB: f321f5dd5869413e95bcda537b326f73250ccc1b
+  MATERIALIZER_BLOB: a3bc643873403143a8a6b5880497e9cb98583079
+  EXPECTED_ROWS_SHA256: e70b8db3ee6d2644c46dc2c8c6bef9d11b86e98a1cd2f59947632308b798c9c0
+
+jobs:
+  import-only:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reprove frozen scientific source identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object --no-filters replaymark_verification/sa1_native_source_adequacy.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_aggregate.py)" = "$AGGREGATE_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/build_sa1_expected_semantic_table.py)" = "$MATERIALIZER_BLOB"
+          test -f SA1_PREWORKLOAD_FAILURE_RECORD_V1.json
+          python - <<'PY'
+          import json,os
+          value=json.load(open('SA1_PREWORKLOAD_FAILURE_RECORD_V1.json'))
+          assert value['failed_run_id']==34428350371
+          assert value['native_cells_executed']==0
+          assert value['semantic_results_observed']==0
+          assert value['same_authority_rerun_authorized'] is False
+          assert value['allowed_remediation'].endswith('/origin/agentmark_e3b_lab:/origin:/sa1')
+          PY
+
+      - name: Materialize exact origin dependency without executing science
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin preflight-results
+          mkdir -p origin preflight-results
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+          test "$(git -C origin rev-parse HEAD:agentmark_e3b_lab/agentmark/kernel.py)" = "$ORIGIN_AGENTMARK_BLOB"
+
+      - name: Pull exact HA image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > preflight-results/HOME_ASSISTANT_IMAGE_INSPECT.json
+
+      - name: Import exact dependency closure only
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none \
+            -e PYTHONPATH=/origin/agentmark_e3b_lab:/origin:/sa1 \
+            -v "$PWD:/sa1:ro" \
+            -v "$PWD/origin:/origin:ro" \
+            --entrypoint python3 "$HA_IMAGE" \
+            -c "import agentmark.kernel; import agentmark_natural_controllers.better_thermostat.experiment_persisted_ownership; import replaymark_verification.sa1_native_source_adequacy; print('SA1_IMPORT_ONLY_PASS')" \
+            > preflight-results/IMPORT_STDOUT.txt 2> preflight-results/IMPORT_STDERR.txt
+          test "$(tail -n 1 preflight-results/IMPORT_STDOUT.txt)" = "SA1_IMPORT_ONLY_PASS"
+          test ! -e preflight-results/SA1_RAW_0.json
+          test ! -e preflight-results/SA1_RAW_1.json
+
+      - name: Seal import-only preflight result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          value={
+            'schema':'replaymark.sa1.remediation-import-preflight.v1',
+            'status':'PASS_IMPORT_ONLY_NO_NATIVE_RESULT',
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'execution_head':os.environ['GITHUB_SHA'],
+            'failed_run_id':34428350371,
+            'corrected_pythonpath':'/origin/agentmark_e3b_lab:/origin:/sa1',
+            'producer_git_blob':os.environ['PRODUCER_BLOB'],
+            'origin_agentmark_blob':os.environ['ORIGIN_AGENTMARK_BLOB'],
+            'expected_rows_sha256':os.environ['EXPECTED_ROWS_SHA256'],
+            'home_assistant_runtime_created':False,
+            'native_cells_executed':0,
+            'semantic_result_opened':False,
+          }
+          Path('preflight-results/SA1_REMEDIATION_IMPORT_PREFLIGHT.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd preflight-results && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+
+      - name: Upload import-only preflight artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sa1-remediation-import-preflight
+          path: preflight-results
+          retention-days: 90
+          if-no-files-found: error
