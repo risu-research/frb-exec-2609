@@ -1,0 +1,99 @@
+name: VE1 scientific workflow remediation static qualification v2
+
+on:
+  push:
+    branches:
+      - ve1-science-workflow-remediation-v2
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_CONSTITUTION_HEAD: 7c53b5bdc70b600156380877a406b5988d35125a
+  BASE_EVIDENCE_HEAD: ea9fc4225d408009dc42b06f756cc46dda1fe771
+  STATE_BLOB: 3e09ced267657616f045f9e34e194d49f8cdfbfc
+  PRODUCER_BLOB: 40e76789335eed7d15c9a2523717d7d7bcf185fd
+  VALIDATOR_BLOB: 3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36
+  ADJUDICATOR_BLOB: 1c6ce57de123a3a35ec45f316b21938152b09d4d
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require exact one-file static qualification authority child
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test -f VE1_WORKFLOW_REMEDIATION_STATIC_OPEN_V2.json
+          source_candidate="$(git rev-parse HEAD^)"
+          mapfile -t changed < <(git diff --name-only "$source_candidate..HEAD")
+          test "${#changed[@]}" -eq 1
+          test "${changed[0]}" = "VE1_WORKFLOW_REMEDIATION_STATIC_OPEN_V2.json"
+          SOURCE_CANDIDATE="$source_candidate" python -c 'import json,os; v=json.load(open("VE1_WORKFLOW_REMEDIATION_STATIC_OPEN_V2.json")); assert v=={"schema":"replaymark.ve1.workflow-remediation-static-open.v2","authority":"PRE_SCIENTIFIC_WORKFLOW_STATIC_QUALIFICATION","source_candidate_head":os.environ["SOURCE_CANDIDATE"],"private_constitution_head":os.environ["PRIVATE_CONSTITUTION_HEAD"],"failed_v1_run_id":34465860182,"scientific_result_opened":False,"scientific_cells":0,"rerun_authorized":False}'
+          mapfile -t delta < <(git diff --name-only "$BASE_EVIDENCE_HEAD..$source_candidate")
+          allowed=(
+            .github/workflows/ve1-authoritative-first-complete-v2.yml
+            .github/workflows/ve1-science-workflow-static-v2.yml
+            VE1_PRE_INPUT_FAILURE_REMEDIATION_V2.json
+            ve1_science_transport_v2.py
+            ve1_science_workflow_static_verify_v2.py
+          )
+          test "${#delta[@]}" -eq "${#allowed[@]}"
+          for i in "${!allowed[@]}"; do test "${delta[$i]}" = "${allowed[$i]}"; done
+          test "$(git hash-object --no-filters VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json)" = "$STATE_BLOB"
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_postrun_adjudicate.py)" = "$ADJUDICATOR_BLOB"
+
+      - name: Compile and statically qualify every scientific workflow run block
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf static-results
+          mkdir -p static-results
+          python -m py_compile ve1_science_transport_v2.py ve1_science_workflow_static_verify_v2.py
+          python ve1_science_workflow_static_verify_v2.py \
+            --out static-results/VE1_SCIENCE_WORKFLOW_STATIC_AUDIT_V2.json
+          python -c 'import json; v=json.load(open("static-results/VE1_SCIENCE_WORKFLOW_STATIC_AUDIT_V2.json")); assert v["status"]=="PASS"; assert v["scientific_result_opened"] is False; assert v["scientific_cells"]==0; assert v["all_run_blocks_bash_n_pass"] is True; assert v["heredoc_operator_count"]==0'
+
+      - name: Seal static qualification provenance regardless of outcome
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p static-results
+          cp VE1_PRE_INPUT_FAILURE_REMEDIATION_V2.json static-results/
+          cp VE1_WORKFLOW_REMEDIATION_STATIC_OPEN_V2.json static-results/
+          cp .github/workflows/ve1-authoritative-first-complete-v2.yml static-results/
+          cp ve1_science_transport_v2.py static-results/
+          cp ve1_science_workflow_static_verify_v2.py static-results/
+          python -c 'import json,os,pathlib; p=pathlib.Path("static-results/VE1_WORKFLOW_STATIC_PROVENANCE_V2.json"); p.write_text(json.dumps({"schema":"replaymark.ve1.workflow-static-public-provenance.v2","repository":os.environ["GITHUB_REPOSITORY"],"execution_head":os.environ["GITHUB_SHA"],"workflow_run_id":int(os.environ["GITHUB_RUN_ID"]),"run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),"private_constitution_head":os.environ["PRIVATE_CONSTITUTION_HEAD"],"failed_v1_run_preserved":34465860182,"scientific_result_opened":False,"scientific_cells":0,"rerun_authorized":False},sort_keys=True,indent=2)+"\n")'
+          (
+            cd static-results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable workflow-remediation static capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-science-workflow-remediation-static-v2
+          path: static-results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface static qualification conclusion only after upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -c 'import json; v=json.load(open("static-results/VE1_SCIENCE_WORKFLOW_STATIC_AUDIT_V2.json")); assert v["status"]=="PASS"'

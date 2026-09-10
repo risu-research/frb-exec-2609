@@ -1,0 +1,87 @@
+{
+  "authority": "PRE_INPUT_FAILURE_NOT_CONSUMED",
+  "base_evidence_head": "ea9fc4225d408009dc42b06f756cc46dda1fe771",
+  "failed_v1": {
+    "constitution_open_event_occurred": false,
+    "failure_location": "stage-6 shell script parser, before first run_stage invocation",
+    "failure_signature": "here-document at line 66 delimited by end-of-file (wanted `PY'); syntax error: unexpected end of file",
+    "historical_dispatch_attempts": 0,
+    "independent_redownload_verification": {
+      "r0_stage_checksums": {
+        "new_direct": null,
+        "old_history": null,
+        "replay_all": null,
+        "replaymark": null
+      },
+      "r0_zip_digest_match": true,
+      "r1_stage_checksums": {
+        "new_direct": null,
+        "old_history": null,
+        "replay_all": null,
+        "replaymark": null
+      },
+      "r1_zip_digest_match": true
+    },
+    "new_direct_cells": 0,
+    "old_history_cells": 0,
+    "open_gate": "PASS",
+    "replay_all_cells": 0,
+    "replaymark_cells": 0,
+    "replica_artifacts": {
+      "aggregate": {
+        "artifact_id": 10147506708,
+        "zip_sha256": "148543963e3bc634ce0e2ce2ff888581029a18aed75284f6013c5413e942f868"
+      },
+      "r0": {
+        "artifact_id": 10147499924,
+        "stage_checksums_all_null": true,
+        "zip_sha256": "aea8d5d9aea1b41c75c9c2bbae2e6f44b9ff13ca049dce6a2bb6c3a10e9eeebb"
+      },
+      "r1": {
+        "artifact_id": 10147499455,
+        "stage_checksums_all_null": true,
+        "zip_sha256": "c732b6b2be8af0b193e3c57ede86654fb2ab8456f403ff48dc2b188eb1dc4b32"
+      }
+    },
+    "replicas": {
+      "0": "PRE_INPUT_SHELL_PARSE_FAILURE",
+      "1": "PRE_INPUT_SHELL_PARSE_FAILURE"
+    },
+    "result_bearing_controller_invocations": 0,
+    "root_cause": "Nested Python heredoc bodies/terminators retained function-level indentation after YAML block deindentation, so Bash could not recognize the exact column-zero terminator.",
+    "run_attempt": 1,
+    "run_id": 34465860182,
+    "scientific_marker_head": "b547fa49171a769b8821afb2e05c3ce70c4b7a3c",
+    "scientific_result_opened": false,
+    "workflow": "VE1 authoritative upstream-version evolution first complete v1",
+    "workflow_blob": "384961d20d6b89316e6f275e788724c676c267a2"
+  },
+  "no_same_authority_rerun": true,
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "remediation_scope": {
+    "absence_semantics_changed": false,
+    "expected_table_changed": false,
+    "measurement_boundary_changed": false,
+    "new_source_changed": false,
+    "new_workflow_version": "v2",
+    "old_source_changed": false,
+    "promotion_criteria_changed": false,
+    "replaymark_semantics_changed": false,
+    "runtime_image_changed": false,
+    "scientific_postrun_adjudicator_changed": false,
+    "scientific_producer_changed": false,
+    "scientific_structural_validator_changed": false,
+    "state_manifest_changed": false,
+    "transport_changes": [
+      "Replace workflow-embedded nested Python heredocs with a separate stdlib-only transport/provenance helper.",
+      "Use full Git history in the v2 open gate so immutable lineage checks do not depend on shallow-history depth.",
+      "Version marker and artifact names to v2 to prevent collision with preserved failed v1 evidence.",
+      "Add pre-open static qualification that reconstructs every YAML run block and applies bash -n.",
+      "Assert the scientific workflow contains zero heredoc operators.",
+      "Verify both replica artifacts and every per-stage checksum before independent adjudication."
+    ]
+  },
+  "schema": "replaymark.ve1.pre-input-scientific-workflow-remediation.v2",
+  "scientific_open_rule": "The failed v1 run did not consume the constitution scientific-open event because Bash rejected the complete stage script before any run_stage invocation. v2 is a prospective, versioned transport-only remediation.",
+  "status": "FROZEN_PRE_RESULT_REMEDIATION"
+}
