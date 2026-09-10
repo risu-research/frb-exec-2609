@@ -1,0 +1,11 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-open.v3",
+  "authority": "RUNTIME_DISCOVERY_ONLY",
+  "source_candidate_head": "68213e02a9897d7bc185076dcca1234fad7dfd44",
+  "private_v3_authority": "07d9b3e40c28df44075c98c8c839aba14fd09001",
+  "v2_failure_seal_parent": "9f34c80649753e3bce331d9e2da986a0f73c7eff",
+  "scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "rerun_authorized": false
+}
