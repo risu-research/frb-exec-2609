@@ -1,0 +1,106 @@
+{
+  "attempt_law": {
+    "failure_class": "PRE_SCIENCE_TRANSPORT_FAILURE_NOT_SCIENTIFIC_RESULT",
+    "promotable_attempt": 1,
+    "same_authority_rerun": false,
+    "successor_may_repair_only_transport_implementation": true
+  },
+  "authority": {
+    "private_preopen_commit": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "private_preopen_path": "replaymark/VE2_SCIENTIFIC_FIRST_COMPLETE_PREOPEN_AUTHORITY_V1.json",
+    "private_science_constitution_commit": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "public_e0r_pass_seal": "390280823553b2c9b7c5996953891cfae5648fb1"
+  },
+  "clock_transport_law": {
+    "forbidden": [
+      "editing trigger duration",
+      "editing action delay",
+      "calling automation action directly",
+      "fabricating trigger run_variables",
+      "using timeout as no-action evidence",
+      "choosing advance from result"
+    ],
+    "mechanism": "iterate Home Assistant scheduled asyncio TimerHandles and run only handles due at a prospectively selected future UTC while patching Home Assistant time_tracker_utcnow/time_tracker_timestamp for the callback, mirroring Home Assistant test helper mechanics",
+    "qualified_runtime": "2026.9.0",
+    "required_cases": [
+      "state trigger with for=120s",
+      "time trigger",
+      "homeassistant start followed by unchanged delay=30s"
+    ]
+  },
+  "double_witness_law": {
+    "event": "Home Assistant EVENT_AUTOMATION_TRIGGERED",
+    "family_authority": "trace run_variables trigger platform, not manually supplied fixture label",
+    "fresh_context": "for externally-contextual stimuli the automation action context must be fresh and parent-linked to the root stimulus context",
+    "must_match": [
+      "automation entity",
+      "action context"
+    ],
+    "service_context": "must equal action-start context",
+    "trace": "Home Assistant stored automation trace trigger element"
+  },
+  "forbidden_inputs": [
+    "VE2_T01_EXECUTION_STATE_MANIFEST_V1.json",
+    "VE2_T02_EXECUTION_STATE_MANIFEST_V1.json",
+    "VE2_T01_EXPECTED_FRONTIER_V1.json",
+    "VE2_T02_EXPECTED_FRONTIER_V1.json",
+    "VE2_T01_NATIVE_SEMANTICS_V1.json",
+    "VE2_T02_NATIVE_SEMANTICS_V1.json",
+    "T01/T02 transition blueprints",
+    "Better Thermostat historical behavior capsules"
+  ],
+  "implementation": {
+    "clock_driver_id": "replaymark.ve2.ha-test-equivalent-clock-driver.v1",
+    "runtime_git_blob_sha1": "0d8ce1b7e5f4a0fa8df3970d9cc971f0ca8bdf02",
+    "runtime_path": "ve2_science_transport_qualify_v1.py",
+    "runtime_sha256": "1d9410300af45a00e6c5fbd8676bbee844fffacba44812d1413e32d8931894e4",
+    "validator_git_blob_sha1": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "validator_path": "ve2_science_transport_independent_validate_v1.py",
+    "validator_sha256": "7eaf2f15479fe7df75c7b1f5424597d55c9f7592ef3016d1f398fe1949953cb0"
+  },
+  "pass_criteria": {
+    "T02_all_clock_cases_fire_at_least_one_scheduled_handle": true,
+    "all_three_roles_complete": true,
+    "event_trace_context_agreement": true,
+    "exact_role_version_binding": true,
+    "frontier_result_seen": false,
+    "independent_validator_pass": true,
+    "native_trace_trigger_family_matches_neutral_case": true,
+    "neutral_service_context_bound": true,
+    "scientific_cells": 0
+  },
+  "roles": {
+    "T01_NEW_RUNTIME": {
+      "cases": [
+        "state"
+      ],
+      "ha_version": "2026.1.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7"
+    },
+    "T01_OLD_RUNTIME": {
+      "cases": [
+        "state"
+      ],
+      "ha_version": "2022.10.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e"
+    },
+    "T02_RUNTIME": {
+      "cases": [
+        "state",
+        "state_for_120s",
+        "time",
+        "homeassistant_start_delay_30s"
+      ],
+      "ha_version": "2026.9.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293"
+    }
+  },
+  "schema": "replaymark.ve2.science-transport-qualification-contract.v1",
+  "scientific_hygiene": {
+    "expected_frontier_access": false,
+    "scientific_fixture_executed": false,
+    "scientific_result_opened": false,
+    "transition_blueprint_executed": false
+  },
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE"
+}
