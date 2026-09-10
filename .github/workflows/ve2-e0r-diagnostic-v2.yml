@@ -1,0 +1,217 @@
+name: VE2 E0R runtime forensic diagnostic v2 NON-PROMOTABLE
+
+on:
+  push:
+    branches:
+      - ve2-e0r-diagnostic-v2
+
+permissions:
+  contents: read
+
+env:
+  FAILURE_SEAL: 7ee5d37ea48ff715ade82e0b615dcef99355bf14
+  V1_OPEN: 6134bc9e092f91fb86fe6fc63513438289e986ba
+  PRIVATE_CONSTITUTION: f0cca6726b634a35c523b0caab89694bd7fb18e5
+  REMEDIATION_BLOB: ce0d7fea299a2b76cd83b126b0a825bf865e1814
+  V1_RUNTIME_BLOB: 740800a13b541423b0bce4702faff31e85ac90b2
+  E0R_SEMANTIC_BLOB: 52d3b6e5ab3816266424ca61feef7cbb7f431d51
+  E0Q_BOUNDARY_BLOB: 765680028bde49ead76a22bebe5aace1bfbea60e
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  HA_TRIGGER_HELPER_BLOB: 9451757998c63efcf8c7a01249f730594b3f68dd
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact diagnostic authority
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 5
+
+      - name: Require prospective diagnostic freeze and one-file OPEN
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          test -f VE2_E0R_DIAGNOSTIC_AUTHORITY_OPEN_V2.json
+          source_freeze="$(git rev-parse HEAD^)"
+          test "$(git rev-parse "$source_freeze^")" = "$FAILURE_SEAL"
+          test "$(git rev-parse "$FAILURE_SEAL^")" = "$V1_OPEN"
+
+          mapfile -t open_changed < <(git diff --name-only "$source_freeze..HEAD")
+          test "${#open_changed[@]}" = "1"
+          test "${open_changed[0]}" = "VE2_E0R_DIAGNOSTIC_AUTHORITY_OPEN_V2.json"
+
+          mapfile -t source_changed < <(git diff --name-only "$FAILURE_SEAL..$source_freeze")
+          expected=(
+            ".github/workflows/ve2-e0r-diagnostic-v2.yml"
+            "VE2_E0R_RUNTIME_DIAGNOSTIC_REMEDIATION_V2.json"
+          )
+          test "${#source_changed[@]}" = "${#expected[@]}"
+          for i in "${!expected[@]}"; do test "${source_changed[$i]}" = "${expected[$i]}"; done
+
+          test "$(git hash-object --no-filters VE2_E0R_RUNTIME_DIAGNOSTIC_REMEDIATION_V2.json)" = "$REMEDIATION_BLOB"
+          test "$(git hash-object --no-filters ve2_e0r_runtime_v1.py)" = "$V1_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_e0r_semantic_boundary_v1.py)" = "$E0R_SEMANTIC_BLOB"
+          test "$(git hash-object --no-filters ve2_boundary_microkernel_v2.py)" = "$E0Q_BOUNDARY_BLOB"
+
+          python - "$source_freeze" <<'PY'
+          import json,sys
+          r=json.load(open("VE2_E0R_RUNTIME_DIAGNOSTIC_REMEDIATION_V2.json"))
+          assert r["schema"]=="replaymark.ve2.e0r-runtime-diagnostic-remediation.v2"
+          assert r["status"]=="FROZEN_PROSPECTIVE_PRE_SCIENCE"
+          assert r["frozen_inputs"]["runtime_under_diagnosis_blob"]=="740800a13b541423b0bce4702faff31e85ac90b2"
+          assert r["diagnostic_delta"]["runtime_python_semantics_changed"] is False
+          assert r["interpretation"]["diagnostic_run_is_promotable_as_e0r_pass"] is False
+          assert r["scientific_exposure"]["ve2_home_assistant_scientific_cells"]==0
+          assert r["scientific_exposure"]["ve2_replaymark_scientific_cells"]==0
+          o=json.load(open("VE2_E0R_DIAGNOSTIC_AUTHORITY_OPEN_V2.json"))
+          assert o == {
+            "schema":"replaymark.ve2.e0r-diagnostic-authority-open.v2",
+            "authority":"PRE_SCIENCE_RUNTIME_FORENSIC_DIAGNOSTIC_NON_PROMOTABLE",
+            "source_freeze_public_head":sys.argv[1],
+            "predecessor_failure_seal":"7ee5d37ea48ff715ade82e0b615dcef99355bf14",
+            "runtime_under_diagnosis_blob":"740800a13b541423b0bce4702faff31e85ac90b2",
+            "promotion":False,
+            "scientific_result_opened":False,
+            "frontier_result_seen":False,
+            "ve2_home_assistant_scientific_cells":0,
+            "ve2_replaymark_scientific_cells":0,
+            "same_authority_rerun":False
+          }
+          PY
+          echo "source_freeze=$source_freeze" >> "$GITHUB_OUTPUT"
+
+      - name: Verify exact Home Assistant image and source seam
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf diagnostics
+          mkdir -p diagnostics/runtime
+          chmod 0777 diagnostics/runtime
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > diagnostics/HOME_ASSISTANT_IMAGE_INSPECT.json
+          observed="$(docker run --rm --network none --entrypoint python3 "$HA_IMAGE" -c 'from pathlib import Path; import hashlib,homeassistant.helpers.trigger as t; b=Path(t.__file__).read_bytes(); print(hashlib.sha1(b"blob "+str(len(b)).encode()+b"\0"+b).hexdigest())')"
+          test "$observed" = "$HA_TRIGGER_HELPER_BLOB"
+          printf '%s\n' "$observed" > diagnostics/HOME_ASSISTANT_TRIGGER_HELPER_GIT_BLOB.txt
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          Path("diagnostics/PRE_RUN_IDENTITY.json").write_text(json.dumps({
+            "schema":"replaymark.ve2.e0r-diagnostic-pre-run-identity.v2",
+            "execution_head":os.environ["GITHUB_SHA"],
+            "run_id":int(os.environ["GITHUB_RUN_ID"]),
+            "run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),
+            "runtime_under_diagnosis_blob":os.environ["V1_RUNTIME_BLOB"],
+            "semantic_boundary_blob":os.environ["E0R_SEMANTIC_BLOB"],
+            "e0q_boundary_blob":os.environ["E0Q_BOUNDARY_BLOB"],
+            "home_assistant_image":os.environ["HA_IMAGE"],
+            "home_assistant_trigger_helper_blob":os.environ["HA_TRIGGER_HELPER_BLOB"],
+            "promotion":False,
+            "scientific_cells":0
+          },sort_keys=True,indent=2)+"\n")
+          PY
+
+      - name: Execute exact v1 runtime and retain nonzero diagnostics
+        id: runtime
+        shell: bash
+        run: |
+          set -uo pipefail
+          printf '%s\n' 'RUNTIME_COMMAND_START' > diagnostics/runtime/PHASE.txt
+          set +e
+          docker run --rm --network none \
+            -v "$PWD/ve2_boundary_microkernel_v2.py:/work/ve2_boundary_microkernel_v2.py:ro" \
+            -v "$PWD/ve2_e0r_semantic_boundary_v1.py:/work/ve2_e0r_semantic_boundary_v1.py:ro" \
+            -v "$PWD/ve2_e0r_runtime_v1.py:/work/ve2_e0r_runtime_v1.py:ro" \
+            -v "$PWD/diagnostics/runtime:/results" \
+            --entrypoint python3 "$HA_IMAGE" \
+            /work/ve2_e0r_runtime_v1.py --out /results/VE2_E0R_RUNTIME_RESULT_V1.json \
+            > diagnostics/runtime/RUNTIME_STDOUT.txt 2> diagnostics/runtime/RUNTIME_STDERR.txt
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > diagnostics/runtime/RUNTIME_EXIT_CODE.txt
+          printf '%s\n' 'RUNTIME_COMMAND_COMPLETE' > diagnostics/runtime/PHASE.txt
+          python - "$rc" <<'PY'
+          import hashlib,json,os,sys
+          from pathlib import Path
+          rc=int(sys.argv[1])
+          root=Path("diagnostics/runtime")
+          def info(name):
+              p=root/name
+              if not p.exists(): return {"exists":False}
+              b=p.read_bytes()
+              return {"exists":True,"bytes":len(b),"sha256":hashlib.sha256(b).hexdigest()}
+          envelope={
+            "schema":"replaymark.ve2.e0r-runtime-forensic-diagnostic.v2",
+            "status":"CAPTURED",
+            "runtime_exit_code":rc,
+            "runtime_under_diagnosis_blob":os.environ["V1_RUNTIME_BLOB"],
+            "runtime_stdout":info("RUNTIME_STDOUT.txt"),
+            "runtime_stderr":info("RUNTIME_STDERR.txt"),
+            "runtime_result":info("VE2_E0R_RUNTIME_RESULT_V1.json"),
+            "promotion":False,
+            "scientific_result_opened":False,
+            "frontier_result_seen":False,
+            "ve2_home_assistant_scientific_cells":0,
+            "ve2_replaymark_scientific_cells":0
+          }
+          (root/"DIAGNOSTIC_ENVELOPE_V2.json").write_text(json.dumps(envelope,sort_keys=True,indent=2)+"\n")
+          PY
+          echo "runtime_rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "===== RETAINED RUNTIME STDERR BEGIN ====="
+          cat diagnostics/runtime/RUNTIME_STDERR.txt || true
+          echo "===== RETAINED RUNTIME STDERR END ====="
+          echo "Diagnostic capture complete; runtime rc=$rc; this run is NON-PROMOTABLE by constitution."
+
+      - name: Seal diagnostic bytes
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f diagnostics/runtime/RUNTIME_EXIT_CODE.txt
+          test -f diagnostics/runtime/RUNTIME_STDOUT.txt
+          test -f diagnostics/runtime/RUNTIME_STDERR.txt
+          test -f diagnostics/runtime/DIAGNOSTIC_ENVELOPE_V2.json
+          python - <<'PY'
+          import json
+          d=json.load(open("diagnostics/runtime/DIAGNOSTIC_ENVELOPE_V2.json"))
+          assert d["schema"]=="replaymark.ve2.e0r-runtime-forensic-diagnostic.v2"
+          assert d["status"]=="CAPTURED"
+          assert d["promotion"] is False
+          assert d["scientific_result_opened"] is False
+          assert d["ve2_home_assistant_scientific_cells"]==0
+          assert d["ve2_replaymark_scientific_cells"]==0
+          PY
+          (
+            cd diagnostics
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve2-e0r-runtime-forensic-diagnostic-v2
+          path: diagnostics/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Final diagnostic capture gate NON-PROMOTABLE
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd diagnostics && sha256sum -c CHECKSUMS.sha256)
+          python - <<'PY'
+          import json
+          d=json.load(open("diagnostics/runtime/DIAGNOSTIC_ENVELOPE_V2.json"))
+          assert d["promotion"] is False
+          assert d["scientific_result_opened"] is False
+          assert d["frontier_result_seen"] is False
+          assert d["ve2_home_assistant_scientific_cells"]==0
+          assert d["ve2_replaymark_scientific_cells"]==0
+          print("VE2 E0R diagnostic v2: forensic capture SEALED; NON-PROMOTABLE; SCIENTIFIC CELLS=0; runtime_rc=",d["runtime_exit_code"])
+          PY

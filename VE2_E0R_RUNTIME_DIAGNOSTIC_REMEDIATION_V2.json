@@ -1,0 +1,63 @@
+{
+  "schema": "replaymark.ve2.e0r-runtime-diagnostic-remediation.v2",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "purpose": "Recover the exact v1 runtime-harness exception without changing the runtime-under-diagnosis or opening any VE2 scientific cell.",
+  "predecessor_failure_receipt": {
+    "commit": "7ee5d37ea48ff715ade82e0b615dcef99355bf14",
+    "run_id": 34531939840,
+    "run_attempt": 1,
+    "classification": "PRE_SCIENCE_RUNTIME_HARNESS_INCOMPLETE"
+  },
+  "frozen_inputs": {
+    "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "v1_source_freeze": "f5c46bc8bfedce04c759f26ddfda4d76e6df955a",
+    "v1_authority_open": "6134bc9e092f91fb86fe6fc63513438289e986ba",
+    "runtime_under_diagnosis_blob": "740800a13b541423b0bce4702faff31e85ac90b2",
+    "semantic_boundary_blob": "52d3b6e5ab3816266424ca61feef7cbb7f431d51",
+    "promoted_e0q_boundary_blob": "765680028bde49ead76a22bebe5aace1bfbea60e",
+    "home_assistant_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "home_assistant_trigger_helper_blob": "9451757998c63efcf8c7a01249f730594b3f68dd"
+  },
+  "diagnostic_delta": {
+    "runtime_python_semantics_changed": false,
+    "runtime_under_diagnosis_must_remain_exact_v1_blob": true,
+    "only_transport_observability_may_change": true,
+    "capture_nonzero_exit_code_without_losing_workspace_outputs": true,
+    "retain_stdout": true,
+    "retain_stderr": true,
+    "retain_partial_runtime_result_if_any": true,
+    "emit_structured_diagnostic_envelope": true,
+    "emit_checksum_manifest": true,
+    "upload_diagnostics_even_when_runtime_exit_is_nonzero": true,
+    "surface_retained_stderr_in_actions_log": true
+  },
+  "isolation": {
+    "diagnostic_may_compile_target_only_contracts": false,
+    "diagnostic_may_read_expected_frontier": false,
+    "diagnostic_may_read_old_semantics": false,
+    "diagnostic_may_read_new_direct_results": false,
+    "diagnostic_may_execute_t01_or_t02_blueprint": false,
+    "diagnostic_may_execute_ve2_scientific_fixture": false,
+    "diagnostic_may_dispatch_historical_better_thermostat_action": false,
+    "network_inside_home_assistant_container": "none"
+  },
+  "interpretation": {
+    "diagnostic_run_is_promotable_as_e0r_pass": false,
+    "runtime_exit_zero_is_promotable_as_e0r_pass": false,
+    "runtime_exit_nonzero_is_scientific_fail": false,
+    "diagnostic_output_may_only_determine_runtime_harness_root_cause": true,
+    "post_hoc_scientific_reclassification_forbidden": true
+  },
+  "first_complete_policy": {
+    "fresh_authority_required": true,
+    "same_v1_authority_rerun_forbidden": true,
+    "diagnostic_authority_run_attempt_must_equal": 1,
+    "diagnostic_artifact_required_regardless_of_runtime_exit": true
+  },
+  "scientific_exposure": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  }
+}
