@@ -1,0 +1,5 @@
+{
+  "schema": "replaymark.ve2.census-recovery-result-seal-alias.v1",
+  "canonical_result_seal_commit": "d9914c6814a79244733a72024a2bc006cc592ec9",
+  "note": "Canonical authority remains the exact one-file result-seal child d9914c6814a79244733a72024a2bc006cc592ec9. This later file is non-authoritative bookkeeping only."
+}
