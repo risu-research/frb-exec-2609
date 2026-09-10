@@ -1,0 +1,13 @@
+{
+  "schema": "replaymark.ve2.e0r-public-authority-open.v3",
+  "authority": "PRE_SCIENCE_EXECUTION_SUBSTRATE_FIRST_COMPLETE_V3",
+  "source_freeze_public_head": "1655afeb76ce959448b2b0809459fd53a7cffaba",
+  "predecessor_root_cause_seal": "55a4dede47193ca46e12bad5620bc3ba3d361963",
+  "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+  "corrected_runtime_blob": "a29db68233ffe77fad7233fd4bd128d696071b1e",
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "same_authority_rerun": false
+}
