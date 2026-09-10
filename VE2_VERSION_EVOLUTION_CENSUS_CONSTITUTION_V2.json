@@ -1,0 +1,80 @@
+{
+  "authority": "PRE_SCIENTIFIC_CORPUS_SELECTION_CONSTITUTION",
+  "classification_lock": {
+    "expected_excluded": 7,
+    "expected_included": 2,
+    "expected_pairs": 9,
+    "included_ids": [
+      "VE2-T01-NIGHT-ACTION-FAMILY",
+      "VE2-T02-WEEKLY-GUARD-REALIZATION"
+    ]
+  },
+  "eligibility_rule": {
+    "exclude_if": [
+      "no thermostat consequential sink exists in either version",
+      "parsed/source evolution affects only non-thermostat side effects",
+      "thermostat causal action projection is identical on the common domain",
+      "difference is metadata/schema/selector normalization with equal thermostat mapping on overlap",
+      "independent YAML parse-tree oracle is identical"
+    ],
+    "include_iff": "There exists at least one configuration/event/state in the semantic overlap of the adjacent old and new blueprint versions for which the native thermostat consequential-action mapping differs because the thermostat service/action family, thermostat arguments/target binding, or an action-controlling guard/realization differs.",
+    "noncriteria": [
+      "commit message",
+      "diff size",
+      "novelty appeal",
+      "expected ReplayMark verdict",
+      "ease of experimentation",
+      "desired included count"
+    ]
+  },
+  "failure_semantics": {
+    "history_or_identity_mismatch": "INVALID_CENSUS_DO_NOT_OPEN_SCIENCE",
+    "oracle_or_witness_mismatch": "INVALID_CENSUS_DO_NOT_OPEN_SCIENCE",
+    "scientific_mismatch_after_later_open": "RESULT_NOT_REMEDIATION",
+    "workflow_or_infrastructure_failure": "PRESERVE_FAILURE_AND_REMEDIATE_PROSPECTIVELY"
+  },
+  "goal": "Test whether ReplayMark semantic authorization recovers compatibility frontiers repeatedly across a complete, prospectively frozen class of real upstream thermostat-actuation semantic updates rather than a hand-selected patch.",
+  "independent_oracles": {
+    "causal_projection": "Parser-derived action tree retaining only climate.* / better_thermostat.* sink nodes and the conditions/choose/if structure that controls those nodes",
+    "history": "Git object reconstruction from frozen upstream snapshot",
+    "text_witnesses": "pair-specific exact old/new source witnesses",
+    "yaml_structure": "Ruby Psych parse-tree fingerprint on public ubuntu-24.04 runner"
+  },
+  "prohibitions": [
+    "no post-hoc corpus substitution",
+    "no pair-level retry or deletion",
+    "no use of VE2 runtime outcomes in corpus membership",
+    "no treatment of raw diff size as semantics",
+    "no broadening beyond frozen snapshot before this census is closed"
+  ],
+  "recovery_authority": {
+    "artifact_id": 10154889430,
+    "artifact_zip_sha256": "cd46b110e8bcca395b90c7a004995eb668bc532b3d1af5bf71c8cd8efd863013",
+    "expected_counts": {
+      "adjacent_pairs": 9,
+      "file_versions": 16,
+      "files": 7
+    },
+    "public_result_seal_commit": "d9914c6814a79244733a72024a2bc006cc592ec9",
+    "run_id": 34484220623
+  },
+  "schema": "replaymark.ve2.version-evolution-census-constitution.v2",
+  "scientific_hygiene": {
+    "frontier_prediction_opened": false,
+    "no_runtime_design_until_public_census_pass": true,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0,
+    "ve2_scientific_result_opened": false
+  },
+  "supersedes_invalid_census": "VE2_VERSION_EVOLUTION_CENSUS_CONSTITUTION_V1",
+  "supersession_reason": "The independent public census qualifier discovered omitted upstream blob-changing history before any VE2 HA/ReplayMark scientific cell was opened.",
+  "universe_rule": {
+    "directory": "blueprints/",
+    "file_scope": "all top-level YAML files present at snapshot",
+    "history_scope": "all blob-changing file versions reachable through git log --reverse SNAPSHOT -- path",
+    "pair_scope": "every adjacent pair in each deduplicated blob-changing file-version sequence",
+    "sampling": "NONE"
+  },
+  "upstream_repository": "KartoffelToby/better_thermostat",
+  "upstream_snapshot": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942"
+}

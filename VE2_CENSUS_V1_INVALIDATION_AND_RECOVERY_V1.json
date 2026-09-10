@@ -1,0 +1,36 @@
+{
+  "invalidated_private_authority_head": "fa4ba173e955200da8cf7a6278f5b66aa8e9fa2c",
+  "preserved_failed_public_runs": [
+    {
+      "failure_class": "PRE_EXECUTION_WORKFLOW_PARSE_FAILURE",
+      "run_id": 34483538569
+    },
+    {
+      "artifact_id": 10154726999,
+      "artifact_zip_sha256": "01860ccf8404d83467e32d324f0bd674c9ab45cab15da23aa765738655f36565",
+      "failure_class": "INCOMPLETE_FROZEN_HISTORY_DETECTED_BY_INDEPENDENT_GIT_CENSUS",
+      "run_id": 34483837087
+    }
+  ],
+  "recovery": {
+    "artifact_id": 10154889430,
+    "artifact_zip_sha256": "cd46b110e8bcca395b90c7a004995eb668bc532b3d1af5bf71c8cd8efd863013",
+    "counts": {
+      "adjacent_pairs": 9,
+      "file_versions": 16,
+      "files": 7
+    },
+    "execution_head": "70bb5f4499d97903e3ce336b202eb956ab7e58b9",
+    "job_id": 102894304677,
+    "raw_history_json_sha256": "9988247df40f2c88d2a6af7b49344ff17c5afb021afec7435acf3262b41c6648",
+    "result_seal_commit": "d9914c6814a79244733a72024a2bc006cc592ec9",
+    "run_id": 34484220623
+  },
+  "result_exposure_at_invalidation": {
+    "frontier_prediction_opened": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "rule": "The v1 census may never be promoted. Only a successor census that accounts for all 9 recovered adjacent pairs and passes a fresh independent public qualification may authorize VE2 scientific design.",
+  "schema": "replaymark.ve2.census-v1-invalidation-and-recovery.v1"
+}

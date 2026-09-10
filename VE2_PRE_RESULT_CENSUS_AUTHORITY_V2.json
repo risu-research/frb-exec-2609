@@ -1,0 +1,60 @@
+{
+  "schema": "replaymark.ve2.pre-result-census-authority.v2",
+  "status": "SEALED_CORRECTED_PRE_RESULT_READY_FOR_PUBLIC_CENSUS_QUALIFICATION",
+  "repository": "risu-research/replaymark",
+  "invalidated_v1_authority_head": "fa4ba173e955200da8cf7a6278f5b66aa8e9fa2c",
+  "source_freeze_commit": "97be3f7dbd33dccb60981760c705dac4ffbda69f",
+  "source_freeze_tree": "8babe67e066e28106cd27f4a70b0fc46c766dd53",
+  "frozen_files": {
+    "replaymark/VE2_CENSUS_V1_INVALIDATION_AND_RECOVERY_V1.json": "af8481d0895a8a39765409dd52943a847cf2b6cd",
+    "replaymark/VE2_VERSION_EVOLUTION_CENSUS_CONSTITUTION_V2.json": "0915f77abd10f32c158b0d14265812c262642f7e",
+    "replaymark/VE2_UPSTREAM_CORPUS_MANIFEST_V2.json": "8cc0e559d83ccb3785938d787c0ef79cbea35cbf",
+    "replaymark/verify_ve2_corpus_freeze_v2.py": "5f789445659191f2a85cf0e9691bfcb0a4fac888"
+  },
+  "public_recovery_authority": {
+    "result_seal_commit": "d9914c6814a79244733a72024a2bc006cc592ec9",
+    "run_id": 34484220623,
+    "artifact_id": 10154889430,
+    "artifact_zip_sha256": "cd46b110e8bcca395b90c7a004995eb668bc532b3d1af5bf71c8cd8efd863013",
+    "raw_history_json_sha256": "9988247df40f2c88d2a6af7b49344ff17c5afb021afec7435acf3262b41c6648",
+    "recovered_counts": {
+      "files": 7,
+      "file_versions": 16,
+      "adjacent_pairs": 9
+    }
+  },
+  "frozen_corpus": {
+    "upstream_snapshot": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+    "adjacent_pairs": 9,
+    "included_semantic_transitions": [
+      "VE2-T01-NIGHT-ACTION-FAMILY",
+      "VE2-T02-WEEKLY-GUARD-REALIZATION"
+    ],
+    "included_count": 2,
+    "excluded_count": 7,
+    "sampling": "NONE",
+    "membership_frozen": true
+  },
+  "result_exposure_at_seal": {
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0,
+    "ve2_frontier_predictions_opened": false,
+    "ve2_scientific_outcome_seen": false
+  },
+  "public_qualification_obligations": {
+    "must_start_from_public_recovery_result_seal": "d9914c6814a79244733a72024a2bc006cc592ec9",
+    "must_verify_private_mirror_git_blobs": true,
+    "must_reconstruct_exact_7_file_16_version_9_pair_history": true,
+    "must_verify_every_git_blob_and_source_sha256": true,
+    "must_recompute_ruby_psych_parse_tree_fingerprints": true,
+    "must_recompute_parser_derived_thermostat_causal_action_projection": true,
+    "must_verify_all_9_pair_classifications": true,
+    "must_prove_exact_included_set": [
+      "VE2-T01-NIGHT-ACTION-FAMILY",
+      "VE2-T02-WEEKLY-GUARD-REALIZATION"
+    ],
+    "must_preserve_failed_runs": [34483538569, 34483837087],
+    "on_any_discrepancy": "FAIL_CLOSED_NO_VE2_SCIENCE"
+  },
+  "next_gate": "Fresh public independent corrected-census qualification only. No VE2 native execution, ReplayMark execution, frontier enumeration, or runtime population design until that gate is artifact-sealed PASS."
+}

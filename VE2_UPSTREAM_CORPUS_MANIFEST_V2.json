@@ -1,0 +1,290 @@
+{
+  "adjacent_pair_count": 9,
+  "authority": "COMPLETE_CLASSIFIED_CORPUS_OVER_CLASSIFICATION_FREE_RECOVERY",
+  "complete_file_touch_histories": {
+    "blueprints/battery_low_notify.yaml": [
+      {
+        "blob": "9298513ee255ddcf1f8e958fe122a5873f509643",
+        "commit": "d496da5f283db323673d97efc27d6193791c17ac"
+      },
+      {
+        "blob": "e50397b0e16d9ce98530eddc6db3b17d5ebc6966",
+        "commit": "544d429ecc9da1e1780ddf0a043acecc3334207d"
+      }
+    ],
+    "blueprints/device_error_notify.yaml": [
+      {
+        "blob": "6af131cea6f10f8423faff53521ac4d9c977bae6",
+        "commit": "d496da5f283db323673d97efc27d6193791c17ac"
+      }
+    ],
+    "blueprints/heating_active_notify.yaml": [
+      {
+        "blob": "0969527a7d876563520dba217a1387a95f49980c",
+        "commit": "d496da5f283db323673d97efc27d6193791c17ac"
+      }
+    ],
+    "blueprints/humidity_high_alert.yaml": [
+      {
+        "blob": "1c522d567901a2eff3a72bcd321dc07aaedd0a8b",
+        "commit": "d496da5f283db323673d97efc27d6193791c17ac"
+      },
+      {
+        "blob": "c08b20cc15f40f9794372cbcbc1613fe2c522430",
+        "commit": "ac189909982c5edea1260e767027d6fad90ef4bd"
+      }
+    ],
+    "blueprints/night_mode.yaml": [
+      {
+        "blob": "59a60207a1f931d42832f557fc61f0c011dd65db",
+        "commit": "3785543e30e7af52a742e9ba129527147c813480"
+      },
+      {
+        "blob": "7a82647c62f720a68ce8a0fbe16ae1d251dcccdd",
+        "commit": "c6d9f4cd15dd381f803b96ac3d184d2ff41db4fb"
+      },
+      {
+        "blob": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+        "commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef"
+      },
+      {
+        "blob": "19c99196ed611729338f01bc77ea1b5deda7aa02",
+        "commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f"
+      }
+    ],
+    "blueprints/presence_away_preset.yaml": [
+      {
+        "blob": "8214ad835822e674cb630ca1e809da92817bb23a",
+        "commit": "d496da5f283db323673d97efc27d6193791c17ac"
+      },
+      {
+        "blob": "b9229b4f097f08b083bf756672bd461831787d62",
+        "commit": "ac189909982c5edea1260e767027d6fad90ef4bd"
+      }
+    ],
+    "blueprints/weekly_heating_schedule.yaml": [
+      {
+        "blob": "a93b86207dd242173ed92b62f497a7aac1faca0e",
+        "commit": "d496da5f283db323673d97efc27d6193791c17ac"
+      },
+      {
+        "blob": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+        "commit": "ac189909982c5edea1260e767027d6fad90ef4bd"
+      },
+      {
+        "blob": "3255957740ec44285d866d8be7d78bf905c1257c",
+        "commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c"
+      },
+      {
+        "blob": "95b318ff074bc84ee442bcf8158e341de14bae34",
+        "commit": "544d429ecc9da1e1780ddf0a043acecc3334207d"
+      }
+    ]
+  },
+  "excluded_count": 7,
+  "excluded_pair_ids": [
+    "VE2-X01-BATTERY-WHITESPACE",
+    "VE2-X02-HUMIDITY-NONTHERMOSTAT",
+    "VE2-X03-NIGHT-SOURCE-URL",
+    "VE2-X04-NIGHT-SELECTOR",
+    "VE2-X05-PRESENCE-NOTIFICATION",
+    "VE2-X06-WEEKLY-NONTHERMOSTAT",
+    "VE2-X07-WEEKLY-REINDENT"
+  ],
+  "file_count": 7,
+  "file_version_count": 16,
+  "frontier_prediction_opened": false,
+  "included_count": 2,
+  "included_transition_ids": [
+    "VE2-T01-NIGHT-ACTION-FAMILY",
+    "VE2-T02-WEEKLY-GUARD-REALIZATION"
+  ],
+  "membership_rule": "All and only adjacent blob-changing file-version pairs recovered for every top-level YAML file under blueprints/ at the frozen snapshot are adjudicated; no pair may be omitted, substituted, added post hoc, or selected by ReplayMark outcome.",
+  "pair_records": [
+    {
+      "classification": "EXCLUDED",
+      "classification_reason": "NO_THERMOSTAT_SINK_AND_PSYCH_AST_IDENTICAL",
+      "new_blob": "e50397b0e16d9ce98530eddc6db3b17d5ebc6966",
+      "new_commit": "544d429ecc9da1e1780ddf0a043acecc3334207d",
+      "new_psych_ast_sha256": "73713aecd4789c3fdf2c0d046b2f912ce0b8328d02cde9df63b2fe42e3f1f2ea",
+      "new_source_sha256": "e4f550cf9d565c1991a9f929cb494d395c6bee783bb83a5c46db3a7c8754589e",
+      "new_thermostat_action_projection_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "old_blob": "9298513ee255ddcf1f8e958fe122a5873f509643",
+      "old_commit": "d496da5f283db323673d97efc27d6193791c17ac",
+      "old_psych_ast_sha256": "73713aecd4789c3fdf2c0d046b2f912ce0b8328d02cde9df63b2fe42e3f1f2ea",
+      "old_source_sha256": "0a7adee80a69899738b99f2be0f0ecd931158ea99cbf8ffdb32643d668b75a18",
+      "old_thermostat_action_projection_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "pair_id": "VE2-X01-BATTERY-WHITESPACE",
+      "patch_sha256": "afeb6f37697b4676cbb352b273308fee4c262105fe4904ba6e6ff3733f925d24",
+      "path": "blueprints/battery_low_notify.yaml",
+      "thermostat_projection_equal": true
+    },
+    {
+      "classification": "EXCLUDED",
+      "classification_reason": "NO_THERMOSTAT_SINK_IN_EITHER_VERSION",
+      "new_blob": "c08b20cc15f40f9794372cbcbc1613fe2c522430",
+      "new_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "new_psych_ast_sha256": "3b5d23c9996a02e11d957995cae37e073f12028fb3f8a3dc7e10ca67896be93c",
+      "new_source_sha256": "5e1121e684766aea15c58ca6902e8a421626c81bc8ba8a66ba6e12d21c39b6a6",
+      "new_thermostat_action_projection_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "old_blob": "1c522d567901a2eff3a72bcd321dc07aaedd0a8b",
+      "old_commit": "d496da5f283db323673d97efc27d6193791c17ac",
+      "old_psych_ast_sha256": "e54e5c622939709a9a3c039c1390d8ad3e5ae8dc18f51ec8b25cb5615af15d17",
+      "old_source_sha256": "020ed43e24df7a9901f21997486bd4a6f6f1f854e389bf8154aba2001ef447a7",
+      "old_thermostat_action_projection_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "pair_id": "VE2-X02-HUMIDITY-NONTHERMOSTAT",
+      "patch_sha256": "e5783e6b5b93c4210009c9cadd229bafb2d2db582417ed1489a98a31f1a06b39",
+      "path": "blueprints/humidity_high_alert.yaml",
+      "thermostat_projection_equal": true
+    },
+    {
+      "classification": "EXCLUDED",
+      "classification_reason": "SOURCE_URL_ONLY_RUNTIME_ACTION_AND_TRIGGER_IDENTICAL",
+      "new_blob": "7a82647c62f720a68ce8a0fbe16ae1d251dcccdd",
+      "new_commit": "c6d9f4cd15dd381f803b96ac3d184d2ff41db4fb",
+      "new_psych_ast_sha256": "fbbd3aa2b001634cc421270e479063eb3c46d46b46a656db36ec634d10499acd",
+      "new_source_sha256": "1e5cdbf642fac6327a0e2aca117f67f7c9a0423254a385b9d1b9bf6be7791c40",
+      "new_thermostat_action_projection_sha256": "3d55c2cfe767e6c762a4e401de4941a97cfb059dd1188253d6d89580c507f10d",
+      "old_blob": "59a60207a1f931d42832f557fc61f0c011dd65db",
+      "old_commit": "3785543e30e7af52a742e9ba129527147c813480",
+      "old_psych_ast_sha256": "d06bf1d5573e2cf6a2928134b51c37d9bbcdaec737bab2d64e23fa01b078610a",
+      "old_source_sha256": "c02adb558cbe21613b11b193aea05b52189eb9b11425922a5d1fc651a250d452",
+      "old_thermostat_action_projection_sha256": "3d55c2cfe767e6c762a4e401de4941a97cfb059dd1188253d6d89580c507f10d",
+      "pair_id": "VE2-X03-NIGHT-SOURCE-URL",
+      "patch_sha256": "b172e4bf446f0b181b9def90f4d1e137c4604c98704a0eae27d215c966803d7e",
+      "path": "blueprints/night_mode.yaml",
+      "thermostat_projection_equal": true
+    },
+    {
+      "classification": "EXCLUDED",
+      "classification_reason": "SELECTOR_SINGLETON_NORMALIZATION_WITH_ACTION_MAPPING_EQUAL_ON_OVERLAP",
+      "new_blob": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+      "new_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+      "new_psych_ast_sha256": "9e510dde1e8dcfbdef7d2492d55bdb67d7b16a956f4e878def4314d795792772",
+      "new_source_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8",
+      "new_thermostat_action_projection_sha256": "3d55c2cfe767e6c762a4e401de4941a97cfb059dd1188253d6d89580c507f10d",
+      "old_blob": "7a82647c62f720a68ce8a0fbe16ae1d251dcccdd",
+      "old_commit": "c6d9f4cd15dd381f803b96ac3d184d2ff41db4fb",
+      "old_psych_ast_sha256": "fbbd3aa2b001634cc421270e479063eb3c46d46b46a656db36ec634d10499acd",
+      "old_source_sha256": "1e5cdbf642fac6327a0e2aca117f67f7c9a0423254a385b9d1b9bf6be7791c40",
+      "old_thermostat_action_projection_sha256": "3d55c2cfe767e6c762a4e401de4941a97cfb059dd1188253d6d89580c507f10d",
+      "pair_id": "VE2-X04-NIGHT-SELECTOR",
+      "patch_sha256": "2d1a698db5c59d091b863090905ad6383578a91f5cfc6a4d61ac8b03199a59e6",
+      "path": "blueprints/night_mode.yaml",
+      "thermostat_projection_equal": true
+    },
+    {
+      "classification": "INCLUDED",
+      "classification_reason": "THERMOSTAT_ACTION_FAMILY_AND_ARGUMENT_SEMANTICS_CHANGED",
+      "new_blob": "19c99196ed611729338f01bc77ea1b5deda7aa02",
+      "new_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+      "new_psych_ast_sha256": "cd268eabf1266e697a3c3521bdeffd5209ff6f4af7790200b044a0973c010f06",
+      "new_source_sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363",
+      "new_thermostat_action_projection_sha256": "e792a27e646d797e0598037b74bd97ffd25bb8c1e28ae1a4b25122ad0ec92083",
+      "old_blob": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+      "old_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+      "old_psych_ast_sha256": "9e510dde1e8dcfbdef7d2492d55bdb67d7b16a956f4e878def4314d795792772",
+      "old_source_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8",
+      "old_thermostat_action_projection_sha256": "3d55c2cfe767e6c762a4e401de4941a97cfb059dd1188253d6d89580c507f10d",
+      "pair_id": "VE2-T01-NIGHT-ACTION-FAMILY",
+      "patch_sha256": "ddf6a1316693bf521969669f74e77e1f7dc71508ea856b45aedecbf9426c1ffd",
+      "path": "blueprints/night_mode.yaml",
+      "thermostat_projection_equal": false
+    },
+    {
+      "classification": "EXCLUDED",
+      "classification_reason": "NOTIFICATION_GATING_ONLY_THERMOSTAT_CAUSAL_ACTION_PROJECTION_IDENTICAL",
+      "new_blob": "b9229b4f097f08b083bf756672bd461831787d62",
+      "new_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "new_psych_ast_sha256": "ea875d394c34352b9b286908c596a5b91c83aaa3b5d8429a50aeb655ede0e3ce",
+      "new_source_sha256": "e08835d659895755ccd8f22db776067dad3e468c8717390c9e93957598b4b459",
+      "new_thermostat_action_projection_sha256": "18c920267d17390e4d9bbf6058f8567277e02cbe4fd3c7ae6ef5375216eea5f2",
+      "old_blob": "8214ad835822e674cb630ca1e809da92817bb23a",
+      "old_commit": "d496da5f283db323673d97efc27d6193791c17ac",
+      "old_psych_ast_sha256": "0a3759c4dd6dd6fe61c7dc515320089e598a35e75b968fd2d58e8611fc8ee8cf",
+      "old_source_sha256": "96cfcf88892045af54b976ffff6f6c0ce6f6f582488c1ff7dfbbb3510cea166f",
+      "old_thermostat_action_projection_sha256": "18c920267d17390e4d9bbf6058f8567277e02cbe4fd3c7ae6ef5375216eea5f2",
+      "pair_id": "VE2-X05-PRESENCE-NOTIFICATION",
+      "patch_sha256": "068df2d6c80b72687a4311161aeb782ff86f1725268aa43defccbd4b8d20b050",
+      "path": "blueprints/presence_away_preset.yaml",
+      "thermostat_projection_equal": true
+    },
+    {
+      "classification": "EXCLUDED",
+      "classification_reason": "NOTIFICATION_AND_DISABLED_PLACEHOLDER_DEFAULTS_ONLY_THERMOSTAT_CAUSAL_ACTION_PROJECTION_IDENTICAL",
+      "new_blob": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+      "new_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "new_psych_ast_sha256": "1d178aa3dfd5029e08b994e8450f9342ba934c46e126ebcf90135fd5c1728107",
+      "new_source_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115",
+      "new_thermostat_action_projection_sha256": "7ac751cc02abe10635e33a71a96a2b4a88e9a6af08a840a5ad149546560893d3",
+      "old_blob": "a93b86207dd242173ed92b62f497a7aac1faca0e",
+      "old_commit": "d496da5f283db323673d97efc27d6193791c17ac",
+      "old_psych_ast_sha256": "8d027aaf695c2eec653846e9e94bbff725db749a94a3f14c4131125e90bd81a2",
+      "old_source_sha256": "91f53744821383f353db81d2c22941059a884f3b19adcd878942f8e1d92ba840",
+      "old_thermostat_action_projection_sha256": "7ac751cc02abe10635e33a71a96a2b4a88e9a6af08a840a5ad149546560893d3",
+      "pair_id": "VE2-X06-WEEKLY-NONTHERMOSTAT",
+      "patch_sha256": "a83f8a41e3016863e2283ac992313c83122231157eece1f7063093fe7f75e423",
+      "path": "blueprints/weekly_heating_schedule.yaml",
+      "thermostat_projection_equal": true
+    },
+    {
+      "classification": "INCLUDED",
+      "classification_reason": "ACTION_CONTROLLING_GUARD_REALIZATION_AND_MULTI_ENTITY_AGGREGATION_CHANGED",
+      "new_blob": "3255957740ec44285d866d8be7d78bf905c1257c",
+      "new_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+      "new_psych_ast_sha256": "fcda9ab8eab1fbd12506d318e53f2f52804d334dbafe8ec45b34060a2bc728a2",
+      "new_source_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e",
+      "new_thermostat_action_projection_sha256": "883aa59dde554d8477d2114a38800ef6d32deb1ae4328e937d8a206d1833c3fc",
+      "old_blob": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+      "old_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "old_psych_ast_sha256": "1d178aa3dfd5029e08b994e8450f9342ba934c46e126ebcf90135fd5c1728107",
+      "old_source_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115",
+      "old_thermostat_action_projection_sha256": "7ac751cc02abe10635e33a71a96a2b4a88e9a6af08a840a5ad149546560893d3",
+      "pair_id": "VE2-T02-WEEKLY-GUARD-REALIZATION",
+      "patch_sha256": "1559c4938ccd883ca1e8b2f2b08ac71c1bb8615a35776adc89f76de4c9254648",
+      "path": "blueprints/weekly_heating_schedule.yaml",
+      "thermostat_projection_equal": false
+    },
+    {
+      "classification": "EXCLUDED",
+      "classification_reason": "RUBY_PSYCH_PARSE_TREE_IDENTICAL_REINDENT_ONLY",
+      "new_blob": "95b318ff074bc84ee442bcf8158e341de14bae34",
+      "new_commit": "544d429ecc9da1e1780ddf0a043acecc3334207d",
+      "new_psych_ast_sha256": "fcda9ab8eab1fbd12506d318e53f2f52804d334dbafe8ec45b34060a2bc728a2",
+      "new_source_sha256": "9654b9168e54c556674df46daa96677b3f4a3603664bbb067684f01e41ae68d9",
+      "new_thermostat_action_projection_sha256": "883aa59dde554d8477d2114a38800ef6d32deb1ae4328e937d8a206d1833c3fc",
+      "old_blob": "3255957740ec44285d866d8be7d78bf905c1257c",
+      "old_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+      "old_psych_ast_sha256": "fcda9ab8eab1fbd12506d318e53f2f52804d334dbafe8ec45b34060a2bc728a2",
+      "old_source_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e",
+      "old_thermostat_action_projection_sha256": "883aa59dde554d8477d2114a38800ef6d32deb1ae4328e937d8a206d1833c3fc",
+      "pair_id": "VE2-X07-WEEKLY-REINDENT",
+      "patch_sha256": "f31fe687958632d58c2bb2bf9211f0fd8a449590f3bef02856aca21cd1be69b0",
+      "path": "blueprints/weekly_heating_schedule.yaml",
+      "thermostat_projection_equal": true
+    }
+  ],
+  "raw_recovery": {
+    "artifact_id": 10154889430,
+    "artifact_zip_sha256": "cd46b110e8bcca395b90c7a004995eb668bc532b3d1af5bf71c8cd8efd863013",
+    "public_execution_head": "70bb5f4499d97903e3ce336b202eb956ab7e58b9",
+    "public_result_seal_commit": "d9914c6814a79244733a72024a2bc006cc592ec9",
+    "raw_history_json_sha256": "9988247df40f2c88d2a6af7b49344ff17c5afb021afec7435acf3262b41c6648",
+    "run_id": 34484220623
+  },
+  "schema": "replaymark.ve2.upstream-corpus-manifest.v2",
+  "scientific_result_opened": false,
+  "universe_files": [
+    "blueprints/battery_low_notify.yaml",
+    "blueprints/device_error_notify.yaml",
+    "blueprints/heating_active_notify.yaml",
+    "blueprints/humidity_high_alert.yaml",
+    "blueprints/night_mode.yaml",
+    "blueprints/presence_away_preset.yaml",
+    "blueprints/weekly_heating_schedule.yaml"
+  ],
+  "upstream_repository": "KartoffelToby/better_thermostat",
+  "upstream_snapshot": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0
+}
