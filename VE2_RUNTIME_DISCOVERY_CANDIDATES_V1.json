@@ -1,0 +1,56 @@
+{
+  "roles": {
+    "T01_NEW_TARGET": {
+      "basis": "Prefer the exact Home Assistant version pinned by the upstream commit's requirements.dev.txt; then the contemporaneous commit-month .0 release; then the declared HACS minimum.",
+      "component_manifest_version": "1.8.0-dev",
+      "declared_hacs_minimum": "2025.12.0",
+      "ordered_tags": [
+        "2026.1.0",
+        "2026.2.0",
+        "2025.12.0"
+      ],
+      "source_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+      "source_commit_date": "2026-02-23T17:01:08Z",
+      "upstream_dev_pin": "2026.1.0"
+    },
+    "T01_OLD_HISTORY": {
+      "basis": "Prefer Home Assistant release from the upstream source-touch month; if incompatible, step backward by monthly .0 tags to the integration's declared HACS minimum.",
+      "component_manifest_version": "1.0.0-dev",
+      "declared_hacs_minimum": "2021.12.0",
+      "ordered_tags": [
+        "2022.10.0",
+        "2022.9.0",
+        "2022.8.0",
+        "2022.7.0",
+        "2022.6.0",
+        "2022.5.0",
+        "2022.4.0",
+        "2022.3.0",
+        "2022.2.0",
+        "2022.1.0",
+        "2021.12.0"
+      ],
+      "source_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+      "source_commit_date": "2022-10-07T19:48:11Z"
+    },
+    "T02_COMMON": {
+      "basis": "Honor the already-frozen preferred common VE2 runtime first; if it fails, step backward through common releases no earlier than the new source's declared minimum.",
+      "new_declared_hacs_minimum": "2026.7.2",
+      "new_source_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+      "old_declared_hacs_minimum": "2025.12.0",
+      "old_source_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "ordered_tags": [
+        "2026.9.0",
+        "2026.8.0",
+        "2026.7.2"
+      ],
+      "preferred_common_digest": "sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+      "preferred_common_tag": "2026.9.0"
+    }
+  },
+  "schema": "replaymark.ve2.runtime-discovery-candidates.v1",
+  "scientific_cells": 0,
+  "selection_is_first_pass_in_order": true,
+  "status": "FROZEN_ORDERED_CANDIDATE_LATTICE",
+  "upstream_repository": "KartoffelToby/better_thermostat"
+}

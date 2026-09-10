@@ -1,0 +1,50 @@
+{
+  "hard_rules": {
+    "candidate_order_may_change_after_probe": false,
+    "discovery_failure_consumes_scientific_attempt": false,
+    "expected_frontier_files_available_to_probe": false,
+    "first_PASS_candidate_is_selected": true,
+    "frontier_or_state_space_may_change_due_to_runtime_discovery": false,
+    "manual_candidate_insertion": false,
+    "post_science_runtime_change": false,
+    "same_authority_rerun": false,
+    "skip_available_candidate_after_failure": false,
+    "transition_scientific_fixture_may_execute_during_discovery": false
+  },
+  "parent_private_receipt": "c018e958c797ff5ae5339b5ce42d8ad3fdc9811b",
+  "post_discovery_gate": "Selected tags are not yet scientific authority. Their resolved OCI digests, exact source subtree digests, and discovery artifact must be sealed, then transition-specific orthogonal E0Q must PASS before science can open.",
+  "probe_boundary": {
+    "allowed": [
+      "pull candidate Home Assistant OCI image",
+      "record immutable RepoDigest/image ID/platform/Python/Home Assistant version",
+      "materialize exact upstream Better Thermostat commit and subtree identities",
+      "compile and import exact custom component modules in candidate image",
+      "verify manifest/hacs metadata and declared Python requirements",
+      "verify T01 old proprietary service declaration/registration source surface and T01 new absence",
+      "verify T02 old/new exact blueprint bytes parse as YAML-shaped source under independent non-executing loader",
+      "verify no result-bearing automation/controller is installed or invoked"
+    ],
+    "forbidden": [
+      "execute T01 schedule on/off fixtures",
+      "execute any T02 42-class representative",
+      "dispatch any VE2 historical action",
+      "mount VE2 expected-frontier files into candidate container",
+      "compare candidate behavior against frozen expected frontier"
+    ]
+  },
+  "public_transition_semantic_pass": "8fde248ed981e48eecc166f39d818551f1c6559b",
+  "purpose": "Select exact executable Home Assistant substrates for T01 historical/new and T02 common execution without using VE2 scientific outcomes or changing frozen state/frontier semantics.",
+  "schema": "replaymark.ve2.runtime-discovery-constitution.v1",
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "selection": {
+    "T01_new_target": "first candidate in frozen T01_NEW_TARGET order that passes all probe obligations",
+    "T01_old_history": "first candidate in frozen T01_OLD_HISTORY order that passes all probe obligations",
+    "T02_common": "first candidate in frozen T02_COMMON order for which BOTH exact old and new sources pass all probe obligations in the same image",
+    "failure": "If no frozen candidate passes, discovery v1 FAILS. A successor must preserve this attempt and may only extend/change the candidate lattice prospectively while state/frontier semantics remain immutable."
+  },
+  "status": "FROZEN_PRE_RUNTIME_DISCOVERY_PRE_SCIENCE"
+}

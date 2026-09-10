@@ -1,0 +1,30 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-pre-result-authority.v1",
+  "status": "SEALED_PRE_DISCOVERY_EXECUTION_PRE_SCIENCE",
+  "canonical_parent_receipt": "c018e958c797ff5ae5339b5ce42d8ad3fdc9811b",
+  "source_freeze_commit": "f9ff85560f0b75ae812131e21bd610a692502da6",
+  "source_freeze_tree": "ac44d3161d220aae65de19ede80eef1dd6488291",
+  "frozen_blobs": {
+    "VE2_RUNTIME_DISCOVERY_CONSTITUTION_V1.json": "6fdc772525c9259097fc2cde9c6b010bee6fa180",
+    "VE2_RUNTIME_DISCOVERY_CANDIDATES_V1.json": "4a317c9c6158ef7ce28e9c425789ac3901071f41",
+    "verify_ve2_runtime_discovery_freeze_v1.py": "124ad08ec83433034d3eae519a990f0a788224ca"
+  },
+  "upstream_evidence": {
+    "T01_old": {"commit":"cd4c3121c92f59d5ac1f3533424bc570209ce6ef","commit_date":"2022-10-07T19:48:11Z","hacs_minimum":"2021.12.0","manifest_version":"1.0.0-dev"},
+    "T01_new": {"commit":"96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f","commit_date":"2026-02-23T17:01:08Z","hacs_minimum":"2025.12.0","requirements_dev_homeassistant":"2026.1.0","manifest_version":"1.8.0-dev"},
+    "T02_old": {"commit":"ac189909982c5edea1260e767027d6fad90ef4bd","commit_date":"2026-06-11T18:29:04Z","hacs_minimum":"2025.12.0","requirements_dev_homeassistant":"2026.2.3","manifest_version":"1.8.1-dev"},
+    "T02_new": {"commit":"5b4496de5659fd2c6ec5c67a9797e6659797866c","commit_date":"2026-08-21T18:07:02Z","hacs_minimum":"2026.7.2","manifest_version":"1.9.0","manifest_requirement":"numpy>=2"}
+  },
+  "selection_law": {
+    "T01_OLD_HISTORY": ["2022.10.0","2022.9.0","2022.8.0","2022.7.0","2022.6.0","2022.5.0","2022.4.0","2022.3.0","2022.2.0","2022.1.0","2021.12.0"],
+    "T01_NEW_TARGET": ["2026.1.0","2026.2.0","2025.12.0"],
+    "T02_COMMON": ["2026.9.0","2026.8.0","2026.7.2"],
+    "first_pass_only": true,
+    "candidate_insertion_after_open": false
+  },
+  "known_preferred_T02_digest": "sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+  "scientific_exposure": {"frontier_result_seen":false,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0},
+  "discovery_execution_opened": false,
+  "science_open_authorized": false,
+  "next_gate": "Byte-identical public mirror and one-attempt public runtime discovery qualification. Selected substrates must be result-sealed before transition-specific E0Q."
+}

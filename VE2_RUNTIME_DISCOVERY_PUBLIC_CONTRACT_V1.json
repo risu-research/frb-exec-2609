@@ -1,0 +1,44 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-public-contract.v1",
+  "status": "FROZEN_PUBLIC_DISCOVERY_EXECUTION_CONTRACT",
+  "public_parent": "8fde248ed981e48eecc166f39d818551f1c6559b",
+  "private_pre_result_authority": "e92c6b919b7fd9744410ee400641a2c16106227a",
+  "private_source_freeze": "f9ff85560f0b75ae812131e21bd610a692502da6",
+  "exact_mirrors": {
+    "VE2_RUNTIME_DISCOVERY_CONSTITUTION_V1.json": "6fdc772525c9259097fc2cde9c6b010bee6fa180",
+    "VE2_RUNTIME_DISCOVERY_CANDIDATES_V1.json": "4a317c9c6158ef7ce28e9c425789ac3901071f41",
+    "verify_ve2_runtime_discovery_freeze_v1.py": "124ad08ec83433034d3eae519a990f0a788224ca",
+    "VE2_RUNTIME_DISCOVERY_PRE_RESULT_AUTHORITY_V1.json": "b4349b75f89b0e50157a2cb14e7c7ea025eaf0e8"
+  },
+  "execution_blobs": {
+    "ve2_runtime_inside_probe_v1.py": "ed51ff3763f650c1815259642efd0e8f343f161a",
+    "ve2_runtime_discovery_public_v1.py": "f8bf141f39b55a7a184a1b6ac4ae5592b4d080dc"
+  },
+  "selection": "The first PASS in each role's frozen ordered candidate list is selected; no skip, reorder, insertion, or same-authority rerun is permitted.",
+  "isolation": {
+    "candidate_container_network": "none",
+    "candidate_container_rootfs": "read-only",
+    "exact_upstream_source_mount": "read-only",
+    "inside_probe_mount": "read-only",
+    "only_writable_bind": "single result JSON",
+    "transition_fixture_execution": false,
+    "historical_action_dispatch": false,
+    "expected_frontier_files_mounted": false
+  },
+  "qualification_obligations": [
+    "exact upstream commits and source object identities reconstructed from public Git",
+    "exact HACS minimum and component manifest metadata verified",
+    "blueprint YAML syntax parsed without executing automation semantics",
+    "T01 Old proprietary service source surface present and T01 New source surface absent",
+    "candidate Home Assistant tag resolves to immutable OCI RepoDigest/image ID",
+    "candidate image Home Assistant version equals requested frozen tag",
+    "exact component Python tree compiles under candidate interpreter",
+    "declared manifest requirements are importable without network mutation",
+    "component __init__, const, and climate modules import under candidate runtime",
+    "T02 common candidate passes both exact old and exact new source probes in the same image"
+  ],
+  "failure": "All candidate and infrastructure failures are preserved in the discovery result artifact. Failure does not consume VE2 scientific authority. A successor may only be prospective and may not change frozen frontiers/state spaces.",
+  "scientific_exposure": {"frontier_result_seen":false,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0},
+  "science_open_authorized": false,
+  "post_pass": "Selected image tags/digests and source-tree identities must be immutable-result-sealed and privately receipted before transition-specific orthogonal E0Q."
+}
