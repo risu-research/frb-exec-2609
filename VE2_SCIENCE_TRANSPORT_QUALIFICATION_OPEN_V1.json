@@ -1,0 +1,10 @@
+{
+  "schema": "replaymark.ve2.science-transport-qualification-open.v1",
+  "authority": "VE2_CROSS_VERSION_SCIENCE_TRANSPORT_PRE_SCIENCE_V1",
+  "source_freeze_public_head": "2d5f40dc9efab7f0d33a0cca47b0a75cd6b70080",
+  "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "scientific_cells": 0,
+  "same_authority_rerun": false
+}
