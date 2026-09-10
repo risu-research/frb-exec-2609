@@ -1,0 +1,12 @@
+{
+  "schema": "replaymark.ve2.e0q-authority-open.v2",
+  "authority": "ORTHOGONAL_VERSION_SPANNING_BOUNDARY_FIRST_COMPLETE_V2",
+  "source_freeze_public_head": "1cc948ef1240f5e023f60d9d81721fd8dbbe66d8",
+  "private_v2_remediation_authority": "05fc7b4c63171ddbc25bc274cc6e087acc92dceb",
+  "parent_public_v1_failure_seal": "1583bc3d714e7b328d7b095cfb873ed6c346457d",
+  "boundary_git_blob": "765680028bde49ead76a22bebe5aace1bfbea60e",
+  "v1_partial_pass_carried": false,
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "rerun_authorized": false
+}
