@@ -1,0 +1,12 @@
+{
+  "schema": "replaymark.ve1.expected-rows-digest.v2",
+  "status": "FROZEN_PRE_RESULT",
+  "table_path": "replaymark/VE1_EXPECTED_CROSS_VERSION_TABLE_V2.json",
+  "table_git_blob_sha1": "6fcf4225c8a1eac07d5f23c807dfe293b1be9b59",
+  "canonicalization": "UTF-8 JSON of rows only with sort_keys=true and separators=(comma,colon), ensure_ascii=false",
+  "rows_sha256": "0ef80acf64bcc192837ee17f6b57ab2e79ee4182c9b793d8cf388d59d2558c20",
+  "row_count": 32,
+  "compatible": 24,
+  "retired": 8,
+  "scientific_result_opened": false
+}
