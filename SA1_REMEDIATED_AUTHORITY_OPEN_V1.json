@@ -1,0 +1,11 @@
+{
+  "schema": "replaymark.sa1.remediated-authority-open.v1",
+  "authority": "AUTHORITATIVE_NATIVE_SOURCE_ADEQUACY_FIRST_COMPLETE_V3_REMEDIATED",
+  "source_freeze_public_head": "954d7724323e11523a590471919204603fb7a9c8",
+  "assembly_parent": "65538741edca7dca2de921c6eb5cbf8054325e0f",
+  "private_source_freeze_head": "623f83f0411506ec4d4efe3291177c1b4a8cadc8",
+  "prelive_expected_authority": "cbb28b45bec65c98845123358c05c14d5b83a805",
+  "failed_v2_run_id": 34428350371,
+  "remediation_preflight_run_id": 34428854935,
+  "rerun_authorized": false
+}
