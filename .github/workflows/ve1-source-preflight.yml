@@ -1,0 +1,140 @@
+name: VE1 source and prediction preflight
+
+on:
+  push:
+    branches:
+      - ve1-source-preflight-v1
+
+permissions:
+  contents: read
+
+env:
+  GENERIC_MAIN: bcf42964a3fa74e127f22a5364185049b4f94cff
+  PRIVATE_PRE_RESULT_HEAD: 76f6d09566157208b12b718c25a6c20398e3f707
+  OLD_COMMIT: 611723a7cffd7cbc151afd0415c1a705900754f1
+  NEW_COMMIT: 87e8844e3e0fa0a47e586cecd2c4d412c7bc718f
+  OLD_BLOB: 6ce2d0e433b8380d03289d450aa3dc2fbe2d3977
+  NEW_BLOB: 5091b299da53ed3eaed85098d4e2a554289597e1
+  NEW_SHA256: 16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443
+  PROTOCOL_BLOB: 34491bf7f5d66d96721bd4a3c7b9e27f5d83c571
+  TABLE_BLOB: 0c8564bf1277fa5daf6336df08a0b7885f7234d1
+  WITNESS_BLOB: 66db29fe24bf0676122f4857e6a106648dab513c
+  VERIFIER_BLOB: f3551eb60c76ba4d244af10dbe6b4d9c67636ce9
+  UPSTREAM_PATH: automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml
+
+jobs:
+  static-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Refuse semantic execution and verify mirrored frozen bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          test "$(git hash-object --no-filters replaymark/VE1_UPSTREAM_VERSION_EVOLUTION_PROTOCOL_V1.json)" = "$PROTOCOL_BLOB"
+          test "$(git hash-object --no-filters replaymark/VE1_EXPECTED_CROSS_VERSION_TABLE_V1.json)" = "$TABLE_BLOB"
+          test "$(git hash-object --no-filters replaymark/VE1_UPSTREAM_SOURCE_CHANGE_WITNESS_V1.json)" = "$WITNESS_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/verify_ve1_pre_result_freeze.py)" = "$VERIFIER_BLOB"
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          p=Path('replaymark_verification/verify_ve1_pre_result_freeze.py')
+          tree=ast.parse(p.read_text())
+          forbidden=('homeassistant','replaymark')
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  for a in node.names:
+                      assert not a.name.startswith(forbidden), a.name
+              elif isinstance(node, ast.ImportFrom) and node.module:
+                  assert not node.module.startswith(forbidden), node.module
+          print('static verifier has no Home Assistant or ReplayMark imports')
+          PY
+
+      - name: Materialize exact adjacent upstream parent and child from Git
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf upstream inputs results
+          mkdir -p inputs results
+          git init -q upstream
+          git -C upstream remote add origin https://github.com/n3roGit/MyHomeAssistantMods.git
+          git -C upstream fetch --depth=2 origin "$NEW_COMMIT"
+          git -C upstream checkout -q --detach FETCH_HEAD
+          test "$(git -C upstream rev-parse HEAD)" = "$NEW_COMMIT"
+          test "$(git -C upstream rev-parse HEAD^)" = "$OLD_COMMIT"
+          git -C upstream show "$OLD_COMMIT:$UPSTREAM_PATH" > inputs/old.yaml
+          git -C upstream show "$NEW_COMMIT:$UPSTREAM_PATH" > inputs/new.yaml
+          test "$(git hash-object --no-filters inputs/old.yaml)" = "$OLD_BLOB"
+          test "$(git hash-object --no-filters inputs/new.yaml)" = "$NEW_BLOB"
+          test "$(sha256sum inputs/new.yaml | cut -d' ' -f1)" = "$NEW_SHA256"
+          sha256sum inputs/old.yaml inputs/new.yaml > results/UPSTREAM_SOURCE_SHA256.txt
+
+      - name: Verify source delta and complete 32-row prediction without execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          python replaymark_verification/verify_ve1_pre_result_freeze.py \
+            --protocol replaymark/VE1_UPSTREAM_VERSION_EVOLUTION_PROTOCOL_V1.json \
+            --table replaymark/VE1_EXPECTED_CROSS_VERSION_TABLE_V1.json \
+            --old-source inputs/old.yaml \
+            --new-source inputs/new.yaml \
+            --out results/VE1_STATIC_PREFLIGHT_RESULT.json \
+            > results/VE1_STATIC_PREFLIGHT_STDOUT.txt
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r=json.loads(Path('results/VE1_STATIC_PREFLIGHT_RESULT.json').read_text())
+          assert r['status']=='PASS_PRE_RESULT_STATIC_ONLY'
+          assert r['home_assistant_executed'] is False
+          assert r['replaymark_executed'] is False
+          assert r['scientific_result_opened'] is False
+          assert r['state_rows']==32
+          assert r['compatible_across_version']==24
+          assert r['retired_by_update']==8
+          record={
+            'schema':'replaymark.ve1.public-static-preflight.v1',
+            'status':'PASS_STATIC_ONLY',
+            'repository':os.environ['GITHUB_REPOSITORY'],
+            'execution_head':os.environ['GITHUB_SHA'],
+            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'private_pre_result_head':os.environ['PRIVATE_PRE_RESULT_HEAD'],
+            'old_commit':os.environ['OLD_COMMIT'],
+            'new_commit':os.environ['NEW_COMMIT'],
+            'adjacent_parent_child':True,
+            'home_assistant_executed':False,
+            'replaymark_executed':False,
+            'scientific_result_opened':False,
+            'prediction':{'compatible':24,'retired':8,'states':32},
+          }
+          Path('results/VE1_STATIC_PREFLIGHT_PROVENANCE.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Seal static-only artifact
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp replaymark/VE1_UPSTREAM_VERSION_EVOLUTION_PROTOCOL_V1.json results/
+          cp replaymark/VE1_EXPECTED_CROSS_VERSION_TABLE_V1.json results/
+          cp replaymark/VE1_UPSTREAM_SOURCE_CHANGE_WITNESS_V1.json results/
+          cp VE1_PRIVATE_PRE_RESULT_AUTHORITY_MIRROR.json results/
+          (
+            cd results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable static preflight capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-static-source-preflight
+          path: results
+          if-no-files-found: error
+          retention-days: 90
