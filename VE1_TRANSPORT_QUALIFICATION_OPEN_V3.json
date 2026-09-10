@@ -1,0 +1,11 @@
+{
+  "authority": "PRE_SCIENTIFIC_DYNAMIC_TRANSPORT_QUALIFICATION",
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "rerun_authorized": false,
+  "result_bearing_controller_invocations": 0,
+  "schema": "replaymark.ve1.transport-qualification-open.v3",
+  "scientific_cells": 0,
+  "scientific_result_opened": false,
+  "source_candidate_head": "c02f48b8276e992bb2c2039f4a6dd6260f8fa830",
+  "v2_post_open_seal_sha256": "055df628df72df5aeb2523f0166a6dfbb186c9656efd3802ac6f60b76f887ecb"
+}
