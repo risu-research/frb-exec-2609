@@ -1,0 +1,62 @@
+{
+  "schema": "replaymark.ve2.science-transport-v3-bootstrap-remediation.v1",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_failure_seal": "edaa6525243e4b06092379a314b7faea78b4aae4",
+  "predecessor_run_id": 34543478249,
+  "predecessor_open": "96588c3a10bca3375a684fd455e6684e8b66f75b",
+  "observed_predecessor_exposure": {
+    "neutral_transport_rows_opened": 0,
+    "neutral_automation_invocations_completed": 0,
+    "scientific_cells": 0,
+    "frontier_result_seen": false
+  },
+  "root_causes_closed_together": [
+    "HA 2022.10 bare automation import before normal bootstrap prerequisite ordering",
+    "HA 2026.1/2026.9 Config.set_time_zone API drift",
+    "v2 failure-provenance directory created too late after role-exit gate"
+  ],
+  "prospective_repair": {
+    "bootstrap_selection_basis": "native API presence before any neutral case result",
+    "constructor_strategy_source": "already qualified by VE2 E0Q v2",
+    "loader_strategy_source": "already qualified by VE2 E0Q v2",
+    "config_entries_strategy": "native ConfigEntries(hass, hass_config) manager installed before integration setup when constructor did not provide one",
+    "timezone_strategy": "accept source-proven constructor UTC default; otherwise choose synchronous set_time_zone if present, else asynchronous async_set_time_zone if present; no retry after a failed setter",
+    "helper_strategy": "entity/condition/trigger native async_setup entrypoints are invoked exactly once when present before automation setup; absence selects the legacy native path without retry",
+    "import_strategy": "import homeassistant.bootstrap and config_entries before automation module import",
+    "preflight_strategy": "all three exact runtime images must independently materialize one neutral automation while emitting zero trigger stimuli and zero automation invocations; independent preflight adjudication must PASS before any neutral transport qualification stimulus",
+    "aggregate_failure_evidence_strategy": "aggregate directory and provenance are created independently of validator execution so failed role capsules remain sealable"
+  },
+  "immutable_inherited_semantics": {
+    "base_transport_contract_blob": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "independent_transport_validator_blob": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "T01_T02_scientific_population_changed": false,
+    "transport_case_population_changed": false,
+    "transport_pass_criteria_changed": false,
+    "clock_driver_semantic_target_changed": false,
+    "double_witness_law_changed": false,
+    "scientific_estimand_changed": false,
+    "scientific_promotion_rule_changed": false
+  },
+  "new_implementation": {
+    "runtime_path": "ve2_science_transport_qualify_v3.py",
+    "runtime_blob": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "preflight_validator_path": "ve2_science_transport_preflight_validate_v3.py",
+    "preflight_validator_blob": "6f8cf9393547359597c8ccb2f236003df6f86722",
+    "successor_contract_path": "VE2_SCIENCE_TRANSPORT_QUALIFICATION_CONTRACT_V3.json",
+    "successor_contract_blob": "c91a49bc9a408123b6d0af000794d7fdead65cd3"
+  },
+  "attempt_law": {
+    "v2_never_rerun": true,
+    "v3_is_new_authority": true,
+    "v3_promotable_attempt": 1,
+    "same_authority_rerun": false
+  },
+  "scientific_hygiene": {
+    "scientific_fixture_mounted": false,
+    "expected_frontier_mounted": false,
+    "historical_better_thermostat_action_mounted": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  }
+}
