@@ -1,0 +1,25 @@
+{
+  "schema": "replaymark.sa1.preworkload-failure-record.v1",
+  "status": "SEALED_PRE_WORKLOAD_IMPLEMENTATION_FAILURE_NO_NATIVE_CELL_CONSUMED",
+  "failed_execution_head": "92a5c2f1edf52ca8994ef2f52ad293b70d2d011b",
+  "failed_run_id": 34428350371,
+  "failed_run_attempt": 1,
+  "failed_artifacts": {
+    "replica_0": {"artifact_id": 10133526263, "sha256": "32caae36e9812149bb715a6d7b32435a40b7faf8ed96fb086fa80ed900aedeef"},
+    "replica_1": {"artifact_id": 10133527368, "sha256": "00f48e3807e279b2e72b2c74cf1c0eaec7256072723cd2cc33b2f05803b5b6f5"},
+    "aggregate": {"artifact_id": 10133531520, "sha256": "874013df259956c0a1cdbd841f93e47b04f489f73b6c1e1b612423068f57f1d9"}
+  },
+  "classification": "post-attempt-marker, pre-workload implementation failure",
+  "root_cause": "Docker PYTHONPATH omitted /origin/agentmark_e3b_lab, so importing the pinned origin experiment failed at agentmark.kernel before producer main or any Home Assistant runtime/native cell",
+  "origin_dependency": {
+    "repository": "risu-research/appeal-discovery-consumer",
+    "commit": "c290786d92e7546345b348916b3b3d1c11780e4c",
+    "path": "agentmark_e3b_lab/agentmark/kernel.py",
+    "git_blob": "fe6254a7f3dae9f4479faa859fe1d72974c24c5d"
+  },
+  "raw_result_files_created": 0,
+  "native_cells_executed": 0,
+  "semantic_results_observed": 0,
+  "same_authority_rerun_authorized": false,
+  "allowed_remediation": "new authority version after import-only preflight; only Docker PYTHONPATH changes from /origin:/sa1 to /origin/agentmark_e3b_lab:/origin:/sa1"
+}
