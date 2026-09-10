@@ -1,0 +1,107 @@
+{
+  "schema": "replaymark.ve2.science-transport-qualification-contract.v3",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "authority": {
+    "private_preopen_commit": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "private_science_constitution_commit": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "public_e0r_pass_seal": "390280823553b2c9b7c5996953891cfae5648fb1",
+    "v1_failure_seal": "f38790085763f4ee7d6536c43bd8e5902d88dd30",
+    "v2_failure_seal": "edaa6525243e4b06092379a314b7faea78b4aae4"
+  },
+  "inheritance": {
+    "base_contract_blob": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "pass_criteria_changed": false,
+    "role_population_changed": false,
+    "clock_transport_law_changed": false,
+    "double_witness_law_changed": false,
+    "forbidden_scientific_inputs_changed": false
+  },
+  "v3_bootstrap_closure": {
+    "runtime_git_blob_sha1": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "runtime_path": "ve2_science_transport_qualify_v3.py",
+    "selection_law": "All compatibility choices are selected from native API presence before neutral case execution; no failed call may be retried through an alternate API.",
+    "closure_order": [
+      "import official homeassistant.bootstrap prerequisite graph",
+      "construct HomeAssistant from constructor signature",
+      "install native ConfigEntries exactly once when constructor did not",
+      "prepare loader using the already-E0Q-qualified capability strategy",
+      "verify or prospectively set UTC through API-presence selection",
+      "initialize entity helper if native async_setup exists",
+      "initialize condition helper if native async_setup exists",
+      "initialize trigger helper if native async_setup exists",
+      "import native automation integration",
+      "resolve native trace API",
+      "setup trace integration",
+      "materialize exactly one neutral automation without emitting its trigger stimulus"
+    ],
+    "zero_invocation_preflight_required_for_all_roles_before_any_qualification_stimulus": true,
+    "parallel_scientific_execution": false,
+    "scientific_fixture_use": false
+  },
+  "preflight_population": {
+    "T01_OLD_RUNTIME": {
+      "ha_version": "2022.10.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e"
+    },
+    "T01_NEW_RUNTIME": {
+      "ha_version": "2026.1.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7"
+    },
+    "T02_RUNTIME": {
+      "ha_version": "2026.9.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293"
+    }
+  },
+  "preflight_pass_law": {
+    "all_three_exact_image_versions": true,
+    "all_three_bootstrap_status": "PASS",
+    "all_three_zero_automation_invocations": true,
+    "all_three_zero_neutral_service_calls": true,
+    "all_three_zero_native_trace_contexts": true,
+    "all_three_zero_scientific_cells": true,
+    "all_three_frontier_result_seen": false,
+    "all_adapter_result_dependent_fallback": false,
+    "all_adapter_retry_after_failure": false,
+    "qualification_jobs_may_start_only_after_independent_preflight_adjudication_pass": true
+  },
+  "qualification_population_and_pass_law": {
+    "T01_OLD_RUNTIME": ["state"],
+    "T01_NEW_RUNTIME": ["state"],
+    "T02_RUNTIME": ["state", "state_for_120s", "time", "homeassistant_start_delay_30s"],
+    "independent_validator_blob_unchanged": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "scientific_cells": 0,
+    "frontier_result_seen": false,
+    "transition_blueprint_executed": false
+  },
+  "source_provenance": {
+    "HA_2022_10_ConfigEntries_blob": "8e618deb3d21e9438fb11e7c17f549c3dc6f77fc",
+    "HA_2022_10_trigger_helper_blob": "4cb724a643567150eacbad70e24e10889ec6a375",
+    "HA_2022_10_automation_blob": "3037d7cc3a710ae63bbd4238c424fed19cba7220",
+    "HA_2022_10_core_blob": "01c75fb707e34b6ff7e1ebfac7090dd10e56b260",
+    "HA_2026_1_trigger_helper_blob": "bffc01ecfd7591e52fdb2f59252b48f9f93c8385",
+    "HA_2026_1_core_config_blob": "bb1386d235ef86c7ad749bd75dbeed80ae5fd172",
+    "HA_2026_9_core_config_blob": "82413efcc7216b56e95376bdd0c93c3f972c22fd",
+    "official_test_harness_facts": [
+      "HA 2022.10 constructs ConfigEntries before ordinary integration setup.",
+      "HA 2026.9 test substrate initializes entity, loader, condition, and trigger helpers before integration tests.",
+      "HA 2022.10 Config defaults to UTC and exposes synchronous set_time_zone.",
+      "HA 2026.1 and 2026.9 Config default to UTC and expose asynchronous async_set_time_zone."
+    ]
+  },
+  "attempt_law": {
+    "v1_never_rerun": true,
+    "v2_never_rerun": true,
+    "v3_promotable_run_attempt": 1,
+    "v3_same_authority_rerun": false,
+    "failure_before_scientific_input_does_not_create_scientific_cell": true
+  },
+  "scientific_hygiene": {
+    "T01_T02_transition_blueprint_mounted": false,
+    "T01_T02_execution_state_manifest_mounted": false,
+    "expected_frontier_mounted": false,
+    "historical_better_thermostat_action_mounted": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  }
+}
