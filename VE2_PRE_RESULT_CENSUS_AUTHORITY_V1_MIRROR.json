@@ -1,0 +1,66 @@
+{
+  "schema": "replaymark.ve2.pre-result-census-authority.v1",
+  "status": "SEALED_PRE_RESULT_READY_FOR_PUBLIC_CENSUS_QUALIFICATION",
+  "repository": "risu-research/replaymark",
+  "private_parent_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "source_freeze_commit": "a4658edcb5fe11639d5d8d6bbc0909d37bc7d898",
+  "source_freeze_tree": "a18dbb1c9e75b81fc335b2360a11b254ba985105",
+  "frozen_files": {
+    "replaymark/VE2_VERSION_EVOLUTION_CENSUS_CONSTITUTION_V1.json": "58e6cc7e1a46af3f14ba8b9e75d71b7c2292cb1d",
+    "replaymark/VE2_UPSTREAM_CORPUS_MANIFEST_V1.json": "cd0e4f02cc1d3f1b8088c91a6b651659465d9aa6",
+    "replaymark/verify_ve2_corpus_freeze.py": "e180f0b7ffceaa5065ea6cb5fdfcc8f7de6b0836"
+  },
+  "external_prior_evidence": {
+    "ve1_result_repository": "risu-research/frb-exec-2609",
+    "ve1_result_seal_commit": "11f915c874d8841e9a2e4dc3fd86df38549698e2",
+    "ve1_result_seal_blob": "73be1d72e8b205397c9423cc384e82137498e998",
+    "ve1_role": "independent prior existence proof; no VE1 observations are eligible VE2 observations"
+  },
+  "frozen_upstream_census": {
+    "repository": "KartoffelToby/better_thermostat",
+    "snapshot_branch": "develop",
+    "snapshot_head": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+    "directory": "blueprints/",
+    "universe_files": 7,
+    "adjacent_file_version_pairs": 7,
+    "eligible_semantic_transitions": [
+      "VE2-T01-NIGHT-ACTION-FAMILY",
+      "VE2-T02-WEEKLY-GUARD-REALIZATION"
+    ],
+    "eligible_count": 2,
+    "excluded_adjacent_pair_count": 5,
+    "introduction_only_file_count": 3,
+    "membership_frozen": true
+  },
+  "selection_hygiene": {
+    "all_eligible_pairs_in_frozen_universe_included": true,
+    "all_excluded_pairs_retained": true,
+    "selection_depends_on_replaymark_outcome": false,
+    "selection_depends_on_frontier_shape": false,
+    "selection_depends_on_effect_size": false,
+    "post_result_substitution_authorized": false,
+    "eligible_but_nonexecutable_must_remain_visible": true
+  },
+  "result_exposure_at_seal": {
+    "ve2_native_execution_opened": false,
+    "ve2_replaymark_execution_opened": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_frontier_predictions_opened": false,
+    "ve2_scientific_outcome_seen": false
+  },
+  "public_qualification_obligations": {
+    "execution_repository": "risu-research/frb-exec-2609",
+    "must_reconstruct_snapshot_directory": true,
+    "must_reconstruct_complete_file_touch_histories": true,
+    "must_verify_all_git_blob_identities": true,
+    "must_fill_single_version_blob_identities_without_changing_membership": true,
+    "must_verify_included_semantic_witnesses_from_raw_source": true,
+    "must_verify_exclusion_witnesses_from_raw_source": true,
+    "must_prove_exact_eligible_set": [
+      "VE2-T01-NIGHT-ACTION-FAMILY",
+      "VE2-T02-WEEKLY-GUARD-REALIZATION"
+    ],
+    "discrepancy_rule": "Any universe/history/blob/semantic-classification discrepancy invalidates this v1 census before VE2 scientific execution. Do not repair membership in place; preserve the failure and create an explicit pre-result successor authority if justified by source evidence."
+  },
+  "next_gate": "Public independent census qualification only. No VE2 native/replay execution and no per-transition frontier opening until the census is externally reconstructed and sealed PASS."
+}
