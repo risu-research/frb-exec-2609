@@ -1,0 +1,26 @@
+{
+  "schema": "replaymark.ve1.pre-result-authority.v2.final",
+  "status": "SEALED_PRE_RESULT_READY_FOR_PUBLIC_STATIC_QUALIFICATION",
+  "authority_root_c5": "c7e04dad2426bec10449dfdde7a6644eb24ec694",
+  "superseded_v1_authority": "76f6d09566157208b12b718c25a6c20398e3f707",
+  "correction_record_blob": "c84cb2e2b45a0667a34ba4d2c1e156371f63b34d",
+  "protocol_v2_blob": "bf254f454a0440eaed9b3ab798c74531295e84a6",
+  "expected_table_v2_blob": "6fcf4225c8a1eac07d5f23c807dfe293b1be9b59",
+  "expected_rows_digest_record_blob": "ab1ba03c05607b0b0cb72b100302e7cce95e70dd",
+  "expected_rows_sha256": "0ef80acf64bcc192837ee17f6b57ab2e79ee4182c9b793d8cf388d59d2558c20",
+  "source_witness_v2_blob": "48640a91204b241e4de0f52d02b5bae05e1e2f3d",
+  "static_verifier_v2_blob": "7125d6604d56a205cbefa57f8ad5341e76d53bd1",
+  "source_sequence": {
+    "old_runtime": ["611723a7cffd7cbc151afd0415c1a705900754f1", "6ce2d0e433b8380d03289d450aa3dc2fbe2d3977"],
+    "behavior_change_intermediate": ["87e8844e3e0fa0a47e586cecd2c4d412c7bc718f", "5091b299da53ed3eaed85098d4e2a554289597e1"],
+    "corrected_new_runtime": ["da6b8f90fa38d91b82f2ec301195f2ef4461deea", "fae46c0527aabd3778506622a0f69c544db1be05", "16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443"],
+    "later_c3_pin": ["57d56f076c05ccaa9553e6bd4b673b6d43a8cf7f", "fae46c0527aabd3778506622a0f69c544db1be05"]
+  },
+  "prediction": {"states":32,"compatible":24,"retired":8},
+  "future_scientific_population": {"hosted_replicas":2,"state_instances":64,"sampling":"none"},
+  "public_static_failure_history_to_preserve": [34433623632,34433725274,34433795269,34434072256],
+  "prior_public_static_failures_are_scientific_attempts": false,
+  "result_exposure": {"ha_cells":0,"replaymark_cells":0,"scientific_outcome_seen":false},
+  "freeze_rule": "No v2 source revision, table row, compatibility class, measurement boundary, promotion condition, or policy definition may change after this authority. Static transport/packaging defects may only be corrected in explicitly versioned public preflight capsules before science opens.",
+  "next_gate": "Public static source-history qualification using exact Git object bytes and independent re-derivation of the 32-row digest."
+}
