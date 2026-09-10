@@ -1,8 +1,0 @@
-{
-  "schema": "replaymark.ve1.scientific-authority-open.v1",
-  "authority": "AUTHORITATIVE_FIRST_COMPLETE_VERSION_EVOLUTION",
-  "source_freeze_public_head": "ea4bf9050c6d4cdd22d3709faaf208c0cc6e3097",
-  "e0q_result_seal_sha256": "0487a389a21de184ad12f643ae8fc6ce358925961f3d5e5f8c19224adf585e4f",
-  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
-  "rerun_authorized": false
-}
