@@ -2,19 +2,24 @@ from __future__ import annotations
 
 """VE2 cross-version pre-science transport qualifier v3.
 
-This is a prospective bootstrap-only successor to transport v2. It executes
-only synthetic neutral Home Assistant automations and never reads/mounts the
-VE2 T01/T02 scientific manifests, expected frontiers, transition blueprints,
-or Better Thermostat historical behaviors.
+This program executes only synthetic neutral Home Assistant automations. It
+never reads or mounts VE2 scientific state manifests, expected frontiers,
+transition blueprints, or Better Thermostat historical behaviors.
 
-V3 closes two pre-neutral compatibility gaps discovered in v2:
-  * bare import of the automation integration on HA 2022.10 can enter a
-    config_entries/entity circular-import path unless normal HA bootstrap
-    prerequisites have first been imported; and
-  * Config.set_time_zone became Config.async_set_time_zone in newer HA.
+V3 is a prospective successor to the pre-neutral v2 failure. It closes the
+entire minimal native Home Assistant bootstrap surface before any neutral
+stimulus is emitted:
+  * construct HomeAssistant by constructor capability;
+  * import the normal HA bootstrap prerequisite graph before old automation;
+  * install ConfigEntries exactly once;
+  * prepare the loader using the already-E0Q-qualified capability strategy;
+  * initialize entity/condition/trigger helper subsystems only when their
+    native setup entrypoints exist; and
+  * set UTC only if the constructor did not already provide the source-proven
+    UTC default.
 
-All compatibility choices are made from API surface before a case is executed.
-There is no retry-after-failure or result-dependent fallback.
+Every compatibility choice is made from API presence before case execution.
+There is no retry after a failed API call and no result-dependent fallback.
 """
 
 import argparse
@@ -37,6 +42,7 @@ from homeassistant.core import Context, CoreState, Event, HomeAssistant, Service
 
 SCHEMA = "replaymark.ve2.science-transport-qualification-runtime.v1"
 IMPLEMENTATION = "replaymark.ve2.science-transport-qualification-runtime.v3"
+PREFLIGHT_SCHEMA = "replaymark.ve2.science-transport-bootstrap-preflight.v3"
 CLOCK_DRIVER_ID = "replaymark.ve2.ha-test-equivalent-clock-driver.v1"
 ALLOWED_VERSIONS = {"2022.10.0", "2026.1.0", "2026.9.0"}
 AUTOMATION_DOMAIN = "automation"
@@ -45,6 +51,7 @@ EVENT_AUTOMATION_TRIGGERED = "automation_triggered"
 EVENT_CALL_SERVICE = "call_service"
 EVENT_STATE_CHANGED = "state_changed"
 EVENT_HOMEASSISTANT_START = "homeassistant_start"
+EVENT_HOMEASSISTANT_STOP = "homeassistant_stop"
 NEUTRAL_ENTITY = "input_boolean.ve2_transport_probe"
 
 
@@ -106,7 +113,7 @@ def _trigger_witness(raw: dict[str, Any]) -> dict[str, Any]:
         "homeassistant": "HOMEASSISTANT_START",
     }.get(platform)
     if family is None:
-        raise AssertionError("trace trigger witness has unqualified platform: %r" % platform)
+        raise AssertionError("unqualified native trigger platform: %r" % platform)
     selected: dict[str, Any] = {
         "platform": platform,
         "family": family,
@@ -131,14 +138,13 @@ def _trigger_witness(raw: dict[str, Any]) -> dict[str, Any]:
             }
         )
     elif platform == "time":
-        selected.update({"now": _json_scalar(raw.get("now"))})
+        selected["now"] = _json_scalar(raw.get("now"))
     else:
-        selected.update({"event": _json_scalar(raw.get("event"))})
+        selected["event"] = _json_scalar(raw.get("event"))
     return selected
 
 
 def _construct_hass(config_dir: str) -> tuple[HomeAssistant, dict[str, Any]]:
-    """Use the already-E0Q-qualified constructor-selection principle."""
     signature = inspect.signature(HomeAssistant.__init__)
     config = signature.parameters.get("config_dir")
     required = bool(
@@ -166,10 +172,69 @@ def _construct_hass(config_dir: str) -> tuple[HomeAssistant, dict[str, Any]]:
     }
 
 
+def _prepare_import_graph() -> dict[str, Any]:
+    """Import the normal HA bootstrap prerequisite graph before automation.
+
+    HA 2022.10's official bootstrap imports config_entries/entity machinery
+    before integration setup. This prospective import ordering removes the
+    bare-process circularity without retrying a failed automation import.
+    """
+    bootstrap = importlib.import_module("homeassistant.bootstrap")
+    config_entries = importlib.import_module("homeassistant.config_entries")
+    setup_mod = importlib.import_module("homeassistant.setup")
+    return {
+        "bootstrap_module": str(getattr(bootstrap, "__file__", "")),
+        "config_entries_module": config_entries,
+        "setup_module": setup_mod,
+        "result_dependent_fallback": False,
+        "retry_after_failure": False,
+    }
+
+
+def _prepare_config_entries(hass: HomeAssistant, imports: dict[str, Any]) -> dict[str, Any]:
+    existing = getattr(hass, "config_entries", None)
+    if existing is not None:
+        manager = existing
+        strategy = "CONSTRUCTOR_ALREADY_INITIALIZED"
+    else:
+        cls = imports["config_entries_module"].ConfigEntries
+        signature = inspect.signature(cls.__init__)
+        manager = cls(hass, {"_": "VE2_NEUTRAL_TRANSPORT_BOOTSTRAP"})
+        hass.config_entries = manager
+        strategy = "NATIVE_CONFIG_ENTRIES_HASS_CONFIG"
+
+    initialized = getattr(manager, "_initialized", None)
+    initialized_set = False
+    if initialized is not None and callable(getattr(initialized, "set", None)):
+        initialized.set()
+        initialized_set = True
+
+    shutdown = getattr(manager, "_async_shutdown", None)
+    shutdown_registered = False
+    if callable(shutdown):
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, shutdown)
+        shutdown_registered = True
+
+    return {
+        "strategy": strategy,
+        "manager_type": type(manager).__name__,
+        "initialized_event_present": initialized is not None,
+        "initialized_event_set_prospectively": initialized_set,
+        "shutdown_hook_registered": shutdown_registered,
+        "result_dependent_fallback": False,
+        "retry_after_failure": False,
+    }
+
+
 def _prepare_loader(hass: HomeAssistant) -> dict[str, Any]:
-    """Use the already-E0Q-qualified loader-selection principle."""
     key = loader.DATA_INTEGRATIONS
     before = key in hass.data
+    custom_key = getattr(loader, "DATA_CUSTOM_COMPONENTS", None)
+    custom_seeded = False
+    if custom_key is not None and custom_key not in hass.data:
+        hass.data[custom_key] = {}
+        custom_seeded = True
+
     setup = getattr(loader, "async_setup", None)
     present = callable(setup)
     if not before and present:
@@ -178,64 +243,61 @@ def _prepare_loader(hass: HomeAssistant) -> dict[str, Any]:
     elif not before:
         strategy = "LEGACY_NATIVE_LAZY_ASYNC_GET_INTEGRATION"
     else:
-        strategy = "ALREADY_INITIALIZED_BY_CONSTRUCTOR"
+        strategy = "ALREADY_INITIALIZED"
     return {
         "strategy": strategy,
         "data_integrations_present_before": before,
         "loader_async_setup_api_present": present,
         "data_integrations_present_after": key in hass.data,
+        "custom_components_cache_seeded": custom_seeded,
         "result_dependent_fallback": False,
         "retry_after_failure": False,
     }
 
 
-def _prepare_integration_imports() -> dict[str, Any]:
-    """Initialize normal HA bootstrap prerequisites before automation import.
-
-    HA 2022.10's bootstrap imports config/config_entries/core/loader and
-    persistent_notification before integrations. Importing this module here is
-    deterministic pre-case initialization, not a retry after an automation
-    import failure.
-    """
-    bootstrap = importlib.import_module("homeassistant.bootstrap")
-    automation_mod = importlib.import_module("homeassistant.components.automation")
-    setup_mod = importlib.import_module("homeassistant.setup")
-    try:
-        trace_api = importlib.import_module("homeassistant.components.trace.util")
-        trace_strategy = "COMPONENT_TRACE_UTIL"
-    except ModuleNotFoundError as exc:
-        if exc.name not in {
-            "homeassistant.components.trace.util",
-            "homeassistant.components.trace",
-        }:
-            raise
-        trace_api = importlib.import_module("homeassistant.components.trace")
-        trace_strategy = "COMPONENT_TRACE_ROOT"
-
-    native_event = getattr(automation_mod, "EVENT_AUTOMATION_TRIGGERED", None)
-    native_domain = getattr(automation_mod, "DOMAIN", AUTOMATION_DOMAIN)
-    if native_event != EVENT_AUTOMATION_TRIGGERED:
-        raise AssertionError(("automation-triggered-event-identity", native_event))
-    if native_domain != AUTOMATION_DOMAIN:
-        raise AssertionError(("automation-domain-identity", native_domain))
-    async_setup_component = getattr(setup_mod, "async_setup_component", None)
-    if not callable(async_setup_component):
-        raise AssertionError("async_setup_component unavailable")
+async def _call_optional_setup(module_name: str, hass: HomeAssistant) -> dict[str, Any]:
+    module = importlib.import_module(module_name)
+    setup = getattr(module, "async_setup", None)
+    if not callable(setup):
+        return {
+            "module": module_name,
+            "async_setup_present": False,
+            "strategy": "LEGACY_NO_EXPLICIT_SETUP_ENTRYPOINT",
+            "result_dependent_fallback": False,
+            "retry_after_failure": False,
+        }
+    result = setup(hass)
+    if inspect.isawaitable(result):
+        await result
+        awaitable = True
+    else:
+        awaitable = False
     return {
-        "bootstrap_module": str(getattr(bootstrap, "__file__", "")),
-        "automation_module": str(getattr(automation_mod, "__file__", "")),
-        "trace_strategy": trace_strategy,
-        "trace_api": trace_api,
-        "async_setup_component": async_setup_component,
-        "native_event": native_event,
-        "native_domain": native_domain,
+        "module": module_name,
+        "async_setup_present": True,
+        "async_setup_awaitable": awaitable,
+        "strategy": "NATIVE_ASYNC_SETUP_API_PRESENT",
+        "result_dependent_fallback": False,
+        "retry_after_failure": False,
+    }
+
+
+async def _prepare_helper_substrate(hass: HomeAssistant) -> dict[str, Any]:
+    # The order mirrors the relevant portion of HA's own test substrate:
+    # entity -> condition -> trigger. Old HA simply lacks some entrypoints.
+    entity = await _call_optional_setup("homeassistant.helpers.entity", hass)
+    condition = await _call_optional_setup("homeassistant.helpers.condition", hass)
+    trigger = await _call_optional_setup("homeassistant.helpers.trigger", hass)
+    return {
+        "entity": entity,
+        "condition": condition,
+        "trigger": trigger,
         "result_dependent_fallback": False,
         "retry_after_failure": False,
     }
 
 
 async def _prepare_timezone(hass: HomeAssistant) -> dict[str, Any]:
-    """Select timezone API by presence before any neutral case result exists."""
     before = str(getattr(hass.config, "time_zone", ""))
     sync_setter = getattr(hass.config, "set_time_zone", None)
     async_setter = getattr(hass.config, "async_set_time_zone", None)
@@ -276,6 +338,58 @@ def _set_running(hass: HomeAssistant) -> dict[str, Any]:
     return {"strategy": strategy, "state": str(hass.state)}
 
 
+async def _prepare_native_substrate(
+    hass: HomeAssistant, imports: dict[str, Any]
+) -> dict[str, Any]:
+    config_entries = _prepare_config_entries(hass, imports)
+    loader_adapter = _prepare_loader(hass)
+    if hasattr(hass.config, "skip_pip"):
+        hass.config.skip_pip = True
+    if hasattr(hass.config, "skip_pip_packages"):
+        hass.config.skip_pip_packages = []
+    timezone = await _prepare_timezone(hass)
+    helper = await _prepare_helper_substrate(hass)
+
+    automation_mod = importlib.import_module("homeassistant.components.automation")
+    native_event = getattr(automation_mod, "EVENT_AUTOMATION_TRIGGERED", None)
+    native_domain = getattr(automation_mod, "DOMAIN", AUTOMATION_DOMAIN)
+    if native_event != EVENT_AUTOMATION_TRIGGERED:
+        raise AssertionError(("automation-triggered-event-identity", native_event))
+    if native_domain != AUTOMATION_DOMAIN:
+        raise AssertionError(("automation-domain-identity", native_domain))
+
+    try:
+        trace_api = importlib.import_module("homeassistant.components.trace.util")
+        trace_strategy = "COMPONENT_TRACE_UTIL"
+    except ModuleNotFoundError as exc:
+        if exc.name not in {
+            "homeassistant.components.trace.util",
+            "homeassistant.components.trace",
+        }:
+            raise
+        trace_api = importlib.import_module("homeassistant.components.trace")
+        trace_strategy = "COMPONENT_TRACE_ROOT"
+
+    async_setup_component = getattr(imports["setup_module"], "async_setup_component", None)
+    if not callable(async_setup_component):
+        raise AssertionError("async_setup_component unavailable")
+
+    return {
+        "config_entries": config_entries,
+        "loader": loader_adapter,
+        "timezone": timezone,
+        "helpers": helper,
+        "automation_module": str(getattr(automation_mod, "__file__", "")),
+        "trace_strategy": trace_strategy,
+        "trace_api": trace_api,
+        "async_setup_component": async_setup_component,
+        "native_event": native_event,
+        "native_domain": native_domain,
+        "result_dependent_fallback": False,
+        "retry_after_failure": False,
+    }
+
+
 class Observer:
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
@@ -310,9 +424,7 @@ class Observer:
                 {
                     "domain": "test",
                     "service": "capture",
-                    "service_data": copy.deepcopy(
-                        dict(event.data.get("service_data") or {})
-                    ),
+                    "service_data": copy.deepcopy(dict(event.data.get("service_data") or {})),
                     "context_id": str(event.context.id),
                     "context_parent_id": None
                     if event.context.parent_id is None
@@ -355,7 +467,8 @@ class Observer:
 async def _trace_trigger_for_context(
     hass: HomeAssistant, trace_api: Any, context_id: str
 ) -> dict[str, Any]:
-    contexts = await trace_api.async_list_contexts(hass, None)
+    raw_contexts = await trace_api.async_list_contexts(hass, None)
+    contexts = {str(key): value for key, value in raw_contexts.items()}
     if context_id not in contexts:
         raise AssertionError("automation action context absent from native trace index")
     ref = contexts[context_id]
@@ -377,7 +490,7 @@ async def _trace_trigger_for_context(
     changed = trigger_elements[0].get("changed_variables") or {}
     raw_trigger = changed.get("trigger")
     if raw_trigger is None:
-        raise AssertionError("native trigger trace element omitted run_variables['trigger']")
+        raise AssertionError("native trace trigger element omitted run_variables['trigger']")
     return {
         "trace_ref": {"key": key, "run_id": ref["run_id"]},
         "trace_context_id": trace_context_id,
@@ -449,14 +562,13 @@ async def _fresh_hass(
     case: str,
     trigger_config: Any,
     action_config: list[dict[str, Any]],
-) -> tuple[HomeAssistant, tempfile.TemporaryDirectory[str], Observer, str, dict[str, Any]]:
+) -> tuple[HomeAssistant, tempfile.TemporaryDirectory[str], Observer, str, dict[str, Any], Any]:
     temp = tempfile.TemporaryDirectory(prefix="ve2-science-transport-%s-" % case)
+    imports = _prepare_import_graph()
     hass, constructor = _construct_hass(temp.name)
-    loader_adapter = _prepare_loader(hass)
-    import_adapter = _prepare_integration_imports()
-    timezone_adapter = await _prepare_timezone(hass)
+    substrate = await _prepare_native_substrate(hass, imports)
     state_adapter = _set_running(hass)
-    async_setup_component = import_adapter["async_setup_component"]
+    async_setup_component = substrate["async_setup_component"]
 
     trace_ok = await async_setup_component(hass, TRACE_DOMAIN, {})
     if not trace_ok:
@@ -474,14 +586,16 @@ async def _fresh_hass(
 
     alias = "VE2 Transport %s" % case
     config = {
-        AUTOMATION_DOMAIN: {
-            "id": "ve2_transport_%s" % case,
-            "alias": alias,
-            "trigger": trigger_config,
-            "condition": [],
-            "action": action_config,
-            "mode": "single",
-        }
+        AUTOMATION_DOMAIN: [
+            {
+                "id": "ve2_transport_%s" % case,
+                "alias": alias,
+                "trigger": trigger_config,
+                "condition": [],
+                "action": action_config,
+                "mode": "single",
+            }
+        ]
     }
     ok = await async_setup_component(hass, AUTOMATION_DOMAIN, config)
     if not ok:
@@ -492,19 +606,26 @@ async def _fresh_hass(
         raise AssertionError(
             "neutral qualification requires exactly one automation entity: %r" % entities
         )
+
     adapter = {
         "constructor": constructor,
-        "loader": loader_adapter,
         "imports": {
-            key: value
-            for key, value in import_adapter.items()
-            if key not in {"trace_api", "async_setup_component"}
+            "bootstrap_module": substrate.get("automation_module") and imports["bootstrap_module"],
+            "result_dependent_fallback": False,
+            "retry_after_failure": False,
         },
-        "timezone": timezone_adapter,
+        "config_entries": substrate["config_entries"],
+        "loader": substrate["loader"],
+        "timezone": substrate["timezone"],
+        "helpers": substrate["helpers"],
+        "automation_module": substrate["automation_module"],
+        "trace_strategy": substrate["trace_strategy"],
         "core_state": state_adapter,
+        "result_dependent_fallback": False,
+        "retry_after_failure": False,
     }
     adapter["adapter_sha256"] = _sha(adapter)
-    return hass, temp, observer, entities[0], adapter
+    return hass, temp, observer, entities[0], adapter, substrate["trace_api"]
 
 
 async def _finish_case(
@@ -526,6 +647,7 @@ async def _collect_case(
     observer: Observer,
     automation_entity: str,
     adapter: dict[str, Any],
+    trace_api: Any,
     *,
     root_context_id: str | None,
     clock_records: list[dict[str, Any]],
@@ -537,8 +659,7 @@ async def _collect_case(
         raise AssertionError("neutral case must produce exactly one invocation and one service")
     inv = copy.deepcopy(observer.automation_events[0])
     svc = copy.deepcopy(observer.service_events[0])
-    prepared = _prepare_integration_imports()
-    trace = await _trace_trigger_for_context(hass, prepared["trace_api"], inv["context_id"])
+    trace = await _trace_trigger_for_context(hass, trace_api, inv["context_id"])
     witness = trace["trigger"]
     row = {
         "case": case,
@@ -568,6 +689,57 @@ async def _collect_case(
     return row
 
 
+async def bootstrap_preflight(role: str) -> dict[str, Any]:
+    case = "bootstrap_preflight"
+    trigger = [
+        {
+            "platform": "state",
+            "entity_id": NEUTRAL_ENTITY,
+            "from": "off",
+            "to": "on",
+            "id": "preflight_probe",
+        }
+    ]
+    action = [{"service": "test.capture", "data": {"marker": case}}]
+    hass, temp, observer, entity, adapter, trace_api = await _fresh_hass(case, trigger, action)
+    try:
+        await hass.async_block_till_done()
+        raw_contexts = await trace_api.async_list_contexts(hass, None)
+        result = {
+            "schema": PREFLIGHT_SCHEMA,
+            "implementation": IMPLEMENTATION,
+            "status": "PASS",
+            "role": role,
+            "home_assistant_version": HA_VERSION,
+            "automation_entity": entity,
+            "bootstrap_adapter": adapter,
+            "checks": {
+                "zero_automation_invocations": len(observer.automation_events) == 0,
+                "zero_neutral_service_calls": len(observer.service_events) == 0,
+                "zero_native_trace_contexts": len(raw_contexts) == 0,
+                "automation_entity_materialized": bool(entity.startswith("automation.")),
+            },
+            "scientific_hygiene": {
+                "transition_blueprint_executed": False,
+                "T01_or_T02_execution_state_used": False,
+                "expected_frontier_read": False,
+                "historical_better_thermostat_action_dispatched": False,
+                "neutral_trigger_stimulus_emitted": False,
+                "neutral_automation_invocations": 0,
+                "scientific_cells": 0,
+                "frontier_result_seen": False,
+            },
+        }
+        if not all(result["checks"].values()):
+            result["status"] = "FAIL"
+        result["result_sha256"] = _sha(
+            {k: v for k, v in result.items() if k != "result_sha256"}
+        )
+        return result
+    finally:
+        await _finish_case(hass, temp, observer)
+
+
 async def run_state(case: str = "state") -> dict[str, Any]:
     trigger = [
         {
@@ -579,7 +751,7 @@ async def run_state(case: str = "state") -> dict[str, Any]:
         }
     ]
     action = [{"service": "test.capture", "data": {"marker": case}}]
-    hass, temp, observer, entity, adapter = await _fresh_hass(case, trigger, action)
+    hass, temp, observer, entity, adapter, trace_api = await _fresh_hass(case, trigger, action)
     try:
         root = Context()
         hass.states.async_set(NEUTRAL_ENTITY, "on", context=root)
@@ -591,6 +763,7 @@ async def run_state(case: str = "state") -> dict[str, Any]:
             observer,
             entity,
             adapter,
+            trace_api,
             root_context_id=str(root.id),
             clock_records=[],
         )
@@ -611,7 +784,7 @@ async def run_state_for() -> dict[str, Any]:
         }
     ]
     action = [{"service": "test.capture", "data": {"marker": case}}]
-    hass, temp, observer, entity, adapter = await _fresh_hass(case, trigger, action)
+    hass, temp, observer, entity, adapter, trace_api = await _fresh_hass(case, trigger, action)
     try:
         root = Context()
         before = datetime.now(timezone.utc)
@@ -628,6 +801,7 @@ async def run_state_for() -> dict[str, Any]:
             observer,
             entity,
             adapter,
+            trace_api,
             root_context_id=str(root.id),
             clock_records=[clock],
         )
@@ -641,7 +815,7 @@ async def run_time() -> dict[str, Any]:
     at = target.strftime("%H:%M:%S")
     trigger = [{"platform": "time", "at": at, "id": "time_probe"}]
     action = [{"service": "test.capture", "data": {"marker": case}}]
-    hass, temp, observer, entity, adapter = await _fresh_hass(case, trigger, action)
+    hass, temp, observer, entity, adapter, trace_api = await _fresh_hass(case, trigger, action)
     try:
         clock = _drive_clock(hass, target + timedelta(seconds=1))
         await hass.async_block_till_done()
@@ -652,6 +826,7 @@ async def run_time() -> dict[str, Any]:
             observer,
             entity,
             adapter,
+            trace_api,
             root_context_id=None,
             clock_records=[clock],
         )
@@ -672,7 +847,7 @@ async def run_startup_delay() -> dict[str, Any]:
         {"delay": {"seconds": 30}},
         {"service": "test.capture", "data": {"marker": case}},
     ]
-    hass, temp, observer, entity, adapter = await _fresh_hass(case, trigger, action)
+    hass, temp, observer, entity, adapter, trace_api = await _fresh_hass(case, trigger, action)
     try:
         root = Context()
         before = datetime.now(timezone.utc)
@@ -690,6 +865,7 @@ async def run_startup_delay() -> dict[str, Any]:
             observer,
             entity,
             adapter,
+            trace_api,
             root_context_id=str(root.id),
             clock_records=[clock],
         )
@@ -738,11 +914,11 @@ async def experiment(role: str) -> dict[str, Any]:
 
 async def _main(args: argparse.Namespace) -> None:
     diagnostic: dict[str, Any] = {
-        "schema": SCHEMA,
+        "schema": PREFLIGHT_SCHEMA if args.preflight_only else SCHEMA,
         "implementation": IMPLEMENTATION,
         "role": args.role,
         "home_assistant_version": HA_VERSION,
-        "phase": "PRE_CASE_BOOTSTRAP",
+        "phase": "PRE_CASE_BOOTSTRAP" if args.preflight_only else "NEUTRAL_CASES",
         "scientific_hygiene": {
             "transition_blueprint_executed": False,
             "T01_or_T02_execution_state_used": False,
@@ -753,8 +929,10 @@ async def _main(args: argparse.Namespace) -> None:
         },
     }
     try:
-        diagnostic["phase"] = "NEUTRAL_CASES"
-        result = await experiment(args.role)
+        if args.preflight_only:
+            result = await bootstrap_preflight(args.role)
+        else:
+            result = await experiment(args.role)
     except Exception as exc:
         result = {
             **diagnostic,
@@ -772,6 +950,7 @@ async def _main(args: argparse.Namespace) -> None:
             {
                 "schema": "replaymark.ve2.science-transport-close.v3",
                 "role": args.role,
+                "mode": "PREFLIGHT" if args.preflight_only else "QUALIFICATION",
                 "artifact_sha256": hashlib.sha256(payload.encode()).hexdigest(),
                 "scientific_cells": 0,
             },
@@ -790,6 +969,7 @@ def main() -> None:
         choices=["T01_OLD_RUNTIME", "T01_NEW_RUNTIME", "T02_RUNTIME"],
     )
     parser.add_argument("--out", required=True)
+    parser.add_argument("--preflight-only", action="store_true")
     args = parser.parse_args()
     asyncio.run(_main(args))
 
