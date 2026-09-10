@@ -1,0 +1,43 @@
+{
+  "schema": "replaymark.ve2.transition-static-semantic-qualification-contract.v1",
+  "status": "FROZEN_PUBLIC_QUALIFICATION_SOURCE",
+  "public_parent_census_pass": "4c4151a3675605218fed6a6847a7b22df96dc92b",
+  "private_pre_result_authority": "3b941bce64dbb5c38a1125fb007f9eaa102dceb4",
+  "private_source_freeze": "a3ed432160aebcc7ea305d24036014b688ecda87",
+  "branch": "ve2-transition-freeze-qualification-v1",
+  "independence": {
+    "private_semantics_generator_may_execute": false,
+    "private_freeze_verifier_may_execute": false,
+    "independent_oracle_must_use_upstream_git_objects": true,
+    "independent_oracle_must_rederive_t01_rows": true,
+    "independent_oracle_must_rederive_t02_144_state_superspace": true,
+    "independent_oracle_must_rederive_t02_42_class_causal_path_quotient": true,
+    "label_free_manifests_must_match_rederived_representatives": true
+  },
+  "frozen_frontier_digests": {
+    "T01_rows_sha256": "6d4b4ac7738885bcf1226161d84726926b15d3139502dd5e31499a4850328f2a",
+    "T02_abstract_rows_sha256": "6292de3f4889bb69491faf40cdc3c421576ea750e4d70cb032a6b0bbc81c60ae",
+    "T02_quotient_rows_sha256": "c4c3d495df1659aaf94fb1d517b9fdd483759344c429e58aa51a45d415b74c25",
+    "T02_execution_states_sha256": "f791b6b93ee3febe483c9f85aa977db04c3e431479bf4404f5c9d7d6194fed94"
+  },
+  "frozen_counts": {
+    "T01": {"states": 2, "compatible": 0, "retired": 2},
+    "T02": {"abstract_states": 144, "abstract_compatible": 97, "abstract_retired": 47, "quotient_classes": 42, "quotient_compatible": 18, "quotient_retired": 24, "class_weight_sum": 144}
+  },
+  "mirror_blobs": {
+    "VE2_TRANSITION_META_CONSTITUTION_V1.json": "b73d1a4ba37c204827ace95826b4b8c97d9cb8ad",
+    "VE2_T01_NATIVE_SEMANTICS_V1.json": "57db97c6275e2eb70da73d62e5c495e2010fea4b",
+    "VE2_T01_EXPECTED_FRONTIER_V1.json": "edad64a2b289f103712f9fe74877e713b8af5551",
+    "VE2_T01_EXECUTION_STATE_MANIFEST_V1.json": "c1731d24387ec4c2dcb33167a286d89fc45ef254",
+    "VE2_T02_NATIVE_SEMANTICS_V1.json": "e02a0b40b1ba700c4752533b14d615839ce46986",
+    "VE2_T02_EXPECTED_FRONTIER_V1.json": "76d4ecabf6938e13b719d6350deb191106df5c57",
+    "VE2_T02_EXECUTION_STATE_MANIFEST_V1.json": "c9d543be934dd0cc33b67a2f987f0eae9705a83b",
+    "VE2_LABEL_FIREWALLED_RUNTIME_CONSTITUTION_V1.json": "876c30167785c505cea47906c408b03774399a8b",
+    "ve2_transition_semantics_v1.py": "cc57cd825b6d8bf68d2c661efbdc5d6357699b53",
+    "verify_ve2_transition_freeze_v1.py": "8fbeee9329c17286921a06cbd68b95ccb7b422c9",
+    "VE2_TRANSITION_PRE_RESULT_AUTHORITY_V1.json": "878288af489081d0c94d8afa3c19682298b421c6"
+  },
+  "scientific_exposure": {"frontier_result_seen": false, "ve2_home_assistant_scientific_cells": 0, "ve2_replaymark_scientific_cells": 0},
+  "science_open_authorized": false,
+  "next_gate": "Only after public qualification PASS is artifact-integrity verified and immutably sealed may runtime substrate pinning/E0Q begin."
+}

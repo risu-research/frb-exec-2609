@@ -1,0 +1,81 @@
+{
+  "baselines": {
+    "replay_all": {
+      "historical_dispatch_attempts": 2,
+      "retired_dispatch_attempts": 2
+    },
+    "replaymark_expected": {
+      "block": 2,
+      "reuse": 0
+    },
+    "version_lock": {
+      "all_history_rejected": 2,
+      "compatible_history_needlessly_rejected": 0
+    }
+  },
+  "claim_boundary": "home-assistant.native-service-call",
+  "counts": {
+    "compatible": 0,
+    "retired": 2,
+    "states": 2
+  },
+  "promotion_per_replica": {
+    "compatible_history_executed": 0,
+    "direct_reference_disagreement": 0,
+    "new_direct_source_agreement": "2/2",
+    "old_native_source_agreement": "2/2",
+    "retired_history_blocked_before_historical_sink": 2,
+    "unsafe_retired_historical_dispatch": 0
+  },
+  "rows": [
+    {
+      "analysis_state_id": "VE2-T01-A00",
+      "compatibility": "RETIRED_BY_UPDATE",
+      "execution_state_id": "VE2-T01-S00",
+      "fixture": {
+        "schedule_state": "off"
+      },
+      "new_causal_path": "schedule:off:set_preset_none",
+      "new_projected_action": {
+        "concrete_target": "climate.ve2_t01_thermostat",
+        "operation": "climate.set_preset_mode",
+        "variant": "{\"preset_mode\":\"none\"}"
+      },
+      "old_causal_path": "schedule:off:restore_saved_target_temperature",
+      "old_projected_action": {
+        "concrete_target": "climate.ve2_t01_thermostat",
+        "operation": "better_thermostat.restore_saved_target_temperature",
+        "variant": "{}"
+      }
+    },
+    {
+      "analysis_state_id": "VE2-T01-A01",
+      "compatibility": "RETIRED_BY_UPDATE",
+      "execution_state_id": "VE2-T01-S01",
+      "fixture": {
+        "schedule_state": "on"
+      },
+      "new_causal_path": "schedule:on:set_preset_sleep",
+      "new_projected_action": {
+        "concrete_target": "climate.ve2_t01_thermostat",
+        "operation": "climate.set_preset_mode",
+        "variant": "{\"preset_mode\":\"sleep\"}"
+      },
+      "old_causal_path": "schedule:on:set_temp_target_temperature",
+      "old_projected_action": {
+        "concrete_target": "climate.ve2_t01_thermostat",
+        "operation": "better_thermostat.set_temp_target_temperature",
+        "variant": "{\"temperature\":18.0}"
+      }
+    }
+  ],
+  "schema": "replaymark.ve2.t01.expected-frontier.v1",
+  "status": "FROZEN_BEFORE_NATIVE_OR_REPLAYMARK_RESULT",
+  "transition_id": "VE2-T01-NIGHT-ACTION-FAMILY",
+  "two_replica_total": {
+    "direct_reference_disagreement": 0,
+    "retired_history_blocked": 4,
+    "state_instances": 4,
+    "unsafe_retired_historical_dispatch": 0
+  }
+}

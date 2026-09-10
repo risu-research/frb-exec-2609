@@ -1,0 +1,115 @@
+{
+  "T01_runtime_topology": {
+    "interpretation": "full-stack API migration",
+    "new_target_HA_runtime": "MUST_BE_EXACTLY_PINNED_BY_DIGEST_AND_E0Q_QUALIFIED_BEFORE_SCIENTIFIC_OPEN",
+    "new_target_upstream_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+    "old_history_HA_runtime": "MUST_BE_EXACTLY_PINNED_BY_DIGEST_AND_E0Q_QUALIFIED_BEFORE_SCIENTIFIC_OPEN",
+    "old_history_upstream_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+    "old_service_absence_required_in_new_target_runtime": true,
+    "old_service_availability_required_in_old_history_runtime": true,
+    "runtime_pin_may_change_frontier_or_state_space": false
+  },
+  "T02_runtime_topology": {
+    "common_image_use_requires_pre_scientific_E0Q": true,
+    "fallback_to_different_HA_versions_after_result": false,
+    "interpretation": "paired upstream blueprint/component revision with common HA runtime where feasible",
+    "new_target_upstream_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+    "old_history_upstream_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+    "preferred_common_HA_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "preferred_common_HA_version": "2026.9.0"
+  },
+  "attempt_law": {
+    "first_complete_only": true,
+    "post_open_infrastructure_failure": "ATTEMPT_FAILED_INCOMPLETE; preserve; successor must restart all states of both replicas from zero",
+    "result_dependent_remediation": false,
+    "same_authority_rerun_after_scientific_open": false,
+    "well_formed_prediction_mismatch": "SCIENTIFIC_RESULT"
+  },
+  "claim_boundary": "home-assistant.native-service-call",
+  "common_stage_order": [
+    "OLD_HISTORY_COMPLETE_AND_SEAL",
+    "NEW_DIRECT_COMPLETE_AND_SEAL",
+    "REPLAYMARK_COMPLETE_AND_SEAL",
+    "REPLAY_ALL_COMPLETE_AND_SEAL"
+  ],
+  "expectation_firewall": {
+    "os_level_rule": "Result-bearing containers/workers receive only explicitly enumerated files. Analysis expected tables and New Direct result directories are not mounted into ReplayMark decision environments.",
+    "producer_forbidden": [
+      "VE2_T01_EXPECTED_FRONTIER_V1.json",
+      "VE2_T02_EXPECTED_FRONTIER_V1.json",
+      "compatibility label",
+      "expected count",
+      "class weight",
+      "expected Old action",
+      "expected New Direct action",
+      "expected ReplayMark verdict",
+      "post-run scientific score"
+    ],
+    "producer_permitted": [
+      "label-free execution manifest",
+      "raw fixture",
+      "arm identity",
+      "replica identity",
+      "frozen source/runtime identities",
+      "sealed old-history capsule where required",
+      "prequalified measurement boundary"
+    ],
+    "replaymark_decision_forbidden": [
+      "expected frontier tables",
+      "New Direct output",
+      "compatibility label",
+      "source diff as authorization oracle",
+      "version equality/inequality as authorization oracle",
+      "class weight",
+      "human expected verdict"
+    ]
+  },
+  "freshness": {
+    "cross_arm_state_carryover": false,
+    "cross_state_runtime_reuse": false,
+    "fresh_HA_instance_per_execution_state_arm_replica": true,
+    "partial_success_carry_forward": false
+  },
+  "historical_action_rule": {
+    "exact_digest_bound_downstream_handoff": true,
+    "manual_historical_action_construction": false,
+    "old_history_must_be_natively_generated": true,
+    "sealed_population_before_downstream_use": true,
+    "single_file_read_only_handoff_preferred": true
+  },
+  "measurement": {
+    "authoritative_boundary": "context-bound HA native service invocation or qualified completed-execution absence",
+    "decision_state_pre_action": true,
+    "independent_raw_reconstruction_required": true,
+    "production_summary_is_authority": false,
+    "timeout_alone_is_NO_ACTION": false
+  },
+  "per_transition_replicas": [
+    0,
+    1
+  ],
+  "promotion": {
+    "T01": "exact 2-state population in each of two replicas",
+    "T02": "exact 42-class quotient population in each of two replicas",
+    "conjunctive_across_both_transitions": true,
+    "new_only_T02_multi_entity_extension_witnesses": "secondary non-promotional"
+  },
+  "runtime_pin_gate": {
+    "E0Q_failure_consumes_scientific_attempt": false,
+    "E0Q_may_test_interpreter/service-registration/measurement plumbing_with_non_scientific_fixture": true,
+    "orthogonal_E0Q_may_execute_transition_controller_on_transition_fixture": false,
+    "post_open_runtime_pin_change": false,
+    "science_may_open_before_all_exact_runtime_digests_and_source_trees_are_frozen": false
+  },
+  "schema": "replaymark.ve2.label-firewalled-runtime-constitution.v1",
+  "scientific_exposure_at_freeze": {
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "status": "FROZEN_PRE_RESULT_RUNTIME_LAW",
+  "transition_ids": [
+    "VE2-T01-NIGHT-ACTION-FAMILY",
+    "VE2-T02-WEEKLY-GUARD-REALIZATION"
+  ]
+}
