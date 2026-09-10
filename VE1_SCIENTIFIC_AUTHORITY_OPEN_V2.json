@@ -1,0 +1,11 @@
+{
+  "schema": "replaymark.ve1.scientific-authority-open.v2",
+  "authority": "AUTHORITATIVE_FIRST_COMPLETE_VERSION_EVOLUTION",
+  "source_freeze_public_head": "3d4ed042221b81373a7a50ae38172134184cd74d",
+  "source_candidate_head": "e709bb0521c13458e63bc6f84a9a975de7efb4f1",
+  "e0q_result_seal_sha256": "0487a389a21de184ad12f643ae8fc6ce358925961f3d5e5f8c19224adf585e4f",
+  "static_pass_seal_sha256": "ecd28cd7cf4fa5c1dc528421ac182de75b638bdd31ae235c221f2fd9ae6ee6c7",
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "pre_input_failure_run_id": 34465860182,
+  "rerun_authorized": false
+}
