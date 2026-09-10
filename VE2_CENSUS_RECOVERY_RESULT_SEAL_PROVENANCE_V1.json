@@ -1,0 +1,9 @@
+{
+  "schema": "replaymark.ve2.census-recovery-result-seal-provenance.v1",
+  "note": "This file intentionally records that the result seal commit was first created as the exact one-file child on ve2-census-recovery-audit-v1 after run 34484220623 completed successfully. No workflow is configured to trigger on the seal path alone.",
+  "result_seal_commit": "d9914c6814a79244733a72024a2bc006cc592ec9",
+  "parent_recovery_execution_head": "70bb5f4499d97903e3ce336b202eb956ab7e58b9",
+  "scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0
+}
