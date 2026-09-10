@@ -1,0 +1,11 @@
+{
+  "schema": "replaymark.ve2.e0r-public-authority-open.v1",
+  "authority": "PRE_SCIENCE_EXECUTION_SUBSTRATE_FIRST_COMPLETE",
+  "source_freeze_public_head": "f5c46bc8bfedce04c759f26ddfda4d76e6df955a",
+  "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "same_authority_rerun": false
+}
