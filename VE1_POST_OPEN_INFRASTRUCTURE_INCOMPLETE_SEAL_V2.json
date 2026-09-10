@@ -1,0 +1,107 @@
+{
+  "aggregate": {
+    "adjudicator_exit": 1,
+    "artifact_id": 10148093726,
+    "artifact_zip_sha256": "d7b7296735ad7c6a23dc88a40f20a5c9311bff5554a4246c3189f7d4c17735bb",
+    "failure": "adjudicator did not produce output; exit=1",
+    "promotion": false,
+    "status": "INFRASTRUCTURE_INCOMPLETE"
+  },
+  "authority": "AUTHORITATIVE_FIRST_COMPLETE_VERSION_EVOLUTION",
+  "classification": "POST_OPEN_INFRASTRUCTURE_INCOMPLETE",
+  "evidence_verification": {
+    "artifact_internal_checksum_manifests_verified": true,
+    "artifact_zip_digests_independently_recomputed": true,
+    "scientific_values_not_used_to_design_successor": true
+  },
+  "forensic_root_cause": {
+    "detail": "run_stage assigned old_report without local scope; new_direct invocation reset caller's old_report path to empty before replaymark/replay_all dispatch",
+    "independent_log_witness": "sha256sum: '': No such file or directory immediately after new_direct, followed by both downstream stages receiving no --old-history value",
+    "primary": "BASH_DYNAMIC_SCOPE_CLOBBERED_OLD_HISTORY_PATH",
+    "secondary": "HOST_WRITE_PROTECTION_ATTEMPT_FAILED_ON_CONTAINER_OWNED_REPORT",
+    "secondary_detail": "chmod -R a-w encountered Operation not permitted on container-created REPORT.json; checksums and uploaded evidence remained preserved but intended OS-level write-protection was not established"
+  },
+  "fresh_successor_required": true,
+  "promotion": false,
+  "replicas": {
+    "0": {
+      "artifact_id": 10148088757,
+      "artifact_zip_sha256": "27411b9b4b492e0662e9350c51757cdc20b996a0dc84c01e9bfd9d0d6d7dccbf",
+      "new_direct": {
+        "producer_exit": 0,
+        "rows": 32,
+        "structural_validation": "PASS",
+        "validator_exit": 0
+      },
+      "old_history": {
+        "producer_exit": 0,
+        "rows": 32,
+        "structural_validation": "PASS",
+        "validator_exit": 0
+      },
+      "replay_all": {
+        "fatal_failure": "AssertionError: downstream stage requires sealed Old-history report",
+        "rows": 0,
+        "validator_exit": 1
+      },
+      "replaymark": {
+        "fatal_failure": "AssertionError: downstream stage requires sealed Old-history report",
+        "rows": 0,
+        "validator_exit": 1
+      },
+      "replica_structural_conclusion": "FAIL"
+    },
+    "1": {
+      "artifact_id": 10148087256,
+      "artifact_zip_sha256": "1de4f9ebfc8078b7dd6ab9d5b8a6121d2fb5e9e8c217788050aa67aa47b2fd0f",
+      "new_direct": {
+        "producer_exit": 0,
+        "rows": 32,
+        "structural_validation": "PASS",
+        "validator_exit": 0
+      },
+      "old_history": {
+        "producer_exit": 0,
+        "rows": 32,
+        "structural_validation": "PASS",
+        "validator_exit": 0
+      },
+      "replay_all": {
+        "fatal_failure": "AssertionError: downstream stage requires sealed Old-history report",
+        "rows": 0,
+        "validator_exit": 1
+      },
+      "replaymark": {
+        "fatal_failure": "AssertionError: downstream stage requires sealed Old-history report",
+        "rows": 0,
+        "validator_exit": 1
+      },
+      "replica_structural_conclusion": "FAIL"
+    }
+  },
+  "rerun_same_authority_authorized": false,
+  "schema": "replaymark.ve1.post-open-infrastructure-incomplete-seal.v2",
+  "scientific_execution_head": "75b6593893b4238fe823003625937ef75e3e5fd7",
+  "scientific_open_event_occurred": true,
+  "scientific_result_reuse_authorized": false,
+  "successful_subset_not_reusable_as_successor_evidence": true,
+  "successor_constraints": {
+    "adjudicator_blob_must_remain_frozen": "1c6ce57de123a3a35ec45f316b21938152b09d4d",
+    "carry_forward_v2_new_direct_rows": false,
+    "carry_forward_v2_old_history_rows": false,
+    "carry_forward_v2_replay_all_rows": false,
+    "carry_forward_v2_replaymark_rows": false,
+    "producer_blob_must_remain_frozen": "40e76789335eed7d15c9a2523717d7d7bcf185fd",
+    "required_repairs": [
+      "eliminate shell dynamic-scope mutation of sealed Old-history locator",
+      "positively bind downstream dispatch to exact sealed Old-history digest",
+      "replace ineffective chmod-based sealing with host-owned immutable handoff/read-only mount semantics",
+      "prequalify dynamic transport invariants before successor scientific open"
+    ],
+    "scientific_semantics_must_remain_frozen": true,
+    "start_both_replicas_from_state_zero": true,
+    "state_manifest_blob_must_remain_frozen": "3e09ced267657616f045f9e34e194d49f8cdfbfc",
+    "validator_blob_must_remain_frozen": "3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36"
+  },
+  "workflow_run_id": 34467293478
+}
