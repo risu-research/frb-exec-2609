@@ -129,8 +129,11 @@ def _verify_workflows() -> dict[str, object]:
     )
     for token in required_science:
         assert token in science, token
-    positions = [science.index(x) for x in ("old_history", "new_direct", "replaymark", "replay_all")]
+    stage_calls = ("run_stage old_history ", "run_stage new_direct ", "run_stage replaymark ", "run_stage replay_all ")
+    positions = [science.index(x) for x in stage_calls]
     assert positions == sorted(positions), positions
+    assert '-v "$PWD/results/new_direct' not in science
+    assert '-v "$PWD:/' not in science
     assert "VE1_EXPECTED_CROSS_VERSION_TABLE_V2.json" not in science
     assert "EXPECTED_ROWS_CANONICAL.json" not in science
     assert "611723a7cffd7cbc151afd0415c1a705900754f1" not in e0q
@@ -142,7 +145,7 @@ def _verify_workflows() -> dict[str, object]:
 
 def main() -> None:
     result = {
-        "schema": "replaymark.ve1.execution-capsule-static-audit.v1",
+        "schema": "replaymark.ve1.execution-capsule-static-audit.v2",
         "status": "PASS",
         "scientific_result_opened": False,
         "manifest": _verify_manifest(),
@@ -151,7 +154,7 @@ def main() -> None:
         "workflows": _verify_workflows(),
     }
     Path("static-results").mkdir(exist_ok=True)
-    Path("static-results/VE1_EXECUTION_CAPSULE_STATIC_AUDIT_V1.json").write_text(
+    Path("static-results/VE1_EXECUTION_CAPSULE_STATIC_AUDIT_V2.json").write_text(
         json.dumps(result, sort_keys=True, indent=2) + "\n", encoding="utf-8"
     )
     print(json.dumps({"status": "PASS", "scientific_result_opened": False}, sort_keys=True))
