@@ -1,0 +1,135 @@
+{
+  "schema": "replaymark.ve1.public-execution-capsule-contract.v2",
+  "status": "FROZEN_SOURCE_CANDIDATE_PRE_STATIC_QUALIFICATION",
+  "role": "corrected public execution/evidence plane; scientific authority remains closed",
+  "lineage": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "ve1-native-execution-capsule-v2",
+    "base_public_static_head": "104e4d701cf8d3b4ba30dbe678daa523a10ad702",
+    "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+    "private_constitution_blob": "29444a156d231d0a797f446dd94968ac26216795",
+    "private_constitution_authority_blob": "46472dd1b3a2fe8c02862b1ae83014cc2ccd721b",
+    "pre_static_transport_correction": {
+      "path": "VE1_PRE_STATIC_TRANSPORT_CORRECTION_V2.json",
+      "git_blob_sha1": "9215891caccc99599b4a3d9f24620d027efd3975",
+      "superseded_branch": "ve1-native-execution-capsule-v1",
+      "superseded_commit": "0aa985cb5c8c62a08e85b85c8735f853854051aa",
+      "workflow_runs_on_superseded_branch": 0,
+      "scientific_result_opened": false
+    }
+  },
+  "already_passed_source_history_prerequisite": {
+    "branch": "ve1-source-preflight-v5",
+    "head": "104e4d701cf8d3b4ba30dbe678daa523a10ad702",
+    "run_id": 34434502360,
+    "run_attempt": 1,
+    "conclusion": "success",
+    "artifact_id": 10135670243,
+    "artifact_sha256": "95cb86f6e8346e7d02e4c3053d39989afb3d4dc9327116ce1600ef1be4d5647e"
+  },
+  "frozen_experimental_sources": {
+    "repository": "n3roGit/MyHomeAssistantMods",
+    "path": "automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml",
+    "old_runtime_commit": "611723a7cffd7cbc151afd0415c1a705900754f1",
+    "old_runtime_git_blob_sha1": "6ce2d0e433b8380d03289d450aa3dc2fbe2d3977",
+    "new_runtime_commit": "da6b8f90fa38d91b82f2ec301195f2ef4461deea",
+    "new_runtime_git_blob_sha1": "fae46c0527aabd3778506622a0f69c544db1be05",
+    "expected_rows_sha256_analysis_side_only": "0ef80acf64bcc192837ee17f6b57ab2e79ee4182c9b793d8cf388d59d2558c20"
+  },
+  "runtime_pins": {
+    "home_assistant_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "home_assistant_version": "2026.9.0",
+    "better_thermostat_commit": "b86561f61e5ba1259fc63e590f4847e9ac743d7f",
+    "better_thermostat_version": "1.9.2",
+    "better_thermostat_manifest_sha256": "710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28",
+    "better_thermostat_tree_sha256": "bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0",
+    "origin_repository": "risu-research/appeal-discovery-consumer",
+    "origin_commit": "c290786d92e7546345b348916b3b3d1c11780e4c"
+  },
+  "inherited_prequalified_semantics": {
+    "c1_public_head": "3f14ad1dc3028a7496da9115440f7809904681d5",
+    "observation_realizer_blob": "541bd13f78147acd5236477748f9a95d019e818d",
+    "historical_action_realizer_blob": "1adf1b58ccd317ce0603e701d41b6730d5c45748",
+    "c2_public_head": "052cd5e1199784577fbb5ea5364909aa302fb4ee",
+    "decision_boundary_blob": "08ff29eb8f6d70809e78ddae11c403c2c8f477a1",
+    "shadow_bridge_blob": "ff9124a053e818af486b6f73efb3310a29576aa6",
+    "exact_32_state_native_target_blob": "f28c7e04fd033dd3774c110f1954ce2ae851cd99",
+    "ve1_contract": "compile_c2_contract(0)",
+    "new_semantic_model_introduced_for_ve1": false,
+    "c3_public_head": "cb60e9f6f62b591fbe6e5f7cd042a35ae27258aa",
+    "execution_gate_blob": "ec8d445bcf6659bead696fa4868ff7778123dbf6"
+  },
+  "capsule_files": {
+    "execution_state_manifest": ["VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json", "3e09ced267657616f045f9e34e194d49f8cdfbfc"],
+    "producer": ["ve1_native_execution.py", "40e76789335eed7d15c9a2523717d7d7bcf185fd"],
+    "independent_structural_validator": ["ve1_independent_validate.py", "3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36"],
+    "independent_postrun_adjudicator": ["ve1_postrun_adjudicate.py", "1c6ce57de123a3a35ec45f316b21938152b09d4d"],
+    "e0q_runner": ["ve1_e0q_runtime.py", "04ab910c6919a09c6fa311b744b24b2b09d4b9e9"],
+    "static_verifier": ["ve1_capsule_static_verify.py", "1f9aa3fe9759458df9c76d6a17961b546c6c0cff"],
+    "static_freeze_workflow": [".github/workflows/ve1-capsule-static-freeze-v1.yml", "7aa0726901cb878a2979ccdfc3dcd9d2b4da2fa1"],
+    "e0q_workflow": [".github/workflows/ve1-e0q-v1.yml", "453f948c28295fb28fc92a201d860de14e92e927"],
+    "future_scientific_workflow": [".github/workflows/ve1-authoritative-first-complete-v1.yml", "384961d20d6b89316e6f275e788724c676c267a2"]
+  },
+  "firewall": {
+    "runtime_manifest_contains_expected_labels": false,
+    "producer_reads_expected_table": false,
+    "repository_root_mounted_into_result_bearing_container": false,
+    "expected_table_or_digest_mounted_into_result_bearing_container": false,
+    "new_direct_output_mounted_into_replaymark_container": false,
+    "postrun_adjudicator_mounted_into_result_bearing_container": false,
+    "network_enabled_inside_result_bearing_container": false,
+    "old_history_mounted_into_downstream_containers_read_only": true,
+    "old_history_digest_rechecked_after_each_downstream_stage": true
+  },
+  "execution": {
+    "states": 32,
+    "replicas": [0, 1],
+    "sampling": "none",
+    "fresh_home_assistant_per_state_arm_replica": true,
+    "stage_order": ["old_history", "new_direct", "replaymark", "replay_all"],
+    "result_dependent_abort": false,
+    "stage_checksum_and_write_protection_before_downstream_use": true,
+    "old_history": "actual Old native service event only",
+    "new_direct": "corrected-New native action or completed-boundary zero-event evidence",
+    "replaymark": "unchanged prequalified C1/C2/C3 semantics with H=0 exact target contract",
+    "replaymark_block_recovery": "caller-owned corrected-New native trigger outside gate",
+    "replay_all": "unconditional exact sealed Old service data",
+    "version_lock": "post-run analytical policy only"
+  },
+  "absence_boundary": {
+    "timeout_alone_is_absence": false,
+    "completion_witness": "three_homeassistant_async_block_till_done_fixed_point_passes",
+    "invocation_context_required": true,
+    "zero_bound_consequential_events_required": true,
+    "duplicate_or_foreign_events": "UNRESOLVED_RUNTIME"
+  },
+  "independence": {
+    "structural_validator_stdlib_only": true,
+    "postrun_adjudicator_stdlib_only": true,
+    "production_summary_is_authority": false,
+    "scientific_adjudication_runs_only_after_both_replica_stage_capsules_are_sealed": true
+  },
+  "e0q": {
+    "scientific_fixture_consumed": false,
+    "ve1_result_bearing_blueprint_installed": false,
+    "historical_action_dispatched": false,
+    "same_runtime_boundary_helpers_as_science": true,
+    "positive_event_case": true,
+    "completed_absence_case": true,
+    "negative_cases": ["extra consequential field", "wrong target", "missing completion pass", "duplicate event", "foreign context"]
+  },
+  "scientific_open": {
+    "authority_marker_present_in_this_commit": false,
+    "requires_passed_e0q_result_seal": true,
+    "requires_exact_one_file_authority_child": true,
+    "workflow_reattempt_authorized": false,
+    "same_authority_result_rerun_authorized": false
+  },
+  "result_exposure": {
+    "home_assistant_scientific_cells": 0,
+    "replaymark_scientific_cells": 0,
+    "replay_all_scientific_cells": 0,
+    "scientific_outcome_seen": false
+  },
+  "next_gate": "Only the v2 static-freeze workflow may run from this source candidate. On PASS, seal that exact public head before creating the E0Q one-file authority child."
+}

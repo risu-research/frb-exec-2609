@@ -1,0 +1,278 @@
+name: VE1 E0Q orthogonal native runtime qualification v1
+
+on:
+  push:
+    branches:
+      - ve1-e0q-v1
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_CONSTITUTION_HEAD: 7c53b5bdc70b600156380877a406b5988d35125a
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  C3_PUBLIC_HEAD: cb60e9f6f62b591fbe6e5f7cd042a35ae27258aa
+  OBS_BLOB: 541bd13f78147acd5236477748f9a95d019e818d
+  ACTION_BLOB: 1adf1b58ccd317ce0603e701d41b6730d5c45748
+  BOUNDARY_BLOB: 08ff29eb8f6d70809e78ddae11c403c2c8f477a1
+  BRIDGE_BLOB: ff9124a053e818af486b6f73efb3310a29576aa6
+  TARGET_BLOB: f28c7e04fd033dd3774c110f1954ce2ae851cd99
+  GATE_BLOB: ec8d445bcf6659bead696fa4868ff7778123dbf6
+  PRODUCER_BLOB: 40e76789335eed7d15c9a2523717d7d7bcf185fd
+  VALIDATOR_BLOB: 3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36
+  E0Q_BLOB: 04ab910c6919a09c6fa311b744b24b2b09d4b9e9
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  BT_COMMIT: b86561f61e5ba1259fc63e590f4847e9ac743d7f
+  BT_MANIFEST_SHA256: 710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28
+  BT_TREE_SHA256: bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0
+
+jobs:
+  open-gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      open: ${{ steps.guard.outputs.open }}
+      source_freeze_head: ${{ steps.guard.outputs.source_freeze_head }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Require exact one-file E0Q authority child
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "open=false" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_RUN_ATTEMPT" != "1" ]; then
+            echo "VE1-E0Q is never repeated on a workflow re-attempt."
+            exit 0
+          fi
+          test -f VE1_E0Q_AUTHORITY_OPEN_V1.json
+          parent="$(git rev-parse HEAD^)"
+          mapfile -t changed < <(git diff --name-only "$parent..HEAD")
+          if [ "${#changed[@]}" -ne 1 ] || [ "${changed[0]}" != "VE1_E0Q_AUTHORITY_OPEN_V1.json" ]; then
+            echo "E0Q authority must be an exact one-file child of frozen capsule source."
+            exit 1
+          fi
+          python - "$parent" "$PRIVATE_CONSTITUTION_HEAD" <<'PY'
+          import json,sys
+          parent,private=sys.argv[1:3]
+          v=json.load(open('VE1_E0Q_AUTHORITY_OPEN_V1.json'))
+          assert v=={
+              'schema':'replaymark.ve1.e0q-authority-open.v1',
+              'authority':'ORTHOGONAL_RUNTIME_QUALIFICATION_FIRST_COMPLETE',
+              'source_freeze_public_head':parent,
+              'private_constitution_head':private,
+              'scientific_result_opened':False,
+              'rerun_authorized':False,
+          }
+          PY
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_e0q_runtime.py)" = "$E0Q_BLOB"
+          echo "source_freeze_head=$parent" >> "$GITHUB_OUTPUT"
+          echo "open=true" >> "$GITHUB_OUTPUT"
+
+  e0q:
+    needs: open-gate
+    if: needs.open-gate.outputs.open == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Reprove source identity and materialize runtime capsule without VE1 treatments
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "${{ needs.open-gate.outputs.source_freeze_head }}"
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_e0q_runtime.py)" = "$E0Q_BLOB"
+
+          rm -rf origin capsule inputs results
+          mkdir -p origin capsule/replaymark capsule/replaymark_verification inputs results
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+
+          core=(
+            replaymark/__init__.py
+            replaymark/adjudicator.py
+            replaymark/compiled_contract.py
+            replaymark/contracts.py
+            replaymark/evidence_image.py
+            replaymark/evidence_semantics.py
+            replaymark/execution_admission.py
+            replaymark/predictive_witness.py
+            replaymark/q_compiler.py
+            replaymark/rstar.py
+            replaymark/runtime_contract_identity.py
+            replaymark/runtime_realization.py
+            replaymark/support_envelope.py
+            replaymark/target_provenance.py
+            replaymark_verification/models.py
+          )
+          for path in "${core[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp "origin/$path" "capsule/$path"
+          done
+
+          fetch_blob () {
+            local head="$1" path="$2" expected="$3"
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${head}/${path}" \
+              --output "capsule/${path}"
+            test "$(git hash-object --no-filters "capsule/${path}")" = "$expected"
+          }
+          fetch_blob "$C1_PUBLIC_HEAD" replaymark/runtime_ha_bt_observation.py "$OBS_BLOB"
+          fetch_blob "$C1_PUBLIC_HEAD" replaymark/runtime_ha_bt_action.py "$ACTION_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark/runtime_ha_bt_decision_boundary.py "$BOUNDARY_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark/runtime_ha_bt_shadow_bridge.py "$BRIDGE_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark_verification/ha_c2_bt_native_target.py "$TARGET_BLOB"
+          fetch_blob "$C3_PUBLIC_HEAD" replaymark/runtime_ha_bt_execution_gate.py "$GATE_BLOB"
+
+          cp ve1_native_execution.py ve1_independent_validate.py ve1_e0q_runtime.py capsule/
+          find capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > results/E0Q_RUNTIME_CAPSULE_SHA256.txt
+
+      - name: Fetch and pin exact Better Thermostat ownership component
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init -q inputs/bt_checkout
+          git -C inputs/bt_checkout remote add upstream https://github.com/KartoffelToby/better_thermostat.git
+          git -C inputs/bt_checkout fetch --depth=1 upstream "$BT_COMMIT"
+          git -C inputs/bt_checkout checkout -q --detach FETCH_HEAD
+          test "$(git -C inputs/bt_checkout rev-parse HEAD)" = "$BT_COMMIT"
+          mkdir -p inputs/upstream_better_thermostat_component
+          cp -a inputs/bt_checkout/custom_components/better_thermostat/. inputs/upstream_better_thermostat_component/
+          rm -rf inputs/bt_checkout
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('inputs/upstream_better_thermostat_component')
+          manifest=hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()
+          assert manifest==os.environ['BT_MANIFEST_SHA256']
+          parsed=json.loads((root/'manifest.json').read_text())
+          assert parsed['domain']=='better_thermostat' and parsed['version']=='1.9.2'
+          digest=hashlib.sha256()
+          for path in sorted(p for p in root.rglob('*') if p.is_file()):
+              rel=path.relative_to(root).as_posix().encode()
+              body=path.read_bytes()
+              digest.update(len(rel).to_bytes(8,'big')); digest.update(rel)
+              digest.update(len(body).to_bytes(8,'big')); digest.update(body)
+          assert digest.hexdigest()==os.environ['BT_TREE_SHA256']
+          PY
+
+      - name: Pull exact Home Assistant image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > results/HOME_ASSISTANT_IMAGE_INSPECT.json
+
+      - name: Execute orthogonal E0Q with no VE1 state manifest or result-bearing blueprint mounted
+        id: execute
+        shell: bash
+        run: |
+          set +e
+          docker run --rm --network none \
+            -e PYTHONPATH=/capsule:/origin/agentmark_e3b_lab:/origin \
+            -v "$PWD/capsule:/capsule:ro" \
+            -v "$PWD/origin:/origin:ro" \
+            -v "$PWD/inputs/upstream_better_thermostat_component:/inputs/component:ro" \
+            -v "$PWD/results:/results" \
+            --entrypoint python3 \
+            "$HA_IMAGE" \
+            /capsule/ve1_e0q_runtime.py \
+              --ownership-component /inputs/component \
+              --out /results/VE1_E0Q_RESULT_V1.json \
+            > results/E0Q_STDOUT.txt \
+            2> results/E0Q_STDERR.txt
+          rc=$?
+          printf '%s\n' "$rc" > results/E0Q_EXIT.txt
+          exit 0
+
+      - name: Independently assert E0Q scope and result
+        id: inspect
+        shell: bash
+        run: |
+          set +e
+          python - <<'PY'
+          import json
+          v=json.load(open('results/VE1_E0Q_RESULT_V1.json'))
+          assert v['schema']=='replaymark.ve1.e0q-runtime-qualification.v1'
+          assert v['status']=='PASS'
+          assert v['scientific_result_opened'] is False
+          assert v['ve1_state_manifest_consumed'] is False
+          assert v['ve1_result_bearing_controller_installed'] is False
+          assert v['ve1_historical_action_dispatched'] is False
+          assert v['same_runtime_boundary_implementation_as_science'] is True
+          cases={x['label']:x for x in v['runtime_cases']}
+          assert cases['positive-consequential-action']['observed_event_count']==1
+          assert cases['completed-execution-verified-absence']['observed_event_count']==0
+          assert all(x['status']=='PASS' and x['rejected'] is True for x in v['negative_cases'])
+          PY
+          rc=$?
+          printf '%s\n' "$rc" > results/E0Q_INSPECTION_EXIT.txt
+          exit 0
+
+      - name: Seal E0Q provenance and checksums regardless of outcome
+        if: always()
+        shell: bash
+        env:
+          SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          value={
+              'schema':'replaymark.ve1.e0q-public-provenance.v1',
+              'authority':'ORTHOGONAL_RUNTIME_QUALIFICATION_FIRST_COMPLETE',
+              'repository':os.environ['GITHUB_REPOSITORY'],
+              'execution_head':os.environ['GITHUB_SHA'],
+              'source_freeze_public_head':os.environ['SOURCE_FREEZE_HEAD'],
+              'private_constitution_head':os.environ['PRIVATE_CONSTITUTION_HEAD'],
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'scientific_result_opened':False,
+              've1_scientific_cells':0,
+              'rerun_authorized':False,
+          }
+          Path('results/VE1_E0Q_PROVENANCE_V1.json').write_text(
+              json.dumps(value,sort_keys=True,indent=2)+'\n'
+          )
+          PY
+          (
+            cd results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable E0Q capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-e0q-first-complete-v1
+          path: results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Preserve E0Q conclusion only after artifact upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat results/E0Q_EXIT.txt)" = 0
+          test "$(cat results/E0Q_INSPECTION_EXIT.txt)" = 0

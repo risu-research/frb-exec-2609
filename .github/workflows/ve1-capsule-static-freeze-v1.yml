@@ -1,0 +1,199 @@
+name: VE1 native execution capsule static freeze v2
+
+on:
+  push:
+    branches:
+      - ve1-native-execution-capsule-v2
+
+permissions:
+  contents: read
+
+env:
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  C3_PUBLIC_HEAD: cb60e9f6f62b591fbe6e5f7cd042a35ae27258aa
+  OBS_BLOB: 541bd13f78147acd5236477748f9a95d019e818d
+  ACTION_BLOB: 1adf1b58ccd317ce0603e701d41b6730d5c45748
+  BOUNDARY_BLOB: 08ff29eb8f6d70809e78ddae11c403c2c8f477a1
+  BRIDGE_BLOB: ff9124a053e818af486b6f73efb3310a29576aa6
+  TARGET_BLOB: f28c7e04fd033dd3774c110f1954ce2ae851cd99
+  GATE_BLOB: ec8d445bcf6659bead696fa4868ff7778123dbf6
+  STATE_BLOB: 3e09ced267657616f045f9e34e194d49f8cdfbfc
+  PRODUCER_BLOB: 40e76789335eed7d15c9a2523717d7d7bcf185fd
+  VALIDATOR_BLOB: 3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36
+  ADJUDICATOR_BLOB: 1c6ce57de123a3a35ec45f316b21938152b09d4d
+  E0Q_BLOB: 04ab910c6919a09c6fa311b744b24b2b09d4b9e9
+  STATIC_VERIFIER_BLOB: 1f9aa3fe9759458df9c76d6a17961b546c6c0cff
+
+jobs:
+  static-freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Refuse workflow re-attempt and verify public capsule bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git hash-object --no-filters VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json)" = "$STATE_BLOB"
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_postrun_adjudicate.py)" = "$ADJUDICATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_e0q_runtime.py)" = "$E0Q_BLOB"
+          test "$(git hash-object --no-filters ve1_capsule_static_verify.py)" = "$STATIC_VERIFIER_BLOB"
+          python -m py_compile \
+            ve1_native_execution.py \
+            ve1_independent_validate.py \
+            ve1_postrun_adjudicate.py \
+            ve1_e0q_runtime.py \
+            ve1_capsule_static_verify.py
+          python ve1_capsule_static_verify.py
+
+      - name: Materialize exact previously qualified semantic capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin capsule
+          mkdir -p origin capsule/replaymark capsule/replaymark_verification
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+
+          core=(
+            replaymark/__init__.py
+            replaymark/adjudicator.py
+            replaymark/compiled_contract.py
+            replaymark/contracts.py
+            replaymark/evidence_image.py
+            replaymark/evidence_semantics.py
+            replaymark/execution_admission.py
+            replaymark/predictive_witness.py
+            replaymark/q_compiler.py
+            replaymark/rstar.py
+            replaymark/runtime_contract_identity.py
+            replaymark/runtime_realization.py
+            replaymark/support_envelope.py
+            replaymark/target_provenance.py
+            replaymark_verification/models.py
+          )
+          for path in "${core[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp "origin/$path" "capsule/$path"
+          done
+
+          fetch_blob () {
+            local head="$1" path="$2" expected="$3"
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${head}/${path}" \
+              --output "capsule/${path}"
+            test "$(git hash-object --no-filters "capsule/${path}")" = "$expected"
+          }
+          fetch_blob "$C1_PUBLIC_HEAD" replaymark/runtime_ha_bt_observation.py "$OBS_BLOB"
+          fetch_blob "$C1_PUBLIC_HEAD" replaymark/runtime_ha_bt_action.py "$ACTION_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark/runtime_ha_bt_decision_boundary.py "$BOUNDARY_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark/runtime_ha_bt_shadow_bridge.py "$BRIDGE_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark_verification/ha_c2_bt_native_target.py "$TARGET_BLOB"
+          fetch_blob "$C3_PUBLIC_HEAD" replaymark/runtime_ha_bt_execution_gate.py "$GATE_BLOB"
+
+          cp ve1_native_execution.py capsule/
+          python -m py_compile \
+            capsule/replaymark/runtime_ha_bt_observation.py \
+            capsule/replaymark/runtime_ha_bt_action.py \
+            capsule/replaymark/runtime_ha_bt_decision_boundary.py \
+            capsule/replaymark/runtime_ha_bt_shadow_bridge.py \
+            capsule/replaymark/runtime_ha_bt_execution_gate.py \
+            capsule/replaymark_verification/ha_c2_bt_native_target.py \
+            capsule/ve1_native_execution.py
+
+      - name: Reprove inherited exact 32-state target lift without live Home Assistant
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH="$PWD/capsule:$PWD/origin/agentmark_e3b_lab:$PWD/origin" python - <<'PY'
+          import json
+          from pathlib import Path
+          from replaymark_verification.ha_c2_bt_native_target import verify_native_target_lift, compile_c2_contract
+          result=verify_native_target_lift()
+          assert result['status']=='PASS'
+          assert result['states']==32
+          assert result['q_class_counts_h0_h1_h2']==[5,14,16]
+          contract=compile_c2_contract(0)
+          value={
+              'schema':'replaymark.ve1.inherited-target-contract-static.v1',
+              'status':'PASS',
+              'states':32,
+              'horizon':0,
+              'target_lift':result,
+              'contract_fingerprint':contract.fingerprint(),
+              'scientific_result_opened':False,
+          }
+          Path('static-results/VE1_INHERITED_TARGET_CONTRACT_STATIC_V1.json').write_text(
+              json.dumps(value,sort_keys=True,indent=2)+'\n'
+          )
+          PY
+
+      - name: Seal pre-scientific public capsule provenance
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p static-results
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          files=[
+            'VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json',
+            've1_native_execution.py',
+            've1_independent_validate.py',
+            've1_postrun_adjudicate.py',
+            've1_e0q_runtime.py',
+            've1_capsule_static_verify.py',
+            'VE1_PRE_STATIC_TRANSPORT_CORRECTION_V2.json',
+            '.github/workflows/ve1-e0q-v1.yml',
+            '.github/workflows/ve1-authoritative-first-complete-v1.yml',
+          ]
+          value={
+            'schema':'replaymark.ve1.public-execution-capsule-static-freeze.v1',
+            'status':'SEALED_STATIC_ATTEMPT',
+            'repository':os.environ['GITHUB_REPOSITORY'],
+            'execution_head':os.environ['GITHUB_SHA'],
+            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'scientific_result_opened':False,
+            'home_assistant_scientific_cells':0,
+            'replaymark_scientific_cells':0,
+            'files_sha256':{
+                p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+                for p in files if Path(p).exists()
+            },
+          }
+          Path('static-results/VE1_PUBLIC_EXECUTION_CAPSULE_STATIC_FREEZE_V1.json').write_text(
+              json.dumps(value,sort_keys=True,indent=2)+'\n'
+          )
+          PY
+          cp VE1_EXECUTION_CAPSULE_CONTRACT_V2.json static-results/
+          (
+            cd static-results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable static-freeze capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-native-execution-capsule-static-freeze-v2
+          path: static-results
+          retention-days: 90
+          if-no-files-found: error

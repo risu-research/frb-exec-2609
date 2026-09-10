@@ -1,0 +1,24 @@
+{
+  "schema": "replaymark.ve1.pre-static-transport-correction.v2",
+  "status": "PRESERVED_PRE_SCIENTIFIC_TRANSPORT_FAILURE_NOT_CONSUMED",
+  "superseded_branch": "ve1-native-execution-capsule-v1",
+  "superseded_commit": "0aa985cb5c8c62a08e85b85c8735f853854051aa",
+  "superseded_tree": "d8207b4c9ae317beb5996401e17f4c4473cc37cc",
+  "common_parent": "104e4d701cf8d3b4ba30dbe678daa523a10ad702",
+  "failure": "An unintended connector file-update call created a one-byte placeholder contract commit before the intended capsule tree was attached to the branch.",
+  "preservation": "The superseded branch and commit are intentionally left intact; no force rewrite is used.",
+  "workflow_runs_on_superseded_branch_at_correction": 0,
+  "scientific_exposure": {
+    "home_assistant_scientific_cells": 0,
+    "replaymark_scientific_cells": 0,
+    "replay_all_scientific_cells": 0,
+    "scientific_outcome_seen": false,
+    "e0q_executed": false
+  },
+  "correction": {
+    "branch": "ve1-native-execution-capsule-v2",
+    "construction": "clean atomic tree rooted directly at the unchanged common parent",
+    "reuse_of_superseded_tree": false,
+    "result_dependent_change": false
+  }
+}

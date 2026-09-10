@@ -1,0 +1,544 @@
+name: VE1 authoritative upstream-version evolution first complete v1
+
+on:
+  push:
+    branches:
+      - ve1-authoritative-first-complete-v1
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_CONSTITUTION_HEAD: 7c53b5bdc70b600156380877a406b5988d35125a
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  C3_PUBLIC_HEAD: cb60e9f6f62b591fbe6e5f7cd042a35ae27258aa
+  OBS_BLOB: 541bd13f78147acd5236477748f9a95d019e818d
+  ACTION_BLOB: 1adf1b58ccd317ce0603e701d41b6730d5c45748
+  BOUNDARY_BLOB: 08ff29eb8f6d70809e78ddae11c403c2c8f477a1
+  BRIDGE_BLOB: ff9124a053e818af486b6f73efb3310a29576aa6
+  TARGET_BLOB: f28c7e04fd033dd3774c110f1954ce2ae851cd99
+  GATE_BLOB: ec8d445bcf6659bead696fa4868ff7778123dbf6
+  STATE_BLOB: 3e09ced267657616f045f9e34e194d49f8cdfbfc
+  PRODUCER_BLOB: 40e76789335eed7d15c9a2523717d7d7bcf185fd
+  VALIDATOR_BLOB: 3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36
+  ADJUDICATOR_BLOB: 1c6ce57de123a3a35ec45f316b21938152b09d4d
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  OLD_COMMIT: 611723a7cffd7cbc151afd0415c1a705900754f1
+  NEW_COMMIT: da6b8f90fa38d91b82f2ec301195f2ef4461deea
+  OLD_BLOB: 6ce2d0e433b8380d03289d450aa3dc2fbe2d3977
+  NEW_BLOB: fae46c0527aabd3778506622a0f69c544db1be05
+  UPSTREAM_PATH: automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml
+  BT_COMMIT: b86561f61e5ba1259fc63e590f4847e9ac743d7f
+  BT_MANIFEST_SHA256: 710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28
+  BT_TREE_SHA256: bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0
+
+jobs:
+  open-gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      open: ${{ steps.guard.outputs.open }}
+      source_freeze_head: ${{ steps.guard.outputs.source_freeze_head }}
+      capsule_source_head: ${{ steps.guard.outputs.capsule_source_head }}
+      e0q_seal_sha256: ${{ steps.guard.outputs.e0q_seal_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 4
+
+      - name: Require immutable E0Q seal and exact one-file scientific authority child
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "open=false" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_RUN_ATTEMPT" != "1" ]; then
+            echo "VE1 scientific authority is never repeated on workflow re-attempt."
+            exit 0
+          fi
+          test -f VE1_E0Q_RESULT_SEAL_V1.json
+          test -f VE1_SCIENTIFIC_AUTHORITY_OPEN_V1.json
+          parent="$(git rev-parse HEAD^)"
+          mapfile -t changed < <(git diff --name-only "$parent..HEAD")
+          if [ "${#changed[@]}" -ne 1 ] || [ "${changed[0]}" != "VE1_SCIENTIFIC_AUTHORITY_OPEN_V1.json" ]; then
+            echo "Scientific authority-open commit is not an exact one-file child."
+            exit 1
+          fi
+          seal_sha="$(sha256sum VE1_E0Q_RESULT_SEAL_V1.json | cut -d' ' -f1)"
+          capsule_source="$(python - "$parent" "$seal_sha" "$PRIVATE_CONSTITUTION_HEAD" <<'PY'
+          import json,sys
+          parent,seal_sha,private=sys.argv[1:4]
+          seal=json.load(open('VE1_E0Q_RESULT_SEAL_V1.json'))
+          assert seal['schema']=='replaymark.ve1.e0q-result-seal.v1'
+          assert seal['status']=='PASS'
+          assert seal['scientific_result_opened'] is False
+          assert seal['rerun_authorized'] is False
+          capsule=seal['capsule_source_head']
+          assert isinstance(capsule,str) and len(capsule)==40
+          assert seal['private_constitution_head']==private
+          artifact=seal['artifact_sha256']
+          assert isinstance(artifact,str) and len(artifact)==64
+          marker=json.load(open('VE1_SCIENTIFIC_AUTHORITY_OPEN_V1.json'))
+          assert marker=={
+              'schema':'replaymark.ve1.scientific-authority-open.v1',
+              'authority':'AUTHORITATIVE_FIRST_COMPLETE_VERSION_EVOLUTION',
+              'source_freeze_public_head':parent,
+              'e0q_result_seal_sha256':seal_sha,
+              'private_constitution_head':private,
+              'rerun_authorized':False,
+          }
+          print(capsule)
+          PY
+          )"
+          mapfile -t delta < <(git diff --name-only "$capsule_source..$parent")
+          allowed=(
+            VE1_E0Q_AUTHORITY_OPEN_V1.json
+            VE1_E0Q_RESULT_SEAL_V1.json
+          )
+          if [ "${#delta[@]}" -ne 2 ]; then
+            printf 'Unexpected post-capsule source delta: %s\n' "${delta[*]}"
+            exit 1
+          fi
+          for i in 0 1; do test "${delta[$i]}" = "${allowed[$i]}"; done
+          test "$(git hash-object --no-filters VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json)" = "$STATE_BLOB"
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_postrun_adjudicate.py)" = "$ADJUDICATOR_BLOB"
+          echo "source_freeze_head=$parent" >> "$GITHUB_OUTPUT"
+          echo "capsule_source_head=$capsule_source" >> "$GITHUB_OUTPUT"
+          echo "e0q_seal_sha256=$seal_sha" >> "$GITHUB_OUTPUT"
+          echo "open=true" >> "$GITHUB_OUTPUT"
+
+  replica:
+    needs: open-gate
+    if: needs.open-gate.outputs.open == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [0, 1]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 4
+
+      - name: Materialize exact runtime-only semantic capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin capsule inputs results
+          mkdir -p origin capsule/replaymark capsule/replaymark_verification inputs/old inputs/new inputs/common results
+          test "$(git hash-object --no-filters VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json)" = "$STATE_BLOB"
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+
+          core=(
+            replaymark/__init__.py
+            replaymark/adjudicator.py
+            replaymark/compiled_contract.py
+            replaymark/contracts.py
+            replaymark/evidence_image.py
+            replaymark/evidence_semantics.py
+            replaymark/execution_admission.py
+            replaymark/predictive_witness.py
+            replaymark/q_compiler.py
+            replaymark/rstar.py
+            replaymark/runtime_contract_identity.py
+            replaymark/runtime_realization.py
+            replaymark/support_envelope.py
+            replaymark/target_provenance.py
+            replaymark_verification/models.py
+          )
+          for path in "${core[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp "origin/$path" "capsule/$path"
+          done
+          fetch_blob () {
+            local head="$1" path="$2" expected="$3"
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${head}/${path}" \
+              --output "capsule/${path}"
+            test "$(git hash-object --no-filters "capsule/${path}")" = "$expected"
+          }
+          fetch_blob "$C1_PUBLIC_HEAD" replaymark/runtime_ha_bt_observation.py "$OBS_BLOB"
+          fetch_blob "$C1_PUBLIC_HEAD" replaymark/runtime_ha_bt_action.py "$ACTION_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark/runtime_ha_bt_decision_boundary.py "$BOUNDARY_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark/runtime_ha_bt_shadow_bridge.py "$BRIDGE_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark_verification/ha_c2_bt_native_target.py "$TARGET_BLOB"
+          fetch_blob "$C3_PUBLIC_HEAD" replaymark/runtime_ha_bt_execution_gate.py "$GATE_BLOB"
+          cp ve1_native_execution.py capsule/
+          find capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > results/RUNTIME_CAPSULE_SHA256.txt
+
+      - name: Materialize exact Old/New treatments and Better Thermostat component before scientific open
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/n3roGit/MyHomeAssistantMods/${OLD_COMMIT}/${UPSTREAM_PATH}" \
+            --output inputs/old/blueprint.yaml
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/n3roGit/MyHomeAssistantMods/${NEW_COMMIT}/${UPSTREAM_PATH}" \
+            --output inputs/new/blueprint.yaml
+          test "$(git hash-object --no-filters inputs/old/blueprint.yaml)" = "$OLD_BLOB"
+          test "$(git hash-object --no-filters inputs/new/blueprint.yaml)" = "$NEW_BLOB"
+
+          git init -q inputs/bt_checkout
+          git -C inputs/bt_checkout remote add upstream https://github.com/KartoffelToby/better_thermostat.git
+          git -C inputs/bt_checkout fetch --depth=1 upstream "$BT_COMMIT"
+          git -C inputs/bt_checkout checkout -q --detach FETCH_HEAD
+          test "$(git -C inputs/bt_checkout rev-parse HEAD)" = "$BT_COMMIT"
+          mkdir -p inputs/common/upstream_better_thermostat_component
+          cp -a inputs/bt_checkout/custom_components/better_thermostat/. inputs/common/upstream_better_thermostat_component/
+          rm -rf inputs/bt_checkout
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('inputs/common/upstream_better_thermostat_component')
+          assert hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest()==os.environ['BT_MANIFEST_SHA256']
+          m=json.loads((root/'manifest.json').read_text())
+          assert m['domain']=='better_thermostat' and m['version']=='1.9.2'
+          d=hashlib.sha256()
+          for p in sorted(x for x in root.rglob('*') if x.is_file()):
+              rel=p.relative_to(root).as_posix().encode(); body=p.read_bytes()
+              d.update(len(rel).to_bytes(8,'big')); d.update(rel)
+              d.update(len(body).to_bytes(8,'big')); d.update(body)
+          assert d.hexdigest()==os.environ['BT_TREE_SHA256']
+          PY
+
+      - name: Pull exact Home Assistant image before first result-bearing invocation
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > results/HOME_ASSISTANT_IMAGE_INSPECT.json
+
+      - name: Execute and atomically seal all four stages without result-dependent abort
+        id: stages
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+          SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+          CAPSULE_SOURCE_HEAD: ${{ needs.open-gate.outputs.capsule_source_head }}
+          E0Q_SEAL_SHA256: ${{ needs.open-gate.outputs.e0q_seal_sha256 }}
+        run: |
+          set -u
+          overall=0
+
+          run_stage () {
+            stage="$1"
+            blueprint="$2"
+            blueprint_blob="$3"
+            old_report="${4:-}"
+            outdir="$PWD/results/$stage"
+            mkdir -p "$outdir"
+            extra=()
+            if [ -n "$old_report" ]; then
+              extra=(--old-history /sealed-old/REPORT.json)
+            fi
+
+            set +e
+            if [ -n "$old_report" ]; then
+              docker run --rm --network none \
+                -e PYTHONPATH=/capsule:/origin/agentmark_e3b_lab:/origin \
+                -v "$PWD/capsule:/capsule:ro" \
+                -v "$PWD/origin:/origin:ro" \
+                -v "$PWD/VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json:/inputs/state-manifest.json:ro" \
+                -v "$blueprint:/inputs/blueprint.yaml:ro" \
+                -v "$PWD/inputs/common/upstream_better_thermostat_component:/inputs/component:ro" \
+                -v "$old_report:/sealed-old/REPORT.json:ro" \
+                -v "$outdir:/results" \
+                --entrypoint python3 \
+                "$HA_IMAGE" \
+                /capsule/ve1_native_execution.py \
+                  --stage "$stage" \
+                  --replica "$REPLICA" \
+                  --state-manifest /inputs/state-manifest.json \
+                  --blueprint /inputs/blueprint.yaml \
+                  --blueprint-git-blob "$blueprint_blob" \
+                  --ownership-component /inputs/component \
+                  "${extra[@]}" \
+                  --out /results/REPORT.json \
+                > "$outdir/PRODUCER_STDOUT.txt" \
+                2> "$outdir/PRODUCER_STDERR.txt"
+            else
+              docker run --rm --network none \
+                -e PYTHONPATH=/capsule:/origin/agentmark_e3b_lab:/origin \
+                -v "$PWD/capsule:/capsule:ro" \
+                -v "$PWD/origin:/origin:ro" \
+                -v "$PWD/VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json:/inputs/state-manifest.json:ro" \
+                -v "$blueprint:/inputs/blueprint.yaml:ro" \
+                -v "$PWD/inputs/common/upstream_better_thermostat_component:/inputs/component:ro" \
+                -v "$outdir:/results" \
+                --entrypoint python3 \
+                "$HA_IMAGE" \
+                /capsule/ve1_native_execution.py \
+                  --stage "$stage" \
+                  --replica "$REPLICA" \
+                  --state-manifest /inputs/state-manifest.json \
+                  --blueprint /inputs/blueprint.yaml \
+                  --blueprint-git-blob "$blueprint_blob" \
+                  --ownership-component /inputs/component \
+                  --out /results/REPORT.json \
+                > "$outdir/PRODUCER_STDOUT.txt" \
+                2> "$outdir/PRODUCER_STDERR.txt"
+            fi
+            producer_rc=$?
+            printf '%s\n' "$producer_rc" > "$outdir/PRODUCER_EXIT.txt"
+
+            if [ ! -f "$outdir/REPORT.json" ]; then
+              python - "$stage" "$REPLICA" "$producer_rc" "$outdir/REPORT.json" <<'PY'
+              import json,sys
+              stage,replica,rc,path=sys.argv[1:5]
+              value={
+                  'schema':'replaymark.ve1.native-stage.v1',
+                  'mode':'AUTHORITATIVE_FIRST_COMPLETE_STAGE',
+                  'stage':stage,
+                  'replica':int(replica),
+                  'fatal_failure':f'RUNNER_DID_NOT_EMIT_REPORT exit={rc}',
+                  'rows':[],
+                  'scientific_summary_emitted':False,
+              }
+              open(path,'w').write(json.dumps(value,sort_keys=True,indent=2)+'\n')
+              PY
+            fi
+
+            python ve1_independent_validate.py "$outdir/REPORT.json" \
+              --out "$outdir/STRUCTURAL_VALIDATION.json" \
+              > "$outdir/VALIDATOR_STDOUT.txt" \
+              2> "$outdir/VALIDATOR_STDERR.txt"
+            validator_rc=$?
+            printf '%s\n' "$validator_rc" > "$outdir/VALIDATOR_EXIT.txt"
+
+            python - "$stage" "$REPLICA" "$blueprint_blob" "$producer_rc" "$validator_rc" "$outdir" <<'PY'
+            import json,os,sys
+            from pathlib import Path
+            stage,replica,blob,producer_rc,validator_rc,outdir=sys.argv[1:7]
+            value={
+                'schema':'replaymark.ve1.stage-public-provenance.v1',
+                'repository':os.environ['GITHUB_REPOSITORY'],
+                'execution_head':os.environ['GITHUB_SHA'],
+                'source_freeze_public_head':os.environ['SOURCE_FREEZE_HEAD'],
+                'capsule_source_head':os.environ['CAPSULE_SOURCE_HEAD'],
+                'e0q_result_seal_sha256':os.environ['E0Q_SEAL_SHA256'],
+                'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+                'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+                'replica':int(replica),
+                'stage':stage,
+                'blueprint_git_blob_sha1':blob,
+                'producer_exit':int(producer_rc),
+                'structural_validator_exit':int(validator_rc),
+                'rerun_authorized':False,
+            }
+            Path(outdir,'PROVENANCE.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n')
+            PY
+            (
+              cd "$outdir"
+              find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+                | xargs -0 -r sha256sum > CHECKSUMS.sha256
+              test -s CHECKSUMS.sha256
+              sha256sum -c CHECKSUMS.sha256
+            )
+            chmod -R a-w "$outdir"
+            if [ "$producer_rc" -ne 0 ] || [ "$validator_rc" -ne 0 ]; then
+              overall=1
+            fi
+            set -e
+          }
+
+          run_stage old_history "$PWD/inputs/old/blueprint.yaml" "$OLD_BLOB"
+          old_report="$PWD/results/old_history/REPORT.json"
+          old_digest_before="$(sha256sum "$old_report" | cut -d' ' -f1)"
+
+          run_stage new_direct "$PWD/inputs/new/blueprint.yaml" "$NEW_BLOB"
+          test "$(sha256sum "$old_report" | cut -d' ' -f1)" = "$old_digest_before"
+
+          run_stage replaymark "$PWD/inputs/new/blueprint.yaml" "$NEW_BLOB" "$old_report"
+          test "$(sha256sum "$old_report" | cut -d' ' -f1)" = "$old_digest_before"
+
+          run_stage replay_all "$PWD/inputs/new/blueprint.yaml" "$NEW_BLOB" "$old_report"
+          test "$(sha256sum "$old_report" | cut -d' ' -f1)" = "$old_digest_before"
+
+          printf '%s\n' "$overall" > results/REPLICA_STRUCTURAL_CONCLUSION.txt
+          exit 0
+
+      - name: Seal replica-level manifest
+        if: always()
+        shell: bash
+        env:
+          REPLICA: ${{ matrix.replica }}
+          SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+          CAPSULE_SOURCE_HEAD: ${{ needs.open-gate.outputs.capsule_source_head }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          stage_dirs=['old_history','new_direct','replaymark','replay_all']
+          stage_checksums={}
+          for stage in stage_dirs:
+              path=Path('results',stage,'CHECKSUMS.sha256')
+              stage_checksums[stage]=hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
+          value={
+              'schema':'replaymark.ve1.replica-first-complete-manifest.v1',
+              'authority':'AUTHORITATIVE_FIRST_COMPLETE_VERSION_EVOLUTION',
+              'repository':os.environ['GITHUB_REPOSITORY'],
+              'execution_head':os.environ['GITHUB_SHA'],
+              'source_freeze_public_head':os.environ['SOURCE_FREEZE_HEAD'],
+              'capsule_source_head':os.environ['CAPSULE_SOURCE_HEAD'],
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'replica':int(os.environ['REPLICA']),
+              'stage_order':stage_dirs,
+              'stage_checksums_sha256':stage_checksums,
+              'rerun_authorized':False,
+          }
+          Path('results/REPLICA_MANIFEST.json').write_text(
+              json.dumps(value,sort_keys=True,indent=2)+'\n'
+          )
+          PY
+          sha256sum results/REPLICA_MANIFEST.json > results/REPLICA_MANIFEST.sha256
+
+      - name: Upload immutable replica capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-first-complete-r${{ matrix.replica }}
+          path: results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Preserve structural conclusion only after upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat results/REPLICA_STRUCTURAL_CONCLUSION.txt)" = 0
+
+  adjudicate:
+    needs: [open-gate, replica]
+    if: always() && needs.open-gate.outputs.open == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reprove independent adjudicator identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object --no-filters ve1_postrun_adjudicate.py)" = "$ADJUDICATOR_BLOB"
+          python -m py_compile ve1_postrun_adjudicate.py
+          rm -rf downloads aggregate
+          mkdir -p downloads aggregate
+
+      - name: Download both sealed replica capsules
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: ve1-first-complete-r*
+          path: downloads
+          merge-multiple: false
+
+      - name: Run independent post-seal scientific adjudication
+        id: adjudicate
+        shell: bash
+        run: |
+          set +e
+          python ve1_postrun_adjudicate.py \
+            --r0-old downloads/ve1-first-complete-r0/old_history/REPORT.json \
+            --r0-direct downloads/ve1-first-complete-r0/new_direct/REPORT.json \
+            --r0-replaymark downloads/ve1-first-complete-r0/replaymark/REPORT.json \
+            --r0-replay-all downloads/ve1-first-complete-r0/replay_all/REPORT.json \
+            --r1-old downloads/ve1-first-complete-r1/old_history/REPORT.json \
+            --r1-direct downloads/ve1-first-complete-r1/new_direct/REPORT.json \
+            --r1-replaymark downloads/ve1-first-complete-r1/replaymark/REPORT.json \
+            --r1-replay-all downloads/ve1-first-complete-r1/replay_all/REPORT.json \
+            --out aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V1.json \
+            > aggregate/ADJUDICATOR_STDOUT.txt \
+            2> aggregate/ADJUDICATOR_STDERR.txt
+          rc=$?
+          printf '%s\n' "$rc" > aggregate/ADJUDICATOR_EXIT.txt
+          if [ ! -f aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V1.json ]; then
+            python - "$rc" <<'PY'
+            import json,sys
+            value={
+                'schema':'replaymark.ve1.independent-replicated-adjudication.v1',
+                'status':'INFRASTRUCTURE_INCOMPLETE',
+                'promotion':False,
+                'failure':f'adjudicator did not produce output; exit={sys.argv[1]}',
+            }
+            open('aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V1.json','w').write(
+                json.dumps(value,sort_keys=True,indent=2)+'\n'
+            )
+            PY
+          fi
+          exit 0
+
+      - name: Seal first-complete aggregate provenance regardless of scientific outcome
+        if: always()
+        shell: bash
+        env:
+          SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+          CAPSULE_SOURCE_HEAD: ${{ needs.open-gate.outputs.capsule_source_head }}
+          E0Q_SEAL_SHA256: ${{ needs.open-gate.outputs.e0q_seal_sha256 }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          result=json.load(open('aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V1.json'))
+          value={
+              'schema':'replaymark.ve1.first-complete-public-provenance.v1',
+              'authority':'AUTHORITATIVE_FIRST_COMPLETE_VERSION_EVOLUTION',
+              'repository':os.environ['GITHUB_REPOSITORY'],
+              'execution_head':os.environ['GITHUB_SHA'],
+              'source_freeze_public_head':os.environ['SOURCE_FREEZE_HEAD'],
+              'capsule_source_head':os.environ['CAPSULE_SOURCE_HEAD'],
+              'e0q_result_seal_sha256':os.environ['E0Q_SEAL_SHA256'],
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'scientific_status':result.get('status'),
+              'promotion':bool(result.get('promotion',False)),
+              'rerun_authorized':False,
+          }
+          Path('aggregate/VE1_FIRST_COMPLETE_PROVENANCE_V1.json').write_text(
+              json.dumps(value,sort_keys=True,indent=2)+'\n'
+          )
+          PY
+          (
+            cd aggregate
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable replicated aggregate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-first-complete-aggregate-v1
+          path: aggregate
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface promotion conclusion only after aggregate upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat aggregate/ADJUDICATOR_EXIT.txt)" = 0
+          python - <<'PY'
+          import json
+          v=json.load(open('aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V1.json'))
+          assert v['status']=='PASS' and v['promotion'] is True, v.get('status')
+          PY
