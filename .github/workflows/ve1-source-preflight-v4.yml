@@ -1,0 +1,148 @@
+name: VE1 source and prediction preflight v4
+
+on:
+  push:
+    branches:
+      - ve1-source-preflight-v4
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_PRE_RESULT_HEAD: 76f6d09566157208b12b718c25a6c20398e3f707
+  OLD_COMMIT: 611723a7cffd7cbc151afd0415c1a705900754f1
+  NEW_COMMIT: 87e8844e3e0fa0a47e586cecd2c4d412c7bc718f
+  OLD_BLOB: 6ce2d0e433b8380d03289d450aa3dc2fbe2d3977
+  NEW_BLOB: 5091b299da53ed3eaed85098d4e2a554289597e1
+  NEW_SHA256: 16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443
+  PROTOCOL_BLOB: 34491bf7f5d66d96721bd4a3c7b9e27f5d83c571
+  TABLE_BLOB: 0c8564bf1277fa5daf6336df08a0b7885f7234d1
+  WITNESS_BLOB: 66db29fe24bf0676122f4857e6a106648dab513c
+  VERIFIER_BLOB: f3551eb60c76ba4d244af10dbe6b4d9c67636ce9
+  UPSTREAM_PATH: automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml
+
+jobs:
+  static-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify exact frozen private mirror and non-semantic verifier surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          test "$(git hash-object --no-filters replaymark/VE1_UPSTREAM_VERSION_EVOLUTION_PROTOCOL_V1.json)" = "$PROTOCOL_BLOB"
+          test "$(git hash-object --no-filters replaymark/VE1_EXPECTED_CROSS_VERSION_TABLE_V1.json)" = "$TABLE_BLOB"
+          test "$(git hash-object --no-filters replaymark/VE1_UPSTREAM_SOURCE_CHANGE_WITNESS_V1.json)" = "$WITNESS_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/verify_ve1_pre_result_freeze.py)" = "$VERIFIER_BLOB"
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          tree=ast.parse(Path('replaymark_verification/verify_ve1_pre_result_freeze.py').read_text())
+          forbidden=('homeassistant','replaymark')
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  for a in node.names: assert not a.name.startswith(forbidden), a.name
+              elif isinstance(node, ast.ImportFrom) and node.module:
+                  assert not node.module.startswith(forbidden), node.module
+          PY
+
+      - name: Prove adjacent source identities from GitHub object metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf inputs results
+          mkdir -p inputs results
+          curl --fail --silent --show-error --location "https://api.github.com/repos/n3roGit/MyHomeAssistantMods/commits/${NEW_COMMIT}" -o inputs/new_commit.json
+          curl --fail --silent --show-error --location "https://api.github.com/repos/n3roGit/MyHomeAssistantMods/contents/${UPSTREAM_PATH}?ref=${OLD_COMMIT}" -o inputs/old_contents.json
+          curl --fail --silent --show-error --location "https://api.github.com/repos/n3roGit/MyHomeAssistantMods/contents/${UPSTREAM_PATH}?ref=${NEW_COMMIT}" -o inputs/new_contents.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          c=json.loads(Path('inputs/new_commit.json').read_text())
+          assert c['sha']==os.environ['NEW_COMMIT']
+          assert len(c['parents'])==1 and c['parents'][0]['sha']==os.environ['OLD_COMMIT'], c['parents']
+          old=json.loads(Path('inputs/old_contents.json').read_text()); new=json.loads(Path('inputs/new_contents.json').read_text())
+          assert old['sha']==os.environ['OLD_BLOB'], old['sha']
+          assert new['sha']==os.environ['NEW_BLOB'], new['sha']
+          Path('results/NEW_DECLARED_PARENT.txt').write_text(c['parents'][0]['sha']+'\n')
+          PY
+
+      - name: Materialize exact Git blob bytes and redundantly verify identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location "https://api.github.com/repos/n3roGit/MyHomeAssistantMods/git/blobs/${OLD_BLOB}" -o inputs/old_blob.json
+          curl --fail --silent --show-error --location "https://api.github.com/repos/n3roGit/MyHomeAssistantMods/git/blobs/${NEW_BLOB}" -o inputs/new_blob.json
+          python - <<'PY'
+          import base64,hashlib,json,os
+          from pathlib import Path
+          for side in ('old','new'):
+              obj=json.loads(Path(f'inputs/{side}_blob.json').read_text())
+              expected=os.environ[f'{side.upper()}_BLOB']
+              assert obj['sha']==expected
+              assert obj['encoding']=='base64'
+              data=base64.b64decode(obj['content'])
+              Path(f'inputs/{side}.yaml').write_bytes(data)
+              git=hashlib.sha1(f'blob {len(data)}\0'.encode()+data).hexdigest()
+              assert git==expected,(side,git,expected)
+          new_sha=hashlib.sha256(Path('inputs/new.yaml').read_bytes()).hexdigest()
+          assert new_sha==os.environ['NEW_SHA256'],new_sha
+          lines=[]
+          for side in ('old','new'):
+              data=Path(f'inputs/{side}.yaml').read_bytes()
+              lines.append(f"{hashlib.sha256(data).hexdigest()}  inputs/{side}.yaml")
+          Path('results/UPSTREAM_SOURCE_SHA256.txt').write_text('\n'.join(lines)+'\n')
+          PY
+
+      - name: Verify source delta and frozen complete prediction without scientific execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          python replaymark_verification/verify_ve1_pre_result_freeze.py \
+            --protocol replaymark/VE1_UPSTREAM_VERSION_EVOLUTION_PROTOCOL_V1.json \
+            --table replaymark/VE1_EXPECTED_CROSS_VERSION_TABLE_V1.json \
+            --old-source inputs/old.yaml \
+            --new-source inputs/new.yaml \
+            --out results/VE1_STATIC_PREFLIGHT_RESULT.json \
+            > results/VE1_STATIC_PREFLIGHT_STDOUT.txt
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads(Path('results/VE1_STATIC_PREFLIGHT_RESULT.json').read_text())
+          assert r['status']=='PASS_PRE_RESULT_STATIC_ONLY'
+          assert r['home_assistant_executed'] is False and r['replaymark_executed'] is False and r['scientific_result_opened'] is False
+          assert (r['state_rows'],r['compatible_across_version'],r['retired_by_update'])==(32,24,8)
+          prov={
+            'schema':'replaymark.ve1.public-static-preflight.v4','status':'PASS_STATIC_ONLY',
+            'repository':os.environ['GITHUB_REPOSITORY'],'execution_head':os.environ['GITHUB_SHA'],
+            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'private_pre_result_head':os.environ['PRIVATE_PRE_RESULT_HEAD'],
+            'old_commit':os.environ['OLD_COMMIT'],'new_commit':os.environ['NEW_COMMIT'],'adjacent_parent_child':True,
+            'prior_static_transport_failures_preserved':[34433623632,34433725274,34433795269],
+            'home_assistant_executed':False,'replaymark_executed':False,'scientific_result_opened':False,
+            'prediction':{'states':32,'compatible':24,'retired':8}}
+          Path('results/VE1_STATIC_PREFLIGHT_PROVENANCE.json').write_text(json.dumps(prov,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Seal outcome-independent static capsule
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp replaymark/VE1_UPSTREAM_VERSION_EVOLUTION_PROTOCOL_V1.json results/
+          cp replaymark/VE1_EXPECTED_CROSS_VERSION_TABLE_V1.json results/
+          cp replaymark/VE1_UPSTREAM_SOURCE_CHANGE_WITNESS_V1.json results/
+          cp VE1_PRIVATE_PRE_RESULT_AUTHORITY_MIRROR.json results/
+          (cd results; find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256; sha256sum -c CHECKSUMS.sha256)
+
+      - name: Upload immutable static preflight capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-static-source-preflight-v4
+          path: results
+          if-no-files-found: error
+          retention-days: 90
