@@ -1,0 +1,12 @@
+{
+  "schema": "replaymark.ve2.census-recovery-audit-open.v1",
+  "authority": "PRE_SCIENTIFIC_CLASSIFICATION_FREE_RAW_HISTORY_RECOVERY",
+  "source_candidate_head": "d8211e687fa4256fc72f256ac1aaceada71cf4b0",
+  "failed_v2_run_id": 34483837087,
+  "upstream_snapshot_head": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+  "eligibility_classification_performed": false,
+  "scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "rerun_authorized": false
+}
