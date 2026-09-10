@@ -1,0 +1,91 @@
+name: VE2 classification-free raw upstream history recovery v1
+
+on:
+  push:
+    branches:
+      - ve2-census-recovery-audit-v1
+
+permissions:
+  contents: read
+
+env:
+  FAILED_V2_MARKER_HEAD: 53875b1275907c28da890aaa9cd7b26b317b91eb
+  FAILED_V2_RUN_ID: 34483837087
+  RECOVERY_CONTRACT_BLOB: 3bf426909ab6c10f58f04ca84444f8753d366ee0
+  RECOVERY_SCRIPT_BLOB: 771666b094e77decfedc4b87d657b8ab3e7592be
+  UPSTREAM_SNAPSHOT: d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942
+
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require exact raw-recovery authority child after preserved failed census
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test -f VE2_CENSUS_RECOVERY_AUDIT_OPEN_V1.json
+          source_candidate="$(git rev-parse HEAD^)"
+          test "$(git rev-parse HEAD^^)" = "$FAILED_V2_MARKER_HEAD"
+          mapfile -t marker_delta < <(git diff --name-only "$source_candidate..HEAD")
+          test "${#marker_delta[@]}" -eq 1
+          test "${marker_delta[0]}" = "VE2_CENSUS_RECOVERY_AUDIT_OPEN_V1.json"
+          mapfile -t source_delta < <(git diff --name-only "$FAILED_V2_MARKER_HEAD..$source_candidate")
+          allowed=(
+            .github/workflows/ve2-census-recovery-audit-v1.yml
+            VE2_CENSUS_RECOVERY_AUDIT_CONTRACT_V1.json
+            ve2_census_recovery_audit.py
+          )
+          test "${#source_delta[@]}" -eq "${#allowed[@]}"
+          for i in "${!allowed[@]}"; do test "${source_delta[$i]}" = "${allowed[$i]}"; done
+          test "$(git hash-object --no-filters VE2_CENSUS_RECOVERY_AUDIT_CONTRACT_V1.json)" = "$RECOVERY_CONTRACT_BLOB"
+          test "$(git hash-object --no-filters ve2_census_recovery_audit.py)" = "$RECOVERY_SCRIPT_BLOB"
+          SOURCE_CANDIDATE="$source_candidate" python -c 'import json,os; v=json.load(open("VE2_CENSUS_RECOVERY_AUDIT_OPEN_V1.json")); assert v=={"schema":"replaymark.ve2.census-recovery-audit-open.v1","authority":"PRE_SCIENTIFIC_CLASSIFICATION_FREE_RAW_HISTORY_RECOVERY","source_candidate_head":os.environ["SOURCE_CANDIDATE"],"failed_v2_run_id":int(os.environ["FAILED_V2_RUN_ID"]),"upstream_snapshot_head":os.environ["UPSTREAM_SNAPSHOT"],"eligibility_classification_performed":False,"scientific_result_opened":False,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0,"rerun_authorized":False}'
+          python -m py_compile ve2_census_recovery_audit.py
+
+      - name: Recover every file version, source byte stream, and adjacent raw diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf recovery-work recovery-results
+          mkdir -p recovery-work recovery-results
+          python ve2_census_recovery_audit.py --work recovery-work --out-root recovery-results
+          python -c 'import json; v=json.load(open("recovery-results/VE2_RAW_HISTORY_RECOVERY_V1.json")); assert v["status"]=="PASS"; assert v["file_count"]==7; assert v["eligibility_classification_performed"] is False; assert v["frontier_prediction_opened"] is False; assert v["scientific_result_opened"] is False; assert v["ve2_home_assistant_scientific_cells"]==0; assert v["ve2_replaymark_scientific_cells"]==0; assert all(len(x)>0 for x in v["histories"].values())'
+
+      - name: Seal raw-recovery provenance and checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p recovery-results
+          cp VE2_CENSUS_RECOVERY_AUDIT_CONTRACT_V1.json recovery-results/
+          cp VE2_CENSUS_RECOVERY_AUDIT_OPEN_V1.json recovery-results/
+          cp ve2_census_recovery_audit.py recovery-results/
+          SOURCE_CANDIDATE="$(git rev-parse HEAD^)" python -c 'import json,os,pathlib; p=pathlib.Path("recovery-results/VE2_CENSUS_RECOVERY_PROVENANCE_V1.json"); p.write_text(json.dumps({"schema":"replaymark.ve2.census-recovery-provenance.v1","repository":os.environ["GITHUB_REPOSITORY"],"execution_head":os.environ["GITHUB_SHA"],"source_candidate_head":os.environ["SOURCE_CANDIDATE"],"failed_v2_run_preserved":int(os.environ["FAILED_V2_RUN_ID"]),"upstream_snapshot_head":os.environ["UPSTREAM_SNAPSHOT"],"workflow_run_id":int(os.environ["GITHUB_RUN_ID"]),"run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),"eligibility_classification_performed":False,"scientific_result_opened":False,"ve2_home_assistant_scientific_cells":0,"ve2_replaymark_scientific_cells":0,"rerun_authorized":False},sort_keys=True,indent=2)+"\n",encoding="utf-8")'
+          (
+            cd recovery-results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable raw-history recovery capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve2-raw-history-recovery-v1
+          path: recovery-results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface recovery conclusion only after artifact upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -c 'import json; v=json.load(open("recovery-results/VE2_RAW_HISTORY_RECOVERY_V1.json")); assert v["status"]=="PASS"'

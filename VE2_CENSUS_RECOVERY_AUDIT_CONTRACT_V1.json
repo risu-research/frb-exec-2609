@@ -1,0 +1,36 @@
+{
+  "schema": "replaymark.ve2.census-recovery-audit-contract.v1",
+  "status": "FROZEN_PRE_SCIENTIFIC_RAW_HISTORY_RECOVERY",
+  "purpose": "Recover the complete frozen upstream file-version universe after public qualification disproved the v1 census history, without making eligibility or ReplayMark outcome judgments.",
+  "lineage": {
+    "failed_v1_workflow_parse_run": 34483538569,
+    "failed_v2_census_run": 34483837087,
+    "failed_v2_artifact_id": 10154726999,
+    "failed_v2_artifact_zip_sha256": "01860ccf8404d83467e32d324f0bd674c9ab45cab15da23aa765738655f36565",
+    "failed_v2_marker_head": "53875b1275907c28da890aaa9cd7b26b317b91eb"
+  },
+  "upstream": {
+    "repository": "KartoffelToby/better_thermostat",
+    "snapshot_head": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+    "directory": "blueprints/"
+  },
+  "audit_outputs": [
+    "exact files present at snapshot",
+    "complete blob-changing file-version sequence for every snapshot file",
+    "exact Git blob SHA-1 for every file version",
+    "raw source bytes for every file version",
+    "raw Git diff for every adjacent file-version pair"
+  ],
+  "forbidden_during_recovery": [
+    "ReplayMark execution",
+    "Home Assistant scientific execution",
+    "frontier prediction",
+    "eligibility filtering",
+    "dropping a file or transition because it appears irrelevant",
+    "using VE2 scientific outcomes"
+  ],
+  "scientific_result_opened": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "next_rule": "Only after this raw-history audit is immutably sealed may a new private VE2 census successor classify every recovered adjacent pair under a prospectively stated semantic-surface rule."
+}
