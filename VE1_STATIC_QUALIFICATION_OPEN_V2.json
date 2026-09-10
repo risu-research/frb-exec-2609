@@ -1,0 +1,9 @@
+{
+  "schema": "replaymark.ve1.static-qualification-open.v2",
+  "authority": "PUBLIC_EXECUTION_CAPSULE_STATIC_FIRST_COMPLETE",
+  "source_candidate_head": "19cbe1ca32b8020724016d3d5c84df4727c594bb",
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "scientific_result_opened": false,
+  "ve1_scientific_cells": 0,
+  "rerun_authorized": false
+}
