@@ -1,0 +1,84 @@
+{
+  "authority": "POST_OPEN_INFRASTRUCTURE_INCOMPLETE_SUCCESSOR",
+  "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
+  "schema": "replaymark.ve1.post-open-remediation.v3",
+  "scientific_result_opened": false,
+  "scientific_cells": 0,
+  "status": "FROZEN_POST_OPEN_REMEDIATION",
+  "v2_authority": {
+    "classification": "POST_OPEN_INFRASTRUCTURE_INCOMPLETE",
+    "forensic_seal_head": "e02008a518408fae8a2a85b8d67d7cd81c18eb62",
+    "forensic_seal_sha256": "055df628df72df5aeb2523f0166a6dfbb186c9656efd3802ac6f60b76f887ecb",
+    "promotion": false,
+    "scientific_open_event_occurred": true,
+    "workflow_run_id": 34467293478
+  },
+  "v2_evidence_handling": {
+    "carry_forward_new_direct_rows": false,
+    "carry_forward_old_history_rows": false,
+    "carry_forward_replay_all_rows": false,
+    "carry_forward_replaymark_rows": false,
+    "scientific_values_consulted_for_successor_design": false,
+    "successful_subset_reused": false
+  },
+  "root_causes": [
+    {
+      "class": "BASH_DYNAMIC_SCOPE_CLOBBERED_OLD_HISTORY_PATH",
+      "repair": "remove shared shell run_stage function entirely; invoke every stage through an isolated external Python transport process"
+    },
+    {
+      "class": "HOST_WRITE_PROTECTION_ATTEMPT_FAILED_ON_CONTAINER_OWNED_REPORT",
+      "repair": "precreate the single report file on the host, bind-mount only that file writable to the producer, then seal it host-side to mode 0444"
+    }
+  ],
+  "v3_transport_contract": {
+    "downstream_history_mount": "exact single file, read-only",
+    "downstream_history_sha256_required": true,
+    "history_digest_reverified_before_and_after_each_downstream_stage": true,
+    "host_precreated_single_report_file": true,
+    "old_history_shell_binding": "readonly SEALED_OLD_REPORT plus readonly SEALED_OLD_DIGEST",
+    "result_directory_writable_mount_forbidden": true,
+    "shell_function_state_sharing_forbidden": true,
+    "stage_process_isolation": true,
+    "transport_subprocess_shell_true_forbidden": true
+  },
+  "preopen_qualification_required": {
+    "all_workflow_run_blocks_bash_n": true,
+    "answer_firewall": true,
+    "dynamic_same_image_container_qualification": true,
+    "host_output_ownership_preservation": true,
+    "old_history_survives_intervening_new_direct": true,
+    "read_only_mount_mutation_attempt_must_fail": true,
+    "scientific_controller_invocations": 0,
+    "scientific_result_exposure": 0,
+    "single_file_output_mount": true
+  },
+  "remediation_scope": {
+    "absence_semantics_changed": false,
+    "expected_table_changed": false,
+    "measurement_boundary_changed": false,
+    "new_source_changed": false,
+    "old_source_changed": false,
+    "promotion_criteria_changed": false,
+    "replaymark_semantics_changed": false,
+    "runtime_image_changed": false,
+    "scientific_postrun_adjudicator_changed": false,
+    "scientific_producer_changed": false,
+    "scientific_structural_validator_changed": false,
+    "state_manifest_changed": false,
+    "transport_architecture_changed": true
+  },
+  "frozen_scientific_blobs": {
+    "adjudicator": "1c6ce57de123a3a35ec45f316b21938152b09d4d",
+    "producer": "40e76789335eed7d15c9a2523717d7d7bcf185fd",
+    "state_manifest": "3e09ced267657616f045f9e34e194d49f8cdfbfc",
+    "validator": "3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36"
+  },
+  "fresh_successor": {
+    "both_replicas_restart_at_state_zero": true,
+    "complete_population_required_per_replica": true,
+    "reuse_prior_scientific_rows": false,
+    "same_authority_rerun": false
+  },
+  "rerun_authorized": false
+}

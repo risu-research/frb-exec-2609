@@ -1,0 +1,132 @@
+name: VE1 pre-scientific transport qualification v3
+
+on:
+  push:
+    branches:
+      - ve1-transport-qualification-v3
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_CONSTITUTION_HEAD: 7c53b5bdc70b600156380877a406b5988d35125a
+  BASE_EVIDENCE_HEAD: e02008a518408fae8a2a85b8d67d7cd81c18eb62
+  V2_SEAL_SHA256: 055df628df72df5aeb2523f0166a6dfbb186c9656efd3802ac6f60b76f887ecb
+  STATE_BLOB: 3e09ced267657616f045f9e34e194d49f8cdfbfc
+  PRODUCER_BLOB: 40e76789335eed7d15c9a2523717d7d7bcf185fd
+  VALIDATOR_BLOB: 3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36
+  ADJUDICATOR_BLOB: 1c6ce57de123a3a35ec45f316b21938152b09d4d
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require exact one-file v3 transport-qualification authority child
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test -f VE1_TRANSPORT_QUALIFICATION_OPEN_V3.json
+          test -f VE1_POST_OPEN_INFRASTRUCTURE_INCOMPLETE_SEAL_V2.json
+          source_candidate="$(git rev-parse HEAD^)"
+          mapfile -t changed < <(git diff --name-only "$source_candidate..HEAD")
+          test "${#changed[@]}" -eq 1
+          test "${changed[0]}" = "VE1_TRANSPORT_QUALIFICATION_OPEN_V3.json"
+          SOURCE_CANDIDATE="$source_candidate" python -c 'import json,os; v=json.load(open("VE1_TRANSPORT_QUALIFICATION_OPEN_V3.json")); assert v=={"schema":"replaymark.ve1.transport-qualification-open.v3","authority":"PRE_SCIENTIFIC_DYNAMIC_TRANSPORT_QUALIFICATION","source_candidate_head":os.environ["SOURCE_CANDIDATE"],"v2_post_open_seal_sha256":os.environ["V2_SEAL_SHA256"],"private_constitution_head":os.environ["PRIVATE_CONSTITUTION_HEAD"],"scientific_result_opened":False,"scientific_cells":0,"result_bearing_controller_invocations":0,"rerun_authorized":False}'
+          test "$(sha256sum VE1_POST_OPEN_INFRASTRUCTURE_INCOMPLETE_SEAL_V2.json | cut -d' ' -f1)" = "$V2_SEAL_SHA256"
+          mapfile -t delta < <(git diff --name-only "$BASE_EVIDENCE_HEAD..$source_candidate")
+          allowed=(
+            .github/workflows/ve1-authoritative-first-complete-v3.yml
+            .github/workflows/ve1-science-transport-qualification-v3.yml
+            VE1_POST_OPEN_REMEDIATION_V3.json
+            ve1_science_workflow_static_verify_v3.py
+            ve1_stage_transport_v3.py
+          )
+          test "${#delta[@]}" -eq "${#allowed[@]}"
+          for i in "${!allowed[@]}"; do test "${delta[$i]}" = "${allowed[$i]}"; done
+          test "$(git hash-object --no-filters VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json)" = "$STATE_BLOB"
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_postrun_adjudicate.py)" = "$ADJUDICATOR_BLOB"
+          echo "source_candidate=$source_candidate" >> "$GITHUB_OUTPUT"
+
+      - name: Statically prove v3 source and workflow transport contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf qualification-results
+          mkdir -p qualification-results
+          python -m py_compile ve1_stage_transport_v3.py ve1_science_workflow_static_verify_v3.py
+          python ve1_science_workflow_static_verify_v3.py \
+            --out qualification-results/VE1_SCIENCE_WORKFLOW_STATIC_AUDIT_V3.json
+          python -c 'import json; v=json.load(open("qualification-results/VE1_SCIENCE_WORKFLOW_STATIC_AUDIT_V3.json")); assert v["status"]=="PASS"; assert v["scientific_result_opened"] is False; assert v["scientific_cells"]==0; assert v["shell_function_state_sharing_forbidden"] is True; assert v["heredoc_operator_count"]==0'
+
+      - name: Pull exact scientific runtime image for non-result transport qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > qualification-results/HOME_ASSISTANT_IMAGE_INSPECT.json
+
+      - name: Dynamically prove host ownership, digest survival, and read-only handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          python ve1_stage_transport_v3.py qualify \
+            --image "$HA_IMAGE" \
+            --scratch qualification-results/transport-scratch \
+            --out qualification-results/VE1_DYNAMIC_TRANSPORT_QUALIFICATION_V3.json
+          python -c 'import json; v=json.load(open("qualification-results/VE1_DYNAMIC_TRANSPORT_QUALIFICATION_V3.json")); assert v["status"]=="PASS"; assert v["scientific_result_opened"] is False; assert v["scientific_cells"]==0; assert v["result_bearing_controller_invocations"]==0; assert v["host_precreated_single_file_output_mount"] is True; assert v["old_history_survived_intervening_new_direct"] is True; assert v["downstream_read_only_mount_enforced"] is True; assert v["shell_function_state_sharing_used"] is False'
+
+      - name: Seal transport-qualification provenance regardless of outcome
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification-results
+          cp VE1_POST_OPEN_INFRASTRUCTURE_INCOMPLETE_SEAL_V2.json qualification-results/
+          cp VE1_POST_OPEN_REMEDIATION_V3.json qualification-results/
+          cp VE1_TRANSPORT_QUALIFICATION_OPEN_V3.json qualification-results/
+          cp .github/workflows/ve1-authoritative-first-complete-v3.yml qualification-results/
+          cp .github/workflows/ve1-science-transport-qualification-v3.yml qualification-results/
+          cp ve1_stage_transport_v3.py qualification-results/
+          cp ve1_science_workflow_static_verify_v3.py qualification-results/
+          source_candidate="$(git rev-parse HEAD^)"
+          if [ -f qualification-results/VE1_SCIENCE_WORKFLOW_STATIC_AUDIT_V3.json ] && [ -f qualification-results/VE1_DYNAMIC_TRANSPORT_QUALIFICATION_V3.json ]; then
+            python ve1_stage_transport_v3.py qualification-provenance \
+              --static-audit qualification-results/VE1_SCIENCE_WORKFLOW_STATIC_AUDIT_V3.json \
+              --dynamic-audit qualification-results/VE1_DYNAMIC_TRANSPORT_QUALIFICATION_V3.json \
+              --v2-seal VE1_POST_OPEN_INFRASTRUCTURE_INCOMPLETE_SEAL_V2.json \
+              --source-candidate "$source_candidate" --private "$PRIVATE_CONSTITUTION_HEAD" \
+              --out qualification-results/VE1_TRANSPORT_QUALIFICATION_PROVENANCE_V3.json
+          fi
+          (
+            cd qualification-results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable v3 transport-qualification capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-transport-qualification-v3
+          path: qualification-results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface transport qualification conclusion only after upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -c 'import json; s=json.load(open("qualification-results/VE1_SCIENCE_WORKFLOW_STATIC_AUDIT_V3.json")); d=json.load(open("qualification-results/VE1_DYNAMIC_TRANSPORT_QUALIFICATION_V3.json")); assert s["status"]=="PASS" and d["status"]=="PASS"'

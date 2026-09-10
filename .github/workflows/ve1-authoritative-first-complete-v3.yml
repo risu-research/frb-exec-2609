@@ -1,0 +1,405 @@
+name: VE1 authoritative upstream-version evolution first complete v3
+
+on:
+  push:
+    branches:
+      - ve1-authoritative-first-complete-v3
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_CONSTITUTION_HEAD: 7c53b5bdc70b600156380877a406b5988d35125a
+  BASE_EVIDENCE_HEAD: e02008a518408fae8a2a85b8d67d7cd81c18eb62
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C1_PUBLIC_HEAD: 3f14ad1dc3028a7496da9115440f7809904681d5
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  C3_PUBLIC_HEAD: cb60e9f6f62b591fbe6e5f7cd042a35ae27258aa
+  OBS_BLOB: 541bd13f78147acd5236477748f9a95d019e818d
+  ACTION_BLOB: 1adf1b58ccd317ce0603e701d41b6730d5c45748
+  BOUNDARY_BLOB: 08ff29eb8f6d70809e78ddae11c403c2c8f477a1
+  BRIDGE_BLOB: ff9124a053e818af486b6f73efb3310a29576aa6
+  TARGET_BLOB: f28c7e04fd033dd3774c110f1954ce2ae851cd99
+  GATE_BLOB: ec8d445bcf6659bead696fa4868ff7778123dbf6
+  STATE_BLOB: 3e09ced267657616f045f9e34e194d49f8cdfbfc
+  PRODUCER_BLOB: 40e76789335eed7d15c9a2523717d7d7bcf185fd
+  VALIDATOR_BLOB: 3e0ff68988e25ab2c6fe1f90c49c289b68c9fe36
+  ADJUDICATOR_BLOB: 1c6ce57de123a3a35ec45f316b21938152b09d4d
+  HA_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  OLD_COMMIT: 611723a7cffd7cbc151afd0415c1a705900754f1
+  NEW_COMMIT: da6b8f90fa38d91b82f2ec301195f2ef4461deea
+  OLD_BLOB: 6ce2d0e433b8380d03289d450aa3dc2fbe2d3977
+  NEW_BLOB: fae46c0527aabd3778506622a0f69c544db1be05
+  UPSTREAM_PATH: automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml
+  BT_COMMIT: b86561f61e5ba1259fc63e590f4847e9ac743d7f
+  BT_VERSION: 1.9.2
+  BT_MANIFEST_SHA256: 710144c3d972501cc38b5a28e013a13a4c90e356039ffaff0b94327c7829bb28
+  BT_TREE_SHA256: bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0
+
+jobs:
+  open-gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      open: ${{ steps.guard.outputs.open }}
+      source_freeze_head: ${{ steps.guard.outputs.source_freeze_head }}
+      source_candidate_head: ${{ steps.guard.outputs.source_candidate_head }}
+      capsule_source_head: ${{ steps.guard.outputs.capsule_source_head }}
+      e0q_seal_sha256: ${{ steps.guard.outputs.e0q_seal_sha256 }}
+      v2_post_open_seal_sha256: ${{ steps.guard.outputs.v2_post_open_seal_sha256 }}
+      transport_qualification_pass_sha256: ${{ steps.guard.outputs.transport_qualification_pass_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require exact v3 scientific authority child after dynamic transport qualification
+        id: guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "open=false" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_RUN_ATTEMPT" != "1" ]; then
+            echo "VE1 scientific v3 authority is never repeated on workflow re-attempt."
+            exit 0
+          fi
+          test -f VE1_E0Q_RESULT_SEAL_V1.json
+          test -f VE1_POST_OPEN_INFRASTRUCTURE_INCOMPLETE_SEAL_V2.json
+          test -f VE1_TRANSPORT_QUALIFICATION_PASS_V3.json
+          test -f VE1_SCIENTIFIC_AUTHORITY_OPEN_V3.json
+          parent="$(git rev-parse HEAD^)"
+          mapfile -t changed < <(git diff --name-only "$parent..HEAD")
+          test "${#changed[@]}" -eq 1
+          test "${changed[0]}" = "VE1_SCIENTIFIC_AUTHORITY_OPEN_V3.json"
+          source_candidate="$(python -c 'import json; print(json.load(open("VE1_TRANSPORT_QUALIFICATION_PASS_V3.json"))["source_candidate_head"])')"
+          mapfile -t qualified_delta < <(git diff --name-only "$source_candidate..$parent")
+          test "${#qualified_delta[@]}" -eq 2
+          test "${qualified_delta[0]}" = "VE1_TRANSPORT_QUALIFICATION_OPEN_V3.json"
+          test "${qualified_delta[1]}" = "VE1_TRANSPORT_QUALIFICATION_PASS_V3.json"
+          mapfile -t source_delta < <(git diff --name-only "$BASE_EVIDENCE_HEAD..$source_candidate")
+          allowed=(
+            .github/workflows/ve1-authoritative-first-complete-v3.yml
+            .github/workflows/ve1-science-transport-qualification-v3.yml
+            VE1_POST_OPEN_REMEDIATION_V3.json
+            ve1_science_workflow_static_verify_v3.py
+            ve1_stage_transport_v3.py
+          )
+          test "${#source_delta[@]}" -eq "${#allowed[@]}"
+          for i in "${!allowed[@]}"; do test "${source_delta[$i]}" = "${allowed[$i]}"; done
+          test "$(git hash-object --no-filters VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json)" = "$STATE_BLOB"
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_postrun_adjudicate.py)" = "$ADJUDICATOR_BLOB"
+          python ve1_stage_transport_v3.py guard \
+            --e0q-seal VE1_E0Q_RESULT_SEAL_V1.json \
+            --v2-seal VE1_POST_OPEN_INFRASTRUCTURE_INCOMPLETE_SEAL_V2.json \
+            --qualification-pass VE1_TRANSPORT_QUALIFICATION_PASS_V3.json \
+            --marker VE1_SCIENTIFIC_AUTHORITY_OPEN_V3.json \
+            --private "$PRIVATE_CONSTITUTION_HEAD" \
+            --parent "$parent" \
+            --source-candidate "$source_candidate" \
+            --github-output "$GITHUB_OUTPUT"
+
+  replica:
+    needs: open-gate
+    if: needs.open-gate.outputs.open == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [0, 1]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      REPLICA: ${{ matrix.replica }}
+      SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+      SOURCE_CANDIDATE_HEAD: ${{ needs.open-gate.outputs.source_candidate_head }}
+      CAPSULE_SOURCE_HEAD: ${{ needs.open-gate.outputs.capsule_source_head }}
+      E0Q_SEAL_SHA256: ${{ needs.open-gate.outputs.e0q_seal_sha256 }}
+      V2_POST_OPEN_SEAL_SHA256: ${{ needs.open-gate.outputs.v2_post_open_seal_sha256 }}
+      TRANSPORT_QUALIFICATION_PASS_SHA256: ${{ needs.open-gate.outputs.transport_qualification_pass_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Materialize exact runtime-only semantic capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin capsule inputs results
+          mkdir -p origin capsule/replaymark capsule/replaymark_verification inputs/old inputs/new inputs/common results
+          test "$(git hash-object --no-filters VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json)" = "$STATE_BLOB"
+          test "$(git hash-object --no-filters ve1_native_execution.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters ve1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters ve1_postrun_adjudicate.py)" = "$ADJUDICATOR_BLOB"
+          python -m py_compile ve1_stage_transport_v3.py ve1_independent_validate.py ve1_postrun_adjudicate.py
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+          core=(
+            replaymark/__init__.py
+            replaymark/adjudicator.py
+            replaymark/compiled_contract.py
+            replaymark/contracts.py
+            replaymark/evidence_image.py
+            replaymark/evidence_semantics.py
+            replaymark/execution_admission.py
+            replaymark/predictive_witness.py
+            replaymark/q_compiler.py
+            replaymark/rstar.py
+            replaymark/runtime_contract_identity.py
+            replaymark/runtime_realization.py
+            replaymark/support_envelope.py
+            replaymark/target_provenance.py
+            replaymark_verification/models.py
+          )
+          for path in "${core[@]}"; do
+            mkdir -p "capsule/$(dirname "$path")"
+            cp "origin/$path" "capsule/$path"
+          done
+          fetch_blob () {
+            local head="$1" path="$2" expected="$3"
+            mkdir -p "capsule/$(dirname "$path")"
+            curl --fail --silent --show-error --location \
+              "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${head}/${path}" \
+              --output "capsule/${path}"
+            test "$(git hash-object --no-filters "capsule/${path}")" = "$expected"
+          }
+          fetch_blob "$C1_PUBLIC_HEAD" replaymark/runtime_ha_bt_observation.py "$OBS_BLOB"
+          fetch_blob "$C1_PUBLIC_HEAD" replaymark/runtime_ha_bt_action.py "$ACTION_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark/runtime_ha_bt_decision_boundary.py "$BOUNDARY_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark/runtime_ha_bt_shadow_bridge.py "$BRIDGE_BLOB"
+          fetch_blob "$C2_PUBLIC_HEAD" replaymark_verification/ha_c2_bt_native_target.py "$TARGET_BLOB"
+          fetch_blob "$C3_PUBLIC_HEAD" replaymark/runtime_ha_bt_execution_gate.py "$GATE_BLOB"
+          cp ve1_native_execution.py capsule/
+          find capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > results/RUNTIME_CAPSULE_SHA256.txt
+
+      - name: Materialize exact Old/New treatments and Better Thermostat component before first scientific invocation
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/n3roGit/MyHomeAssistantMods/${OLD_COMMIT}/${UPSTREAM_PATH}" \
+            --output inputs/old/blueprint.yaml
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/n3roGit/MyHomeAssistantMods/${NEW_COMMIT}/${UPSTREAM_PATH}" \
+            --output inputs/new/blueprint.yaml
+          test "$(git hash-object --no-filters inputs/old/blueprint.yaml)" = "$OLD_BLOB"
+          test "$(git hash-object --no-filters inputs/new/blueprint.yaml)" = "$NEW_BLOB"
+          git init -q inputs/bt_checkout
+          git -C inputs/bt_checkout remote add upstream https://github.com/KartoffelToby/better_thermostat.git
+          git -C inputs/bt_checkout fetch --depth=1 upstream "$BT_COMMIT"
+          git -C inputs/bt_checkout checkout -q --detach FETCH_HEAD
+          test "$(git -C inputs/bt_checkout rev-parse HEAD)" = "$BT_COMMIT"
+          mkdir -p inputs/common/upstream_better_thermostat_component
+          cp -a inputs/bt_checkout/custom_components/better_thermostat/. inputs/common/upstream_better_thermostat_component/
+          rm -rf inputs/bt_checkout
+          python ve1_stage_transport_v3.py verify-bt \
+            --root inputs/common/upstream_better_thermostat_component \
+            --manifest-sha256 "$BT_MANIFEST_SHA256" \
+            --tree-sha256 "$BT_TREE_SHA256" \
+            --version "$BT_VERSION"
+
+      - name: Pull exact Home Assistant image before first scientific invocation
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull "$HA_IMAGE"
+          docker image inspect "$HA_IMAGE" > results/HOME_ASSISTANT_IMAGE_INSPECT.json
+
+      - name: Execute four fresh process-isolated stages with digest-bound immutable history handoff
+        id: stages
+        shell: bash
+        run: |
+          set -u
+          overall=0
+          if ! python ve1_stage_transport_v3.py run-stage \
+            --stage old_history --replica "$REPLICA" --image "$HA_IMAGE" \
+            --capsule "$PWD/capsule" --origin "$PWD/origin" \
+            --state-manifest "$PWD/VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json" \
+            --blueprint "$PWD/inputs/old/blueprint.yaml" --blueprint-blob "$OLD_BLOB" \
+            --ownership-component "$PWD/inputs/common/upstream_better_thermostat_component" \
+            --validator "$PWD/ve1_independent_validate.py" --outdir "$PWD/results/old_history"; then
+            overall=1
+          fi
+          readonly SEALED_OLD_REPORT="$PWD/results/old_history/REPORT.json"
+          if [ -s "$SEALED_OLD_REPORT" ]; then
+            SEALED_OLD_DIGEST="$(sha256sum "$SEALED_OLD_REPORT" | cut -d' ' -f1)"
+          else
+            SEALED_OLD_DIGEST="0000000000000000000000000000000000000000000000000000000000000000"
+            overall=1
+          fi
+          readonly SEALED_OLD_DIGEST
+          if [ ! -f "$SEALED_OLD_REPORT" ] || [ "$(stat -c '%a' "$SEALED_OLD_REPORT" 2>/dev/null)" != 444 ]; then overall=1; fi
+
+          if ! python ve1_stage_transport_v3.py run-stage \
+            --stage new_direct --replica "$REPLICA" --image "$HA_IMAGE" \
+            --capsule "$PWD/capsule" --origin "$PWD/origin" \
+            --state-manifest "$PWD/VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json" \
+            --blueprint "$PWD/inputs/new/blueprint.yaml" --blueprint-blob "$NEW_BLOB" \
+            --ownership-component "$PWD/inputs/common/upstream_better_thermostat_component" \
+            --validator "$PWD/ve1_independent_validate.py" --outdir "$PWD/results/new_direct"; then
+            overall=1
+          fi
+          current_old_digest="$(sha256sum "$SEALED_OLD_REPORT" 2>/dev/null | cut -d' ' -f1)"
+          if [ "$current_old_digest" != "$SEALED_OLD_DIGEST" ]; then overall=1; fi
+
+          if ! python ve1_stage_transport_v3.py run-stage \
+            --stage replaymark --replica "$REPLICA" --image "$HA_IMAGE" \
+            --capsule "$PWD/capsule" --origin "$PWD/origin" \
+            --state-manifest "$PWD/VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json" \
+            --blueprint "$PWD/inputs/new/blueprint.yaml" --blueprint-blob "$NEW_BLOB" \
+            --ownership-component "$PWD/inputs/common/upstream_better_thermostat_component" \
+            --validator "$PWD/ve1_independent_validate.py" \
+            --old-history "$SEALED_OLD_REPORT" --old-history-sha256 "$SEALED_OLD_DIGEST" \
+            --outdir "$PWD/results/replaymark"; then
+            overall=1
+          fi
+          current_old_digest="$(sha256sum "$SEALED_OLD_REPORT" 2>/dev/null | cut -d' ' -f1)"
+          if [ "$current_old_digest" != "$SEALED_OLD_DIGEST" ]; then overall=1; fi
+
+          if ! python ve1_stage_transport_v3.py run-stage \
+            --stage replay_all --replica "$REPLICA" --image "$HA_IMAGE" \
+            --capsule "$PWD/capsule" --origin "$PWD/origin" \
+            --state-manifest "$PWD/VE1_EXECUTION_STATE_MANIFEST_V1_MIRROR.json" \
+            --blueprint "$PWD/inputs/new/blueprint.yaml" --blueprint-blob "$NEW_BLOB" \
+            --ownership-component "$PWD/inputs/common/upstream_better_thermostat_component" \
+            --validator "$PWD/ve1_independent_validate.py" \
+            --old-history "$SEALED_OLD_REPORT" --old-history-sha256 "$SEALED_OLD_DIGEST" \
+            --outdir "$PWD/results/replay_all"; then
+            overall=1
+          fi
+          current_old_digest="$(sha256sum "$SEALED_OLD_REPORT" 2>/dev/null | cut -d' ' -f1)"
+          if [ "$current_old_digest" != "$SEALED_OLD_DIGEST" ]; then overall=1; fi
+
+          for stage in old_history new_direct replaymark replay_all; do
+            if [ ! -f "results/$stage/STAGE_TRANSPORT_CONCLUSION.txt" ] || [ "$(cat "results/$stage/STAGE_TRANSPORT_CONCLUSION.txt")" != 0 ]; then
+              overall=1
+            fi
+          done
+          printf '%s\n' "$overall" > results/REPLICA_STRUCTURAL_CONCLUSION.txt
+          exit 0
+
+      - name: Seal replica-level manifest
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python ve1_stage_transport_v3.py replica-manifest --replica "$REPLICA" --results results
+          sha256sum results/REPLICA_MANIFEST.json > results/REPLICA_MANIFEST.sha256
+
+      - name: Upload immutable replica capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-first-complete-v3-r${{ matrix.replica }}
+          path: results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Preserve structural conclusion only after upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat results/REPLICA_STRUCTURAL_CONCLUSION.txt)" = 0
+
+  adjudicate:
+    needs: [open-gate, replica]
+    if: always() && needs.open-gate.outputs.open == 'true'
+    runs-on: ubuntu-24.04
+    env:
+      SOURCE_FREEZE_HEAD: ${{ needs.open-gate.outputs.source_freeze_head }}
+      SOURCE_CANDIDATE_HEAD: ${{ needs.open-gate.outputs.source_candidate_head }}
+      CAPSULE_SOURCE_HEAD: ${{ needs.open-gate.outputs.capsule_source_head }}
+      E0Q_SEAL_SHA256: ${{ needs.open-gate.outputs.e0q_seal_sha256 }}
+      V2_POST_OPEN_SEAL_SHA256: ${{ needs.open-gate.outputs.v2_post_open_seal_sha256 }}
+      TRANSPORT_QUALIFICATION_PASS_SHA256: ${{ needs.open-gate.outputs.transport_qualification_pass_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Reprove frozen adjudicator and v3 transport identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object --no-filters ve1_postrun_adjudicate.py)" = "$ADJUDICATOR_BLOB"
+          python -m py_compile ve1_postrun_adjudicate.py ve1_stage_transport_v3.py
+          rm -rf downloads aggregate
+          mkdir -p downloads aggregate
+
+      - name: Download both sealed replica capsules
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: ve1-first-complete-v3-r*
+          path: downloads
+          merge-multiple: false
+
+      - name: Independently verify replica capsule integrity before adjudication
+        shell: bash
+        run: |
+          set -euo pipefail
+          python ve1_stage_transport_v3.py verify-replica --root downloads/ve1-first-complete-v3-r0 --replica 0
+          python ve1_stage_transport_v3.py verify-replica --root downloads/ve1-first-complete-v3-r1 --replica 1
+
+      - name: Run frozen independent post-seal scientific adjudication
+        id: adjudicate
+        shell: bash
+        run: |
+          set +e
+          python ve1_postrun_adjudicate.py \
+            --r0-old downloads/ve1-first-complete-v3-r0/old_history/REPORT.json \
+            --r0-direct downloads/ve1-first-complete-v3-r0/new_direct/REPORT.json \
+            --r0-replaymark downloads/ve1-first-complete-v3-r0/replaymark/REPORT.json \
+            --r0-replay-all downloads/ve1-first-complete-v3-r0/replay_all/REPORT.json \
+            --r1-old downloads/ve1-first-complete-v3-r1/old_history/REPORT.json \
+            --r1-direct downloads/ve1-first-complete-v3-r1/new_direct/REPORT.json \
+            --r1-replaymark downloads/ve1-first-complete-v3-r1/replaymark/REPORT.json \
+            --r1-replay-all downloads/ve1-first-complete-v3-r1/replay_all/REPORT.json \
+            --out aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V3.json \
+            > aggregate/ADJUDICATOR_STDOUT.txt \
+            2> aggregate/ADJUDICATOR_STDERR.txt
+          rc=$?
+          printf '%s\n' "$rc" > aggregate/ADJUDICATOR_EXIT.txt
+          if [ ! -f aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V3.json ]; then
+            python ve1_stage_transport_v3.py fallback-adjudication \
+              --exit-code "$rc" --out aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V3.json
+          fi
+          exit 0
+
+      - name: Seal first-complete aggregate provenance regardless of scientific outcome
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python ve1_stage_transport_v3.py aggregate-provenance \
+            --result aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V3.json \
+            --out aggregate/VE1_FIRST_COMPLETE_PROVENANCE_V3.json
+          (
+            cd aggregate
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable replicated aggregate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve1-first-complete-aggregate-v3
+          path: aggregate
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface promotion conclusion only after aggregate upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat aggregate/ADJUDICATOR_EXIT.txt)" = 0
+          python -c 'import json; v=json.load(open("aggregate/VE1_FIRST_COMPLETE_ADJUDICATION_V3.json")); assert v["status"]=="PASS" and v["promotion"] is True, v.get("status")'
