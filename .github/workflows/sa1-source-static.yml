@@ -1,0 +1,122 @@
+name: SA1 pre-live source and expected-table qualification
+
+on:
+  push:
+    branches:
+      - sa1-source-static-v1
+
+permissions:
+  contents: read
+
+env:
+  GENERIC_MAIN: bcf42964a3fa74e127f22a5364185049b4f94cff
+  ORIGIN_REPOSITORY: risu-research/appeal-discovery-consumer
+  ORIGIN_COMMIT: c290786d92e7546345b348916b3b3d1c11780e4c
+  C2_PUBLIC_HEAD: 052cd5e1199784577fbb5ea5364909aa302fb4ee
+  PRODUCER_BLOB: 9a63ee18485373eecbaf92cc6a585fc3f9579e64
+  VALIDATOR_BLOB: f51891f3ff796488a22a5d10dac2e04137ce62fd
+  AGGREGATE_BLOB: f321f5dd5869413e95bcda537b326f73250ccc1b
+  MATERIALIZER_BLOB: a3bc643873403143a8a6b5880497e9cb98583079
+  C2_TARGET_BLOB: f28c7e04fd033dd3774c110f1954ce2ae851cd99
+  LEGACY_MODEL_BLOB: dc798178962351e869abd6134c7c34d9152ed0e6
+  EXPECTED_ROWS_SHA256: e70b8db3ee6d2644c46dc2c8c6bef9d11b86e98a1cd2f59947632308b798c9c0
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify staging ancestry and exact source identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base "$GENERIC_MAIN" HEAD)" = "$GENERIC_MAIN"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_native_source_adequacy.py)" = "$PRODUCER_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_independent_validate.py)" = "$VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/sa1_aggregate.py)" = "$AGGREGATE_BLOB"
+          test "$(git hash-object --no-filters replaymark_verification/build_sa1_expected_semantic_table.py)" = "$MATERIALIZER_BLOB"
+          python -m py_compile \
+            replaymark_verification/sa1_native_source_adequacy.py \
+            replaymark_verification/sa1_independent_validate.py \
+            replaymark_verification/sa1_aggregate.py \
+            replaymark_verification/build_sa1_expected_semantic_table.py
+
+      - name: Prove producer and validator dependency separation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          def imports(path):
+              tree=ast.parse(Path(path).read_text())
+              out=[]
+              for node in ast.walk(tree):
+                  if isinstance(node,ast.Import): out.extend(a.name for a in node.names)
+                  elif isinstance(node,ast.ImportFrom): out.append(node.module or '')
+              return out
+
+          producer=imports('replaymark_verification/sa1_native_source_adequacy.py')
+          assert not any(x=='replaymark' or x.startswith('replaymark.') or x.startswith('replaymark_verification') for x in producer), producer
+          validator=imports('replaymark_verification/sa1_independent_validate.py')
+          allowed={'__future__','argparse','hashlib','json','pathlib'}
+          assert set(validator) <= allowed, validator
+          aggregate=imports('replaymark_verification/sa1_aggregate.py')
+          assert set(aggregate) <= {'__future__','argparse','json','pathlib'}, aggregate
+          print({'producer_imports':producer,'validator_imports':validator,'aggregate_imports':aggregate})
+          PY
+
+      - name: Rebuild frozen expected table without Home Assistant
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf origin static-results
+          mkdir -p origin static-results
+          git -C origin init -q
+          git -C origin remote add upstream "https://github.com/${ORIGIN_REPOSITORY}.git"
+          git -C origin fetch --depth=1 upstream "$ORIGIN_COMMIT"
+          git -C origin checkout -q --detach FETCH_HEAD
+          test "$(git -C origin rev-parse HEAD)" = "$ORIGIN_COMMIT"
+          test "$(git -C origin rev-parse HEAD:replaymark_verification/models.py)" = "$LEGACY_MODEL_BLOB"
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/risu-research/frb-exec-2609/${C2_PUBLIC_HEAD}/replaymark_verification/ha_c2_bt_native_target.py" \
+            --output origin/replaymark_verification/ha_c2_bt_native_target.py
+          test "$(git hash-object --no-filters origin/replaymark_verification/ha_c2_bt_native_target.py)" = "$C2_TARGET_BLOB"
+          cp replaymark_verification/build_sa1_expected_semantic_table.py origin/replaymark_verification/
+          PYTHONPATH="$PWD/origin" python origin/replaymark_verification/build_sa1_expected_semantic_table.py \
+            --output static-results/SA1_EXPECTED_TABLE_REBUILT.json \
+            > static-results/MATERIALIZER_STDOUT.txt
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          value=json.loads(Path('static-results/SA1_EXPECTED_TABLE_REBUILT.json').read_text())
+          assert value['rows_sha256']==os.environ['EXPECTED_ROWS_SHA256']
+          assert len(value['rows'])==32
+          assert value['outcome_counts']=={'EXACT_HA_SERVICE_CALL':24,'NO_CONSEQUENTIAL_CALL':8}
+          result={
+            'schema':'replaymark.sa1.static-source-qualification.v1',
+            'status':'PASS_PRE_LIVE_ONLY',
+            'live_result_opened':False,
+            'rows':32,
+            'rows_sha256':value['rows_sha256'],
+            'expected_service_calls':24,
+            'expected_no_call_rows':8,
+            'execution_head':os.environ['GITHUB_SHA'],
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+          }
+          Path('static-results/SA1_STATIC_RESULT.json').write_text(json.dumps(result,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd static-results && sha256sum * > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+
+      - name: Upload pre-live static qualification artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sa1-pre-live-static-qualification
+          path: static-results
+          retention-days: 90
+          if-no-files-found: error
