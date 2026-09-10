@@ -1,0 +1,8 @@
+{
+  "schema": "replaymark.sa1.authority-open.v1",
+  "authority": "AUTHORITATIVE_NATIVE_SOURCE_ADEQUACY_FIRST_COMPLETE",
+  "source_freeze_public_head": "d0560bccbeb3e34805ae719f936fd51bec1d4ba8",
+  "private_source_freeze_head": "623f83f0411506ec4d4efe3291177c1b4a8cadc8",
+  "prelive_expected_authority": "cbb28b45bec65c98845123358c05c14d5b83a805",
+  "rerun_authorized": false
+}
