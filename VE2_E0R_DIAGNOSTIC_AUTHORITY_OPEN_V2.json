@@ -1,0 +1,13 @@
+{
+  "schema": "replaymark.ve2.e0r-diagnostic-authority-open.v2",
+  "authority": "PRE_SCIENCE_RUNTIME_FORENSIC_DIAGNOSTIC_NON_PROMOTABLE",
+  "source_freeze_public_head": "aa40198b35bd847ce88dc9bacff108b9af311b23",
+  "predecessor_failure_seal": "7ee5d37ea48ff715ade82e0b615dcef99355bf14",
+  "runtime_under_diagnosis_blob": "740800a13b541423b0bce4702faff31e85ac90b2",
+  "promotion": false,
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "ve2_home_assistant_scientific_cells": 0,
+  "ve2_replaymark_scientific_cells": 0,
+  "same_authority_rerun": false
+}
