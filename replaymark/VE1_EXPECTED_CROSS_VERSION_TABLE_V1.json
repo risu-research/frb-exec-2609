@@ -1,0 +1,57 @@
+{
+  "schema": "replaymark.ve1.expected-cross-version-table.v1",
+  "status": "FROZEN_PRE_RESULT",
+  "protocol_commit": "c104a6cd42296990b60d3de8554339e7f4a6c859",
+  "source_revisions": {
+    "old_commit": "611723a7cffd7cbc151afd0415c1a705900754f1",
+    "old_git_blob_sha1": "6ce2d0e433b8380d03289d450aa3dc2fbe2d3977",
+    "new_commit": "87e8844e3e0fa0a47e586cecd2c4d412c7bc718f",
+    "new_git_blob_sha1": "5091b299da53ed3eaed85098d4e2a554289597e1"
+  },
+  "projection": {
+    "historical_old": "climate.set_preset_mode(target_preset)",
+    "new_when_current_differs": "climate.set_preset_mode(target_preset)",
+    "new_when_current_equals_target": "NO_ACTION",
+    "concrete_target": "climate.agentmark_thermostat"
+  },
+  "row_count": 32,
+  "expected_counts": {
+    "COMPATIBLE_ACROSS_VERSION": 24,
+    "RETIRED_BY_UPDATE": 8
+  },
+  "rows": [
+    {"state_id":"p0-m0-n0-cur-away","target_preset":"away","compatibility":"RETIRED_BY_UPDATE"},
+    {"state_id":"p0-m0-n0-cur-home","target_preset":"away","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m0-n0-cur-comfort","target_preset":"away","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m0-n0-cur-sleep","target_preset":"away","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m0-n1-cur-away","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m0-n1-cur-home","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m0-n1-cur-comfort","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m0-n1-cur-sleep","target_preset":"sleep","compatibility":"RETIRED_BY_UPDATE"},
+    {"state_id":"p0-m1-n0-cur-away","target_preset":"away","compatibility":"RETIRED_BY_UPDATE"},
+    {"state_id":"p0-m1-n0-cur-home","target_preset":"away","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m1-n0-cur-comfort","target_preset":"away","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m1-n0-cur-sleep","target_preset":"away","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m1-n1-cur-away","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m1-n1-cur-home","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m1-n1-cur-comfort","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p0-m1-n1-cur-sleep","target_preset":"sleep","compatibility":"RETIRED_BY_UPDATE"},
+    {"state_id":"p1-m0-n0-cur-away","target_preset":"home","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m0-n0-cur-home","target_preset":"home","compatibility":"RETIRED_BY_UPDATE"},
+    {"state_id":"p1-m0-n0-cur-comfort","target_preset":"home","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m0-n0-cur-sleep","target_preset":"home","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m0-n1-cur-away","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m0-n1-cur-home","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m0-n1-cur-comfort","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m0-n1-cur-sleep","target_preset":"sleep","compatibility":"RETIRED_BY_UPDATE"},
+    {"state_id":"p1-m1-n0-cur-away","target_preset":"comfort","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m1-n0-cur-home","target_preset":"comfort","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m1-n0-cur-comfort","target_preset":"comfort","compatibility":"RETIRED_BY_UPDATE"},
+    {"state_id":"p1-m1-n0-cur-sleep","target_preset":"comfort","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m1-n1-cur-away","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m1-n1-cur-home","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m1-n1-cur-comfort","target_preset":"sleep","compatibility":"COMPATIBLE_ACROSS_VERSION"},
+    {"state_id":"p1-m1-n1-cur-sleep","target_preset":"sleep","compatibility":"RETIRED_BY_UPDATE"}
+  ],
+  "interpretation": "This table is a pre-result source-derived prediction. It is not evidence that either upstream revision or ReplayMark will realize these rows at runtime."
+}
