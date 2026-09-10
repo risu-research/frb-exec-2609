@@ -1,0 +1,69 @@
+{
+  "schema": "replaymark.ve2.e0r-diagnostic-root-cause-seal.v2",
+  "status": "SEALED_PRE_SCIENCE_ROOT_CAUSE",
+  "promotion": false,
+  "diagnostic_authority": {
+    "source_freeze": "aa40198b35bd847ce88dc9bacff108b9af311b23",
+    "open_head": "eb10f8b4cd608dd1e41c56d1157c0f88f796f09c",
+    "run_id": 34534892465,
+    "run_attempt": 1,
+    "job_id": 103064094677,
+    "run_conclusion": "success",
+    "meaning_of_success": "Forensic capture and immutable diagnostic sealing succeeded; this is not an E0R promotion result."
+  },
+  "retained_artifact": {
+    "artifact_id": 10175024423,
+    "name": "ve2-e0r-runtime-forensic-diagnostic-v2",
+    "size_bytes": 6083,
+    "zip_sha256": "412d15a8947312cb3ff940683c0454aae782ce30235c7166b47fd0e897d110be",
+    "internal_checksums_verified_before_upload": true,
+    "runtime_exit_code": 1
+  },
+  "exact_root_cause": {
+    "classification": "HOME_ASSISTANT_TRIGGER_HELPER_BOOTSTRAP_MISSING",
+    "first_failing_runtime_operation": "await homeassistant.helpers.trigger.async_validate_trigger_config(hass, config)",
+    "failing_scientific_family": null,
+    "runtime_under_diagnosis_blob": "740800a13b541423b0bce4702faff31e85ac90b2",
+    "traceback": {
+      "runtime_file_line": 89,
+      "home_assistant_trigger_line": 1658,
+      "home_assistant_get_platform_line": 1646,
+      "home_assistant_register_platform_line": 191,
+      "exception": "KeyError: 'triggers'"
+    },
+    "mechanism": "The standalone Home Assistant harness initialized loader state but did not invoke the trigger helper's official async_setup(), so _register_trigger_platform() attempted to read hass.data[TRIGGERS] before that registry existed.",
+    "failure_preceded_first_native_state_trigger_validation_completion": true,
+    "replaymark_contract_semantics_implicated": false,
+    "target_only_contract_semantics_implicated": false,
+    "historical_behavior_semantics_implicated": false
+  },
+  "upstream_source_witness": {
+    "home_assistant_version": "2026.9.0",
+    "trigger_helper_git_blob": "9451757998c63efcf8c7a01249f730594b3f68dd",
+    "official_initializer": "homeassistant.helpers.trigger.async_setup(hass)",
+    "initializer_effects": [
+      "hass.data[TRIGGER_DESCRIPTION_CACHE] = {}",
+      "hass.data[TRIGGER_PLATFORM_SUBSCRIPTIONS] = []",
+      "hass.data[TRIGGERS] = {}",
+      "await async_process_integration_platforms(hass, 'trigger', _register_trigger_platform, wait_for_platforms=True)"
+    ]
+  },
+  "prospective_minimal_repair": {
+    "allowed_change": "After the existing loader bootstrap and before the first async_validate_trigger_config call, await trigger_helper.async_setup(hass).",
+    "manual_hass_data_injection_forbidden": true,
+    "synthetic_trigger_payload_forbidden": true,
+    "expected_frontier_or_old_semantics_access_forbidden": true,
+    "runtime_scientific_law_change_forbidden": true,
+    "e0q_boundary_change_forbidden": true,
+    "semantic_boundary_change_forbidden": true,
+    "target_only_compiler_change_forbidden": true
+  },
+  "scientific_hygiene": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0,
+    "same_v1_authority_rerun": false,
+    "diagnostic_v2_promotable": false
+  }
+}
