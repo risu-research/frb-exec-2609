@@ -1,0 +1,329 @@
+name: VE2 E0Q version-spanning boundary qualification v2
+
+on:
+  push:
+    branches:
+      - ve2-e0q-v2
+
+permissions:
+  contents: read
+
+env:
+  PRIVATE_V2_REMEDIATION_AUTHORITY: 05fc7b4c63171ddbc25bc274cc6e087acc92dceb
+  PUBLIC_V1_FAILURE_SEAL: 1583bc3d714e7b328d7b095cfb873ed6c346457d
+  RUNTIME_DISCOVERY_PUBLIC_SEAL: 395ccd138b93c5c40a17fd906d497df1851cfeb1
+  CONSTITUTION_BLOB: 3e2c9737e485d45498e6df7780fa8bb5a652e196
+  V1_PRE_RESULT_AUTHORITY_BLOB: ec0f610d85ed138c7dd1b4f18da12b9a3739accb
+  REMEDIATION_BLOB: 1442738f903b56937586b8a7113362b9e269703c
+  BOUNDARY_BLOB: 765680028bde49ead76a22bebe5aace1bfbea60e
+  ROLE_RUNTIME_BLOB: 9f1946ba8afa3477068a1487fdbd5311c1e0e0ef
+  INDEPENDENT_VALIDATOR_BLOB: 90073f5ec0a59ac09d02ae7f2f3fad180e2f28c1
+  EXECUTION_CONTRACT_BLOB: 0e6a282f6e5f6f32a41135797bbe4ce5bcc8d7b1
+  STATIC_VERIFIER_BLOB: aed2fc7bba918ab9cc15334c83cef23f0c9260ab
+
+jobs:
+  e0q_v2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - name: Checkout exact E0Q-v2 authority
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+
+      - name: Require exact one-file first-attempt E0Q-v2 open
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          test -f VE2_E0Q_AUTHORITY_OPEN_V2.json
+          parent="$(git rev-parse HEAD^)"
+          grandparent="$(git rev-parse "$parent^")"
+          test "$grandparent" = "$PUBLIC_V1_FAILURE_SEAL"
+          mapfile -t changed < <(git diff --name-only "$parent..HEAD")
+          test "${#changed[@]}" = "1"
+          test "${changed[0]}" = "VE2_E0Q_AUTHORITY_OPEN_V2.json"
+
+          python - "$parent" "$PRIVATE_V2_REMEDIATION_AUTHORITY" "$PUBLIC_V1_FAILURE_SEAL" "$BOUNDARY_BLOB" <<'PY'
+          import json,sys
+          parent,private,failure,boundary=sys.argv[1:5]
+          value=json.load(open("VE2_E0Q_AUTHORITY_OPEN_V2.json"))
+          assert value == {
+              "schema":"replaymark.ve2.e0q-authority-open.v2",
+              "authority":"ORTHOGONAL_VERSION_SPANNING_BOUNDARY_FIRST_COMPLETE_V2",
+              "source_freeze_public_head":parent,
+              "private_v2_remediation_authority":private,
+              "parent_public_v1_failure_seal":failure,
+              "boundary_git_blob":boundary,
+              "v1_partial_pass_carried":False,
+              "scientific_result_opened":False,
+              "frontier_result_seen":False,
+              "rerun_authorized":False,
+          }
+          PY
+
+          test "$(git hash-object --no-filters VE2_E0Q_CONSTITUTION_V1_MIRROR.json)" = "$CONSTITUTION_BLOB"
+          test "$(git hash-object --no-filters VE2_E0Q_PRE_RESULT_AUTHORITY_V1_MIRROR.json)" = "$V1_PRE_RESULT_AUTHORITY_BLOB"
+          test "$(git hash-object --no-filters VE2_E0Q_REMEDIATION_CONTRACT_V2_MIRROR.json)" = "$REMEDIATION_BLOB"
+          test "$(git hash-object --no-filters ve2_boundary_microkernel_v2.py)" = "$BOUNDARY_BLOB"
+          test "$(git hash-object --no-filters ve2_e0q_role_runtime_v2.py)" = "$ROLE_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_e0q_independent_validate_v2.py)" = "$INDEPENDENT_VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V2.json)" = "$EXECUTION_CONTRACT_BLOB"
+          test "$(git hash-object --no-filters verify_ve2_e0q_source_freeze_v2.py)" = "$STATIC_VERIFIER_BLOB"
+
+          python verify_ve2_e0q_source_freeze_v2.py \
+            --workflow .github/workflows/ve2-e0q-v2.yml \
+            --source-freeze "$parent"
+
+          echo "source_freeze_public_head=$parent" >> "$GITHUB_OUTPUT"
+
+      - name: Build isolated E0Q-v2 boundary-only capsule
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf capsule roles source-checkouts results
+          mkdir -p capsule roles source-checkouts results
+          cp ve2_boundary_microkernel_v2.py ve2_e0q_role_runtime_v2.py capsule/
+          test "$(find capsule -maxdepth 1 -type f | wc -l)" = "2"
+          test "$(git hash-object --no-filters capsule/ve2_boundary_microkernel_v2.py)" = "$BOUNDARY_BLOB"
+          test "$(git hash-object --no-filters capsule/ve2_e0q_role_runtime_v2.py)" = "$ROLE_RUNTIME_BLOB"
+          find capsule -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > results/E0Q_V2_CAPSULE_SHA256.txt
+
+      - name: Materialize fresh exact Better Thermostat source roles under real config paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' > roles.tsv
+          import json
+          c=json.load(open("VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V2.json"))
+          for role,v in c["roles"].items():
+              print("\t".join([
+                  role,v["source_commit"],v["component_tree_sha1"],
+                  v["manifest_sha256"],v["manifest_version"],
+                  v["ha_version"],v["ha_image"],
+              ]))
+          PY
+
+          materialize_role () {
+            local role="$1" commit="$2" tree="$3" manifest_sha="$4" manifest_version="$5"
+            local checkout="$PWD/source-checkouts/$role"
+            local config="$PWD/roles/$role/config"
+            mkdir -p "$checkout" "$config"
+            git -C "$checkout" init -q
+            git -C "$checkout" remote add upstream https://github.com/KartoffelToby/better_thermostat.git
+            git -C "$checkout" fetch --quiet --depth=1 upstream "$commit"
+            git -C "$checkout" checkout -q --detach FETCH_HEAD
+            test "$(git -C "$checkout" rev-parse HEAD)" = "$commit"
+            test "$(git -C "$checkout" rev-parse HEAD:custom_components/better_thermostat)" = "$tree"
+            git -C "$checkout" archive HEAD custom_components/better_thermostat | tar -x -C "$config"
+            test "$(sha256sum "$config/custom_components/better_thermostat/manifest.json" | awk '{print $1}')" = "$manifest_sha"
+            python - "$role" "$commit" "$tree" "$manifest_sha" "$manifest_version" "$config" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          role,commit,tree,manifest_sha,manifest_version,config=sys.argv[1:7]
+          root=Path(config)/"custom_components/better_thermostat"
+          manifest=json.loads((root/"manifest.json").read_text())
+          assert manifest["domain"]=="better_thermostat"
+          assert manifest["version"]==manifest_version
+          digest=hashlib.sha256()
+          for path in sorted(p for p in root.rglob("*") if p.is_file()):
+              rel=path.relative_to(root).as_posix().encode()
+              body=path.read_bytes()
+              digest.update(len(rel).to_bytes(8,"big")); digest.update(rel)
+              digest.update(len(body).to_bytes(8,"big")); digest.update(body)
+          value={
+              "schema":"replaymark.ve2.e0q-source-identity.v2",
+              "role":role,
+              "source_commit":commit,
+              "component_tree_sha1":tree,
+              "manifest_sha256":manifest_sha,
+              "manifest_version":manifest_version,
+              "component_canonical_sha256":digest.hexdigest(),
+          }
+          (Path(config)/"VE2_SOURCE_IDENTITY.json").write_text(
+              json.dumps(value,sort_keys=True,indent=2)+"\n"
+          )
+          PY
+          }
+
+          while IFS=$'\t' read -r role commit tree manifest_sha manifest_version ha_version ha_image; do
+            materialize_role "$role" "$commit" "$tree" "$manifest_sha" "$manifest_version"
+          done < roles.tsv
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract=json.load(open("VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V2.json"))
+          values={}
+          for role in contract["roles"]:
+              value=json.load(open(Path("roles")/role/"config/VE2_SOURCE_IDENTITY.json"))
+              assert value["role"]==role
+              assert value["source_commit"]==contract["roles"][role]["source_commit"]
+              assert value["component_tree_sha1"]==contract["roles"][role]["component_tree_sha1"]
+              values[role]=value
+          Path("results/VE2_E0Q_SOURCE_PROVENANCE_V2.json").write_text(
+              json.dumps({
+                  "schema":"replaymark.ve2.e0q-source-provenance.v2",
+                  "status":"PASS",
+                  "roles":values,
+                  "fresh_from_v1":True,
+                  "scientific_result_opened":False,
+                  "scientific_cells":0,
+              },sort_keys=True,indent=2)+"\n"
+          )
+          PY
+
+      - name: Pull and record exact frozen OCI substrates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t images < <(python - <<'PY'
+          import json
+          c=json.load(open("VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V2.json"))
+          for image in dict.fromkeys(v["ha_image"] for v in c["roles"].values()):
+              print(image)
+          PY
+          )
+          test "${#images[@]}" = "3"
+          : > results/HOME_ASSISTANT_IMAGE_INSPECT_V2.jsonl
+          for image in "${images[@]}"; do
+            case "$image" in
+              ghcr.io/home-assistant/home-assistant@sha256:*) ;;
+              *) echo "mutable-or-unexpected-image-ref: $image"; exit 1 ;;
+            esac
+            docker pull "$image"
+            docker image inspect "$image" >> results/HOME_ASSISTANT_IMAGE_INSPECT_V2.jsonl
+          done
+
+      - name: Execute four fresh isolated orthogonal E0Q-v2 roles
+        shell: bash
+        run: |
+          set -u
+          overall=0
+          while IFS=$'\t' read -r role commit tree manifest_sha manifest_version ha_version ha_image; do
+            set +e
+            docker run --rm \
+              --network none \
+              --read-only \
+              --tmpfs /tmp:rw,nosuid,nodev,size=64m \
+              -e PYTHONDONTWRITEBYTECODE=1 \
+              -e HOME=/tmp \
+              -e PYTHONPATH=/capsule:/config \
+              -v "$PWD/capsule:/capsule:ro" \
+              -v "$PWD/roles/$role/config:/config:ro" \
+              -v "$PWD/results:/results" \
+              --entrypoint python \
+              "$ha_image" \
+              /capsule/ve2_e0q_role_runtime_v2.py \
+                --role "$role" \
+                --expected-ha-version "$ha_version" \
+                --ha-image "$ha_image" \
+                --source-commit "$commit" \
+                --component-tree-sha1 "$tree" \
+                --manifest-sha256 "$manifest_sha" \
+                --manifest-version "$manifest_version" \
+                --boundary-blob "$BOUNDARY_BLOB" \
+                --out "/results/$role.json" \
+              > "results/$role.stdout" \
+              2> "results/$role.stderr"
+            rc=$?
+            set -e
+            printf '%s\n' "$rc" > "results/$role.exit"
+            if [ "$rc" != "0" ]; then overall=1; fi
+          done < roles.tsv
+          printf '%s\n' "$overall" > results/ROLE_EXECUTION_AGGREGATE.exit
+          exit 0
+
+      - name: Independently validate fresh complete four-role E0Q-v2
+        shell: bash
+        run: |
+          set +e
+          python ve2_e0q_independent_validate_v2.py \
+            --results results \
+            --contract VE2_E0Q_PUBLIC_EXECUTION_CONTRACT_V2.json \
+            --boundary-blob "$BOUNDARY_BLOB" \
+            --out results/VE2_E0Q_INDEPENDENT_VALIDATION_V2.json \
+            > results/INDEPENDENT_VALIDATOR.stdout \
+            2> results/INDEPENDENT_VALIDATOR.stderr
+          rc=$?
+          printf '%s\n' "$rc" > results/INDEPENDENT_VALIDATOR.exit
+          exit 0
+
+      - name: Seal E0Q-v2 provenance and checksums regardless of outcome
+        if: always()
+        shell: bash
+        env:
+          SOURCE_FREEZE_PUBLIC_HEAD: ${{ steps.gate.outputs.source_freeze_public_head }}
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          role_exit={}
+          for role in ("T01_OLD_HISTORY","T01_NEW_TARGET","T02_OLD","T02_NEW"):
+              p=Path("results")/(role+".exit")
+              role_exit[role]=None if not p.exists() else int(p.read_text().strip())
+          validator=Path("results/INDEPENDENT_VALIDATOR.exit")
+          value={
+              "schema":"replaymark.ve2.e0q-public-provenance.v2",
+              "authority":"ORTHOGONAL_VERSION_SPANNING_BOUNDARY_FIRST_COMPLETE_V2",
+              "repository":os.environ["GITHUB_REPOSITORY"],
+              "execution_head":os.environ["GITHUB_SHA"],
+              "source_freeze_public_head":os.environ.get("SOURCE_FREEZE_PUBLIC_HEAD", ""),
+              "private_v2_remediation_authority":os.environ["PRIVATE_V2_REMEDIATION_AUTHORITY"],
+              "parent_public_v1_failure_seal":os.environ["PUBLIC_V1_FAILURE_SEAL"],
+              "runtime_discovery_public_result_seal":os.environ["RUNTIME_DISCOVERY_PUBLIC_SEAL"],
+              "boundary_git_blob":os.environ["BOUNDARY_BLOB"],
+              "workflow_run_id":int(os.environ["GITHUB_RUN_ID"]),
+              "run_attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "role_exit":role_exit,
+              "independent_validator_exit":None if not validator.exists() else int(validator.read_text().strip()),
+              "v1_partial_pass_carried":False,
+              "scientific_result_opened":False,
+              "frontier_result_seen":False,
+              "ve2_home_assistant_scientific_cells":0,
+              "ve2_replaymark_scientific_cells":0,
+              "same_authority_rerun":False,
+          }
+          Path("results/VE2_E0Q_PROVENANCE_V2.json").write_text(
+              json.dumps(value,sort_keys=True,indent=2)+"\n"
+          )
+          PY
+          (
+            cd results
+            find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z \
+              | xargs -0 -r sha256sum > CHECKSUMS.sha256
+            test -s CHECKSUMS.sha256
+            sha256sum -c CHECKSUMS.sha256
+          )
+
+      - name: Upload immutable E0Q-v2 first-complete capsule
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ve2-e0q-first-complete-v2
+          path: results
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Surface E0Q-v2 PASS only after immutable artifact upload
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat results/ROLE_EXECUTION_AGGREGATE.exit)" = "0"
+          test "$(cat results/INDEPENDENT_VALIDATOR.exit)" = "0"
+          python - <<'PY'
+          import json,os
+          v=json.load(open("results/VE2_E0Q_INDEPENDENT_VALIDATION_V2.json"))
+          assert v["status"]=="PASS"
+          assert v["all_four_roles_pass"] is True
+          assert v["v1_partial_pass_carried"] is False
+          assert v["boundary_git_blob"]==os.environ["BOUNDARY_BLOB"]
+          assert v["scientific_result_opened"] is False
+          assert v["frontier_result_seen"] is False
+          assert v["ve2_home_assistant_scientific_cells"]==0
+          assert v["ve2_replaymark_scientific_cells"]==0
+          PY

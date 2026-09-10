@@ -1,0 +1,88 @@
+{
+  "schema": "replaymark.ve2.e0q-public-execution-contract.v2",
+  "status": "FROZEN_PRE_EXECUTION",
+  "private_remediation_authority": "05fc7b4c63171ddbc25bc274cc6e087acc92dceb",
+  "parent_public_failure_seal": "1583bc3d714e7b328d7b095cfb873ed6c346457d",
+  "failed_v1_run": 34522119022,
+  "failed_v1_artifact_zip_sha256": "b452b714280273f983dcac74a86023112213506a8ab31f099792ee76b83aeea8",
+  "v1_partial_pass_carried": false,
+  "boundary_file": "ve2_boundary_microkernel_v2.py",
+  "boundary_git_blob": "765680028bde49ead76a22bebe5aace1bfbea60e",
+  "runtime_driver_file": "ve2_e0q_role_runtime_v2.py",
+  "runtime_driver_git_blob": "9f1946ba8afa3477068a1487fdbd5311c1e0e0ef",
+  "independent_validator_file": "ve2_e0q_independent_validate_v2.py",
+  "independent_validator_git_blob": "90073f5ec0a59ac09d02ae7f2f3fad180e2f28c1",
+  "roles": {
+    "T01_OLD_HISTORY": {
+      "source_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+      "component_tree_sha1": "6b05ff29887ec1941bf0cd6203faefbb9207122c",
+      "manifest_sha256": "cae73e2adda7617a9a745e2ea7f4dce3ba9c907173d25d1d889bdf9f70bce471",
+      "manifest_version": "1.0.0-dev",
+      "ha_version": "2022.10.0",
+      "ha_image": "ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e",
+      "expected_loader_strategy": "LEGACY_NATIVE_LAZY_ASYNC_GET_INTEGRATION"
+    },
+    "T01_NEW_TARGET": {
+      "source_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+      "component_tree_sha1": "44457f94e281959587245575f5f4003427122031",
+      "manifest_sha256": "55d97cb91b27127e6a060ff69cba82b656b4fd0430549585c258ab28f7d2a20a",
+      "manifest_version": "1.8.0-dev",
+      "ha_version": "2026.1.0",
+      "ha_image": "ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7",
+      "expected_loader_strategy": "EXPLICIT_ASYNC_SETUP_API_PRESENT"
+    },
+    "T02_OLD": {
+      "source_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "component_tree_sha1": "8285c80243785bea21410cafe84311f40846c167",
+      "manifest_sha256": "cab86050b9170a35e1bc7383254b68b3af735e9ebccc8f33dd59caeae577e39c",
+      "manifest_version": "1.8.1-dev",
+      "ha_version": "2026.9.0",
+      "ha_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+      "expected_loader_strategy": "EXPLICIT_ASYNC_SETUP_API_PRESENT"
+    },
+    "T02_NEW": {
+      "source_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+      "component_tree_sha1": "3392ec4e42fe0e0b789eb56dc5f2c563afb5c6b0",
+      "manifest_sha256": "de1d43eec06e208676c7289cb613a435b9c1d5dfd36ab3d929082634cabdeaee",
+      "manifest_version": "1.9.0",
+      "ha_version": "2026.9.0",
+      "ha_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+      "expected_loader_strategy": "EXPLICIT_ASYNC_SETUP_API_PRESENT"
+    }
+  },
+  "capsule_files": ["ve2_boundary_microkernel_v2.py", "ve2_e0q_role_runtime_v2.py"],
+  "forbidden_container_inputs": [
+    "blueprints/night_mode.yaml",
+    "blueprints/weekly_heating_schedule.yaml",
+    "VE2_T01_EXECUTION_STATE_MANIFEST_V1.json",
+    "VE2_T02_EXECUTION_STATE_MANIFEST_V1.json",
+    "VE2_T01_EXPECTED_FRONTIER_V1.json",
+    "VE2_T02_EXPECTED_FRONTIER_V1.json"
+  ],
+  "remediation_delta": {
+    "loader_adapter": "API-presence-based pre-case one-shot; no result-dependent fallback",
+    "observer_handlers": "Home Assistant core @callback",
+    "capture_epoch": true,
+    "observer_local_sequence": true,
+    "positive_ordering": "epoch armed -> parent sequence -> service sequence; parent t_ns <= service t_ns <= completion closed_ns",
+    "absence": "epoch armed -> exact parent; zero context-bound synthetic service events; completion closes after parent",
+    "failure_diagnostic": "phase-tagged, non-adaptive"
+  },
+  "promotion": {
+    "run_attempt": 1,
+    "fresh_roles_required": ["T01_OLD_HISTORY", "T01_NEW_TARGET", "T02_OLD", "T02_NEW"],
+    "all_roles_must_pass": true,
+    "positive_service_events_per_role": 1,
+    "verified_absence_events_per_role": 0,
+    "negative_cases": ["foreign-context", "duplicate-event", "malformed-event", "incomplete-completion", "sequence-regression"],
+    "same_boundary_blob_all_roles": true,
+    "artifact_upload_before_pass_surface": true,
+    "same_authority_rerun": false
+  },
+  "scientific_boundary": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "replaymark.ve2.e0q-remediation-contract.v2",
+  "status": "FROZEN_PROSPECTIVE_PRE_V2_EXECUTION",
+  "parent_failure_receipt_commit": "e82ce4de92a421c30656df60122cc8ea10b64968",
+  "failed_public_authority": {
+    "head": "d41402f10db048f369f8a743600ad2498af068fc",
+    "run_id": 34522119022,
+    "attempt": 1,
+    "artifact_id": 10170195534,
+    "artifact_zip_sha256": "b452b714280273f983dcac74a86023112213506a8ab31f099792ee76b83aeea8",
+    "public_failure_seal": "1583bc3d714e7b328d7b095cfb873ed6c346457d"
+  },
+  "failure_scope": "PRE_SCIENCE_E0Q_HARNESS_DEFINITION_ONLY",
+  "immutable_from_v1": {
+    "four_role_population": true,
+    "selected_source_commits": true,
+    "selected_exact_OCI_digests": true,
+    "real_config_custom_component_materialization": true,
+    "component_tree_and_manifest_identity_checks": true,
+    "synthetic_service_domain_and_service": true,
+    "positive_exactly_one_event_requirement": true,
+    "verified_absence_zero_event_requirement": true,
+    "three_pass_completion_witness": true,
+    "context_binding_law": true,
+    "negative_fail_closed_cases": true,
+    "all_four_roles_required_for_promotion": true,
+    "partial_role_pass_non_promotable": true,
+    "transition_blueprints_excluded": true,
+    "execution_state_manifests_excluded": true,
+    "expected_frontiers_excluded": true,
+    "historical_actions_excluded": true,
+    "scientific_cells_zero": true
+  },
+  "authorized_changes_only": [
+    "Replace unconditional Home Assistant loader.async_setup invocation with a prospectively frozen API-surface adapter executed before any E0Q case: if DATA_INTEGRATIONS is absent and loader.async_setup exists, call it; if the API does not exist, do not call it and use the runtime's native lazy async_get_integration/async_get_integrations path.",
+    "Decorate state_changed and call_service observer handlers with the Home Assistant core @callback marker so they remain on the Home Assistant event-loop callback path instead of executor scheduling.",
+    "Add an observer-local strictly increasing event sequence number to every captured state and service event.",
+    "Add an explicit capture-epoch certificate containing armed_ns, state_start_index, service_start_index, and next_sequence_at_arm before each invocation.",
+    "Strengthen positive ordering validation to require both parent and qualifying service event to belong to the armed epoch, parent sequence < service sequence, parent perf_counter_ns <= service perf_counter_ns, and both to close no later than the same completion boundary.",
+    "Strengthen verified-absence validation to require an armed epoch, exactly one matching parent event after arming, zero qualifying service events for the invocation context after arming, and a valid three-pass completion closure after the parent.",
+    "Record phase-tagged partial diagnostic evidence on harness failure so a future failed qualification can distinguish loader, capture, ordering, and validation failures without adaptive retry or reinterpretation."
+  ],
+  "loader_adapter_law": {
+    "decision_time": "before_loader_resolution_and_before_boundary_cases",
+    "predicate": "DATA_INTEGRATIONS membership and presence of callable loader.async_setup only",
+    "modern_path": "if DATA_INTEGRATIONS absent and callable loader.async_setup exists, call loader.async_setup(hass)",
+    "legacy_path": "if DATA_INTEGRATIONS absent and loader.async_setup does not exist, make no synthetic loader-state mutation; call async_get_integration and allow the runtime's native lazy loader path to initialize itself",
+    "result_dependent_fallback": false,
+    "retry_after_failure": false
+  },
+  "observer_ordering_law": {
+    "handlers_must_be_homeassistant_callback": true,
+    "observer_local_sequence_strictly_increasing": true,
+    "positive_parent_sequence_before_service_sequence": true,
+    "positive_parent_timestamp_not_after_service_timestamp": true,
+    "capture_armed_before_both": true,
+    "completion_closes_after_both": true,
+    "ordering_assertion_removed": false
+  },
+  "forbidden_changes": [
+    "change any Better Thermostat source commit, source tree identity, manifest identity, Home Assistant version, or OCI digest",
+    "carry T02_NEW v1 PASS into v2 or skip any role",
+    "weaken exactly-one positive cardinality or zero-event absence cardinality",
+    "remove context binding, three-pass completion, or negative fail-closed tests",
+    "mount or execute a T01/T02 result-bearing blueprint, state manifest, frontier label, or historical action",
+    "introduce timeouts as sufficient evidence of absence",
+    "add result-dependent retries, fallback adapters, or per-role post-hoc special cases",
+    "rerun the failed v1 authority"
+  ],
+  "v2_promotion": {
+    "fresh_all_four_roles": true,
+    "all_roles_must_pass": true,
+    "same_exact_boundary_blob_within_v2_all_roles": true,
+    "future_science_must_use_exact_promoted_v2_boundary_blob": true,
+    "artifact_upload_before_pass_surface": true,
+    "independent_post_execution_validation": true,
+    "same_authority_rerun": false
+  },
+  "scientific_exposure_at_freeze": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "next_gate": "Build a minimal public v2 successor from the sealed v1 failure, prove the code delta is limited to the authorized loader/observer/diagnostic remediation while all scientific and substrate inputs remain unchanged, then open one fresh four-role E0Q-v2 authority."
+}
