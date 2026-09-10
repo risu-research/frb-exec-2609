@@ -1,0 +1,81 @@
+{
+  "schema": "replaymark.ve2.e0r-pre-science-runtime-failure-receipt.v1",
+  "status": "SEALED_NON_PROMOTABLE",
+  "classification": "PRE_SCIENCE_RUNTIME_HARNESS_INCOMPLETE",
+  "authority": "PRE_SCIENCE_EXECUTION_SUBSTRATE_FIRST_COMPLETE",
+  "source_freeze_public_head": "f5c46bc8bfedce04c759f26ddfda4d76e6df955a",
+  "authority_open_head": "6134bc9e092f91fb86fe6fc63513438289e986ba",
+  "authority_open_blob": "aab683c6e69823859d3a3d9cc0d931f5e01b94aa",
+  "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+  "execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "workflow": ".github/workflows/ve2-e0r-v1.yml",
+    "workflow_run_id": 34531939840,
+    "run_attempt": 1,
+    "job_id": 103054489953,
+    "head_sha": "6134bc9e092f91fb86fe6fc63513438289e986ba",
+    "run_conclusion": "failure",
+    "failed_step": {
+      "number": 7,
+      "name": "Execute orthogonal native invocation and Historical Behavior qualification",
+      "conclusion": "failure"
+    },
+    "successful_pre_failure_steps": [
+      "Require exact first-complete OPEN and additive source freeze",
+      "Materialize exact ReplayMark compiler allowlist capsule",
+      "Compile target-only contracts with exact ReplayMark core",
+      "Pull and verify exact Home Assistant image/source seam"
+    ],
+    "skipped_after_failure": [
+      "Independent post-execution validation",
+      "Seal complete E0R artifact",
+      "Upload immutable E0R first-complete artifact",
+      "Final E0R PASS gate"
+    ]
+  },
+  "verified_pre_failure_facts": {
+    "open_gate_passed": true,
+    "replaymark_compiler_allowlist_materialization_passed": true,
+    "target_only_contract_compile_passed": true,
+    "target_only_independent_serialized_validation_passed": true,
+    "exact_home_assistant_image_and_trigger_helper_seam_passed": true,
+    "home_assistant_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "home_assistant_trigger_helper_blob": "9451757998c63efcf8c7a01249f730594b3f68dd"
+  },
+  "retention": {
+    "uploaded_artifact_count": 0,
+    "runtime_stdout_retained": false,
+    "runtime_stderr_retained": false,
+    "runtime_result_retained": false,
+    "reason": "The v1 workflow redirected runtime stdout/stderr into workspace files, then exited on the failing docker command before the artifact-upload step; GitHub reports zero run artifacts.",
+    "transient_pre_failure_contract_outputs_promotable_as_e0r_result": false
+  },
+  "forensic_root_cause": {
+    "status": "UNKNOWN_PENDING_PROSPECTIVE_DIAGNOSTIC_AUTHORITY",
+    "claimable_exception_text": false,
+    "post_hoc_guess_as_root_cause_forbidden": true
+  },
+  "scientific_hygiene": {
+    "t01_or_t02_result_bearing_blueprint_executed": false,
+    "ve2_scientific_fixture_executed": false,
+    "historical_better_thermostat_action_dispatched": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0,
+    "promotion": false,
+    "successful_subset_reusable_as_e0r_pass": false
+  },
+  "successor_policy": {
+    "same_authority_rerun_authorized": false,
+    "fresh_successor_required": true,
+    "diagnostic_successor_must_be_non_promotable": true,
+    "diagnostic_successor_must_preserve_failure_outputs_even_on_nonzero_exit": true,
+    "scientific_semantics_must_remain_frozen": true,
+    "target_only_spec_builder_verifier_must_remain_frozen": true,
+    "replaymark_origin_and_core_blobs_must_remain_frozen": true,
+    "home_assistant_image_and_source_seam_must_remain_frozen": true,
+    "e0q_boundary_must_remain_frozen": true,
+    "no_scientific_fixture_or_frontier_material_may_enter_diagnostic_runtime": true
+  }
+}
