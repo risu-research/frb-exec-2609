@@ -1,0 +1,30 @@
+{
+  "schema": "replaymark.ve2.science-transport-v2-version-preflight-remediation.v1",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_failure_seal": "f38790085763f4ee7d6536c43bd8e5902d88dd30",
+  "predecessor_failed_open": "b2475ad666bf3f0940e0578c1ce3708cbf8d1dca",
+  "predecessor_run_id": 34543187018,
+  "root_cause": "HOME_ASSISTANT_VERSION_NAMESPACE_DEFECT",
+  "repair": {
+    "old_expression": "import homeassistant; print(homeassistant.__version__)",
+    "new_expression": "from homeassistant.const import __version__; print(__version__)",
+    "source_proof": {
+      "2022.10.0_const_blob": "139b3a157b21f01a35a4c8cce9a6ec8a2c316ab0",
+      "2026.1.0_const_blob": "97c279aa6b0b30919ab1ac3990be60421e699def",
+      "2026.9.0_const_blob": "d17a6a549b48d26206a848e6a1766054b72231c6"
+    },
+    "runtime_blob_unchanged": "0d8ce1b7e5f4a0fa8df3970d9cc971f0ca8bdf02",
+    "validator_blob_unchanged": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "transport_contract_blob_unchanged": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "scientific_semantics_changed": false,
+    "transport_semantics_changed": false,
+    "state_population_changed": false,
+    "expected_frontier_changed": false
+  },
+  "attempt_law": {
+    "v1_is_never_rerun": true,
+    "v2_is_new_prospective_authority": true,
+    "v2_promotable_run_attempt": 1,
+    "scientific_cells_before_v2_open": 0
+  }
+}
