@@ -1,0 +1,34 @@
+{
+  "schema": "replaymark.ve2.transition-static-qualification-v1-failure.v1",
+  "status": "PRE_SCIENTIFIC_PUBLIC_QUALIFIER_SOURCE_WITNESS_FAILURE",
+  "failed_execution_head": "0d25db7fd7be8099512c9674a408deb617ace9cb",
+  "source_candidate_head": "20bf308069f16839ee204090debf261f75afcc76",
+  "workflow_run_id": 34501014803,
+  "run_attempt": 1,
+  "conclusion": "failure",
+  "artifact": {
+    "id": 10161834009,
+    "name": "ve2-transition-static-qualification-v1",
+    "zip_sha256": "f8731bae9a5788271c3d538549a89466af154b19d2ac7813f225c2c2b942f0f9",
+    "checksums_sha256_from_public_run_log": "908c4a4188454360ec09bf88fe3120101863ef3bf70c3218f9acbbc9e474672e"
+  },
+  "failure": {
+    "class": "STATIC_SOURCE_WITNESS_LOCATION_ASSUMPTION",
+    "location": "ve2_transition_independent_qualify_v1.py:verify_source_witnesses",
+    "failed_assertion": "old climate.py must contain literal strings set_temp_target_temperature and restore_saved_target_temperature",
+    "diagnosis": "The old climate.py registers SERVICE_SET_TEMP_TARGET_TEMPERATURE and SERVICE_RESTORE_SAVED_TARGET_TEMPERATURE constants and implements set_temp_temperature()/restore_temp_temperature(); requiring the YAML-facing literal service names in climate.py was an incorrect source-location assumption.",
+    "frozen_scientific_semantics_changed": false,
+    "frozen_frontier_changed": false,
+    "frozen_state_space_changed": false,
+    "label_firewall_changed": false
+  },
+  "execution_boundary": {
+    "upstream_clone_started": true,
+    "frontier_rows_exported": false,
+    "runtime_E0Q_opened": false,
+    "home_assistant_scientific_cells": 0,
+    "replaymark_scientific_cells": 0,
+    "scientific_result_opened": false
+  },
+  "remediation_law": "Preserve this failed attempt. A successor may change only the public source-witness assertion required to locate already-frozen old service registration/implementation evidence; it may not change private frozen semantics, state spaces, frontiers, label firewall, transition membership, or expected digests."
+}
