@@ -1,0 +1,120 @@
+{
+  "schema": "replaymark.ve2.e0q-result-seal.v2",
+  "status": "SEALED_E0Q_PASS_PRE_SCIENCE",
+  "repository": "risu-research/frb-exec-2609",
+  "execution": {
+    "branch": "ve2-e0q-v2",
+    "head": "3f32c0ed2e35e7c09c8f00883c16b7ca9b8398a9",
+    "source_freeze_public_head": "1cc948ef1240f5e023f60d9d81721fd8dbbe66d8",
+    "run_id": 34524297211,
+    "attempt": 1,
+    "conclusion": "success"
+  },
+  "ancestry": {
+    "public_v1_failure_seal": "1583bc3d714e7b328d7b095cfb873ed6c346457d",
+    "private_v2_remediation_authority": "05fc7b4c63171ddbc25bc274cc6e087acc92dceb",
+    "runtime_discovery_public_result_seal": "395ccd138b93c5c40a17fd906d497df1851cfeb1"
+  },
+  "implementation": {
+    "remediation_contract_git_blob": "1442738f903b56937586b8a7113362b9e269703c",
+    "boundary_git_blob": "765680028bde49ead76a22bebe5aace1bfbea60e",
+    "role_runtime_git_blob": "9f1946ba8afa3477068a1487fdbd5311c1e0e0ef",
+    "independent_validator_git_blob": "90073f5ec0a59ac09d02ae7f2f3fad180e2f28c1",
+    "execution_contract_git_blob": "0e6a282f6e5f6f32a41135797bbe4ce5bcc8d7b1",
+    "source_freeze_verifier_git_blob": "aed2fc7bba918ab9cc15334c83cef23f0c9260ab",
+    "workflow_git_blob": "9656ff20d5e60cde3166e7033d6dc24c0db66398"
+  },
+  "artifact": {
+    "id": 10171012113,
+    "name": "ve2-e0q-first-complete-v2",
+    "size_bytes": 22958,
+    "zip_sha256": "421fd70ffa78e28377312125ab846263c3e76b1ede79436ee8e7ee0cb33248fa",
+    "zip_sha256_independently_recomputed": true,
+    "internal_payload_checksums_verified": "25/25 PASS",
+    "independent_validation_sha256": "d3c27fc8f97011ab1bf868b65358074086c9b45ad153966e6bfeed4d78af4d72",
+    "provenance_sha256": "470be6d6fabf80a65c082b597f019f29c8e965bc0773e9486c3c89c3b27edb2a",
+    "source_provenance_sha256": "3bee418278912532dca8bceb1f0d86ebb5fba11e16ea40091d040196ae20eb28",
+    "checksums_manifest_sha256": "fcc3acf2115f7339bb8f4957449411b783da44e39077c9967a2fffeb409174f0"
+  },
+  "roles": {
+    "T01_OLD_HISTORY": {
+      "status": "PASS",
+      "exit": 0,
+      "home_assistant": "2022.10.0",
+      "loader_strategy": "LEGACY_NATIVE_LAZY_ASYNC_GET_INTEGRATION",
+      "component_canonical_sha256": "2169bc75c5e36ebeab0f5f774f3b229f556bd7071585b09633dd24b309d273f5",
+      "positive_service_events": 1,
+      "verified_absence_events": 0,
+      "positive_parent_sequence": 1,
+      "positive_service_sequence": 2,
+      "negative_cases_rejected": "5/5"
+    },
+    "T01_NEW_TARGET": {
+      "status": "PASS",
+      "exit": 0,
+      "home_assistant": "2026.1.0",
+      "loader_strategy": "EXPLICIT_ASYNC_SETUP_API_PRESENT",
+      "component_canonical_sha256": "73f96e96eb44d63cf0e6014b7c1891c69183ab56f71a3b963743a96f074a65c2",
+      "positive_service_events": 1,
+      "verified_absence_events": 0,
+      "positive_parent_sequence": 1,
+      "positive_service_sequence": 2,
+      "negative_cases_rejected": "5/5"
+    },
+    "T02_OLD": {
+      "status": "PASS",
+      "exit": 0,
+      "home_assistant": "2026.9.0",
+      "loader_strategy": "EXPLICIT_ASYNC_SETUP_API_PRESENT",
+      "component_canonical_sha256": "0d6a289d19a63cd03858ee52cb712d68ccaa21b68fd6bde0885138b8c79ae921",
+      "positive_service_events": 1,
+      "verified_absence_events": 0,
+      "positive_parent_sequence": 1,
+      "positive_service_sequence": 2,
+      "negative_cases_rejected": "5/5"
+    },
+    "T02_NEW": {
+      "status": "PASS",
+      "exit": 0,
+      "home_assistant": "2026.9.0",
+      "loader_strategy": "EXPLICIT_ASYNC_SETUP_API_PRESENT",
+      "component_canonical_sha256": "2bd2ca157a51e84d8df79f95a6b1900d6f70901e6ba521a3cbc02adbb55f8537",
+      "positive_service_events": 1,
+      "verified_absence_events": 0,
+      "positive_parent_sequence": 1,
+      "positive_service_sequence": 2,
+      "negative_cases_rejected": "5/5"
+    }
+  },
+  "promotion": {
+    "all_four_fresh_roles_pass": true,
+    "v1_partial_pass_carried": false,
+    "exact_same_boundary_blob_all_roles": true,
+    "positive_cardinality": "4/4 exact-one",
+    "verified_absence_cardinality": "4/4 exact-zero",
+    "negative_fail_closed": "20/20 rejected",
+    "artifact_uploaded_before_pass_surface": true,
+    "independent_post_execution_validation": "PASS",
+    "same_authority_rerun": false,
+    "promoted_boundary_git_blob": "765680028bde49ead76a22bebe5aace1bfbea60e"
+  },
+  "scientific_boundary": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "transition_blueprint_executed": false,
+    "historical_action_dispatched": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "future_inheritance_law": {
+    "future_VE2_science_must_use_exact_promoted_boundary_blob": "765680028bde49ead76a22bebe5aace1bfbea60e",
+    "boundary_semantics_may_not_be_changed_after_E0Q_PASS": true,
+    "new_boundary_revision_requires_new_prospective_qualification": true
+  },
+  "nonclaims": [
+    "E0Q-v2 qualifies the shared Home Assistant observation/completion boundary and real custom-component load context only.",
+    "No T01 or T02 result-bearing transition was executed in this gate.",
+    "No ReplayMark compatibility frontier result was opened in this gate."
+  ],
+  "next_gate": "Freeze the VE2 scientific native-execution constitution around this exact promoted boundary blob before opening any T01/T02 scientific state."
+}
