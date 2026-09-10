@@ -1,0 +1,48 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-failure-seal.v2",
+  "status": "SEALED_PRE_SCIENCE_PROBE_DEFINITION_FAILURE",
+  "execution": {
+    "branch": "ve2-runtime-discovery-qualification-v2",
+    "head": "c4f2c7ffac3679d820865f5451d28f2e7d25b0e3",
+    "run_id": 34509550697,
+    "run_attempt": 1,
+    "conclusion": "failure"
+  },
+  "artifact": {
+    "id": 10165435528,
+    "zip_sha256": "0d09e478859a915ee776c8a465b064b3713a5246c7a63693399a8381724da2be",
+    "result_sha256": "a413a2d24fbfe689a98f831279bc354808fe4e56e23aa146f6ff770b02415c0d",
+    "checksums_sha256": "eeaeb052ca2035984107bfe5bef3b7fcb6fd73fbdf88b60555d36f1da1dc2b78"
+  },
+  "forensic_result": {
+    "transport_preflight_pass": true,
+    "absolute_host_binds_pass": true,
+    "T01_OLD_HISTORY_first_candidate": "2022.10.0",
+    "T01_OLD_HISTORY_first_candidate_status": "PASS",
+    "T01_NEW_TARGET_selected": null,
+    "T02_COMMON_selected": null,
+    "common_newer_failure": "ModuleNotFoundError: custom_components.better_thermostat.const",
+    "probe_result_present": true,
+    "root_cause": "The inside probe imposed custom_components.better_thermostat.const as a mandatory standalone import even though that module is absent in the newer frozen source trees. This is a probe-definition overconstraint, not evidence that the integration's actual package/climate entrypoints are incompatible with every candidate HA runtime."
+  },
+  "classification": {
+    "authoritative_failure_class": "PRE_SCIENCE_PROBE_DEFINITION_OVERCONSTRAINT",
+    "v2_runtime_incompatibility_conclusion_promotable": false,
+    "v2_partial_T01_old_selection_promotable": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "transition_fixture_executed": false,
+    "historical_action_dispatched": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "successor_law": {
+    "same_authority_rerun": false,
+    "rerun_all_roles_from_first_candidate": true,
+    "candidate_order_change": false,
+    "candidate_set_change": false,
+    "source_identity_change": false,
+    "frontier_or_state_space_change": false,
+    "inside_probe_change_must_be_prospectively_frozen": true
+  }
+}
