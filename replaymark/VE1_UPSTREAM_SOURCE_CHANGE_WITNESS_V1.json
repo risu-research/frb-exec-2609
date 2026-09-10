@@ -1,0 +1,32 @@
+{
+  "schema": "replaymark.ve1.upstream-source-change-witness.v1",
+  "status": "SEALED_PRE_RESULT_SOURCE_WITNESS",
+  "repository": "n3roGit/MyHomeAssistantMods",
+  "path": "automation/BetterThermostatControl/BetterThermostat_RoomHeatControl_Lean.yaml",
+  "old": {
+    "commit": "611723a7cffd7cbc151afd0415c1a705900754f1",
+    "git_blob_sha1": "6ce2d0e433b8380d03289d450aa3dc2fbe2d3977"
+  },
+  "new": {
+    "commit": "87e8844e3e0fa0a47e586cecd2c4d412c7bc718f",
+    "parent_commit": "611723a7cffd7cbc151afd0415c1a705900754f1",
+    "git_blob_sha1": "5091b299da53ed3eaed85098d4e2a554289597e1",
+    "sha256": "16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443"
+  },
+  "adjacent_upstream_revision": true,
+  "source_level_invariants": {
+    "target_preset_block_byte_identical_expected": true,
+    "target_priority": ["boost", "sleep", "away", "eco", "activity", "comfort", "home"],
+    "old_action_boundary": "unconditional climate.set_preset_mode(target_preset)",
+    "new_action_boundary": "climate.set_preset_mode(target_preset) only if current preset != target preset",
+    "new_writeback_default": false,
+    "ve1_optional_trigger_bindings": "unset",
+    "ve1_writeback": false
+  },
+  "causal_interpretation": "VE1 isolates an authentic upstream parent-to-child behavioral change at the action boundary while holding the evaluated target-preset policy fixed. Under the frozen profile, the update retires redundant historical SET(target) actions precisely when current_preset already equals target_preset.",
+  "result_exposure": {
+    "home_assistant_executed_for_ve1": false,
+    "replaymark_executed_for_ve1": false,
+    "native_result_opened": false
+  }
+}
