@@ -1,0 +1,107 @@
+{
+  "schema": "replaymark.ve2.corrected-census-qualification-result-seal.v3",
+  "status": "SEALED_PUBLIC_CORRECTED_CENSUS_PASS",
+  "authority": "VE2_EXHAUSTIVE_UPSTREAM_CENSUS_ONLY",
+  "repository": "risu-research/frb-exec-2609",
+  "scientific_open_marker_head": "2dd2da3d8cb6ee4655ac2b1093db234bcc29a541",
+  "source_candidate_head": "5701f4e2cb8d76e50aa435275e70297c7a7fe88c",
+  "canonical_recovery_result_seal": {
+    "commit": "d9914c6814a79244733a72024a2bc006cc592ec9",
+    "blob": "4a0037595699ff33c96461faabec84adeb958152",
+    "recovery_artifact_id": 10154889430,
+    "recovery_artifact_zip_sha256": "cd46b110e8bcca395b90c7a004995eb668bc532b3d1af5bf71c8cd8efd863013"
+  },
+  "private_pre_result_authority": {
+    "repository": "risu-research/replaymark",
+    "head": "1902c10c870298728ac7622d0d1bbf25cc7826e1",
+    "invalidation_blob": "af8481d0895a8a39765409dd52943a847cf2b6cd",
+    "constitution_blob": "0915f77abd10f32c158b0d14265812c262642f7e",
+    "manifest_blob": "8cc0e559d83ccb3785938d787c0ef79cbea35cbf",
+    "private_verifier_blob": "5f789445659191f2a85cf0e9691bfcb0a4fac888",
+    "authority_blob": "6b22c3462d56b11b6fd9061fe8e974c0bf2f5b87"
+  },
+  "public_qualification": {
+    "workflow": ".github/workflows/ve2-census-qualification-v3.yml",
+    "run_id": 34488261269,
+    "run_attempt": 1,
+    "job_id": 102908022431,
+    "conclusion": "success",
+    "execution_head": "2dd2da3d8cb6ee4655ac2b1093db234bcc29a541",
+    "artifact_id": 10156582049,
+    "artifact_name": "ve2-public-corrected-census-qualification-v3",
+    "artifact_zip_sha256": "41222156f171e7e56b39056bf7dc276137cd40f120917fe692bcf2947f9f184d",
+    "artifact_checksum_manifest_sha256": "ded6cf207b8762d99491feb6f8fc9be2297424218d2a0595b4f3fda99178a7e6",
+    "qualification_json_sha256": "4d05e3e5ca769b601beadc8a1ed1f071899772c7b832691b7e2c4dc4fb854e4c",
+    "provenance_json_sha256": "d66bb6779c12eecf830fc83ddbcc7ccbcc7a545a408545598d2132c3bd341299",
+    "decisions_canonical_sha256": "db710e26ba74cd4f4dde8860d5fcf1193cea49173736848e896314468549def8",
+    "runner_os": "Ubuntu 24.04.5 LTS",
+    "runner_image": "ubuntu-24.04@20260907.300.1",
+    "ruby_version": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+    "psych_version": "5.0.1",
+    "checkout_action_sha": "11d5960a326750d5838078e36cf38b85af677262",
+    "upload_artifact_action_sha": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    "independent_redownload_zip_digest_match": true,
+    "independent_internal_checksums_all_pass": true
+  },
+  "frozen_upstream_census": {
+    "repository": "KartoffelToby/better_thermostat",
+    "snapshot_head": "d24bcf2da30b8dbaaf99c0a14ec91f3c3b58e942",
+    "file_count": 7,
+    "file_version_count": 16,
+    "adjacent_pair_count": 9,
+    "included_count": 2,
+    "excluded_count": 7,
+    "included_transition_ids": [
+      "VE2-T01-NIGHT-ACTION-FAMILY",
+      "VE2-T02-WEEKLY-GUARD-REALIZATION"
+    ],
+    "excluded_pair_ids": [
+      "VE2-X01-BATTERY-WHITESPACE",
+      "VE2-X02-HUMIDITY-NONTHERMOSTAT",
+      "VE2-X03-NIGHT-SOURCE-URL",
+      "VE2-X04-NIGHT-SELECTOR",
+      "VE2-X05-PRESENCE-NOTIFICATION",
+      "VE2-X06-WEEKLY-NONTHERMOSTAT",
+      "VE2-X07-WEEKLY-REINDENT"
+    ],
+    "all_9_pairs_independently_reconstructed_from_git": true,
+    "all_9_pairs_independently_reclassified": true,
+    "ruby_psych_parse_tree_used": true,
+    "thermostat_causal_action_projection_used": true,
+    "corpus_membership_changed_during_run": false
+  },
+  "preserved_pre_pass_failures": [
+    {
+      "run_id": 34483538569,
+      "classification": "PRE_EXECUTION_WORKFLOW_PARSE_FAILURE",
+      "scientific_cells": 0
+    },
+    {
+      "run_id": 34483837087,
+      "classification": "PRE_RESULT_CENSUS_DISCREPANCY_DETECTED",
+      "artifact_id": 10154726999,
+      "artifact_zip_sha256": "01860ccf8404d83467e32d324f0bd674c9ab45cab15da23aa765738655f36565",
+      "scientific_cells": 0
+    }
+  ],
+  "result_exposure_at_seal": {
+    "ve2_scientific_result_opened": false,
+    "frontier_prediction_opened": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0,
+    "per_transition_frontier_opened": false
+  },
+  "interpretation_boundary": {
+    "established": "The frozen Better Thermostat blueprint universe and all 9 adjacent blob-changing file-version pairs were independently reconstructed and the corrected 2-included/7-excluded semantic census was externally reproduced without changing corpus membership during the run.",
+    "not_established": [
+      "ReplayMark succeeds on either VE2 transition",
+      "the per-transition semantic compatibility frontier",
+      "the transition-specific state population",
+      "any VE2 runtime effect size"
+    ]
+  },
+  "rerun_authorized": false,
+  "same_census_authority_reclassification_authorized": false,
+  "post_pass_membership_change_authorized": false,
+  "next_gate": "Freeze transition-specific VE2 state-space, native execution semantics, expected frontier tables, and label-firewalled runtime constitution for both included transitions before opening any Home Assistant or ReplayMark scientific cell."
+}
