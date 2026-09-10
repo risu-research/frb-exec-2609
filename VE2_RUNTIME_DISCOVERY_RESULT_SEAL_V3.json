@@ -1,0 +1,116 @@
+{
+  "schema": "replaymark.ve2.runtime-discovery-result-seal.v3",
+  "status": "SEALED_RUNTIME_DISCOVERY_PASS_PRE_E0Q",
+  "repository": "risu-research/frb-exec-2609",
+  "execution": {
+    "branch": "ve2-runtime-discovery-qualification-v3",
+    "head": "52f5a370ef683b1a50c5c0daec28e720a4a0d4b2",
+    "source_candidate": "68213e02a9897d7bc185076dcca1234fad7dfd44",
+    "run_id": 34519267934,
+    "run_attempt": 1,
+    "conclusion": "success"
+  },
+  "ancestry": {
+    "v1_failure_seal": "4a57ff4926c5a33519092ca0d36b0e65fab04b6f",
+    "v2_failure_seal": "9f34c80649753e3bce331d9e2da986a0f73c7eff",
+    "private_v3_pre_result_authority": "07d9b3e40c28df44075c98c8c839aba14fd09001"
+  },
+  "artifact": {
+    "id": 10169063567,
+    "name": "ve2-runtime-discovery-qualification-v3",
+    "size_bytes": 10481,
+    "zip_sha256": "7417cf62369daaded130dbf38bef30cda16dfeddbc43e6def5e33587ca7c69ec",
+    "result_sha256": "d5021a2d87006ca3eb98c850bd57c20bfdf88930729197fae63d6179d97ac176",
+    "provenance_sha256": "04e91012fadca1c2136c2dcc8b4dce0ac59313cfa0539efa4f642feb316387ac",
+    "checksums_sha256": "87ab418f52b9f951390b7e44b6a3569aec5b48f6657167c18405c8e75c4d6fcd",
+    "internal_checksum_verification": "8/8 PASS",
+    "zip_digest_independently_recomputed": true
+  },
+  "selection_law": {
+    "first_PASS_candidate_is_selected": true,
+    "all_roles_restarted_from_first_candidate_after_v2": true,
+    "fallback_candidates_consumed": 0,
+    "candidate_order_changed": false,
+    "candidate_set_changed": false
+  },
+  "selected_runtime_substrates": {
+    "T01_OLD_HISTORY": {
+      "home_assistant_tag": "2022.10.0",
+      "home_assistant_repo_digest": "ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e",
+      "home_assistant_image_id": "sha256:8cacbb6f9389bc78f50b9b2878ae5dccdee97ead3157a4c84777ecab4bf533ce",
+      "python_version": "3.10.5",
+      "source_commit": "cd4c3121c92f59d5ac1f3533424bc570209ce6ef",
+      "component_tree_sha1": "6b05ff29887ec1941bf0cd6203faefbb9207122c",
+      "blueprint_blob_sha1": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+      "blueprint_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8",
+      "manifest_version": "1.0.0-dev",
+      "manifest_sha256": "cae73e2adda7617a9a745e2ea7f4dce3ba9c907173d25d1d889bdf9f70bce471",
+      "hacs_sha256": "4d04afeab451a8dc4e0c7ee7ffd9dd3e6671ce7f82447e103f611c326517cb63",
+      "inside_probe_sha256": "8ec89afc7433ac5e31c679d305882d9c46ff79aba05f495b98dc8672eb037dcb",
+      "syntax_checked_python_files": 15,
+      "mandatory_entrypoints_imported": ["custom_components.better_thermostat", "custom_components.better_thermostat.climate"],
+      "manifest_requirements_importable": true,
+      "first_candidate_pass": true
+    },
+    "T01_NEW_TARGET": {
+      "home_assistant_tag": "2026.1.0",
+      "home_assistant_repo_digest": "ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7",
+      "home_assistant_image_id": "sha256:bbdcc6e516cef391711306b72c828e96e8015c97415855dacf981ecc244a641e",
+      "python_version": "3.13.11",
+      "source_commit": "96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f",
+      "component_tree_sha1": "44457f94e281959587245575f5f4003427122031",
+      "blueprint_blob_sha1": "19c99196ed611729338f01bc77ea1b5deda7aa02",
+      "blueprint_sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363",
+      "manifest_version": "1.8.0-dev",
+      "manifest_sha256": "55d97cb91b27127e6a060ff69cba82b656b4fd0430549585c258ab28f7d2a20a",
+      "hacs_sha256": "24cb2be789fa7b378c934cb9da39a709b3561b09dc50d137b2db1dddfbaddbb7",
+      "inside_probe_sha256": "1225f9b488a1a93f0d5f98cfdc09be721ad9230fae41ca6c378fae7bc8ff63a3",
+      "syntax_checked_python_files": 48,
+      "mandatory_entrypoints_imported": ["custom_components.better_thermostat", "custom_components.better_thermostat.climate"],
+      "manifest_requirements_importable": true,
+      "first_candidate_pass": true
+    },
+    "T02_COMMON": {
+      "home_assistant_tag": "2026.9.0",
+      "home_assistant_repo_digest": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+      "home_assistant_image_id": "sha256:d91f64bbfc9b532755085420f03ce31a62c5a5b85f9fe783932c783b9b7a32f1",
+      "python_version": "3.14.6",
+      "old_source_commit": "ac189909982c5edea1260e767027d6fad90ef4bd",
+      "old_component_tree_sha1": "8285c80243785bea21410cafe84311f40846c167",
+      "old_blueprint_blob_sha1": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+      "old_inside_probe_sha256": "a6bb055756659834cf64442264e8842c5f719f746a92c6bdc1e22c36b9c75ebe",
+      "new_source_commit": "5b4496de5659fd2c6ec5c67a9797e6659797866c",
+      "new_component_tree_sha1": "3392ec4e42fe0e0b789eb56dc5f2c563afb5c6b0",
+      "new_blueprint_blob_sha1": "3255957740ec44285d866d8be7d78bf905c1257c",
+      "new_inside_probe_sha256": "1c0c0432f72034d37f90473fd51de40839583e8010b8c47034d5ed2c064bd41c",
+      "new_numpy_requirement_importable": true,
+      "both_source_trees_pass_same_exact_runtime": true,
+      "preferred_digest_matched": true,
+      "first_candidate_pass": true
+    }
+  },
+  "qualification_scope": {
+    "absolute_bind_transport_preflight": "PASS",
+    "source_identity_reconstruction": "PASS",
+    "component_python_syntax_compilation": "PASS",
+    "manifest_requirement_importability": "PASS",
+    "actual_package_and_climate_entrypoint_import": "PASS",
+    "T01_old_proprietary_service_surface_witness": "PASS",
+    "T01_new_old_service_surface_absence_witness": "PASS"
+  },
+  "scientific_boundary": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "transition_fixture_executed": false,
+    "historical_action_dispatched": false,
+    "ve2_home_assistant_scientific_cells": 0,
+    "ve2_replaymark_scientific_cells": 0
+  },
+  "nonclaims": [
+    "This seal establishes deterministic runtime-substrate discovery and import/executability prerequisites only; it does not establish transition-specific E0Q measurement correctness.",
+    "It does not establish that T01/T02 scientific fixtures execute correctly on the selected substrates.",
+    "It does not establish any ReplayMark frontier result.",
+    "The T01 Old import emitted a non-fatal version-read warning because /config was not mounted in discovery; transition-specific E0Q must exercise the actual configuration/setup path rather than treating discovery importability as full setup qualification."
+  ],
+  "next_gate": "Freeze and execute transition-specific orthogonal E0Q on these exact selected OCI/source substrates before opening any VE2 scientific state."
+}
