@@ -3,11 +3,22 @@
   "status": "PASS",
   "authority": "IMMUTABLE_ORTHOGONAL_RUNTIME_QUALIFICATION_PASS",
   "repository": "risu-research/frb-exec-2609",
-  "branch": "ve1-e0q-result-seal-v1",
+  "branch": "ve1-e0q-result-seal-v1-interface-fix-v2",
   "private_constitution_head": "7c53b5bdc70b600156380877a406b5988d35125a",
   "capsule_source_head": "84a898520c807d4b80dbfba897e2f664be8adf39",
+  "artifact_sha256": "6649ef3e2c422dda146cba05bc4247770c49fae4dac7b7652f2b950a9ac3b9e2",
   "e0q_authority_open_head": "da675860facde1e1c217818f9547cb6996c40c6a",
   "e0q_authority_open_file": "VE1_E0Q_AUTHORITY_OPEN_V1.json",
+  "pre_scientific_interface_correction": {
+    "original_result_seal_head": "340a9642a8024ea9f14a7453d6a120e19ed93b65",
+    "original_result_seal_blob": "bca640ef92bac933a78b31d1c0083a1a4873be50",
+    "scientific_cells_before_correction": 0,
+    "scientific_result_opened_before_correction": false,
+    "reason": "The already-frozen scientific workflow reads seal['artifact_sha256'] at top level, while the original immutable seal stored the identical digest only at artifact.artifact_sha256.",
+    "semantic_or_evidence_change": false,
+    "runtime_rerun": false,
+    "changed_information": "Added a top-level alias of the already-sealed artifact digest and recorded this correction provenance. All underlying E0Q evidence, run identity, checksums, runtime qualification facts, and scientific-firewall facts are unchanged."
+  },
   "workflow": {
     "name": "VE1 E0Q orthogonal native runtime qualification v1",
     "path": ".github/workflows/ve1-e0q-v1.yml",
@@ -79,5 +90,5 @@
   "independent_inspection_exit": 0,
   "scientific_result_opened": false,
   "rerun_authorized": false,
-  "promotion": "E0Q runtime/instrumentation boundary qualified for the frozen VE1 scientific first-complete workflow. This seal does not authorize any alteration of scientific source, state population, expected table, measurement boundary, absence semantics, retry/fallback ownership, or promotion criteria."
+  "promotion": "E0Q runtime/instrumentation boundary qualified for the frozen VE1 scientific first-complete workflow. This successor adds only the workflow-compatible top-level artifact_sha256 alias plus pre-scientific correction provenance; it does not alter the underlying evidence or authorize any alteration of scientific source, state population, expected table, measurement boundary, absence semantics, retry/fallback ownership, or promotion criteria."
 }
