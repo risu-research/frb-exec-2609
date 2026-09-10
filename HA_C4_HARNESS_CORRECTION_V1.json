@@ -1,0 +1,44 @@
+{
+  "schema": "replaymark.ha-c4.harness-correction.v1",
+  "status": "FROZEN_BEFORE_CORRECTED_QUALIFICATION",
+  "scope": "qualification harness only",
+  "first_public_run": {
+    "repository": "risu-research/frb-exec-2609",
+    "run_id": 34419997110,
+    "attempt": 1,
+    "head": "8c891f9aa35b9f97874e62445c63467bd7172700",
+    "replica_0_artifact_id": 10130534320,
+    "replica_0_artifact_sha256": "10085129062a18d9d1628275d9517f7a938dc0a75860db1ebda05f8fe8756f92",
+    "replica_1_artifact_id": 10130536833,
+    "replica_1_artifact_sha256": "6a875b910778adf5a065078ceb0b4ddb85ab7bdb63f59ee3a90b8cf684f983ff",
+    "replica_exit_codes": [1, 1],
+    "stderr_byte_identical": true,
+    "failure_stage": "terminal promotion meta-assertion after all frozen cases had executed"
+  },
+  "observed_substantive_criteria_before_failure": {
+    "all_12_cases_pass": true,
+    "pre_sink_adversarial_cases_zero_historical_calls": true,
+    "trust_failures_never_reclassified_as_semantic_unresolved": true,
+    "sequential_duplicate_total_historical_calls_one": true,
+    "concurrent_32_duplicate_total_historical_calls_one": true,
+    "sink_exception_exactly_one_failing_attempt": true,
+    "sink_exception_retry_attempts_zero": true,
+    "sink_exception_native_fallback_calls_zero": true,
+    "sink_exception_regeneration_calls_zero": true,
+    "static_repair_surface_zero": true
+  },
+  "root_cause": "v1 terminal code required every value in the promotion record to be True, but latency_participates_in_promotion is intentionally and prospectively False. The harness therefore rejected its own correct negative metadata flag after all substantive criteria were True.",
+  "v1_harness_git_blob": "093e50c9fa2fb181412075010c114b2966a544c3",
+  "v2_harness_git_blob": "c1a284013f2a6c7608789fcb04790042accedb07",
+  "correction": "v2 preserves every v1 case constructor and frozen expected outcome, checks the ten substantive promotion criteria for True, and separately preserves latency_participates_in_promotion=false as non-promotional metadata.",
+  "unchanged": {
+    "c3_gate_blob": "ec8d445bcf6659bead696fa4868ff7778123dbf6",
+    "c4_protocol_blob": "219d10852dd2417d9b2e645a2167eff4073b305d",
+    "c4_case_set": true,
+    "c4_expected_outcomes": true,
+    "baseline_carrier_rule": true,
+    "trust_boundary": true,
+    "latency_or_performance_promotion": false
+  },
+  "interpretation": "This is an implementation-hygiene correction, not an experimental result repair. The first run is preserved and must not be relabeled a scientific failure or discarded."
+}
