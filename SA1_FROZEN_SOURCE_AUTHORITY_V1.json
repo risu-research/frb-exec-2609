@@ -1,0 +1,63 @@
+{
+  "schema": "replaymark.sa1.frozen-source-authority.v1",
+  "status": "FROZEN_PRE_LIVE_RESULT",
+  "live_result_opened": false,
+  "workflow_source_parent": "b02f1bc03dc216dd1f696b4d45443349ee4bf847",
+  "private_source_freeze_head": "623f83f0411506ec4d4efe3291177c1b4a8cadc8",
+  "prelive_expected_authority": "cbb28b45bec65c98845123358c05c14d5b83a805",
+  "static_qualification": {
+    "public_head": "3ec06e1d07c357c9b4cefb467dda5025ba806e4d",
+    "run_id": 34427855537,
+    "run_attempt": 1,
+    "conclusion": "success",
+    "artifact_id": 10133341203,
+    "artifact_sha256": "96b94ff1a98d03db67065a6c64a2bd0b763f6f5765d8cbd53d74465f8e005f8d",
+    "rows_sha256": "e70b8db3ee6d2644c46dc2c8c6bef9d11b86e98a1cd2f59947632308b798c9c0",
+    "live_result_opened": false
+  },
+  "expected": {
+    "rows": 32,
+    "rows_sha256": "e70b8db3ee6d2644c46dc2c8c6bef9d11b86e98a1cd2f59947632308b798c9c0",
+    "pretty_file_sha256": "7fef313e1c716169038ae1bcb9331bfb9cf7ad1481acbf433503aa28a94b5e72",
+    "exact_service_calls_per_replica": 24,
+    "no_consequential_call_rows_per_replica": 8,
+    "sampling": "none"
+  },
+  "executable_git_blobs": {
+    "replaymark_verification/sa1_native_source_adequacy.py": "9a63ee18485373eecbaf92cc6a585fc3f9579e64",
+    "replaymark_verification/sa1_independent_validate.py": "f51891f3ff796488a22a5d10dac2e04137ce62fd",
+    "replaymark_verification/sa1_aggregate.py": "f321f5dd5869413e95bcda537b326f73250ccc1b",
+    "replaymark_verification/build_sa1_expected_semantic_table.py": "a3bc643873403143a8a6b5880497e9cb98583079"
+  },
+  "authoritative_workflow_path": ".github/workflows/sa1-authoritative-first-complete-v2.yml",
+  "authoritative_workflow_git_blob": "c17a4b1125fcb7bd49015065e007577ed80c6e64",
+  "superseded_pre_live_workflow_draft_removed": true,
+  "runtime_pins": {
+    "origin_repository": "risu-research/appeal-discovery-consumer",
+    "origin_commit": "c290786d92e7546345b348916b3b3d1c11780e4c",
+    "c2_public_head": "052cd5e1199784577fbb5ea5364909aa302fb4ee",
+    "c2_native_target_git_blob": "f28c7e04fd033dd3774c110f1954ce2ae851cd99",
+    "legacy_model_git_blob": "dc798178962351e869abd6134c7c34d9152ed0e6",
+    "home_assistant_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "blueprint_commit": "57d56f076c05ccaa9553e6bd4b673b6d43a8cf7f",
+    "blueprint_sha256": "16d52ce11dec44fa9ca533d15f3cec1eb9646d59bf6a455bd905af63cdf86443",
+    "better_thermostat_commit": "b86561f61e5ba1259fc63e590f4847e9ac743d7f",
+    "better_thermostat_version": "1.9.2",
+    "better_thermostat_tree_sha256": "bc648881395399a4d1957380409e1b8ad3c0c056ba9ae30a53b39d5439fef2c0"
+  },
+  "population": {
+    "replicas": [0, 1],
+    "states_per_replica": 32,
+    "total_native_cells": 64,
+    "complete_population": true,
+    "no_result_based_exclusion": true,
+    "no_early_stop": true
+  },
+  "promotion": {
+    "exact_frozen_table_agreements": 64,
+    "expected_exact_service_calls": 48,
+    "expected_no_consequential_call_rows": 16,
+    "unexpected_or_missing_native_outcomes": 0
+  },
+  "authority_rule": "The next scientific branch may add only SA1_AUTHORITY_OPEN_V1.json as an exact one-file child of this source-freeze commit. After that opening, no source/table/profile edit or workflow re-attempt is authorized."
+}
