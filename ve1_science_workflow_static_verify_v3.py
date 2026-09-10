@@ -178,10 +178,12 @@ def verify() -> dict[str, Any]:
     }
     assert imports(TRANSPORT) <= allowed_imports, imports(TRANSPORT) - allowed_imports
     assert_no_shell_true(TRANSPORT)
-    assert "from replaymark" not in transport.lower()
-    assert "import replaymark" not in transport.lower()
-    assert "from homeassistant" not in transport.lower()
-    assert "import homeassistant" not in transport.lower()
+    transport_tree = ast.parse(transport)
+    forbidden_dynamic_calls = {"__import__", "eval", "exec", "compile"}
+    for node in ast.walk(transport_tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            assert node.func.id not in forbidden_dynamic_calls, node.func.id
+    assert "importlib" not in imports(TRANSPORT)
     assert "target_preset" not in transport
     assert "compatibility" not in transport
     assert "f\"{report}:/results/REPORT.json\"" in transport
