@@ -1,11 +1,12 @@
 {
   "schema": "replaymark.artifact-v4.g4-public-transport-freeze.v1",
-  "status": "FROZEN_BEFORE_G4_BASELINE_OPEN",
-  "private_source_commit": "84269307120bb85d48959f66d1117b65cd01406f",
+  "status": "FROZEN_BEFORE_FRESH_G4_BASELINE_OPEN_AFTER_RUN1_TRANSPORT_FAILURE",
+  "private_source_commit": "3f462e84f62d950a50e68fe3f4e257778a0f7ecb",
   "historical_predecessor_commit": "d017fde0d9ee5c225cf09199f54a510851b082ff",
   "ve2_pre_result_commit": "25ebfd817420fa0f782419977e4ec166f6ca358a",
   "ve2_pre_result_tree": "88f796f2e8ff361aa07925500c80b2ce0f8532e9",
   "public_preservation_base": "b0ef07e121f70be8668873d7263b7c13d216c6a6",
+  "run1_failure_preserved": {"run_id":34638982156,"job_id":103393736593,"public_failure_seal_commit":"e329ca6c00b665073ff9f1016f0363d43c1c45db","classification":"MULTI_REF_FETCH_HEAD_ASSERTION_BUG","scientific_open":false},
   "private_program_blobs": {
     "g4_constitution": "7d026917bc3c6df5791726c20d0bdc7b9d63161c",
     "g4_source_freeze": "b8de19de33332f62178dbe52094579f1bd013004",
@@ -16,13 +17,7 @@
     "blind_AB_comparator": "51b62eaa50b1aca95df88d066be15d6cd500f574",
     "v92_comparator": "c2bcdfee5f61086a354df109d2a40e552594c09b"
   },
-  "execution_order": [
-    "A_DERIVE_SEAL",
-    "B_PREPARE_SANITIZE_DERIVE_SEAL",
-    "A_B_COMPARE_SEAL",
-    "V92_COMPARE_ONLY_IF_A_B_MATCH",
-    "FINAL_BASELINE_RECEIPT"
-  ],
-  "forbidden_in_G4": ["challenge execution","metamorphic execution","new measurement","historical experiment rerun","authority replacement","expected-value tuning"],
-  "public_base_contains_only_preexisting_authority_mirrors_and_transport_helpers_needed_for_reproducible_execution": true
+  "prospective_transport_repair": "Do not assert a particular FETCH_HEAD ordering after a multi-ref fetch. Verify each requested historical commit object directly and checkout the declared historical base by exact SHA.",
+  "execution_order": ["A_DERIVE_SEAL","B_PREPARE_SANITIZE_DERIVE_SEAL","A_B_COMPARE_SEAL","V92_COMPARE_ONLY_IF_A_B_MATCH","FINAL_BASELINE_RECEIPT"],
+  "forbidden_in_G4": ["challenge execution","metamorphic execution","new measurement","historical experiment rerun","authority replacement","expected-value tuning"]
 }
