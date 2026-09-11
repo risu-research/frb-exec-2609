@@ -1,0 +1,11 @@
+{
+  "schema": "replaymark.ve2.scientific-contract-exact-mirror-open.v2",
+  "authority": "VE2_EXACT_SCIENTIFIC_CONTRACT_MIRROR_V2",
+  "source_freeze_public_head": "55b8b7cfef8aabff46d50d09278f28b0de2d465c",
+  "predecessor_failure_seal": "4fe589aa0b73a1e2ea89320222e7ec11534ce8e0",
+  "e0r_artifact_id": 10175341605,
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "scientific_cells": 0,
+  "same_authority_rerun": false
+}
