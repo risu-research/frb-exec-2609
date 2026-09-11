@@ -1,0 +1,81 @@
+{
+  "schema": "replaymark.ve2.science-transport-qualification-contract.v4",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "authority": {
+    "private_preopen_commit": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "private_science_constitution_commit": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "public_e0r_pass_seal": "390280823553b2c9b7c5996953891cfae5648fb1",
+    "v3_failure_seal": "0d245fddf5a933a99f5ba77fcae13a12af6836bd"
+  },
+  "inheritance": {
+    "v3_runtime_blob": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "v3_preflight_validator_blob": "6f8cf9393547359597c8ccb2f236003df6f86722",
+    "base_transport_contract_v1_blob": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "unchanged_transport_validator_v1_blob": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "transport_case_population_changed": false,
+    "transport_pass_criteria_changed": false,
+    "clock_transport_law_changed": false,
+    "double_witness_law_changed": false,
+    "scientific_population_changed": false,
+    "scientific_estimand_changed": false
+  },
+  "v4_delta": {
+    "runtime_path": "ve2_science_transport_qualify_v4.py",
+    "runtime_blob": "8c33de1d8717983ffecd4a45634de0d2469ac19d",
+    "preflight_validator_path": "ve2_science_transport_preflight_validate_v4.py",
+    "preflight_validator_blob": "6d45caa8d2ae721cf2dc8fe33ca61b263451e309",
+    "registry_closure_id": "replaymark.ve2.native-device-entity-registry-closure.v1",
+    "only_semantic_change_from_v3": "Fully load native device registry followed by native entity registry before helper/automation setup.",
+    "native_load_selection": "Call official module async_load; pass load_empty=True only when that parameter exists in the frozen runtime function signature; otherwise call native async_load(hass) with no invented keyword.",
+    "native_setup_selection": "If a registry module exposes native async_setup, invoke it once before async_load; otherwise invoke no substitute setup.",
+    "registry_order": ["device_registry", "entity_registry"],
+    "manual_registry_internal_mutation": false,
+    "retry_after_registry_failure": false,
+    "result_dependent_registry_fallback": false
+  },
+  "source_law": {
+    "HA_2022_10_entity_registry_blob": "e58dde19127bbbe1c3e8ca8d5d8ad21de3b9fd85",
+    "HA_2022_10_device_registry_blob": "908db74d40dffed78a3fd2595a9716139a02178e",
+    "HA_2022_10_entity_registry_native_load": "async_load(hass) creates DATA_REGISTRY and awaits EntityRegistry.async_load, which initializes entities",
+    "HA_2022_10_device_registry_native_load": "async_load(hass) creates DATA_REGISTRY and awaits DeviceRegistry.async_load",
+    "HA_2026_9_entity_registry_native_load": "entity registry load waits for device registry async_wait_loaded before migration/entity processing",
+    "HA_2026_9_device_registry_native_load": "device registry native load initializes registry collections and sets its native loaded event"
+  },
+  "preflight_pass_law": {
+    "all_three_exact_image_versions": true,
+    "all_three_status": "PASS",
+    "all_three_zero_trigger_stimuli": true,
+    "all_three_zero_automation_invocations": true,
+    "all_three_zero_service_calls": true,
+    "all_three_zero_trace_contexts": true,
+    "all_six_native_registries_loaded": true,
+    "all_six_native_registries_empty": true,
+    "manual_registry_mutation": false,
+    "scientific_cells": 0,
+    "frontier_result_seen": false,
+    "independent_v4_preflight_validator_required": true
+  },
+  "qualification_pass_law": {
+    "T01_OLD_RUNTIME": ["state"],
+    "T01_NEW_RUNTIME": ["state"],
+    "T02_RUNTIME": ["state", "state_for_120s", "time", "homeassistant_start_delay_30s"],
+    "unchanged_independent_transport_validator_required": true,
+    "scientific_cells": 0,
+    "frontier_result_seen": false,
+    "transition_blueprint_executed": false
+  },
+  "attempt_law": {
+    "v3_never_rerun": true,
+    "v4_promotable_attempt": 1,
+    "v4_same_authority_rerun": false
+  },
+  "scientific_hygiene": {
+    "scientific_fixture_mounted": false,
+    "scientific_execution_state_manifest_mounted": false,
+    "expected_frontier_mounted": false,
+    "historical_better_thermostat_action_mounted": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  }
+}
