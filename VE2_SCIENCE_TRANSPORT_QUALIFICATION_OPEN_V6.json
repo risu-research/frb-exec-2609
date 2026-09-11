@@ -1,0 +1,12 @@
+{
+  "schema": "replaymark.ve2.science-transport-qualification-open.v6",
+  "authority": "VE2_CROSS_VERSION_SCIENCE_TRANSPORT_PRE_SCIENCE_V6",
+  "source_freeze_public_head": "374067d56b842a56894efbefdf850a2bace2dc65",
+  "diagnosis_seal": "5f541f3976946ca21d3a911b49f6f0f69158d369",
+  "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "neutral_transport_rows_before_open": 0,
+  "scientific_cells": 0,
+  "same_authority_rerun": false
+}
