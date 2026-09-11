@@ -1,0 +1,40 @@
+{
+  "schema": "replaymark.artifact-v3.public-execution-transport-freeze.v1",
+  "status": "FROZEN_BEFORE_FIRST_WHOLE_PAPER_EXECUTION",
+  "public_branch": "artifact-v3-whole-paper-exec",
+  "base_preservation_head": "b0ef07e121f70be8668873d7263b7c13d216c6a6",
+  "base_preservation_tree": "b1fd508c81d9597b88fe2710cb921c87f76852ce",
+  "private_v3_source_commit": "3c4b6cc209bf5b6d938ac432be218818e87b700c",
+  "historical_predecessor": {
+    "repository": "risu-research/appeal-discovery-consumer",
+    "commit": "d017fde0d9ee5c225cf09199f54a510851b082ff",
+    "visibility": "public"
+  },
+  "ve2_pre_result_authority": {
+    "repository": "risu-research/frb-exec-2609",
+    "commit": "25ebfd817420fa0f782419977e4ec166f6ca358a",
+    "tree": "88f796f2e8ff361aa07925500c80b2ce0f8532e9"
+  },
+  "s6_authority_replay": {
+    "repository": "risu-research/frb-exec-2609",
+    "commit": "511744b34d230707e2606697d348b48c80b4bb6d",
+    "preserved_paper_view_git_blob": "a5d0ec368cc2a0e07bd8e7838f6d3878de3b1e3b"
+  },
+  "private_source_transport": {
+    "path": "tools/qx_private_source.py",
+    "git_blob": "7cb2b30e2ad220ea5a27de9f8bc26c492eff35a8",
+    "token_scope_role": "read-only source checkout",
+    "source_token_must_not_be_printed": true,
+    "private_repository_name_must_not_be_hardcoded_in_workflow": true
+  },
+  "execution_law": {
+    "new_scientific_measurement": false,
+    "historical_experiment_rerun": false,
+    "scientific_source_change": false,
+    "expected_value_change_after_execution": false,
+    "public_carrier_is_authority_replacement": false,
+    "derivation_precedes_expected-value_comparison": true,
+    "scientific_mismatch_must_fail": true,
+    "workflow_file_is_added_last_to_trigger_first_execution": true
+  }
+}
