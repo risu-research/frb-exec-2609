@@ -1,0 +1,39 @@
+{
+  "schema": "replaymark.ve2.scientific-static-packaging-remediation.v2",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_failure_seal": "16245ba7500a81ccff18f9380b1be3e5d7a63f23",
+  "predecessor_run": {
+    "workflow_run_id": 34555375191,
+    "run_attempt": 1,
+    "failure_layer": "GIT_COMMIT_PACKAGING_AFTER_ALL_QUALIFICATION_GATES",
+    "failure_class": "MISSING_GIT_AUTHOR_IDENTITY"
+  },
+  "repair": {
+    "scope": "PACKAGING_ONLY",
+    "scientific_semantics_changed": false,
+    "runtime_worker_changed": false,
+    "contract_runtime_changed": false,
+    "raw_validator_changed": false,
+    "postrun_adjudicator_changed": false,
+    "science_workflow_changed": false,
+    "runtime_bundle_builder_changed": false,
+    "preflight_driver_changed": false,
+    "preflight_validator_changed": false,
+    "static_source_verifier_changed": false,
+    "change": "Before git commit-tree, set deterministic repository-local git user.name and user.email. All qualification gates rerun from scratch and no v1 success artifact is used as an input."
+  },
+  "deterministic_git_identity": {
+    "user_name": "ReplayMark VE2 Static Seal",
+    "user_email": "replaymark-ve2-static-seal@users.noreply.github.com",
+    "scope": "repository-local"
+  },
+  "successor_law": {
+    "run_attempt": 1,
+    "successful_subset_carry_forward": false,
+    "same_authority_rerun": false,
+    "sealed_output_branch": "ve2-scientific-capsule-sealed-v1",
+    "science_branch_must_remain_absent": "ve2-scientific-authority-v1",
+    "science_open_must_remain_absent": true,
+    "scientific_cells": 0
+  }
+}
