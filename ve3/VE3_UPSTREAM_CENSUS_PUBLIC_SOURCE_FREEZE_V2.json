@@ -1,0 +1,56 @@
+{
+  "schema": "replaymark.ve3.upstream-census-public-source-freeze.v2",
+  "status": "FROZEN_PRE_HISTORY_OPEN_PUBLIC_EXECUTION_V2",
+  "authority_role": "PUBLIC_EXECUTION_SOURCE_FREEZE_SUCCESSOR",
+  "parent_before_source_freeze": "94a994d93a86e35d6d959be3fdaa4710e744d288",
+  "private_protocol_commit": "6e4721894f24f27b69e4f2f2396defc77a581b60",
+  "private_source_freeze_commit": "6caac34fea960018a0c2c9716ae92d995c368618",
+  "private_failure_seal_commit": "72994fc3d784d3277b2be412ed10ac348bd99afa",
+  "public_v1_failure_seal_commit": "a11b54c6c4ec9090df84f40fc2c109cacec44b7e",
+  "remediation_commit": "21df64fb62f0c3a9f5f15721d1f1bf46e5b79507",
+  "private_runner_git_blob": "80bed2044d191df3d861d9cbcf1c2aba232579ca",
+  "private_validator_git_blob": "60b6e77a4bd45e5fab50d12c32e6264a86dc5cdc",
+  "public_runner_git_blob": "80bed2044d191df3d861d9cbcf1c2aba232579ca",
+  "public_validator_git_blob": "60b6e77a4bd45e5fab50d12c32e6264a86dc5cdc",
+  "public_workflow_git_blob": "4b8a07c15a293c9047f513f06487b0f3ea84f0ae",
+  "byte_identity": {
+    "runner_identical_to_private_frozen_source": true,
+    "validator_identical_to_private_frozen_source": true,
+    "classifier_or_corpus_rule_changed": false,
+    "protocol_changed": false
+  },
+  "orchestration_delta_from_failed_public_v1": {
+    "allowed_change": "actions/checkout fetch-depth",
+    "old_value": 2,
+    "new_value": 3,
+    "purpose": "Expose source-freeze parent locally for provenance assertion before any upstream input is opened.",
+    "other_result_bearing_logic_changed": false
+  },
+  "execution_dependencies": {
+    "actions_checkout_commit": "11d5960a326750d5838078e36cf38b85af677262",
+    "runner_label": "ubuntu-latest",
+    "host_yaml_parser": "PyYAML==6.0.2",
+    "home_assistant_parser_image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293"
+  },
+  "frozen_upstream_heads": {
+    "Blackymas/NSPanel_HA_Blueprint": "05ecefde2bac5db8bc96c02148058518d78a06fb",
+    "EPMatt/awesome-ha-blueprints": "79b7c6b65a0d19de0863d588c600803cbc879a34",
+    "Sian-Lee-SA/Home-Assistant-Switch-Manager": "4b600075fae2d7bab5673afbfd28df5a8ac77e6b",
+    "SirGoodenough/HA_Blueprints": "abfe45f22ad06e11a8ca9bab302fb6e5ab3cf107"
+  },
+  "authority_rules": {
+    "one_shot_open_required": true,
+    "failed_v1_authority_never_rerun": true,
+    "same_v2_authority_rerun_after_any_upstream_history_exposure": false,
+    "sealed_output_branch_must_not_preexist": true,
+    "sealed_result_must_be_exact_one_file_child_of_open": true,
+    "private_receipt_required_after_success": true
+  },
+  "pre_open_state": {
+    "upstream_history_opened_by_v2": false,
+    "adjacent_pairs_seen_by_v2": false,
+    "native_old_new_action_outputs_seen": false,
+    "compatibility_frontier_seen": false,
+    "scientific_cells": 0
+  }
+}
