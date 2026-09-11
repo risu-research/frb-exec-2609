@@ -7,35 +7,45 @@
     "source_freeze": "4e8770b41e6fa0ec4c5eff3763765581b908c396",
     "open": "8367a94bc6d315a33122a1502f205ecb910de0e5",
     "run_id": 34547040426,
+    "run_attempt": 1,
+    "aggregate_adjudication_sha256": "dd748b2adb3063fa5f4e5f614af0da6109c6ecdfe0a9d3c34f558545b16a1acd",
     "result": {
       "state": "PASS",
       "state_for_120s": "PASS",
       "time": "PASS",
       "homeassistant_start_delay_30s": "EXCEPTION"
-    }
+    },
+    "startup_timeout_before_clock_driver": true,
+    "startup_timeout_before_witness_collection": true
   },
   "source_evidence": {
     "home_assistant_version": "2026.9.0",
     "home_assistant_tag_commit": "dfb5a9e690daaf204b542896e4b595e61a11a401",
     "native_trigger_file": "homeassistant/components/homeassistant/triggers/homeassistant.py",
+    "native_trigger_file_blob": "4f96b25d281e706b8e8adf3f015d15af12960002",
+    "official_test_file": "tests/components/homeassistant/triggers/test_homeassistant.py",
+    "official_test_file_blob": "c686f8273052b0891d7dec9c111d48b86abf79fa",
     "native_listener_symbol": "EVENT_HOMEASSISTANT_STARTED",
     "native_listener_value": "homeassistant_started",
     "native_callback_event_argument_used_for_context": false,
     "native_action_invocation_supplies_context_argument": false,
-    "automation_entity_parent_rule": "parent_id is None when trigger context is None",
+    "native_action_invocation_shape": "hass.async_run_hass_job(job, variables) with no context argument",
+    "automation_entity_parent_rule": "no synthetic raw-event parent obligation exists when native trigger action receives no raw event context",
     "mis_emitted_predecessor_symbol": "EVENT_HOMEASSISTANT_START",
     "mis_emitted_predecessor_value": "homeassistant_start",
-    "official_test_uses_actual_start_lifecycle": true
+    "official_test_uses_actual_start_lifecycle": true,
+    "context_applicability_proof_blob": "7807c5454a91e1adff98b5bef69b39379d7489d7"
   },
   "repair": {
     "repair_id": "replaymark.ve2.t02-homeassistant-start-lifecycle-repair.v1",
     "runtime_wrapper": "ve2_science_transport_qualify_v6.py",
     "runtime_blob": "941b80b1c42781094fc8b3bb1a83861d80ae01da",
     "preflight_validator_blob": "c584a2aeaeae3f9be280f35503503c4fb3a92cbc",
+    "static_validator_blob": "5492b042cfc42842f253204da2e554fdb343286f",
     "execution_semantic_changes": 1,
     "execution_change": "replace only the startup-case emitted lifecycle signal with exact Home Assistant EVENT_HOMEASSISTANT_STARTED",
     "witness_applicability_changes": 1,
-    "witness_applicability_change": "for only the homeassistant start family, mark synthetic raw-event root parent binding not applicable before delegating to the unchanged collector because native trigger does not propagate that event context",
+    "witness_applicability_change": "for only the homeassistant start family, represent synthetic raw-event root parent binding as not applicable before delegating to the unchanged collector because the native trigger does not propagate that event context",
     "collector_algorithm_changed": false,
     "independent_validator_changed": false,
     "additional_home_assistant_setup_calls": 0,
@@ -73,7 +83,7 @@
     "scientific_cells": 0,
     "expected_frontier_read": false,
     "execution_state_manifests_used": false,
-    "transition_blueprint_executed": false,
+    "transition_blueprints_executed": false,
     "historical_better_thermostat_action_dispatched": false
   }
 }
