@@ -1,0 +1,103 @@
+{
+  "schema": "replaymark.artifact-v2.public-freeze.v1",
+  "status": "FROZEN_SELF_CONTAINED_S6_AUTHORITY_REPLAY",
+  "project": "ReplayMark",
+  "role": "NON_AUTHORITY_REPRODUCIBILITY_AND_PRESERVATION_LAYER",
+  "public_repo": "risu-research/frb-exec-2609",
+  "public_branch": "artifact-v2-s6-authority",
+  "freeze_parent_commit": "0286c0b01472e3ba77ae3a01ca369c4d5eb2f0bf",
+  "artifact_v1_base_commit": "25f42117a1fb18a01619d5a3b9f7a165cb5f5a12",
+  "manuscript_snapshot": {
+    "version": "v91_FinalSubmissionAudit",
+    "sha256": "49a38fe979749fd9071b5d0299ce146989bd2846b2f7c945ef905794e80aef7b",
+    "mandatory_change_required_after_artifact_v2": false,
+    "reason": "The sealed authority reproduces the manuscript-facing S6 values exactly and preserves the manuscript's no-offline-scaling-claim scope."
+  },
+  "scientific_source_run": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "qx-run-v2",
+    "head_sha": "f5461c9adf94f5adc2542355283b4c9f85a468ae",
+    "run_id": 34368556819,
+    "run_attempt": 1,
+    "conclusion": "success"
+  },
+  "sealed_authority": {
+    "artifact_id": 10118788764,
+    "zip_sha256": "88cf0809117ab2c9266d4de1cb0e80f58c1165bd9635bcfe970628b8a3fd6e62",
+    "aggregate_sha256": "9dd9a0363d04a413b380fefcf3d35a56c50a089ba321f2812c5a94b741a18adf",
+    "aggregate_status": "AGGREGATED_BEFORE_VERDICT_ENFORCEMENT"
+  },
+  "sealed_enforcement": {
+    "artifact_id": 10118796980,
+    "zip_sha256": "8d7b306f0770e0015488a28ad73c704198fb411fa1dee0231885f0fb035c08da",
+    "status": "SEALED_COMPLETE_AUTHORITY",
+    "authority_rewritten": false,
+    "thresholds_changed_after_observation": false
+  },
+  "preservation": {
+    "source_commit": "adb37bd5572b1a12284e47cb935fc56782c325a6",
+    "payload_commit": "27602b85b210e19e9b38e9db84787b0331d978e3",
+    "workflow_run_id": 34610333483,
+    "workflow_run_attempt": 1,
+    "workflow_result": "success",
+    "preserved_zip_count": 8,
+    "preserved_zip_total_bytes": 47541033,
+    "preservation_receipt_sha256": "bcd6fbef3d04b8bccf33e2b3987f93a88f6c71c0fd1c557f1dbe617bb716cf43",
+    "paper_view_sha256": "076ffb6d12dd509775de441f5fff5f124b79a0acf15bba4c66b35a5c8bbcbce8",
+    "offline_verification_sha256": "5ca0b4cbfee164bf2032f59365bca5690e0de72d36ab8f89b0c5a1e5dbcdb70e",
+    "source_run_snapshot_sha256": "d5288de282be0f6d30008bebe75de1ee3c7eb7526a3389fb43a974ea0a3d0d62"
+  },
+  "self_contained_verification": {
+    "source_commit": "0286c0b01472e3ba77ae3a01ca369c4d5eb2f0bf",
+    "workflow_run_id": 34610470740,
+    "workflow_run_attempt": 1,
+    "workflow_result": "success",
+    "requires_live_source_actions_artifacts": false,
+    "checks_committed_preserved_checksums": true,
+    "reruns_offline_verifier_from_committed_zips": true,
+    "requires_byte_identical_reproduced_receipt": true
+  },
+  "paper_projection_v91": {
+    "f1_online_N_levels": [32, 64, 128, 256],
+    "f1_eligible_replica_seed_blocks": 10,
+    "f1_all_blocks_flat": true,
+    "largest_p50_max_min_ratio_3dp": "1.113",
+    "worst_e3b_p99_ms_3dp": "1.371",
+    "worst_e3b_p99_9_ms_3dp": "2.344",
+    "worst_e3b_p99_budget_percent_3dp": "1.371",
+    "worst_e3b_p99_9_budget_percent_3dp": "2.344",
+    "thermostat_q_compile_median_ms_range_2dp": ["3.88", "4.02"],
+    "e3b_full_compile_median_ms_range_1dp": ["107.7", "108.1"],
+    "anchor_peak_rss_lt_decimal_mb": 30,
+    "positive_offline_scaling_claim": false
+  },
+  "scientific_hygiene": {
+    "fresh_positive_claim_bytes_match_authority_raw_members": true,
+    "raw_to_aggregate_cross_checks_pass": true,
+    "all_eligible_inherited_source_records_inherited": true,
+    "selection_by_performance_value": false,
+    "valid_inherited_record_rerun": false,
+    "unfavorable_results_preserved": true,
+    "stronger_offline_scaling_claim_permitted": false
+  },
+  "noninterference": {
+    "new_scientific_measurement": false,
+    "timing_rerun": false,
+    "scientific_source_change": false,
+    "protocol_change": false,
+    "estimator_change": false,
+    "threshold_change": false,
+    "seed_or_coordinate_change": false,
+    "performance_optimization": false,
+    "authority_replacement": false,
+    "post_hoc_result_selection": false,
+    "post_hoc_model_repair": false
+  },
+  "authority_law": {
+    "artifact_v2_is_scientific_authority": false,
+    "artifact_v2_may_replace_first_complete_authority": false,
+    "fresh_replication_may_replace_preserved_authority": false,
+    "fresh_replication_timing_must_match_bit_for_bit": false,
+    "authority_replay_must_match_bound_projection_exactly": true
+  }
+}
