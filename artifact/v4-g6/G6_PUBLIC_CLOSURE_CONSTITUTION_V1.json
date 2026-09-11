@@ -1,0 +1,73 @@
+{
+  "campaign_scope": {
+    "V4_pass_does_not_strengthen_empirical_manuscript_claims": true,
+    "future_ReplayMark_research_allowed": true,
+    "future_versions_require_new_prospective_identity": true,
+    "this_V4_campaign_frozen_after_final_verdict": true
+  },
+  "closure_upgrade": {
+    "challenge_or_scientific_execution_in_g6": false,
+    "selected_path": "EVIDENCE_ONLY_INDEPENDENT_FALSIFICATION_CLOSURE",
+    "why_stronger_than_summary_only": [
+      "G5 already contains the scientific/adversarial execution; rerunning it in G6 would add little and could blur campaign immutability.",
+      "The remaining risk is archival/self-consistency error: a receipt may summarize evidence incorrectly, omit a case, or bind the wrong bytes.",
+      "G6 therefore independently downloads the exact frozen G5 capsule, verifies its outer digest and recursive internal checksums, reconstructs the detection/stability matrix from raw case records, and emits a fresh closure receipt."
+    ]
+  },
+  "frozen_inputs": {
+    "g5_artifact_id": 10284868064,
+    "g5_artifact_name": "replaymark-artifact-v4-g5-postmiss-pass-candidate",
+    "g5_artifact_zip_sha256": "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "g5_execution_head": "055c6d13822907fa8692fc83cab303534185dd2b",
+    "g5_execution_run_id": 34654381011,
+    "g5_independent_redownload_audit_git_blob": "ab83e8d9503692524c4e6a308f694d3770d506d9",
+    "g5_independent_redownload_audit_path": "artifact/v4-g5/ARTIFACT_V4_G5_INDEPENDENT_REDOWNLOAD_AUDIT_V1.json",
+    "g5_public_pass_freeze_commit": "72662e28ab49f1664a176b81ca74c6b9abf5b88b",
+    "g5_public_pass_freeze_git_blob": "14bfc2bf40e3cf1b94dafc38d916ebc4ade03841",
+    "g5_public_pass_freeze_path": "artifact/v4-g5/ARTIFACT_V4_G5_PUBLIC_PASS_FREEZE_V1.json",
+    "repository": "risu-research/frb-exec-2609"
+  },
+  "independent_reconstruction_rules": {
+    "parse_raw_case_results": true,
+    "recompute_outer_zip_sha256": true,
+    "require_A_B_detection_disagreements": 0,
+    "require_C14_detected": true,
+    "require_C49_detected": true,
+    "require_G5_freshness_gate": true,
+    "require_all_consequential_status": "DETECTED",
+    "require_all_metamorphic_status": "STABLE",
+    "require_canonical_authority_modifications": 0,
+    "require_dynamic_obligation_union_count": 60,
+    "require_false_negatives": 0,
+    "require_false_positives": 0,
+    "require_historical_reruns": 0,
+    "require_metamorphic_records": 8,
+    "require_new_measurements": 0,
+    "require_post_hoc_reselection": 0,
+    "require_unique_consequential_ids": 49,
+    "require_unique_metamorphic_ids": 8,
+    "require_unexplained_extra_kills": 0,
+    "require_consequential_records": 49,
+    "trust_prior_campaign_status_field_as_sufficient": false,
+    "verify_every_SHA256SUMS_entry": true
+  },
+  "noninterference": {
+    "change_thresholds": false,
+    "modify_any_authority": false,
+    "modify_manuscript": false,
+    "reclassify_preserved_failures": false,
+    "rerun_Verifier_A": false,
+    "rerun_Verifier_B": false,
+    "rerun_any_challenge": false,
+    "rerun_any_experiment": false
+  },
+  "output_contract": {
+    "closure_receipt": "G6_PUBLIC_CLOSURE_RECEIPT_V1.json",
+    "detection_matrix": "G6_PUBLIC_DETECTION_MATRIX_V1.json",
+    "pass_status": "PASS_G6_PUBLIC_EVIDENCE_CLOSURE",
+    "sha256_manifest": "SHA256SUMS_G6_PUBLIC.txt"
+  },
+  "purpose": "Close Artifact V4 by independently re-auditing the already-frozen G5 PASS evidence without rerunning any verifier, mutation, metamorphic transform, experiment, or scientific authority.",
+  "schema": "replaymark.artifact-v4.g6-public-closure-constitution.v1",
+  "status": "FROZEN_BEFORE_PUBLIC_G6_CLOSURE_EXECUTION"
+}
