@@ -1,0 +1,58 @@
+name: artifact-v4 g6 sanitized final witness
+
+on:
+  push:
+    branches:
+      - artifact-v4-g6-final-witness
+
+permissions:
+  contents: read
+
+jobs:
+  execute-final-witness:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout frozen public witness source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Assert prospectively frozen witness identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object artifact/v4-g6-final/G6_PRIVATE_ATTESTATION_CAPSULE_V1.json)" = "fa953f7f9431b47d7f7d6786593bbb6f7278e047"
+          test "$(git hash-object artifact/v4-g6-final/g6_final_witness.py)" = "e3461711389a6a1d87c62a761affd9ecd74271b3"
+          test "$(git hash-object artifact/v4-g6-final/G6_FINAL_WITNESS_SOURCE_FREEZE_V1.json)" = "3846e9bfb3579a619ce1a8fba0f1802804257d46"
+          python -m py_compile artifact/v4-g6-final/g6_final_witness.py
+
+      - name: Execute deterministic sanitized final witness
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf artifact/v4-g6-final/output
+          python artifact/v4-g6-final/g6_final_witness.py | tee artifact/v4-g6-final/G6_FINAL_WITNESS_STDOUT.log
+          grep -q 'PASS_ARTIFACT_V4_FINAL_SANITIZED_WITNESS' artifact/v4-g6-final/G6_FINAL_WITNESS_STDOUT.log
+          test -f artifact/v4-g6-final/output/G6_FINAL_PUBLIC_WITNESS_RECEIPT_V1.json
+          test -f artifact/v4-g6-final/output/G6_FINAL_PUBLIC_WITNESS_AUDIT_V1.json
+          (cd artifact/v4-g6-final/output && sha256sum -c SHA256SUMS_G6_FINAL_WITNESS.txt)
+
+      - name: Package final witness evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp artifact/v4-g6-final/G6_PRIVATE_ATTESTATION_CAPSULE_V1.json artifact/v4-g6-final/output/
+          cp artifact/v4-g6-final/G6_FINAL_WITNESS_SOURCE_FREEZE_V1.json artifact/v4-g6-final/output/
+          cp artifact/v4-g6-final/G6_FINAL_WITNESS_STDOUT.log artifact/v4-g6-final/output/
+          sha256sum artifact/v4-g6-final/output/G6_PRIVATE_ATTESTATION_CAPSULE_V1.json \
+                    artifact/v4-g6-final/output/G6_FINAL_WITNESS_SOURCE_FREEZE_V1.json \
+                    artifact/v4-g6-final/output/G6_FINAL_WITNESS_STDOUT.log \
+                    > artifact/v4-g6-final/output/SHA256SUMS_G6_FINAL_WITNESS_AUX.txt
+
+      - name: Upload final witness candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: replaymark-artifact-v4-g6-final-sanitized-witness-candidate
+          path: artifact/v4-g6-final/output/
+          if-no-files-found: error
+          retention-days: 90
