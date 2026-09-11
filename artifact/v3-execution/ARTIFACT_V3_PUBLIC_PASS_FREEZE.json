@@ -1,0 +1,114 @@
+{
+  "schema": "replaymark.artifact-v3.public-pass-freeze.v1",
+  "status": "FROZEN_WHOLE_PAPER_V3_42_OF_42_PASS",
+  "manuscript": {
+    "version": "v92_AuthorityCorrection",
+    "sha256": "4e073022751b5460224eb4c4aa4aa8c58060c1a93776080f94dd0d18ec6683df",
+    "parent_v91_sha256": "49a38fe979749fd9071b5d0299ce146989bd2846b2f7c945ef905794e80aef7b",
+    "mandatory_change_after_v3": false
+  },
+  "run3_authority_replay": {
+    "repository": "risu-research/frb-exec-2609",
+    "execution_branch": "artifact-v3-whole-paper-exec",
+    "run_id": 34628184851,
+    "run_attempt": 1,
+    "job_id": 103358275974,
+    "public_execution_head": "2269c13acb2cd94ff8f7871769bbf53103ca13b8",
+    "private_frozen_source_commit": "6470cb501dae1c781f1c42672e672096ff63f2fc",
+    "workflow_conclusion": "success",
+    "independent_derivation_status": "PASS_DERIVATION",
+    "independent_derived_claim_count": 42,
+    "expected_values_read_during_derivation": false,
+    "whole_paper_receipt_status": "PASS_WHOLE_PAPER_V3",
+    "claims": {
+      "total": 42,
+      "pass": 42,
+      "fail": 0
+    },
+    "cross_claim_invariants": {
+      "total": 18,
+      "pass": 18,
+      "fail": 0
+    },
+    "mismatch_count": 0
+  },
+  "verification_capsule": {
+    "artifact_id": 10275770760,
+    "artifact_name": "replaymark-artifact-v3-whole-paper-pass-candidate",
+    "size_bytes": 9837,
+    "zip_sha256": "daf946677ed0380be3b3384e28d2908f3f02f61b54a682ccfc041420cd628efa",
+    "downloaded_zip_sha256_reverified": "daf946677ed0380be3b3384e28d2908f3f02f61b54a682ccfc041420cd628efa",
+    "internal_sha256_manifest_verified": true,
+    "files": {
+      "DERIVED_CLAIMS_V1.json": {
+        "sha256": "dd27c429ff5aaf3f40a2bf8cdd1ed6abbdef78cfd74dd2a85ec582c8b158d737",
+        "status": "DERIVED_WITHOUT_MANUSCRIPT_EXPECTED_VALUES",
+        "claim_count": 42
+      },
+      "WHOLE_PAPER_RECEIPT_V1.json": {
+        "sha256": "0f03edb96ff46a33461b0f6303e7bcac12ef1df550f9b717d33a30b89e9a8a4e",
+        "status": "PASS_WHOLE_PAPER_V3"
+      },
+      "EXECUTION_METADATA_V1.json": {
+        "sha256": "2802da814e29dbb610f944476f732dee594802171bb09067b53439cb3f5cf7de",
+        "status": "PASS_BOUND_TO_WHOLE_PAPER_RECEIPT"
+      },
+      "SHA256SUMS.txt": {
+        "sha256": "7d1ff8665795b31c985531f0035e4243ad3b7b17abd5a8b517e623a453f0d25c"
+      }
+    }
+  },
+  "effective_claim_contract": {
+    "claim_count": 42,
+    "override_count": 1,
+    "claim_ledger_v1_sha256": "740368ce97a8eb5ed2752d92ada5bdba0b5021518bd32a3d011c8137c4aaba1b",
+    "claim_ledger_v2_sha256": "f417a5c080ff5ba83d0b085a682f89ed5654c4885d7efdfd0a9a081ddec6f734",
+    "claim_ledger_v2_git_blob": "a6f6ac3b10244c1daaf8150ea9b1b045f8d19f18",
+    "manuscript_authority_corrections": 1,
+    "scientific_result_changes": 0
+  },
+  "negative_result_preservation": {
+    "ve2_auxiliary_model_falsified": true,
+    "ve2_weighted_claim_withheld": true,
+    "s6_offline_scaling_not_promoted": true
+  },
+  "scientific_noninterference": {
+    "new_measurement": false,
+    "historical_rerun": false,
+    "scientific_source_change": false,
+    "protocol_change": false,
+    "generator_change": false,
+    "oracle_change": false,
+    "estimator_change": false,
+    "threshold_change": false,
+    "coordinate_seed_or_trial_change": false,
+    "authority_replacement": false,
+    "result_substitution": false,
+    "post_hoc_result_selection": false,
+    "post_hoc_auxiliary_model_repair": false
+  },
+  "preserved_failed_executions": [
+    {
+      "run_id": 34626878550,
+      "job_id": 103354004491,
+      "classification": "PRE_COMPARISON_IMPLEMENTATION_FAILURE_NOT_CONSUMED",
+      "consumed_as_scientific_result": false
+    },
+    {
+      "run_id": 34627235686,
+      "job_id": 103355183307,
+      "classification": "PRE_CLAIM_COMPARISON_COMPARATOR_SCHEMA_FAILURE_NOT_CONSUMED",
+      "independent_derivation_passed_42_claims": true,
+      "claim_value_comparison_reached": false,
+      "consumed_as_scientific_result": false
+    }
+  ],
+  "closure": {
+    "artifact_v3_complete": true,
+    "whole_paper_claim_closure_complete": true,
+    "manuscript_v92_supported": true,
+    "artifact_science_development_stops": true,
+    "future_scope_without_new_external_evidence": "paper polish and non-scientific packaging only",
+    "fresh_replication_may_not_replace_bound_authority": true
+  }
+}
