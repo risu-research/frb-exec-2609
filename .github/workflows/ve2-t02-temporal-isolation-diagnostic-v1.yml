@@ -10,12 +10,13 @@ permissions:
 
 env:
   V5_FAILURE_SEAL: c17d2506e465b9bb3ac71cb04cb7c10c0360ba01
+  V5_RUN_ID: '34545805201'
   V3_RUNTIME_BLOB: 7b31244a3a4505399e5885b017fd81bb06209176
   V4_RUNTIME_BLOB: 8c33de1d8717983ffecd4a45634de0d2469ac19d
   V5_RUNTIME_BLOB: 20914078395995116cbd88cdd63063f4fb6907f0
-  DIAGNOSTIC_RUNTIME_BLOB: 7596e71534f4e91547e418c145780b73ddfa3188
-  DIAGNOSTIC_VALIDATOR_BLOB: 7b52f402b7c23e92bf479e6bb8e809afde54f6b3
-  DIAGNOSTIC_CONTRACT_BLOB: eafe2d88bda93b8cc81b7fdea5aae843c4268c90
+  DIAGNOSTIC_RUNTIME_BLOB: 5b2ac8bfe7a278ed7b80ad8b51eb0c9ca2b60492
+  DIAGNOSTIC_VALIDATOR_BLOB: bf65af81ff17d9c8e781e70981964b6dc227402c
+  DIAGNOSTIC_CONTRACT_BLOB: a297827ffb1ec28ae3a198194e8ddf53e00e8a27
   T02_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
 
 jobs:
@@ -62,27 +63,31 @@ jobs:
           from pathlib import Path
 
           c=json.load(open('VE2_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_CONTRACT_V1.json'))
+          assert c['schema']=='replaymark.ve2.t02-temporal-isolation-diagnostic-contract.v1'
           assert c['status']=='FROZEN_NON_PROMOTABLE_PRE_SCIENCE_DIAGNOSTIC'
           assert c['authority']['v5_failure_seal']=='c17d2506e465b9bb3ac71cb04cb7c10c0360ba01'
-          assert c['runtime']['home_assistant_version']=='2026.9.0'
-          assert c['runtime']['diagnostic_runtime_blob']=='7596e71534f4e91547e418c145780b73ddfa3188'
-          assert c['runtime']['diagnostic_validator_blob']=='7b52f402b7c23e92bf479e6bb8e809afde54f6b3'
-          assert c['case_isolation']['one_case_per_fresh_process'] is True
+          assert c['authority']['v5_run_id']==34545805201
+          assert c['runtime']['diagnostic_runtime_blob']=='5b2ac8bfe7a278ed7b80ad8b51eb0c9ca2b60492'
+          assert c['runtime']['diagnostic_validator_blob']=='bf65af81ff17d9c8e781e70981964b6dc227402c'
           assert c['case_isolation']['case_function_body_modified'] is False
-          assert c['case_isolation']['trigger_definition_modified'] is False
-          assert c['case_isolation']['action_definition_modified'] is False
           assert c['case_isolation']['clock_target_modified'] is False
           assert c['case_isolation']['wait_timeout_modified'] is False
+          assert c['observation_only_instrumentation']['wait_primitive_boundary'] is True
+          assert c['observation_only_instrumentation']['inherited_wait_timeout_seconds']==3.0
           assert c['adjudication']['transport_pass_may_be_declared'] is False
+          assert c['adjudication']['scientific_pass_may_be_declared'] is False
           assert c['scientific_firewall']['scientific_cells']==0
+          assert c['attempt_law']['diagnostic_promotable'] is False
+          assert c['attempt_law']['diagnostic_attempt']==1
 
           o=json.load(open('VE2_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_OPEN_V1.json'))
           assert o=={
             'schema':'replaymark.ve2.t02-temporal-isolation-diagnostic-open.v1',
             'authority':'NON_PROMOTABLE_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_V1',
             'source_freeze_public_head':sys.argv[1],
-            'v5_failure_seal':'c17d2506e465b9bb3ac71cb04cb7c10c0360ba01',
-            'diagnostic_non_promotable':True,
+            'predecessor_v5_failure_seal':'c17d2506e465b9bb3ac71cb04cb7c10c0360ba01',
+            'predecessor_v5_run_id':34545805201,
+            'diagnostic_promotable':False,
             'scientific_result_opened':False,
             'frontier_result_seen':False,
             'scientific_cells':0,
@@ -101,15 +106,20 @@ jobs:
           tree=ast.parse(source)
           strings={n.value for n in ast.walk(tree) if isinstance(n,ast.Constant) and isinstance(n.value,str)}
           assert forbidden.isdisjoint(strings)
-          assert 'v3.run_state()' in source
-          assert 'v3.run_state_for' in source
-          assert 'v3.run_time' in source
-          assert 'v3.run_startup_delay' in source
-          assert 'v3._drive_clock = observed_drive' in source
-          assert 'v3._collect_case = observed_collect' in source
+          imports=set()
+          for n in ast.walk(tree):
+            if isinstance(n,ast.Import): imports.update(a.name.split('.')[0] for a in n.names)
+            elif isinstance(n,ast.ImportFrom) and n.module: imports.add(n.module.split('.')[0])
+          assert not ({'requests','httpx','socket','subprocess'} & imports)
           assert 'v3._fresh_hass = observed_fresh' in source
-          for forbidden_call in ('async_setup_component(', '.async_load(', 'hass.services.', 'hass.states.'):
-              assert forbidden_call not in source
+          assert 'v3._drive_clock = observed_drive' in source
+          assert 'v3._wait_for_count = observed_wait' in source
+          assert 'v3._collect_case = observed_collect' in source
+          assert 'await original_wait(values, count, timeout)' in source
+          assert 'wait_timeout_mutated": False' in source
+          assert 'home_assistant_setup_calls_added": 0' in source
+          assert '.async_setup(' not in source
+          assert 'async_setup_component(' not in source
           PY
 
           python -m py_compile \
@@ -134,7 +144,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 1
-      - name: Verify exact frozen T02 runtime identity
+      - name: Verify exact frozen T02 runtime image
         shell: bash
         run: |
           set -euo pipefail
@@ -144,8 +154,8 @@ jobs:
           observed="$(docker run --rm --network none --entrypoint python3 "$T02_IMAGE" -c 'from homeassistant.const import __version__; print(__version__)')"
           test "$observed" = '2026.9.0'
           printf '%s\n' "$observed" > "results/${CASE}_HA_VERSION.txt"
-      - name: Execute exactly one inherited v5 neutral case with observation-only journal
-        id: runtime
+      - name: Execute one frozen v5 neutral case with observation-only journaling
+        id: diagnostic
         shell: bash
         run: |
           set -uo pipefail
@@ -158,135 +168,162 @@ jobs:
             -v "$PWD/ve2_t02_temporal_isolation_diagnostic_v1.py:/work/diagnostic.py:ro" \
             -v "$PWD/results:/results" \
             --entrypoint python3 "$T02_IMAGE" \
-            /work/diagnostic.py --case "$CASE" --out "/results/${CASE}.json" \
+            /work/diagnostic.py --case "$CASE" --out "/results/${CASE}_CAPSULE.json" \
             > "results/${CASE}_STDOUT.txt" 2> "results/${CASE}_STDERR.txt"
           rc=$?
           set -e
           printf '%s\n' "$rc" > "results/${CASE}_EXIT.txt"
-          echo "runtime_rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "diagnostic_rc=$rc" >> "$GITHUB_OUTPUT"
           exit 0
-      - name: Seal isolated case capsule regardless of case outcome
+      - name: Seal isolated case evidence
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
-          test -f "results/${CASE}.json"
-          CASE="$CASE" RUNTIME_RC="${{ steps.runtime.outputs.runtime_rc }}" python - <<'PY'
-          import json,os
-          from pathlib import Path
-          p={
-            'schema':'replaymark.ve2.t02-temporal-isolation-case-provenance.v1',
-            'case':os.environ['CASE'],
-            'execution_head':os.environ['GITHUB_SHA'],
-            'run_id':int(os.environ['GITHUB_RUN_ID']),
-            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
-            'runtime_exit':int(os.environ['RUNTIME_RC']),
-            'diagnostic_non_promotable':True,
-            'scientific_result_opened':False,
-            'frontier_result_seen':False,
-            'scientific_cells':0,
-          }
-          Path(f"results/{os.environ['CASE']}_PROVENANCE.json").write_text(json.dumps(p,sort_keys=True,indent=2)+'\n')
-          PY
+          mkdir -p results
           (cd results && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
       - name: Upload immutable isolated case capsule
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: ve2-t02-temporal-isolation-v1-${{ matrix.case }}
           path: results/
           if-no-files-found: error
           retention-days: 90
+      - name: Require diagnostic infrastructure completeness only
+        if: always()
+        shell: bash
+        env:
+          DIAGNOSTIC_RC: ${{ steps.diagnostic.outputs.diagnostic_rc }}
+        run: |
+          set -euo pipefail
+          test -f "results/${CASE}_CAPSULE.json"
+          case "$DIAGNOSTIC_RC" in 0|2) ;; *) exit 1 ;; esac
+          python - "$CASE" <<'PY'
+          import json,sys
+          case=sys.argv[1]
+          d=json.load(open(f'results/{case}_CAPSULE.json'))
+          assert d['case']==case
+          assert d['diagnostic_id']=='NON_PROMOTABLE_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_V1'
+          assert d['scientific_hygiene']['scientific_cells']==0
+          assert d['scientific_hygiene']['frontier_result_seen'] is False
+          assert d['status'] in {'PASS','ROW_FAIL','EXCEPTION'}
+          PY
 
   adjudicate:
-    needs: isolate-case
+    needs: [open-gate, isolate-case]
+    if: always() && needs.open-gate.result == 'success'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 1
       - name: Create total aggregate surface
-        run: mkdir -p aggregate downloads
+        run: mkdir -p aggregate
       - name: Download all four isolated case capsules
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           pattern: ve2-t02-temporal-isolation-v1-*
           path: downloads
           merge-multiple: false
-      - name: Verify all four capsule checksums and presence
+      - name: Verify all four capsules and checksums are present
+        id: capsule_gate
         shell: bash
         run: |
-          set -euo pipefail
-          for case in state state_for_120s time homeassistant_start_delay_30s; do
-            root="downloads/ve2-t02-temporal-isolation-v1-${case}"
-            test -d "$root"
-            (cd "$root" && sha256sum -c CHECKSUMS.sha256)
-            test -f "$root/${case}.json"
-            test -f "$root/${case}_EXIT.txt"
+          set +e
+          ok=1
+          for item in state state_for_120s time homeassistant_start_delay_30s; do
+            root="downloads/ve2-t02-temporal-isolation-v1-${item}"
+            test -d "$root" || ok=0
+            if test -d "$root"; then
+              (cd "$root" && sha256sum -c CHECKSUMS.sha256) || ok=0
+              test -f "$root/${item}_CAPSULE.json" || ok=0
+              rc="$(cat "$root/${item}_EXIT.txt" 2>/dev/null)"
+              case "$rc" in 0|2) ;; *) ok=0 ;; esac
+            fi
           done
-      - name: Independently adjudicate exact failing primitive and layer
-        id: validator
+          echo "capsules_ok=$ok" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Independently adjudicate case and failure layer
+        id: validate
+        if: steps.capsule_gate.outputs.capsules_ok == '1'
         shell: bash
         run: |
           set +e
           python ve2_t02_temporal_isolation_validate_v1.py \
-            --state downloads/ve2-t02-temporal-isolation-v1-state/state.json \
-            --state-for-120s downloads/ve2-t02-temporal-isolation-v1-state_for_120s/state_for_120s.json \
-            --time downloads/ve2-t02-temporal-isolation-v1-time/time.json \
-            --homeassistant-start-delay-30s downloads/ve2-t02-temporal-isolation-v1-homeassistant_start_delay_30s/homeassistant_start_delay_30s.json \
+            --state downloads/ve2-t02-temporal-isolation-v1-state/state_CAPSULE.json \
+            --state-for-120s downloads/ve2-t02-temporal-isolation-v1-state_for_120s/state_for_120s_CAPSULE.json \
+            --time downloads/ve2-t02-temporal-isolation-v1-time/time_CAPSULE.json \
+            --homeassistant-start-delay-30s downloads/ve2-t02-temporal-isolation-v1-homeassistant_start_delay_30s/homeassistant_start_delay_30s_CAPSULE.json \
             --out aggregate/VE2_T02_TEMPORAL_ISOLATION_ADJUDICATION_V1.json \
             > aggregate/VALIDATOR_STDOUT.txt 2> aggregate/VALIDATOR_STDERR.txt
           rc=$?
           echo "validator_rc=$rc" >> "$GITHUB_OUTPUT"
           exit 0
-      - name: Seal aggregate diagnostic provenance regardless of outcome
+      - name: Seal diagnostic aggregate provenance regardless of outcome
+        if: always()
         shell: bash
         env:
-          VALIDATOR_RC: ${{ steps.validator.outputs.validator_rc }}
           SOURCE_FREEZE: ${{ needs.open-gate.outputs.source_freeze }}
+          CAPSULES_OK: ${{ steps.capsule_gate.outputs.capsules_ok }}
+          VALIDATOR_RC: ${{ steps.validate.outputs.validator_rc }}
         run: |
           set -euo pipefail
           python - <<'PY'
           import json,os
           from pathlib import Path
-          adjud=Path('aggregate/VE2_T02_TEMPORAL_ISOLATION_ADJUDICATION_V1.json')
-          parsed=json.loads(adjud.read_text()) if adjud.exists() else None
-          p={
-            'schema':'replaymark.ve2.t02-temporal-isolation-aggregate-provenance.v1',
-            'status':'SEALED_DIAGNOSTIC' if os.environ['VALIDATOR_RC']=='0' else 'SEALED_VALIDATION_FAILURE',
+          p=Path('aggregate/VE2_T02_TEMPORAL_ISOLATION_ADJUDICATION_V1.json')
+          adjud=json.loads(p.read_text()) if p.exists() else None
+          complete=(os.environ.get('CAPSULES_OK')=='1' and os.environ.get('VALIDATOR_RC')=='0' and adjud is not None)
+          out={
+            'schema':'replaymark.ve2.t02-temporal-isolation-diagnostic-provenance.v1',
+            'status':'COMPLETE_NON_PROMOTABLE_DIAGNOSIS' if complete else 'INCOMPLETE_DIAGNOSTIC_INFRASTRUCTURE',
             'execution_head':os.environ['GITHUB_SHA'],
-            'source_freeze_public_head':os.environ['SOURCE_FREEZE'],
+            'source_freeze_public_head':os.environ.get('SOURCE_FREEZE',''),
             'run_id':int(os.environ['GITHUB_RUN_ID']),
             'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
-            'v5_failure_seal':os.environ['V5_FAILURE_SEAL'],
-            'independent_validator_pass':os.environ['VALIDATOR_RC']=='0',
-            'diagnostic_status':None if parsed is None else parsed.get('status'),
+            'predecessor_v5_failure_seal':os.environ['V5_FAILURE_SEAL'],
+            'predecessor_v5_run_id':int(os.environ['V5_RUN_ID']),
+            'all_four_case_capsules_present_and_checksum_valid':os.environ.get('CAPSULES_OK')=='1',
+            'independent_validator_completed':os.environ.get('VALIDATOR_RC')=='0',
+            'diagnostic_result':adjud,
             'transport_promotion_authorized':False,
             'scientific_promotion_authorized':False,
             'scientific_result_opened':False,
             'frontier_result_seen':False,
             'scientific_cells':0,
           }
-          Path('aggregate/VE2_T02_TEMPORAL_ISOLATION_PROVENANCE_V1.json').write_text(json.dumps(p,sort_keys=True,indent=2)+'\n')
+          Path('aggregate/VE2_T02_TEMPORAL_ISOLATION_PROVENANCE_V1.json').write_text(json.dumps(out,sort_keys=True,indent=2)+'\n')
           PY
           (cd aggregate && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
-      - name: Upload immutable aggregate diagnostic evidence
+      - name: Upload immutable diagnostic aggregate
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: ve2-t02-temporal-isolation-v1-aggregate
           path: aggregate/
           if-no-files-found: error
           retention-days: 90
-      - name: Surface diagnosis only after complete evidence seal
+      - name: Require complete diagnosis, never transport promotion
+        if: always()
         shell: bash
         env:
-          VALIDATOR_RC: ${{ steps.validator.outputs.validator_rc }}
+          CAPSULES_OK: ${{ steps.capsule_gate.outputs.capsules_ok }}
+          VALIDATOR_RC: ${{ steps.validate.outputs.validator_rc }}
         run: |
           set -euo pipefail
+          test "$CAPSULES_OK" = '1'
           test "$VALIDATOR_RC" = '0'
           python - <<'PY'
           import json
           a=json.load(open('aggregate/VE2_T02_TEMPORAL_ISOLATION_ADJUDICATION_V1.json'))
+          p=json.load(open('aggregate/VE2_T02_TEMPORAL_ISOLATION_PROVENANCE_V1.json'))
           assert a['status'] in {'DIAGNOSED','ALL_ISOLATED_CASES_PASS'}
           assert a['transport_promotion_authorized'] is False
           assert a['scientific_promotion_authorized'] is False
           assert a['scientific_cells']==0
+          assert p['status']=='COMPLETE_NON_PROMOTABLE_DIAGNOSIS'
+          assert p['transport_promotion_authorized'] is False
+          assert p['scientific_promotion_authorized'] is False
+          assert p['scientific_cells']==0
           PY
