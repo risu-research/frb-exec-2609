@@ -1,0 +1,86 @@
+{
+  "schema": "replaymark.ve2.t02-temporal-isolation-diagnostic-contract.v1",
+  "status": "FROZEN_NON_PROMOTABLE_PRE_SCIENCE_DIAGNOSTIC",
+  "authority": {
+    "v5_failure_seal": "c17d2506e465b9bb3ac71cb04cb7c10c0360ba01",
+    "v5_open": "f6515d7ba31dfa616c223264a19e6aefd6d05a1e",
+    "v5_source_freeze": "25f62e0b06657da50484e63a570cf7750432df68",
+    "v5_run_id": 34545805201,
+    "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5"
+  },
+  "runtime": {
+    "home_assistant_version": "2026.9.0",
+    "image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "v3_runtime_blob": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "v4_runtime_blob": "8c33de1d8717983ffecd4a45634de0d2469ac19d",
+    "v5_runtime_blob": "20914078395995116cbd88cdd63063f4fb6907f0",
+    "diagnostic_runtime_blob": "7596e71534f4e91547e418c145780b73ddfa3188",
+    "diagnostic_validator_blob": "7b52f402b7c23e92bf479e6bb8e809afde54f6b3"
+  },
+  "case_isolation": {
+    "order_for_interpretation_only": [
+      "state",
+      "state_for_120s",
+      "time",
+      "homeassistant_start_delay_30s"
+    ],
+    "existing_v5_function_symbols": {
+      "state": "ve2_science_transport_qualify_v3.run_state",
+      "state_for_120s": "ve2_science_transport_qualify_v3.run_state_for",
+      "time": "ve2_science_transport_qualify_v3.run_time",
+      "homeassistant_start_delay_30s": "ve2_science_transport_qualify_v3.run_startup_delay"
+    },
+    "one_case_per_fresh_process": true,
+    "same_exact_runtime_image_for_all_cases": true,
+    "case_function_body_modified": false,
+    "trigger_definition_modified": false,
+    "action_definition_modified": false,
+    "clock_target_modified": false,
+    "wait_timeout_modified": false,
+    "result_dependent_fallback": false,
+    "retry_within_case": false
+  },
+  "observation_only_instrumentation": {
+    "fresh_hass_boundary": true,
+    "clock_driver_boundary": true,
+    "witness_collection_boundary": true,
+    "delegates_to_exact_inherited_function_once": true,
+    "return_value_modified": false,
+    "exception_suppressed_for_case_semantics": false,
+    "exception_recorded_before_process_exit": true
+  },
+  "adjudication": {
+    "all_four_case_capsules_required": true,
+    "capsule_internal_sha256_recomputed": true,
+    "first_failing_case_in_original_order_reported": true,
+    "all_failing_cases_reported": true,
+    "failure_layer_reported_from_observation_journal": true,
+    "transport_pass_may_be_declared": false,
+    "scientific_pass_may_be_declared": false,
+    "only_prospective_repair_selection_authorized": true
+  },
+  "scientific_firewall": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "expected_frontier_files_mounted": false,
+    "execution_state_manifests_mounted": false,
+    "transition_blueprints_mounted": false,
+    "historical_better_thermostat_actions_mounted": false,
+    "forbidden_runtime_inputs": [
+      "VE2_T01_EXECUTION_STATE_MANIFEST_V1.json",
+      "VE2_T02_EXECUTION_STATE_MANIFEST_V1.json",
+      "VE2_T01_EXPECTED_FRONTIER_V1.json",
+      "VE2_T02_EXPECTED_FRONTIER_V1.json",
+      "VE2_T01_NATIVE_SEMANTICS_V1.json",
+      "VE2_T02_NATIVE_SEMANTICS_V1.json"
+    ]
+  },
+  "attempt_law": {
+    "v5_never_rerun_for_promotion": true,
+    "diagnostic_promotable": false,
+    "diagnostic_attempt": 1,
+    "post_diagnostic_changes_require_new_successor_authority": true
+  }
+}
