@@ -1,0 +1,165 @@
+name: VE2 authoritative scientific first-complete v2
+
+on:
+  push:
+    branches:
+      - ve2-scientific-authority-v2
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ve2-scientific-authority-v2
+  cancel-in-progress: false
+
+env:
+  T01_OLD_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e
+  T01_TARGET_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7
+  T02_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+  FROZEN_V1_WORKFLOW_SHA256: 52df67631b1959f4a9d4185b0d5672d02d0498461b94d698c3043604959e27aa
+  V1_FAILURE_SEAL: 0ad575daefe14c01aeab13f0b8e0c318e0eff3ad
+
+jobs:
+  authoritative-first-complete:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 220
+
+      - name: Enforce successor OPEN and zero-exposure predecessor
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test -f VE2_SCIENTIFIC_AUTHORITY_OPEN_V2.json
+          parent="$(git rev-parse HEAD^)"
+          git merge-base --is-ancestor "$V1_FAILURE_SEAL" "$parent"
+
+          mapfile -t source_delta < <(git diff --name-only "$V1_FAILURE_SEAL..$parent" | LC_ALL=C sort)
+          expected=(
+            '.github/workflows/ve2-authoritative-first-complete-v2.yml'
+            'VE2_SCIENTIFIC_AUTHORITY_OPEN_GATE_REMEDIATION_V2.json'
+            've2_execute_frozen_v1_step.py'
+          )
+          test "${#source_delta[@]}" = "${#expected[@]}"
+          for i in "${!expected[@]}"; do test "${source_delta[$i]}" = "${expected[$i]}"; done
+
+          mapfile -t open_delta < <(git diff --name-only "$parent..HEAD" | LC_ALL=C sort)
+          test "${#open_delta[@]}" = '1'
+          test "${open_delta[0]}" = 'VE2_SCIENTIFIC_AUTHORITY_OPEN_V2.json'
+          if git ls-tree -r --name-only "$parent" | grep -Eq '^VE2_SCIENTIFIC_AUTHORITY_OPEN_V2.json$'; then
+            echo 'parent already contains successor OPEN' >&2
+            exit 2
+          fi
+
+          test "$(sha256sum .github/workflows/ve2-authoritative-first-complete-v1.yml | awk '{print $1}')" = "$FROZEN_V1_WORKFLOW_SHA256"
+          test "$(git rev-parse 'c87690fb5d5c96d0f637504c897822d973d24583:VE2_SCIENTIFIC_STATIC_PASS_SEAL_V1.json')" = "$(git hash-object --no-filters VE2_SCIENTIFIC_STATIC_PASS_SEAL_V1.json)"
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          failed=json.loads(Path('VE2_SCIENTIFIC_AUTHORITY_V1_OPEN_GATE_FAILURE_SEAL.json').read_text())
+          assert failed['schema']=='replaymark.ve2.scientific-authority-open-gate-failure-seal.v1'
+          assert failed['status']=='PRE_SCIENCE_OPEN_GATE_FAILURE_NOT_CONSUMED'
+          assert failed['authority_open_commit']=='7fa7268b4d36751eaa6d6b8efb6e0decb358893b'
+          assert failed['run']['run_id']==34556762361 and failed['run']['run_attempt']==1
+          assert failed['scientific_exposure']=={
+              'serial_science_step_executed':False,
+              'raw_stage_reports_present':False,
+              'raw_seal_present':False,
+              'postrun_adjudication_present':False,
+              'frontier_result_seen':False,
+              'scientific_cells':0,
+          }
+          assert failed['authority_consumption']['same_authority_rerun_authorized'] is False
+          assert failed['authority_consumption']['successful_subset_carry_forward'] is False
+
+          repair=json.loads(Path('VE2_SCIENTIFIC_AUTHORITY_OPEN_GATE_REMEDIATION_V2.json').read_text())
+          assert repair['schema']=='replaymark.ve2.scientific-authority-open-gate-remediation.v2'
+          assert repair['status']=='FROZEN_PROSPECTIVE_PRE_SCIENCE'
+          assert repair['predecessor_failure_seal']=='0ad575daefe14c01aeab13f0b8e0c318e0eff3ad'
+          assert repair['execution_preservation']['frozen_v1_workflow_sha256']=='52df67631b1959f4a9d4185b0d5672d02d0498461b94d698c3043604959e27aa'
+          assert repair['execution_preservation']['scientific_worker_source_changes']==0
+          assert repair['execution_preservation']['runtime_bundle_changes']==0
+          assert repair['execution_preservation']['expected_frontier_changes']==0
+
+          seal=json.loads(Path('VE2_SCIENTIFIC_STATIC_PASS_SEAL_V1.json').read_text())
+          assert seal['status']=='PASS_SEALED_PRE_SCIENCE'
+          assert seal['scientific_exposure']=={
+              'frontier_result_seen':False,
+              'scientific_cells':0,
+              'scientific_result_opened':False,
+          }
+
+          opened=json.loads(Path('VE2_SCIENTIFIC_AUTHORITY_OPEN_V2.json').read_text())
+          assert opened['schema']=='replaymark.ve2.scientific-authority-open.v2'
+          assert opened['status']=='OPEN_SUCCESSOR_FIRST_COMPLETE_ONLY'
+          assert opened['predecessor_failure_seal']=='0ad575daefe14c01aeab13f0b8e0c318e0eff3ad'
+          assert opened['scientific_result_opened'] is True
+          assert opened['scientific_cells_at_open']==0
+          assert opened['frontier_result_seen'] is False
+          assert opened['result_dependent_rerun_authorized'] is False
+          assert opened['successful_subset_carry_forward'] is False
+          PY
+
+      - name: Validate frozen-block executor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile ve2_execute_frozen_v1_step.py
+          test "$(sha256sum .github/workflows/ve2-authoritative-first-complete-v1.yml | awk '{print $1}')" = "$FROZEN_V1_WORKFLOW_SHA256"
+
+      - name: Execute frozen v1 substrate verification block
+        shell: bash
+        run: |
+          python ve2_execute_frozen_v1_step.py \
+            --workflow .github/workflows/ve2-authoritative-first-complete-v1.yml \
+            --expected-sha256 "$FROZEN_V1_WORKFLOW_SHA256" \
+            --step-name 'Verify sealed runtime bundle and immutable execution sources'
+
+      - name: Execute frozen v1 serial sixteen-stage authority block
+        shell: bash
+        run: |
+          python ve2_execute_frozen_v1_step.py \
+            --workflow .github/workflows/ve2-authoritative-first-complete-v1.yml \
+            --expected-sha256 "$FROZEN_V1_WORKFLOW_SHA256" \
+            --step-name 'Run exact serial sixteen-stage first-complete authority'
+
+      - name: Execute frozen v1 raw-seal block
+        shell: bash
+        run: |
+          python ve2_execute_frozen_v1_step.py \
+            --workflow .github/workflows/ve2-authoritative-first-complete-v1.yml \
+            --expected-sha256 "$FROZEN_V1_WORKFLOW_SHA256" \
+            --step-name 'Seal all raw stage artifacts before frontier access'
+
+      - name: Execute frozen v1 post-run adjudication block
+        shell: bash
+        run: |
+          python ve2_execute_frozen_v1_step.py \
+            --workflow .github/workflows/ve2-authoritative-first-complete-v1.yml \
+            --expected-sha256 "$FROZEN_V1_WORKFLOW_SHA256" \
+            --step-name 'Independent post-run adjudication after complete raw seal only'
+
+      - name: Execute frozen v1 evidence-seal block
+        if: always()
+        shell: bash
+        run: |
+          python ve2_execute_frozen_v1_step.py \
+            --workflow .github/workflows/ve2-authoritative-first-complete-v1.yml \
+            --expected-sha256 "$FROZEN_V1_WORKFLOW_SHA256" \
+            --step-name 'Seal authority evidence'
+
+      - name: Upload immutable successor first-complete evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-authoritative-first-complete-v2-evidence
+          path: |
+            raw/
+            adjudication/
+            evidence-seal/
+          if-no-files-found: error
+          retention-days: 90
