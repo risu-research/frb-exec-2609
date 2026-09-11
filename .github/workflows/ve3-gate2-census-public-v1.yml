@@ -1,0 +1,211 @@
+name: VE3 Gate 2 Public Census V1
+
+on:
+  push:
+    branches:
+      - ve3-gate2-census-public-run-v1
+    paths:
+      - ve3/VE3_UPSTREAM_CENSUS_PUBLIC_OPEN_V1.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ve3-gate2-public-census-v1
+  cancel-in-progress: false
+
+jobs:
+  exhaustive-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      SEALED_BRANCH: ve3-gate2-census-public-sealed-v1
+      OPEN_PATH: ve3/VE3_UPSTREAM_CENSUS_PUBLIC_OPEN_V1.json
+      OUT_PATH: ve3/VE3_UPSTREAM_CENSUS_V1.json
+      PRIVATE_PROTOCOL_COMMIT: 6e4721894f24f27b69e4f2f2396defc77a581b60
+      PRIVATE_SOURCE_FREEZE_COMMIT: 6caac34fea960018a0c2c9716ae92d995c368618
+      PRIVATE_FAILURE_SEAL_COMMIT: 72994fc3d784d3277b2be412ed10ac348bd99afa
+      EXPECTED_RUNNER_BLOB: 80bed2044d191df3d861d9cbcf1c2aba232579ca
+      EXPECTED_VALIDATOR_BLOB: 60b6e77a4bd45e5fab50d12c32e6264a86dc5cdc
+    steps:
+      - name: Checkout exact public OPEN authority
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+
+      - name: Verify exact one-shot public OPEN
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_RUN_ATTEMPT}" = "1"
+          SOURCE_FREEZE="$(git rev-parse "${GITHUB_SHA}^")"
+          CHANGED="$(git diff-tree --no-commit-id --name-only -r "${SOURCE_FREEZE}" "${GITHUB_SHA}")"
+          test "${CHANGED}" = "${OPEN_PATH}"
+          export SOURCE_FREEZE
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d = json.loads(Path(os.environ["OPEN_PATH"]).read_text())
+          assert d["schema"] == "replaymark.ve3.upstream-census-public-open.v1"
+          assert d["public_source_freeze_commit"] == os.environ["SOURCE_FREEZE"]
+          assert d["private_protocol_commit"] == os.environ["PRIVATE_PROTOCOL_COMMIT"]
+          assert d["private_source_freeze_commit"] == os.environ["PRIVATE_SOURCE_FREEZE_COMMIT"]
+          assert d["private_failure_seal_commit"] == os.environ["PRIVATE_FAILURE_SEAL_COMMIT"]
+          assert d["one_shot"] is True
+          assert d["scientific_cells_before_open"] == 0
+          assert d["upstream_history_opened_before_open"] is False
+          assert d["compatibility_frontier_seen_before_open"] is False
+          PY
+          echo "SOURCE_FREEZE=${SOURCE_FREEZE}" >> "${GITHUB_ENV}"
+
+      - name: Verify byte-identical classifier transplant and public source freeze
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUNNER_BLOB="$(git rev-parse "${SOURCE_FREEZE}:ve3/ve3_upstream_census_v1.py")"
+          VALIDATOR_BLOB="$(git rev-parse "${SOURCE_FREEZE}:ve3/ve3_ha_blueprint_validate_v1.py")"
+          test "${RUNNER_BLOB}" = "${EXPECTED_RUNNER_BLOB}"
+          test "${VALIDATOR_BLOB}" = "${EXPECTED_VALIDATOR_BLOB}"
+          export RUNNER_BLOB VALIDATOR_BLOB
+          python - <<'PY'
+          import json, os, subprocess
+          source = os.environ["SOURCE_FREEZE"]
+          d = json.loads(subprocess.check_output([
+              "git", "show", f"{source}:ve3/VE3_UPSTREAM_CENSUS_PUBLIC_SOURCE_FREEZE_V1.json"
+          ], text=True))
+          assert d["schema"] == "replaymark.ve3.upstream-census-public-source-freeze.v1"
+          assert d["private_protocol_commit"] == os.environ["PRIVATE_PROTOCOL_COMMIT"]
+          assert d["private_source_freeze_commit"] == os.environ["PRIVATE_SOURCE_FREEZE_COMMIT"]
+          assert d["private_failure_seal_commit"] == os.environ["PRIVATE_FAILURE_SEAL_COMMIT"]
+          assert d["private_runner_git_blob"] == os.environ["EXPECTED_RUNNER_BLOB"]
+          assert d["private_validator_git_blob"] == os.environ["EXPECTED_VALIDATOR_BLOB"]
+          assert d["public_runner_git_blob"] == os.environ["RUNNER_BLOB"]
+          assert d["public_validator_git_blob"] == os.environ["VALIDATOR_BLOB"]
+          assert d["parent_before_source_freeze"] == subprocess.check_output([
+              "git", "rev-parse", f"{source}^"
+          ], text=True).strip()
+          actual_workflow = subprocess.check_output([
+              "git", "rev-parse", f"{source}:.github/workflows/ve3-gate2-census-public-v1.yml"
+          ], text=True).strip()
+          assert actual_workflow == d["public_workflow_git_blob"]
+          PY
+
+      - name: Install frozen host parser dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-input PyYAML==6.0.2
+
+      - name: Execute exhaustive non-scientific census
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/ve3-gate2-work"
+          python ve3/ve3_upstream_census_v1.py \
+            --output "${RUNNER_TEMP}/VE3_UPSTREAM_CENSUS_V1.json" \
+            --validator ve3/ve3_ha_blueprint_validate_v1.py \
+            --work-root "${RUNNER_TEMP}/ve3-gate2-work" \
+            | tee "${RUNNER_TEMP}/census-summary.json"
+
+      - name: Bind public and private source identities into result
+        shell: bash
+        run: |
+          set -euo pipefail
+          export RUNNER_BLOB="$(git rev-parse "${SOURCE_FREEZE}:ve3/ve3_upstream_census_v1.py")"
+          export VALIDATOR_BLOB="$(git rev-parse "${SOURCE_FREEZE}:ve3/ve3_ha_blueprint_validate_v1.py")"
+          export WORKFLOW_BLOB="$(git rev-parse "${SOURCE_FREEZE}:.github/workflows/ve3-gate2-census-public-v1.yml")"
+          export SOURCE_MANIFEST_BLOB="$(git rev-parse "${SOURCE_FREEZE}:ve3/VE3_UPSTREAM_CENSUS_PUBLIC_SOURCE_FREEZE_V1.json")"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ["RUNNER_TEMP"]) / "VE3_UPSTREAM_CENSUS_V1.json"
+          d = json.loads(p.read_text())
+          d["source_identity"] = {
+              "public_execution_repository": "risu-research/frb-exec-2609",
+              "public_source_freeze_commit": os.environ["SOURCE_FREEZE"],
+              "public_runner_git_blob": os.environ["RUNNER_BLOB"],
+              "public_validator_git_blob": os.environ["VALIDATOR_BLOB"],
+              "public_workflow_git_blob": os.environ["WORKFLOW_BLOB"],
+              "public_source_manifest_git_blob": os.environ["SOURCE_MANIFEST_BLOB"],
+              "public_open_commit": os.environ["GITHUB_SHA"],
+              "github_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "github_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "private_protocol_commit": os.environ["PRIVATE_PROTOCOL_COMMIT"],
+              "private_source_freeze_commit": os.environ["PRIVATE_SOURCE_FREEZE_COMMIT"],
+              "private_preinput_failure_seal_commit": os.environ["PRIVATE_FAILURE_SEAL_COMMIT"],
+              "private_runner_git_blob": os.environ["EXPECTED_RUNNER_BLOB"],
+              "private_validator_git_blob": os.environ["EXPECTED_VALIDATOR_BLOB"],
+              "runner_byte_identity_preserved": os.environ["RUNNER_BLOB"] == os.environ["EXPECTED_RUNNER_BLOB"],
+              "validator_byte_identity_preserved": os.environ["VALIDATOR_BLOB"] == os.environ["EXPECTED_VALIDATOR_BLOB"],
+          }
+          p.write_text(json.dumps(d, sort_keys=True, indent=2, ensure_ascii=False) + "\n")
+          PY
+
+      - name: Independently validate census closure and GO arithmetic
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ["RUNNER_TEMP"]) / "VE3_UPSTREAM_CENSUS_V1.json"
+          d = json.loads(p.read_text())
+          assert d["schema"] == "replaymark.ve3.upstream-census.v1"
+          assert d["lineage"]["gate_2_census_protocol_commit"] == os.environ["PRIVATE_PROTOCOL_COMMIT"]
+          sid = d["source_identity"]
+          assert sid["runner_byte_identity_preserved"] is True
+          assert sid["validator_byte_identity_preserved"] is True
+          fw = d["method_firewall"]
+          assert fw["native_old_or_new_action_execution"] is False
+          assert fw["old_new_projected_output_comparison"] is False
+          assert fw["compatibility_frontier_computed"] is False
+          assert fw["replaymark_executed"] is False
+          assert fw["target_attestation_run"] is False
+          assert fw["scientific_cells"] == 0
+          pairs = []
+          for repo in d["repositories"]:
+              for pair in repo["pairs"]:
+                  assert pair["pair_id"]
+                  assert pair["old_blob"] and pair["new_blob"] and pair["old_blob"] != pair["new_blob"]
+                  assert pair["classification"] in {"INCLUDE", "EXCLUDE"}
+                  assert pair["primary_reason"]
+                  pairs.append((repo["repository"], pair))
+          assert len(pairs) == d["aggregate"]["total_adjacent_content_changing_pairs"]
+          included = [(r,p) for r,p in pairs if p["classification"] == "INCLUDE"]
+          repos = {r for r,p in included}
+          fams = {p["primary_family"] for r,p in included if p["primary_family"]}
+          decision = d["gate_2_decision"]
+          assert len(included) == decision["included_transition_count"]
+          assert len(repos) == decision["distinct_repositories_with_included_transition"]
+          assert len(fams) == decision["distinct_primary_change_families"]
+          expected_go = len(included) >= 6 and len(repos) >= 3 and len(fams) >= 3
+          assert decision["go"] is expected_go
+          assert d["status"] == ("GATE_2_GO_TO_PRE_SCIENCE_QUALIFICATION" if expected_go else "VE3_STOPPED_PRE_SCIENCE")
+          PY
+          sha256sum "${RUNNER_TEMP}/VE3_UPSTREAM_CENSUS_V1.json" | tee "${RUNNER_TEMP}/VE3_UPSTREAM_CENSUS_V1.sha256"
+
+      - name: Seal census as exact one-file child of public OPEN
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin "refs/heads/${SEALED_BRANCH}" >/dev/null 2>&1; then
+            echo "sealed branch already exists; overwrite/rerun forbidden" >&2
+            exit 1
+          fi
+          OUT="${RUNNER_TEMP}/VE3_UPSTREAM_CENSUS_V1.json"
+          BLOB="$(git hash-object -w --no-filters "${OUT}")"
+          test "$(git cat-file blob "${BLOB}" | sha256sum | awk '{print $1}')" = "$(sha256sum "${OUT}" | awk '{print $1}')"
+          export GIT_INDEX_FILE="${RUNNER_TEMP}/ve3-index"
+          git read-tree "${GITHUB_SHA}"
+          git update-index --add --cacheinfo "100644,${BLOB},${OUT_PATH}"
+          TREE="$(git write-tree)"
+          export GIT_AUTHOR_NAME="ReplayMark VE3 Census Authority"
+          export GIT_AUTHOR_EMAIL="actions@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="ReplayMark VE3 Census Authority"
+          export GIT_COMMITTER_EMAIL="actions@users.noreply.github.com"
+          COMMIT="$(printf '%s\n' 'Seal VE3 Gate 2 exhaustive upstream census v1' | git commit-tree "${TREE}" -p "${GITHUB_SHA}")"
+          test "$(git diff-tree --no-commit-id --name-only -r "${GITHUB_SHA}" "${COMMIT}")" = "${OUT_PATH}"
+          git push origin "${COMMIT}:refs/heads/${SEALED_BRANCH}"
+          echo "sealed_commit=${COMMIT}"
+          echo "census_blob=${BLOB}"
+          echo "census_sha256=$(sha256sum "${OUT}" | awk '{print $1}')"
