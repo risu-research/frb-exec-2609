@@ -1,0 +1,210 @@
+name: artifact-v3 whole-paper first verification
+
+on:
+  push:
+    branches:
+      - artifact-v3-whole-paper-exec
+    paths:
+      - .github/workflows/artifact-v3-whole-paper.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: artifact-v3-whole-paper-first-verification
+  cancel-in-progress: false
+
+env:
+  PRIVATE_SOURCE_SHA: 3c4b6cc209bf5b6d938ac432be218818e87b700c
+  HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
+  VE2_SHA: 25ebfd817420fa0f782419977e4ec166f6ca358a
+  PRESERVATION_BASE_SHA: b0ef07e121f70be8668873d7263b7c13d216c6a6
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout exact public execution carrier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Freeze execution identities and interpreter
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'artifact-v3-whole-paper-exec'
+          test -n "$SOURCE_READ_TOKEN"
+          python3 --version
+          python3 - <<'PY'
+          import sys
+          assert sys.version_info[:2] == (3, 12), sys.version
+          print('PYTHON_3_12=PASS')
+          PY
+          test "$(git rev-parse $PRESERVATION_BASE_SHA^{tree})" = 'b1fd508c81d9597b88fe2710cb921c87f76852ce'
+          python3 -m json.tool artifact/v3-execution/TRANSPORT_FREEZE_V1.json >/dev/null
+          echo 'EXECUTION_IDENTITIES=PASS'
+
+      - name: Checkout exact frozen private V3 source without naming its repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/qx_private_source.py clone --sha "$PRIVATE_SOURCE_SHA" --dest "$RUNNER_TEMP/private-v3"
+          test "$(git -C "$RUNNER_TEMP/private-v3" rev-parse HEAD)" = "$PRIVATE_SOURCE_SHA"
+          git -C "$RUNNER_TEMP/private-v3" remote -v | grep -q . && { echo 'private remote survived checkout'; exit 1; } || true
+          python3 -m json.tool "$RUNNER_TEMP/private-v3/artifact_v3/ARTIFACT_V3_EXECUTION_FREEZE.json" >/dev/null
+          echo 'PRIVATE_V3_EXACT_CHECKOUT=PASS'
+
+      - name: Checkout exact public predecessor authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          HIST="$RUNNER_TEMP/historical"
+          git init -q "$HIST"
+          git -C "$HIST" remote add origin https://github.com/risu-research/appeal-discovery-consumer.git
+          git -C "$HIST" fetch -q --depth=1 origin "$HISTORICAL_SHA"
+          test "$(git -C "$HIST" rev-parse FETCH_HEAD)" = "$HISTORICAL_SHA"
+          git -C "$HIST" checkout -q --detach FETCH_HEAD
+          git -C "$HIST" remote remove origin
+          echo 'HISTORICAL_EXACT_CHECKOUT=PASS'
+
+      - name: Materialize exact pre-result VE2 authority as detached worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch -q --no-tags origin "$VE2_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$VE2_SHA"
+          VE2="$RUNNER_TEMP/ve2"
+          git worktree add -q --detach "$VE2" "$VE2_SHA"
+          test "$(git -C "$VE2" rev-parse HEAD)" = "$VE2_SHA"
+          test "$(git -C "$VE2" rev-parse HEAD^{tree})" = '88f796f2e8ff361aa07925500c80b2ce0f8532e9'
+          echo 'VE2_PRE_RESULT_EXACT_CHECKOUT=PASS'
+
+      - name: Static preflight the frozen verifier programs
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v3"
+          python3 -m py_compile "$SRC/artifact_v3/derive_whole_paper_v1.py" "$SRC/artifact_v3/compare_whole_paper_v1.py"
+          python3 - <<'PY'
+          import subprocess, os
+          src=os.path.join(os.environ['RUNNER_TEMP'],'private-v3')
+          expected={
+            'artifact_v3/derive_whole_paper_v1.py':'67445c9891b78ec3c502c9a6965c49e091e7d4b6',
+            'artifact_v3/compare_whole_paper_v1.py':'bba29049afa592b49765a9dc6f7eac67da754bc7',
+            'artifact_v3/CLAIM_LEDGER_V2_MANUSCRIPT_V92.json':'a6f6ac3b10244c1daaf8150ea9b1b045f8d19f18',
+          }
+          for path,want in expected.items():
+              got=subprocess.check_output(['git','-C',src,'rev-parse',f'HEAD:{path}'],text=True).strip()
+              assert got==want,(path,got,want)
+          print('FROZEN_PROGRAM_IDENTITIES=PASS')
+          PY
+
+      - name: Derive all 42 claims without reading manuscript expected values
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v3"
+          HIST="$RUNNER_TEMP/historical"
+          VE2="$RUNNER_TEMP/ve2"
+          OUT="$RUNNER_TEMP/v3-out"
+          mkdir -p "$OUT"
+          python3 "$SRC/artifact_v3/derive_whole_paper_v1.py" \
+            --source_root "$SRC" \
+            --historical_root "$HIST" \
+            --public_root "$GITHUB_WORKSPACE" \
+            --ve2_root "$VE2" \
+            --out "$OUT/DERIVED_CLAIMS_V1.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'v3-out'/'DERIVED_CLAIMS_V1.json'
+          x=json.loads(p.read_text())
+          assert x['status']=='DERIVED_WITHOUT_MANUSCRIPT_EXPECTED_VALUES'
+          assert x['claim_count']==42
+          assert x['derivation_law']['claim_ledger_read'] is False
+          assert x['derivation_law']['manuscript_expected_values_read'] is False
+          print('INDEPENDENT_42_CLAIM_DERIVATION=PASS')
+          PY
+
+      - name: Compare independent derivation with frozen v92 claim contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v3"
+          OUT="$RUNNER_TEMP/v3-out"
+          python3 "$SRC/artifact_v3/compare_whole_paper_v1.py" \
+            --source-root "$SRC" \
+            --derived "$OUT/DERIVED_CLAIMS_V1.json" \
+            --out "$OUT/WHOLE_PAPER_RECEIPT_V1.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'v3-out'/'WHOLE_PAPER_RECEIPT_V1.json'
+          x=json.loads(p.read_text())
+          assert x['status']=='PASS_WHOLE_PAPER_V3'
+          assert x['claim_summary']=={'total':42,'pass':42,'fail':0}
+          assert all(i['pass'] for i in x['invariants'])
+          assert not x['mismatches']
+          assert all(x['negative_result_preservation'].values())
+          assert not any(x['scientific_noninterference'].values())
+          print(f"WHOLE_PAPER_PASS=42/42;INVARIANTS={len(x['invariants'])}/{len(x['invariants'])}")
+          PY
+
+      - name: Seal execution metadata and checksums
+        shell: bash
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          PUBLIC_HEAD: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/v3-out"
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'v3-out'
+          def H(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          receipt=json.loads((out/'WHOLE_PAPER_RECEIPT_V1.json').read_text())
+          meta={
+            'schema':'replaymark.artifact-v3.public-first-execution-metadata.v1',
+            'status':'PASS_BOUND_TO_WHOLE_PAPER_RECEIPT' if receipt['status']=='PASS_WHOLE_PAPER_V3' else 'FAIL',
+            'public_run_id':int(os.environ['RUN_ID']),
+            'public_run_attempt':int(os.environ['RUN_ATTEMPT']),
+            'public_execution_head':os.environ['PUBLIC_HEAD'],
+            'private_v3_source_commit':os.environ['PRIVATE_SOURCE_SHA'],
+            'historical_predecessor_commit':os.environ['HISTORICAL_SHA'],
+            've2_pre_result_authority_commit':os.environ['VE2_SHA'],
+            'preservation_base_head':os.environ['PRESERVATION_BASE_SHA'],
+            'manuscript_v92_sha256':'4e073022751b5460224eb4c4aa4aa8c58060c1a93776080f94dd0d18ec6683df',
+            'derived_claims_sha256':H(out/'DERIVED_CLAIMS_V1.json'),
+            'whole_paper_receipt_sha256':H(out/'WHOLE_PAPER_RECEIPT_V1.json'),
+            'claim_pass':'42/42',
+            'new_scientific_measurement':False,
+            'historical_experiment_rerun':False,
+            'authority_replacement':False,
+          }
+          (out/'EXECUTION_METADATA_V1.json').write_text(json.dumps(meta,indent=2,sort_keys=True)+'\n')
+          rows=[]
+          for p in sorted(out.glob('*.json')): rows.append(f"{H(p)}  {p.name}")
+          (out/'SHA256SUMS.txt').write_text('\n'.join(rows)+'\n')
+          print('EXECUTION_METADATA_SEALED=PASS')
+          PY
+          cd "$OUT"
+          sha256sum -c SHA256SUMS.txt
+
+      - name: Upload immutable compact verification capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: replaymark-artifact-v3-whole-paper-first-pass
+          path: |
+            ${{ runner.temp }}/v3-out/DERIVED_CLAIMS_V1.json
+            ${{ runner.temp }}/v3-out/WHOLE_PAPER_RECEIPT_V1.json
+            ${{ runner.temp }}/v3-out/EXECUTION_METADATA_V1.json
+            ${{ runner.temp }}/v3-out/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 90
