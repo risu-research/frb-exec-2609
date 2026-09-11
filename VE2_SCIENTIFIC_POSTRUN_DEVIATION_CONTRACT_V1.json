@@ -1,0 +1,55 @@
+{
+  "schema": "replaymark.ve2.scientific-postrun-deviation-contract.v1",
+  "status": "FROZEN_POST_RESULT_ANALYSIS_ONLY",
+  "raw_result_authority": {
+    "raw_result_seal": "2021a94faa764994bf8382d0c9b9261a24fd735d",
+    "scientific_authority_open": "727889c1254a76fe6f6596c2be7ade47dd96ee33",
+    "scientific_run_id": 34557055906,
+    "scientific_run_attempt": 1,
+    "evidence_artifact_id": 10183051324,
+    "evidence_artifact_name": "ve2-authoritative-first-complete-v2-evidence",
+    "evidence_zip_sha256": "3f035c444912b05ff0a44439f89be94aa4b1c2730cea987ae3ec7718b65e4c53",
+    "raw_seal_file_sha256": "3a73be12921d99aa1a903e602c02ef8e166067185cfaf577caf3fea6ee5b0769",
+    "raw_seal_canonical_sha256": "9011d15657e38d604878446878ee8dd137ffb52912fef49471e54dd4fd0a62e5"
+  },
+  "immutable_preregistration": {
+    "t01_expected_frontier_git_blob": "edad64a2b289f103712f9fe74877e713b8af5551",
+    "t02_expected_frontier_git_blob": "76d4ecabf6938e13b719d6350deb191106df5c57",
+    "transition_model_git_blob": "cc57cd825b6d8bf68d2c661efbdc5d6357699b53",
+    "expected_frontier_rewrite_authorized": false,
+    "transition_model_repair_authorized_for_this_analysis": false,
+    "post_hoc_weighted_repartition_promoted": false
+  },
+  "analysis_order": [
+    "VERIFY_EXACT_ARTIFACT_IDENTITY",
+    "VERIFY_RAW_CHECKSUMS",
+    "VERIFY_ALL_16_RAW_STAGE_REPORTS_AND_VALIDATIONS",
+    "VERIFY_RAW_SEAL",
+    "ONLY_THEN_OPEN_FROZEN_FRONTIERS_AND_TRANSITION_MODEL",
+    "SEPARATE_PREREGISTERED_MODEL_FIDELITY_FROM_EMPIRICAL_NATIVE_BOUNDARY",
+    "REPORT_REPLAYMARK_AGAINST_OBSERVED_NATIVE_BOUNDARY",
+    "WITHHOLD_MODEL_DERIVED_WEIGHTED_144_STATE_PROMOTION_IF_MODEL_IS_FALSIFIED"
+  ],
+  "required_output_axes": {
+    "experimental_integrity": ["PASS", "FAIL"],
+    "preregistered_expected_frontier_exact_match": ["PASS", "FAIL"],
+    "auxiliary_transition_model_fidelity": ["PASS", "FAIL"],
+    "core_replaymark_observed_native_boundary": ["PASS", "FAIL"]
+  },
+  "scientific_hygiene": {
+    "scientific_worker_rerun_authorized": false,
+    "docker_or_native_science_execution_authorized": false,
+    "same_authority_rerun_authorized": false,
+    "successful_subset_carry_forward": false,
+    "raw_reports_modification_authorized": false,
+    "raw_seal_modification_authorized": false,
+    "expected_frontier_modification_authorized": false,
+    "analysis_is_post_result": true
+  },
+  "interpretation_law": {
+    "negative_preregistered_result_must_remain_visible": true,
+    "model_falsification_must_not_be_relabeled_as_preregistered_success": true,
+    "empirical_native_boundary_may_be_reported_as_a_distinct_postrun_axis": true,
+    "weighted_144_state_claim_requires_model_fidelity_and_is_otherwise_withheld": true
+  }
+}
