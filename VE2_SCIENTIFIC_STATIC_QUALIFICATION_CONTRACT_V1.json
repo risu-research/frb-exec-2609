@@ -1,0 +1,88 @@
+{
+  "schema": "replaymark.ve2.scientific-static-qualification-contract.v1",
+  "status": "FROZEN_PRE_SCIENCE",
+  "purpose": "Prove the exact scientific authority source, runtime visibility firewall, sanitized manifests, byte-identical pinned blueprints, zero-stimulus native materialization, and serial orchestration before any scientific OPEN exists.",
+  "required_authorities": {
+    "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "public_transport_pass_seal": "10b0012372af591fbc5e39cacacd1642b1c505c5",
+    "exact_contract_mirror_seal": "f4eb39d66c8c4d384334473c39dfa0af3dd3df3b"
+  },
+  "selected_implementations": {
+    "native_execution": "ve2_scientific_native_execution_v2.py",
+    "native_execution_base": "ve2_scientific_native_execution_v1.py",
+    "strict_contract_runtime": "ve2_scientific_contract_runtime_v1.py",
+    "raw_independent_validator": "ve2_scientific_independent_validate_v1.py",
+    "raw_seal": "ve2_scientific_raw_seal_v1.py",
+    "postrun": "ve2_scientific_postrun_adjudicate_v3.py",
+    "runtime_bundle_builder": "ve2_scientific_capsule_static_build_v1.py",
+    "science_workflow": ".github/workflows/ve2-authoritative-first-complete-v1.yml"
+  },
+  "static_requirements": {
+    "science_workflow_trigger_branch_must_not_exist_during_qualification": true,
+    "science_open_file_must_not_exist_during_qualification": true,
+    "science_workflow_jobs": 1,
+    "parallel_matrix_for_science": false,
+    "serial_stage_order_exact": [
+      "T01_R0_OLD_HISTORY",
+      "T01_R1_OLD_HISTORY",
+      "T01_R0_NEW_DIRECT",
+      "T01_R1_NEW_DIRECT",
+      "T01_R0_REPLAYMARK",
+      "T01_R1_REPLAYMARK",
+      "T01_R0_REPLAY_ALL",
+      "T01_R1_REPLAY_ALL",
+      "T02_R0_OLD_HISTORY",
+      "T02_R1_OLD_HISTORY",
+      "T02_R0_NEW_DIRECT",
+      "T02_R1_NEW_DIRECT",
+      "T02_R0_REPLAYMARK",
+      "T02_R1_REPLAYMARK",
+      "T02_R0_REPLAY_ALL",
+      "T02_R1_REPLAY_ALL",
+      "ALL_RAW_STAGE_ARTIFACTS_SEALED",
+      "INDEPENDENT_POST_RUN_ADJUDICATION"
+    ],
+    "worker_network": "none",
+    "whole_repository_mount_forbidden": true,
+    "replaymark_new_direct_output_mounts": 0,
+    "worker_expected_frontier_mounts": 0,
+    "worker_transition_semantics_mounts": 0,
+    "expected_frontier_access_first_allowed_step": "INDEPENDENT_POST_RUN_ADJUDICATION",
+    "raw_stage_artifacts": 16,
+    "scientific_cells_when_eventually_run": 352
+  },
+  "runtime_bundle_requirements": {
+    "original_manifest_git_blobs": {
+      "T01": "c1731d24387ec4c2dcb33167a286d89fc45ef254",
+      "T02": "c9d543be934dd0cc33b67a2f987f0eae9705a83b"
+    },
+    "runtime_manifest_projection_keys": ["fixed_profile", "schema", "state_count", "states"],
+    "blueprints": {
+      "T01_OLD": {"git_blob": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0", "sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8"},
+      "T01_NEW": {"git_blob": "19c99196ed611729338f01bc77ea1b5deda7aa02", "sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363"},
+      "T02_OLD": {"git_blob": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76", "sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115"},
+      "T02_NEW": {"git_blob": "3255957740ec44285d866d8be7d78bf905c1257c", "sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e"}
+    }
+  },
+  "zero_stimulus_preflights": [
+    "T01_OLD_BLUEPRINT_ON_HA_2022_10",
+    "T01_NEW_BLUEPRINT_ON_HA_2026_1",
+    "T02_OLD_BLUEPRINT_ON_HA_2026_9",
+    "T02_NEW_BLUEPRINT_ON_HA_2026_9"
+  ],
+  "preflight_must_prove": {
+    "automation_entity_materialized": true,
+    "zero_automation_invocations": true,
+    "zero_consequential_services": true,
+    "zero_native_trace_contexts": true,
+    "trigger_stimulus_emitted": false,
+    "scientific_cells": 0,
+    "frontier_result_seen": false
+  },
+  "qualification_output": {
+    "sealed_runtime_branch": "ve2-scientific-capsule-sealed-v1",
+    "may_create_scientific_open": false,
+    "may_execute_scientific_cell": false,
+    "public_static_pass_seal_required_after_success": true
+  }
+}
