@@ -1,0 +1,125 @@
+{
+  "schema": "replaymark.ve2.science-transport-v6-public-pass-seal.v1",
+  "status": "PASS_SEALED_PRE_SCIENCE",
+  "authority": {
+    "source_freeze": "374067d56b842a56894efbefdf850a2bace2dc65",
+    "open": "a0e36f2ec53d07074302dc2abb62b76fb7dcc53d",
+    "diagnosis_seal": "5f541f3976946ca21d3a911b49f6f0f69158d369",
+    "run_id": 34551638120,
+    "run_attempt": 1,
+    "workflow_conclusion": "success"
+  },
+  "immutable_artifacts": {
+    "preflight_T01_OLD_RUNTIME": {
+      "id": 10181039569,
+      "zip_sha256": "9772dfd5a422c86a8ba7271f771b5a2e54be3dac75d8a31dfa698e0fe71cc959"
+    },
+    "preflight_T01_NEW_RUNTIME": {
+      "id": 10181052241,
+      "zip_sha256": "05ddea65be782c20644e61fe01ab3042f5321c177b55bc22114f3328d9f78a82"
+    },
+    "preflight_T02_RUNTIME": {
+      "id": 10181048665,
+      "zip_sha256": "f61c5bdde95aefb581d445382aad73a0d9d63d404f98e3f6309f9a604231ddee"
+    },
+    "preflight_aggregate": {
+      "id": 10181056728,
+      "zip_sha256": "b4b7e44e9a87702a0b040e05a77b346d230b0055695dfa434f40823051803d41"
+    },
+    "T01_OLD_RUNTIME": {
+      "id": 10181078576,
+      "zip_sha256": "7309fe838cf6818972c6ed431feeb73f8606b0a49d10748afe59156507288755",
+      "runtime_file_sha256": "63eaa09b9460d191b7983f05643f66cc6e7b4c455c1408f862bfd987c6508576",
+      "runtime_result_sha256": "3e1fb7dad2ab6b2f5f8ef72da58f99f49ebdb5f0055c182f191fc4ac6c5cb4ea"
+    },
+    "T01_NEW_RUNTIME": {
+      "id": 10181088645,
+      "zip_sha256": "ce05f59619fffb04cde0a4eab0d89cd54cc8ed6955b67deaf50d77e83ae65de6",
+      "runtime_file_sha256": "a4c73e7194eee345786eab6bbdca017bee36e155efa594b03130c38fe1ee10b9",
+      "runtime_result_sha256": "0e159fbf25d94692b7c17af0189626b712f253d5ed3818aeec157b3c249c891e"
+    },
+    "T02_RUNTIME": {
+      "id": 10181085512,
+      "zip_sha256": "e88e2458435c38a01a8141b8187df49ace8339f86fbc34ec9161729de21e0e0d",
+      "runtime_file_sha256": "52f795dcf92e4fd545aa16a7c8150e292b8f6b7123dc67e9d383fc0b4dfd434b",
+      "runtime_result_sha256": "f07438f281a1ebc372c43840de61b81d8500b6019c5a62b9b025c7f6d0e989c3"
+    },
+    "aggregate": {
+      "id": 10181092803,
+      "zip_sha256": "4f86bc3a66efd4b330ee031d2937a9da858057416f818e126e92759cb777fe3f",
+      "independent_validation_file_sha256": "3e51765549a7b181893b2a977a7ddd2d47bb835f4a953f4f74b7011e5cc483d8",
+      "aggregate_provenance_file_sha256": "c57d83fd5bfc9a9f04ef385232249c08fec20e33704f26118ce52e81fb2d71c6"
+    }
+  },
+  "independent_validation": {
+    "schema": "replaymark.ve2.science-transport-independent-validation.v1",
+    "status": "PASS",
+    "validation_sha256": "0a316fa43d9ba6dfd61c1aef15765b62bbfb31dcf8472c13923b865073ac1878",
+    "cross_version_invocation_double_witness": "PASS",
+    "T02_clock_transport": "PASS",
+    "eligible_for_scientific_capsule_freeze": true
+  },
+  "role_results": {
+    "T01_OLD_RUNTIME": {
+      "home_assistant_version": "2022.10.0",
+      "cases": {
+        "state": "PASS"
+      }
+    },
+    "T01_NEW_RUNTIME": {
+      "home_assistant_version": "2026.1.0",
+      "cases": {
+        "state": "PASS"
+      }
+    },
+    "T02_RUNTIME": {
+      "home_assistant_version": "2026.9.0",
+      "cases": {
+        "state": {
+          "status": "PASS",
+          "row_sha256": "3726ad24b0a268ff78505519857bb189c9445844475943b82e5ceac153fcd11c"
+        },
+        "state_for_120s": {
+          "status": "PASS",
+          "row_sha256": "52ab2b674bdf231c0968d570270f631a152fc32a2077e219f466ff6054902ca4",
+          "clock_handles_fired": 3
+        },
+        "time": {
+          "status": "PASS",
+          "row_sha256": "7dd76e84b4d4dd4b0330e19a0aed966daaff5534087bddbd44502538b4a19c35",
+          "clock_handles_fired": 3
+        },
+        "homeassistant_start_delay_30s": {
+          "status": "PASS",
+          "row_sha256": "23bdea474a7695268d69551876b01c61ecfe80ccf3f9eab0aeed5232aa636f31",
+          "native_family": "HOMEASSISTANT_START",
+          "clock_handles_fired": 3,
+          "event_trace_service_context_exact": true
+        }
+      }
+    }
+  },
+  "repair_scope_closed": {
+    "execution_semantic_changes": 1,
+    "startup_signal": "homeassistant_started",
+    "witness_applicability_changes": 1,
+    "startup_synthetic_root_parent_obligation": "NOT_APPLICABLE_SOURCE_PROVEN",
+    "collector_algorithm_changed": false,
+    "independent_transport_validator_changed": false,
+    "other_neutral_cases_changed": false
+  },
+  "promotion": {
+    "eligible_for_scientific_capsule_freeze": true,
+    "scientific_authority_opened": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  },
+  "scientific_hygiene": {
+    "expected_frontier_read": false,
+    "execution_state_manifests_used": false,
+    "transition_blueprints_executed": false,
+    "historical_better_thermostat_action_dispatched": false,
+    "same_authority_rerun": false
+  }
+}
