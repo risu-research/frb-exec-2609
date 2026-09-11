@@ -1,0 +1,111 @@
+{
+  "schema": "replaymark.ve2.scientific-static-pass-seal.v1",
+  "status": "PASS_SEALED_PRE_SCIENCE",
+  "qualification_version": 2,
+  "lineage": {
+    "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "public_transport_pass_seal": "10b0012372af591fbc5e39cacacd1642b1c505c5",
+    "exact_contract_mirror_seal": "f4eb39d66c8c4d384334473c39dfa0af3dd3df3b",
+    "static_v1_packaging_failure_seal": "16245ba7500a81ccff18f9380b1be3e5d7a63f23",
+    "static_v2_source_freeze": "b6d892f5d30ef6f76c111adb05250fa0f484651d",
+    "static_v2_open": "92b7c14ff1486fa280894063dfc9fca349bbd743",
+    "sealed_runtime_commit": "4662ff5d4e8ce6a5e02faea281cf3c3755220bc0",
+    "sealed_runtime_tree": "9f146d18632b458823ab67187e23838c7dac129a"
+  },
+  "qualification": {
+    "workflow": ".github/workflows/ve2-scientific-static-qualification-v2.yml",
+    "workflow_run_id": 34555795169,
+    "run_attempt": 1,
+    "conclusion": "success",
+    "successful_subset_carry_forward": false,
+    "artifact": {
+      "artifact_id": 10182565042,
+      "artifact_name": "ve2-scientific-static-qualification-v2-evidence",
+      "size_bytes": 48809,
+      "zip_sha256": "46861a02f9ba9265c1e25f9d1d4af9574b83ee70c4304b646c9f56446a750ce0",
+      "expired_at_seal_creation": false
+    },
+    "static_source_validation_file_sha256": "08fdf7dc11848ba4521f0e06f9c1642d365b62af6efa66d79722ffb576103e4e",
+    "runtime_bundle_receipt_file_sha256": "7cd81d34aebeb3759f3f97cafaea45a0a2f631ca099beb6228d7cb30f450fc57",
+    "preflight_validation_file_sha256": "ddfb77276cb0243e571782a826262b6f546e24c96e9d4beaeb3012ed40c92187",
+    "science_workflow_sha256": "52df67631b1959f4a9d4185b0d5672d02d0498461b94d698c3043604959e27aa"
+  },
+  "runtime_bundle": {
+    "receipt_file_sha256": "7cd81d34aebeb3759f3f97cafaea45a0a2f631ca099beb6228d7cb30f450fc57",
+    "receipt_canonical_sha256": "ba7cf7230ee92c3cb29f65419297bbe32dbd922e2dfe576fcfc3815c1dbab5fd",
+    "files_sha256": {
+      "scientific_capsule/runtime/manifests/VE2_T01_RUNTIME_MANIFEST_V1.json": "e49d2da578146c009adfd892a5c1e46d874a456d67db002397cb1a8a9e3acc91",
+      "scientific_capsule/runtime/manifests/VE2_T02_RUNTIME_MANIFEST_V1.json": "32fc4999484d454540ffa3c7b04d57cf6da6847bfe460d1ce83f6178eea375fe",
+      "scientific_capsule/runtime/blueprints/T01_OLD_NIGHT_MODE.yaml": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8",
+      "scientific_capsule/runtime/blueprints/T01_NEW_NIGHT_MODE.yaml": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363",
+      "scientific_capsule/runtime/blueprints/T02_OLD_WEEKLY_HEATING_SCHEDULE.yaml": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115",
+      "scientific_capsule/runtime/blueprints/T02_NEW_WEEKLY_HEATING_SCHEDULE.yaml": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e"
+    },
+    "manifest_git_blobs": {
+      "T01": "8cb8275694ab4c7433e819b977b9f4042179eb00",
+      "T02": "7146b7f680ab145501d969e362f9cdf8f541d854"
+    },
+    "blueprint_git_blobs": {
+      "T01_OLD": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+      "T01_NEW": "19c99196ed611729338f01bc77ea1b5deda7aa02",
+      "T02_OLD": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+      "T02_NEW": "3255957740ec44285d866d8be7d78bf905c1257c"
+    },
+    "worker_expected_frontier_mounts": 0,
+    "worker_transition_semantics_mounts": 0,
+    "worker_compatibility_label_mounts": 0,
+    "worker_class_weight_mounts": 0,
+    "replaymark_new_direct_output_mounts": 0,
+    "worker_network": "none"
+  },
+  "qualified_source_files_sha256": {
+    ".github/workflows/ve2-authoritative-first-complete-v1.yml": "52df67631b1959f4a9d4185b0d5672d02d0498461b94d698c3043604959e27aa",
+    "ve2_scientific_native_execution_v1.py": "d321e656f2cd7193dae929f7f1bd395e23eab80c390a7b959711fcbfd6442f55",
+    "ve2_scientific_native_execution_v2.py": "8b4a2960a3e7aadfd791317ddf3cbbfd119d28a996250a4071d0070a2a63bd85",
+    "ve2_scientific_contract_runtime_v1.py": "3434a0b700d469c28e42752eb3f3435e87b13639f4cb16637a8592eb0962737e",
+    "ve2_scientific_independent_validate_v1.py": "4e9f24f6e9aa299dec792793975ca0ca1e2a89dfdc0243430d47fa08238facf2",
+    "ve2_scientific_raw_seal_v1.py": "4ea8e30d1a68923fbfad23741c375db6482646cd7e1e838ccafeefdce329fbfa",
+    "ve2_scientific_postrun_adjudicate_v3.py": "3fa0ed1b487d5a8b6f66b6df3edef5010258c7919a5f81ad57f09ccedbdd63cd"
+  },
+  "content_addressed_dependency_blobs": {
+    "ve2_scientific_postrun_adjudicate_v1.py": "a5f0fa898db7e47f1b106a15ab3948f92d8a7457",
+    "ve2_e0r_semantic_boundary_v1.py": "52d3b6e5ab3816266424ca61feef7cbb7f431d51",
+    "ve2_science_transport_qualify_v3.py": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "ve2_science_transport_qualify_v4.py": "8c33de1d8717983ffecd4a45634de0d2469ac19d",
+    "ve2_science_transport_qualify_v5.py": "20914078395995116cbd88cdd63063f4fb6907f0",
+    "ve2_science_transport_qualify_v6.py": "941b80b1c42781094fc8b3bb1a83861d80ae01da",
+    "ve2_transition_semantics_v1.py": "cc57cd825b6d8bf68d2c661efbdc5d6357699b53",
+    "VE2_T01_EXPECTED_FRONTIER_V1.json": "edad64a2b289f103712f9fe74877e713b8af5551",
+    "VE2_T02_EXPECTED_FRONTIER_V1.json": "76d4ecabf6938e13b719d6350deb191106df5c57"
+  },
+  "zero_stimulus_preflight": {
+    "independent_validation_status": "PASS",
+    "all_four_zero_stimulus": true,
+    "roles": {
+      "T01_OLD": {"home_assistant_version": "2022.10.0", "blueprint_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8", "bootstrap_adapter_sha256": "b2ddd39971009654174c2150ff69d519ca000d40fb0675e06f9b5def4996f27c"},
+      "T01_NEW": {"home_assistant_version": "2026.1.0", "blueprint_sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363", "bootstrap_adapter_sha256": "d3f1b630fe592a60ea0428f45ae59ab9319baeeb1fcb48ace85dee6f8f02dba5"},
+      "T02_OLD": {"home_assistant_version": "2026.9.0", "blueprint_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115", "bootstrap_adapter_sha256": "1a6faa6088876f2402fac4071cdc969db64cd7a8bf15a73a2e753fdc75720b5f"},
+      "T02_NEW": {"home_assistant_version": "2026.9.0", "blueprint_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e", "bootstrap_adapter_sha256": "1a6faa6088876f2402fac4071cdc969db64cd7a8bf15a73a2e753fdc75720b5f"}
+    }
+  },
+  "scientific_authority_contract": {
+    "raw_stage_artifacts": 16,
+    "scientific_cells_when_opened": 352,
+    "serial_single_job": true,
+    "parallel_replica_matrix": false,
+    "all_raw_seal_before_frontier_access": true,
+    "result_dependent_rerun_authorized": false,
+    "successful_subset_carry_forward": false,
+    "exact_next_open_filename": "VE2_SCIENTIFIC_AUTHORITY_OPEN_V1.json",
+    "exact_next_branch": "ve2-scientific-authority-v1"
+  },
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "scientific_result_opened": false
+  },
+  "science_branch_absent_at_seal_creation": true,
+  "science_open_absent_at_seal_creation": true,
+  "science_open_authorized": true,
+  "only_next_gate": "Create exactly one scientific OPEN file as the sole child delta of this PASS seal, then create ve2-scientific-authority-v1 directly at that OPEN commit. Do not execute or create that OPEN as part of the pre-science sealing task."
+}
