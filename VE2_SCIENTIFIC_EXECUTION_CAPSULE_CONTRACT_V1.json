@@ -1,0 +1,98 @@
+{
+  "schema": "replaymark.ve2.scientific-execution-capsule-contract.v1",
+  "status": "FROZEN_PRE_SCIENCE",
+  "authority": {
+    "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "public_transport_pass_seal": "10b0012372af591fbc5e39cacacd1642b1c505c5",
+    "exact_contract_mirror_seal": "f4eb39d66c8c4d384334473c39dfa0af3dd3df3b",
+    "e0r_semantic_boundary_blob": "52d3b6e5ab3816266424ca61feef7cbb7f431d51"
+  },
+  "immutable_inputs": {
+    "t01_manifest_blob": "c1731d24387ec4c2dcb33167a286d89fc45ef254",
+    "t02_manifest_blob": "c9d543be934dd0cc33b67a2f987f0eae9705a83b",
+    "t01_expected_frontier_blob_adjudication_only": "edad64a2b289f103712f9fe74877e713b8af5551",
+    "t02_expected_frontier_blob_adjudication_only": "76d4ecabf6938e13b719d6350deb191106df5c57",
+    "t01_contract": {
+      "raw_sha256": "c42254e9556da27f0cc760c379b311d002dc775131b79a6cc3ab0af8b2a34b50",
+      "git_blob": "e95f7001095366a66240cb4201fe227729f7b4c2",
+      "contract_fingerprint": "22f621ada3862f85ead9769ea0b13c6b68807b078ee76de25c53b422a3a1cedb"
+    },
+    "t02_contract": {
+      "raw_sha256": "450b2fb1752900eda757a705e590d060aeca30d51dc5d0b05803bb71555ff409",
+      "git_blob": "7585079d3c1b65a5fcf8ad50b7b30f6a009d67b6",
+      "contract_fingerprint": "a72f240ccbd5d6b4f81868189b962c831dbbce881531d1fca57f4d663d761b2c"
+    }
+  },
+  "upstream_blueprints": {
+    "t01_old": {"repository":"KartoffelToby/better_thermostat","commit":"cd4c3121c92f59d5ac1f3533424bc570209ce6ef","path":"blueprints/night_mode.yaml","blob":"8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0","sha256":"9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8"},
+    "t01_new": {"repository":"KartoffelToby/better_thermostat","commit":"96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f","path":"blueprints/night_mode.yaml","blob":"19c99196ed611729338f01bc77ea1b5deda7aa02","sha256":"9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363"},
+    "t02_old": {"repository":"KartoffelToby/better_thermostat","commit":"ac189909982c5edea1260e767027d6fad90ef4bd","path":"blueprints/weekly_heating_schedule.yaml","blob":"2172a1a3ad1955132911aa0fd0f8a546ab6e2b76","sha256":"5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115"},
+    "t02_new": {"repository":"KartoffelToby/better_thermostat","commit":"5b4496de5659fd2c6ec5c67a9797e6659797866c","path":"blueprints/weekly_heating_schedule.yaml","blob":"3255957740ec44285d866d8be7d78bf905c1257c","sha256":"45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e"}
+  },
+  "runtime_images": {
+    "t01_old":"ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e",
+    "t01_target":"ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7",
+    "t02":"ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293"
+  },
+  "stage_order": [
+    "T01_R0_OLD_HISTORY","T01_R1_OLD_HISTORY","T01_R0_NEW_DIRECT","T01_R1_NEW_DIRECT","T01_R0_REPLAYMARK","T01_R1_REPLAYMARK","T01_R0_REPLAY_ALL","T01_R1_REPLAY_ALL",
+    "T02_R0_OLD_HISTORY","T02_R1_OLD_HISTORY","T02_R0_NEW_DIRECT","T02_R1_NEW_DIRECT","T02_R0_REPLAYMARK","T02_R1_REPLAYMARK","T02_R0_REPLAY_ALL","T02_R1_REPLAY_ALL",
+    "ALL_RAW_STAGE_ARTIFACTS_SEALED","INDEPENDENT_POST_RUN_ADJUDICATION"
+  ],
+  "runtime_visibility": {
+    "old_history": ["label_free_manifest","exact_old_blueprint","native_runtime_code"],
+    "new_direct": ["label_free_manifest","exact_new_blueprint","native_runtime_code"],
+    "replaymark": ["label_free_manifest","exact_target_contract","sealed_old_history_handoff","native_runtime_code"],
+    "replay_all": ["label_free_manifest","sealed_old_history_handoff","native_runtime_code"],
+    "forbidden_all_result_workers": ["expected_frontier","native_semantics","transition_semantics","compatibility_labels","class_weights","human_verdict"],
+    "forbidden_replaymark_additional": ["new_direct_stage_output","old_new_source_diff"]
+  },
+  "native_execution_law": {
+    "actual_pinned_blueprint_required": true,
+    "fresh_home_assistant_per_state": true,
+    "claim_boundary": "home-assistant.native-service-call",
+    "service_sink_handlers_are_inert_and_exist_only_to_allow_native_call completion": true,
+    "native_automation_event_and_trace_double_witness_required": true,
+    "no_action_requires_fixed_point_absence_certificate": true,
+    "t02_clock_driver": "replaymark.ve2.ha-test-equivalent-clock-driver.v1",
+    "t02_day_profile": "weekday",
+    "t02_run_must_fail_closed_if_utc_day_is_not_monday_through_friday": true
+  },
+  "replaymark_law": {
+    "compile_explicit_contract_during_science": false,
+    "strict_exact_contract_view_only": true,
+    "claim_horizon": 0,
+    "projected_dimensions": ["concrete_target","operation","variant"],
+    "certificate_recomputed_by_execution_gate": true,
+    "presented_and_recomputed_certificate_canonical_bytes_must_match": true,
+    "valid_support_membership": "ADMIT_REUSE",
+    "invalid_or_unresolved": "BLOCK_REUSE",
+    "single_use_e0r_behavior_gate_required": true,
+    "caller_native_recovery_after_block": false,
+    "fallback": false,
+    "retry": false,
+    "regeneration": false
+  },
+  "replay_all_law": {
+    "service_behavior": "attempt exact historical native service action once",
+    "certified_no_action_behavior": "perform no service dispatch",
+    "semantic_authorization": false,
+    "fallback": false,
+    "retry": false
+  },
+  "raw_seal_law": {
+    "each_stage_report_written_before_next_stage": true,
+    "each_stage_report_sha256_handoff_required": true,
+    "no_production_summary_before_all_16_stage_reports_are_sealed": true,
+    "expected_frontier_may_be_read_only_after_all_raw_stage_artifacts_sealed": true,
+    "successful_subset_carry_forward": false
+  },
+  "scientific_firewall": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "static_qualification_required_before_scientific_open": true,
+    "same_authority_rerun_after_result_exposure": false
+  }
+}
