@@ -1,0 +1,63 @@
+{
+  "schema": "replaymark.ve2.science-transport-v6-native-context-applicability-proof.v1",
+  "status": "FROZEN_PROSPECTIVE_SOURCE_PROOF",
+  "diagnosis_seal": "5f541f3976946ca21d3a911b49f6f0f69158d369",
+  "scope": "homeassistant_start_delay_30s only",
+  "home_assistant_source": {
+    "repository": "home-assistant/core",
+    "ref": "2026.9.0",
+    "tag_commit": "dfb5a9e690daaf204b542896e4b595e61a11a401",
+    "trigger_file": "homeassistant/components/homeassistant/triggers/homeassistant.py",
+    "trigger_file_blob": "4f96b25d281e706b8e8adf3f015d15af12960002",
+    "official_test_file": "tests/components/homeassistant/triggers/test_homeassistant.py",
+    "official_test_file_blob": "c686f8273052b0891d7dec9c111d48b86abf79fa",
+    "start_listener_symbol": "EVENT_HOMEASSISTANT_STARTED",
+    "start_listener_value": "homeassistant_started",
+    "native_callback_reads_event_context": false,
+    "native_action_invocation_explicit_context_argument": false,
+    "native_callback_invocation_shape": "hass.async_run_hass_job(job, variables) with no context argument"
+  },
+  "frozen_runner_source": {
+    "file": "ve2_science_transport_qualify_v3.py",
+    "blob": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "startup_case": "homeassistant_start_delay_30s",
+    "synthetic_root_created": true,
+    "synthetic_root_passed_to_raw_bus_event": true,
+    "collector_parent_check_is_conditional_on_root_context_id_non_null": true
+  },
+  "applicability_conclusion": {
+    "native_start_trigger_propagates_raw_event_context": false,
+    "synthetic_raw_event_root_is_a_native_parent_invariant": false,
+    "startup_root_parent_obligation": "NOT_APPLICABLE",
+    "event_trace_context_identity_obligation": "REMAINS_REQUIRED",
+    "service_invocation_context_identity_obligation": "REMAINS_REQUIRED",
+    "fresh_automation_context_obligation": "REMAINS_REQUIRED",
+    "single_invocation_obligation": "REMAINS_REQUIRED",
+    "single_neutral_sink_obligation": "REMAINS_REQUIRED"
+  },
+  "allowed_runtime_projection": {
+    "case": "homeassistant_start_delay_30s",
+    "expected_family": "HOMEASSISTANT_START",
+    "operation": "replace only collector argument root_context_id with null before delegation to unchanged collector",
+    "collector_algorithm_changed": false,
+    "independent_transport_validator_changed": false,
+    "transport_pass_criteria_changed": false,
+    "reason": "the existing validator already treats root_context_id=null as the explicit not-applicable representation; all non-parent witness obligations remain exact"
+  },
+  "forbidden_changes": {
+    "other_case_applicability_change": true,
+    "trigger_definition_change": true,
+    "action_definition_change": true,
+    "delay_change": true,
+    "clock_driver_change": true,
+    "wait_timeout_change": true,
+    "bootstrap_change": true,
+    "registry_change": true,
+    "scientific_input_access": true
+  },
+  "scientific_hygiene": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  }
+}
