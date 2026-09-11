@@ -1,0 +1,88 @@
+{
+  "schema": "replaymark.artifact-v2.s6-authority-source.v1",
+  "status": "FROZEN_SOURCE_BINDING_BEFORE_ARTIFACT_V2_PRESERVATION",
+  "purpose": "Persist and deterministically reduce the already-sealed S6 authority used by the manuscript without rerunning, retuning, selecting, or repairing scientific measurements.",
+  "manuscript_snapshot": {
+    "version": "v91_FinalSubmissionAudit",
+    "sha256": "49a38fe979749fd9071b5d0299ce146989bd2846b2f7c945ef905794e80aef7b"
+  },
+  "public_source_run": {
+    "repository": "risu-research/frb-exec-2609",
+    "run_id": 34368556819,
+    "run_attempt": 1,
+    "branch": "qx-run-v2",
+    "head_sha": "f5461c9adf94f5adc2542355283b4c9f85a468ae",
+    "workflow_conclusion": "success"
+  },
+  "sealed_authority_artifact": {
+    "id": 10118788764,
+    "name": "replaymark-s6-x86-first-complete-authority-v6-public-substrate-v2",
+    "zip_sha256": "88cf0809117ab2c9266d4de1cb0e80f58c1165bd9635bcfe970628b8a3fd6e62",
+    "aggregate_path": "aggregate/S6_X86_FIRST_COMPLETE_AGGREGATE_V1.json",
+    "aggregate_sha256": "9dd9a0363d04a413b380fefcf3d35a56c50a089ba321f2812c5a94b741a18adf"
+  },
+  "sealed_enforcement_artifact": {
+    "id": 10118796980,
+    "name": "replaymark-s6-x86-first-complete-enforcement-v6-public-substrate-v2",
+    "zip_sha256": "8d7b306f0770e0015488a28ad73c704198fb411fa1dee0231885f0fb035c08da",
+    "enforcement_path": "S6_X86_FIRST_COMPLETE_ENFORCEMENT_V1.json",
+    "required_status": "SEALED_COMPLETE_AUTHORITY"
+  },
+  "fresh_public_claim_artifacts": [
+    {
+      "id": 10118653678,
+      "name": "s6-online-f12-A",
+      "zip_sha256": "88984f4d68a9e0cad1c564959a4ea3ca3230dfe9bcaf71f34bb92adf4a9d693a"
+    },
+    {
+      "id": 10118388126,
+      "name": "s6-online-f12-B",
+      "zip_sha256": "3a6260372dd02935f3bcb3a781fcb4312c3c74c60bd4b6b0261e4acd61e25282"
+    },
+    {
+      "id": 10118749390,
+      "name": "s6-e3b-budget-A",
+      "zip_sha256": "a66913df8433020ea5eb7d8f5fa03c6a16ea53dd1b1a586d99e70159564fc524"
+    },
+    {
+      "id": 10118719263,
+      "name": "s6-e3b-budget-B",
+      "zip_sha256": "b2fcfbfaf7f1c3b2601a64363661bdbc7e171b2000ee232e03c58a7495707e69"
+    },
+    {
+      "id": 10118762558,
+      "name": "s6-anchors-A",
+      "zip_sha256": "426a71bdd2079e411c080f2df036925d5fb20d78d43171961dce1ad2f855870e"
+    },
+    {
+      "id": 10118764909,
+      "name": "s6-anchors-B",
+      "zip_sha256": "4e82d48eeae59c5f6d51984f8ef0db0672713b94bd7744e9704a47d1de3a6006"
+    }
+  ],
+  "paper_projection_v91": {
+    "f1_online_N_levels": [32, 64, 128, 256],
+    "f1_eligible_replica_seed_blocks": 10,
+    "f1_all_blocks_flat": true,
+    "largest_p50_max_min_ratio_3dp": "1.113",
+    "worst_e3b_p99_ms_3dp": "1.371",
+    "worst_e3b_p99_9_ms_3dp": "2.344",
+    "worst_e3b_p99_budget_percent_3dp": "1.371",
+    "worst_e3b_p99_9_budget_percent_3dp": "2.344",
+    "thermostat_q_compile_median_ms_range_2dp": ["3.88", "4.02"],
+    "e3b_full_compile_median_ms_range_1dp": ["107.7", "108.1"],
+    "anchor_peak_rss_lt_decimal_mb": 30,
+    "positive_offline_scaling_claim": false
+  },
+  "scope_law": {
+    "new_scientific_measurement": false,
+    "rerun_for_better_result": false,
+    "post_hoc_threshold_change": false,
+    "post_hoc_coordinate_change": false,
+    "source_authority_rewrite": false,
+    "artifact_reducer_may_change_scientific_interpretation": false,
+    "inherited_private_V5_records_may_support_new_positive_paper_performance_numbers": false,
+    "paper_runtime_and_anchor_numbers_must_be_derived_only_from_fresh_public-run components bound above": true,
+    "unfavorable_or_inconclusive_scaling_result_must_remain_preserved": true
+  }
+}
