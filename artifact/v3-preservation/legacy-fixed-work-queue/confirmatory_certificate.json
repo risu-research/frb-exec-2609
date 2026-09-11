@@ -61,24 +61,84 @@
   },
   "per_queue": {
     "511": {
-      "R1_TIMING": {"cells": 12, "delivered": 6132, "generated": 6144, "loss": 12},
-      "R2_SEMANTIC": {"cells": 12, "delivered": 6132, "generated": 9216, "loss": 3084},
-      "TARGET_NATIVE": {"cells": 12, "delivered": 6132, "generated": 9216, "loss": 3084}
+      "R1_TIMING": {
+        "cells": 12,
+        "delivered": 6132,
+        "generated": 6144,
+        "loss": 12
+      },
+      "R2_SEMANTIC": {
+        "cells": 12,
+        "delivered": 6132,
+        "generated": 9216,
+        "loss": 3084
+      },
+      "TARGET_NATIVE": {
+        "cells": 12,
+        "delivered": 6132,
+        "generated": 9216,
+        "loss": 3084
+      }
     },
     "512": {
-      "R1_TIMING": {"cells": 12, "delivered": 6144, "generated": 6144, "loss": 0},
-      "R2_SEMANTIC": {"cells": 12, "delivered": 6144, "generated": 9216, "loss": 3072},
-      "TARGET_NATIVE": {"cells": 12, "delivered": 6144, "generated": 9216, "loss": 3072}
+      "R1_TIMING": {
+        "cells": 12,
+        "delivered": 6144,
+        "generated": 6144,
+        "loss": 0
+      },
+      "R2_SEMANTIC": {
+        "cells": 12,
+        "delivered": 6144,
+        "generated": 9216,
+        "loss": 3072
+      },
+      "TARGET_NATIVE": {
+        "cells": 12,
+        "delivered": 6144,
+        "generated": 9216,
+        "loss": 3072
+      }
     },
     "767": {
-      "R1_TIMING": {"cells": 12, "delivered": 6144, "generated": 6144, "loss": 0},
-      "R2_SEMANTIC": {"cells": 12, "delivered": 9204, "generated": 9216, "loss": 12},
-      "TARGET_NATIVE": {"cells": 12, "delivered": 9204, "generated": 9216, "loss": 12}
+      "R1_TIMING": {
+        "cells": 12,
+        "delivered": 6144,
+        "generated": 6144,
+        "loss": 0
+      },
+      "R2_SEMANTIC": {
+        "cells": 12,
+        "delivered": 9204,
+        "generated": 9216,
+        "loss": 12
+      },
+      "TARGET_NATIVE": {
+        "cells": 12,
+        "delivered": 9204,
+        "generated": 9216,
+        "loss": 12
+      }
     },
     "768": {
-      "R1_TIMING": {"cells": 12, "delivered": 6144, "generated": 6144, "loss": 0},
-      "R2_SEMANTIC": {"cells": 12, "delivered": 9216, "generated": 9216, "loss": 0},
-      "TARGET_NATIVE": {"cells": 12, "delivered": 9216, "generated": 9216, "loss": 0}
+      "R1_TIMING": {
+        "cells": 12,
+        "delivered": 6144,
+        "generated": 6144,
+        "loss": 0
+      },
+      "R2_SEMANTIC": {
+        "cells": 12,
+        "delivered": 9216,
+        "generated": 9216,
+        "loss": 0
+      },
+      "TARGET_NATIVE": {
+        "cells": 12,
+        "delivered": 9216,
+        "generated": 9216,
+        "loss": 0
+      }
     }
   },
   "primary_checks": {
