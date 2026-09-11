@@ -1,0 +1,38 @@
+{
+  "schema": "replaymark.artifact-v4.g5-run2-preopen-hash-binding-failure-seal.v1",
+  "status": "FROZEN_RUN2_PREOPEN_REPAIR_MATERIALIZER_HASH_BINDING_FAILURE_NOT_CONSUMED",
+  "classification": "PRE_CHALLENGE_INFRASTRUCTURE_IDENTITY_BINDING_FAILURE",
+  "public_execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "artifact-v4-g5-run2-adversarial-open",
+    "run_id": 34651047946,
+    "job_id": 103433029994,
+    "execution_head": "db7b93958454c7ce0295634f70be08a17fda49dd",
+    "conclusion": "failure"
+  },
+  "failure_point": {
+    "step": "Prospectively materialize exact repaired Run2 executor",
+    "old_executor_actual_sha256": "e61ab814125e22f6ccc43483ac7d25a3e9734ec2e7e68ee7466210a9c62d7bce",
+    "materializer_frozen_expected_old_sha256": "e06abac926c5c8f6b39092864e68a24e5de3776e93ec7c23be642c131c861729",
+    "error": "old executor sha256 mismatch before any repair replacement was applied"
+  },
+  "execution_boundary": {
+    "private_source_identity_gate_passed": true,
+    "verifier_B_or_challenge_output_observed": false,
+    "pristine_B_reproduction_executed": false,
+    "consequential_challenge_executed": false,
+    "metamorphic_challenge_executed": false,
+    "campaign_receipt_created": false,
+    "scientific_result_consumed": false
+  },
+  "preservation": {
+    "Run1_failure_seal_remains_unchanged": true,
+    "Run2_source_freeze_v1_remains_historical_and_is_not_rewritten": true,
+    "G4_pass_remains_unchanged": true,
+    "G2_challenge_catalog_unchanged": true,
+    "Verifier_A_unchanged": true,
+    "Verifier_B_unchanged": true,
+    "canonical_authorities_unchanged": true
+  },
+  "allowed_next_move": "Qualify the exact bytes of the already-frozen three-replacement control-flow repair without executing any challenge; freeze the observed repaired-executor digest prospectively; then restart Run2 from ordinal 1 under a new source freeze."
+}
