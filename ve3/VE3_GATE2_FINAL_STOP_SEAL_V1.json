@@ -1,0 +1,89 @@
+{
+  "schema": "replaymark.ve3.gate2-final-stop-seal.v1",
+  "status": "VE3_STOPPED_PRE_SCIENCE",
+  "authority_role": "PUBLIC_FINAL_GATE_2_STOP_SEAL",
+  "sealed_at_utc": "2026-09-11T04:46:00Z",
+  "lineage": {
+    "constitution_commit": "633abb9cdbef509dc5baf87d2cb2820b649e7965",
+    "gate_1_repository_universe_commit": "b947810edf2c6b408c36cbccdd081484cf57374f",
+    "gate_2_protocol_commit": "6e4721894f24f27b69e4f2f2396defc77a581b60",
+    "private_gate_2_source_freeze_commit": "6caac34fea960018a0c2c9716ae92d995c368618",
+    "private_preinput_failure_seal_commit": "72994fc3d784d3277b2be412ed10ac348bd99afa",
+    "public_v1_preinput_failure_seal_commit": "a11b54c6c4ec9090df84f40fc2c109cacec44b7e",
+    "public_v2_source_freeze_commit": "fbc5fda92f162957869351ae35f0a89c7e677ce6",
+    "public_v2_open_commit": "50407b73387fa3a145261d82c0852182d6f193fc",
+    "public_v2_run_id": 34562021670,
+    "public_v2_run_attempt": 1,
+    "census_sealed_commit": "b5b984cb673d2f1a1864b36f8b026ed1f259d637",
+    "census_tree": "a14feef65d26684f5dc57f5e0b143e11dbec0b1e",
+    "census_path": "ve3/VE3_UPSTREAM_CENSUS_V1.json",
+    "census_git_blob": "9737f52a3a70f1d4cc3b40446be00e13cc9b75d2"
+  },
+  "closure_audit": {
+    "workflow_conclusion": "success",
+    "all_workflow_steps_success": true,
+    "sealed_commit_is_exact_one_commit_child_of_open": true,
+    "sealed_commit_added_exactly_one_file": true,
+    "sealed_commit_modified_existing_files": false,
+    "sealed_commit_deleted_files": false,
+    "census_output_was_independently_validated_before_seal": true,
+    "same_authority_rerun": false
+  },
+  "exhaustive_census": {
+    "candidate_lineages": 55,
+    "adjacent_content_changing_pairs": 710,
+    "classification_reason_counts": {
+      "EXCLUDE_FORMATTING_METADATA_OR_NONCONSEQUENTIAL_HELPER_ONLY": 144,
+      "EXCLUDE_NATIVE_BLUEPRINT_PARSE_OR_COMMON_RUNTIME_FAILURE": 3,
+      "EXCLUDE_NOT_BOTH_AUTOMATION_BLUEPRINTS": 18,
+      "EXCLUDE_NO_CONSEQUENTIAL_DEVICE_CONTROL_PATH": 55,
+      "EXCLUDE_REQUIRED_EXTERNAL_OR_DEVICE_PLATFORM_DEPENDENCY": 124,
+      "EXCLUDE_STRUCTURAL_CHANGE_CANNOT_AFFECT_CLAIM": 4,
+      "EXCLUDE_UNBOUNDED_OR_STATE_CAP_EXCEEDS_32": 361,
+      "INCLUDE_CAUSAL_GUARD": 1
+    },
+    "included_transition_count": 1,
+    "distinct_repositories_with_included_transition": 1,
+    "distinct_primary_change_families": 1,
+    "included_repositories": [
+      "SirGoodenough/HA_Blueprints"
+    ],
+    "primary_change_families": [
+      "CAUSAL_GUARD"
+    ]
+  },
+  "frozen_go_rule": {
+    "minimum_eligible_transitions": 6,
+    "minimum_independent_repositories": 3,
+    "minimum_distinct_change_families": 3,
+    "observed": {
+      "eligible_transitions": 1,
+      "independent_repositories": 1,
+      "distinct_change_families": 1
+    },
+    "go": false
+  },
+  "scientific_firewall": {
+    "scientific_cells": 0,
+    "native_old_or_new_action_execution": false,
+    "old_new_projected_output_comparison": false,
+    "compatibility_frontier_computed": false,
+    "replaymark_executed": false,
+    "replay_all_executed": false,
+    "target_semantic_snapshot_built": false,
+    "target_attestation_run": false,
+    "ve3_scientific_authority_opened": false
+  },
+  "terminal_decision": {
+    "gate_3_authorized": false,
+    "transition_substitution_authorized": false,
+    "repository_substitution_authorized": false,
+    "eligibility_relaxation_authorized": false,
+    "state_cap_relaxation_authorized": false,
+    "family_redefinition_authorized": false,
+    "new_ve3_corpus_search_authorized": false,
+    "ve4_before_submission_authorized": false,
+    "required_next_stage": "V81_MANUSCRIPT_INTEGRATION",
+    "rule": "Per the prospectively frozen Constitution and Gate-2 protocol, VE3 terminates before science because the blind frozen corpus does not satisfy the 6-transition / 3-repository / 3-family GO threshold. No substitution or post-result rule change is permitted."
+  }
+}
