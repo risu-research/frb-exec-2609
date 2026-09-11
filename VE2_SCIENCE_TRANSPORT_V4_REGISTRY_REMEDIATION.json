@@ -1,0 +1,63 @@
+{
+  "schema": "replaymark.ve2.science-transport-v4-registry-remediation.v1",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_failure_seal": "0d245fddf5a933a99f5ba77fcae13a12af6836bd",
+  "predecessor_run_id": 34544763427,
+  "predecessor_open": "e7e8751207afac2199e19441ab6f78a22e195f81",
+  "predecessor_exposure": {
+    "qualification_stimulus_emitted": false,
+    "neutral_transport_rows_opened": 0,
+    "neutral_automation_invocations_before_qualification": 0,
+    "scientific_cells": 0,
+    "frontier_result_seen": false
+  },
+  "root_cause": "Native entity registry was not fully loaded before state-trigger validation/entity-platform registration. HA 2026.9 additionally requires device registry loaded before entity registry processing.",
+  "repair": {
+    "implementation": "ve2_science_transport_qualify_v4.py",
+    "implementation_blob": "8c33de1d8717983ffecd4a45634de0d2469ac19d",
+    "base_runtime_blob_unchanged": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "registry_order": ["device_registry", "entity_registry"],
+    "load_mechanism": "official native async_load only",
+    "load_empty_keyword_selection": "function-signature presence before execution",
+    "manual_hass_data_registry_injection": false,
+    "manual_registry_collection_assignment": false,
+    "manual_loaded_event_manipulation": false,
+    "retry_after_failed_registry_load": false,
+    "result_dependent_fallback": false,
+    "helper_setup_occurs_after_registry_closure": true,
+    "automation_setup_occurs_after_registry_closure": true
+  },
+  "independent_obligation": {
+    "validator": "ve2_science_transport_preflight_validate_v4.py",
+    "validator_blob": "6d45caa8d2ae721cf2dc8fe33ca61b263451e309",
+    "requires_all_six_registry_loads": true,
+    "requires_registry_population_zero": true,
+    "requires_zero_preflight_invocations": true,
+    "requires_recursive_no_fallback": true
+  },
+  "unchanged": {
+    "base_transport_contract_blob": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "transport_validator_blob": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "neutral_case_population": true,
+    "clock_driver_law": true,
+    "double_witness_law": true,
+    "scientific_state_population": true,
+    "scientific_expected_frontier": true,
+    "scientific_promotion_rule": true
+  },
+  "attempt_law": {
+    "v3_same_authority_rerun": false,
+    "v4_new_authority": true,
+    "v4_promotable_attempt": 1,
+    "v4_same_authority_rerun": false
+  },
+  "scientific_hygiene": {
+    "transition_blueprint_executed": false,
+    "scientific_fixture_executed": false,
+    "expected_frontier_read": false,
+    "historical_better_thermostat_action_dispatched": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  }
+}
