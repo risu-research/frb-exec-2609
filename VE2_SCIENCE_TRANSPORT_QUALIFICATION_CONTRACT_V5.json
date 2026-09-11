@@ -1,0 +1,75 @@
+{
+  "schema": "replaymark.ve2.science-transport-qualification-contract.v5",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "authority": {
+    "private_preopen_commit": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "private_science_constitution_commit": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "public_e0r_pass_seal": "390280823553b2c9b7c5996953891cfae5648fb1",
+    "v4_failure_seal": "12f239245d1f4053e7da7d16aaeffb8665bb5a43"
+  },
+  "inheritance": {
+    "v3_runtime_blob": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "v4_runtime_blob": "8c33de1d8717983ffecd4a45634de0d2469ac19d",
+    "v4_preflight_validator_blob": "6d45caa8d2ae721cf2dc8fe33ca61b263451e309",
+    "base_transport_contract_v1_blob": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "unchanged_transport_validator_v1_blob": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "home_assistant_setup_calls_changed_from_v4": false,
+    "native_registry_load_semantics_changed_from_v4": false,
+    "registry_order_changed_from_v4": false,
+    "neutral_case_population_changed": false,
+    "transport_pass_criteria_changed": false,
+    "clock_transport_law_changed": false,
+    "double_witness_law_changed": false,
+    "scientific_population_changed": false,
+    "scientific_estimand_changed": false
+  },
+  "v5_delta": {
+    "runtime_path": "ve2_science_transport_qualify_v5.py",
+    "runtime_blob": "20914078395995116cbd88cdd63063f4fb6907f0",
+    "preflight_validator_path": "ve2_science_transport_preflight_validate_v5.py",
+    "preflight_validator_blob": "7462e904f190c2f461504bb140053b65c3bcf6a7",
+    "projection_id": "replaymark.ve2.registry-witness-exact-object-projection.v1",
+    "only_change": "Project the exact v4 substrate registries proof object into bootstrap_adapter before final adapter serialization.",
+    "binding": "Registry witness is stored under id(HomeAssistant) together with the exact HomeAssistant object and consumed once by the inherited fresh-HASS evidence projection; owner identity must be object-identical.",
+    "manual_witness_reconstruction": false,
+    "additional_home_assistant_setup_calls": 0,
+    "execution_semantics_changed_from_v4": false,
+    "retry_after_failure": false,
+    "result_dependent_fallback": false
+  },
+  "preflight_pass_law": {
+    "inherits_all_v4_registry_and_zero_invocation_obligations": true,
+    "all_three_projection_ids_exact": true,
+    "all_three_same_hass_object_identity": true,
+    "all_three_consumed_exactly_once": true,
+    "all_three_manual_witness_reconstruction": false,
+    "all_three_additional_home_assistant_setup_calls": 0,
+    "all_three_execution_semantics_changed_from_v4": false,
+    "scientific_cells": 0,
+    "frontier_result_seen": false,
+    "independent_v5_preflight_validator_required": true
+  },
+  "qualification_pass_law": {
+    "T01_OLD_RUNTIME": ["state"],
+    "T01_NEW_RUNTIME": ["state"],
+    "T02_RUNTIME": ["state", "state_for_120s", "time", "homeassistant_start_delay_30s"],
+    "unchanged_independent_transport_validator_required": true,
+    "scientific_cells": 0,
+    "frontier_result_seen": false,
+    "transition_blueprint_executed": false
+  },
+  "attempt_law": {
+    "v4_never_rerun": true,
+    "v5_promotable_attempt": 1,
+    "v5_same_authority_rerun": false
+  },
+  "scientific_hygiene": {
+    "scientific_fixture_mounted": false,
+    "scientific_execution_state_manifest_mounted": false,
+    "expected_frontier_mounted": false,
+    "historical_better_thermostat_action_mounted": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  }
+}
