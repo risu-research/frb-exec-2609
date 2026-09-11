@@ -1,0 +1,102 @@
+{
+  "schema": "replaymark.ve2.science-transport-v4-evidence-projection-failure-seal.v1",
+  "status": "SEALED_PRE_SCIENCE_EVIDENCE_PROJECTION_FAILURE_NOT_CONSUMED",
+  "authority": {
+    "source_freeze": "948129813271fcaa3427c141af47c4c3d8e5c603",
+    "open_commit": "74f2dccbb95e526687b9daca3e2ff4e5a6a54884",
+    "run_id": 34545314376,
+    "run_attempt": 1,
+    "run_conclusion": "failure",
+    "predecessor_v3_failure_seal": "0d245fddf5a933a99f5ba77fcae13a12af6836bd",
+    "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d"
+  },
+  "native_preflight_execution": {
+    "T01_OLD_RUNTIME": {
+      "job_id": 103096585819,
+      "conclusion": "success",
+      "artifact_id": 10178804567,
+      "artifact_zip_sha256": "f0ddf980b995c3488088140c474688faf733fa024dd3608108dfdd1622171e8f",
+      "status": "PASS",
+      "neutral_automation_invocations": 0,
+      "neutral_trigger_stimulus_emitted": false
+    },
+    "T01_NEW_RUNTIME": {
+      "job_id": 103096585864,
+      "conclusion": "success",
+      "artifact_id": 10178812834,
+      "artifact_zip_sha256": "6a76e34a799067c0d28c5c1142b2e02ffa4cf06515a25855e6a4728d4001a55d",
+      "status": "PASS",
+      "neutral_automation_invocations": 0,
+      "neutral_trigger_stimulus_emitted": false
+    },
+    "T02_RUNTIME": {
+      "job_id": 103096585930,
+      "conclusion": "success",
+      "artifact_id": 10178810262,
+      "artifact_zip_sha256": "18367e744ee6425765885f73fa739a2f3f12aa618d7d901f4a63ca47bcf28376",
+      "status": "PASS",
+      "neutral_automation_invocations": 0,
+      "neutral_trigger_stimulus_emitted": false
+    }
+  },
+  "independent_preflight_adjudication": {
+    "job_id": 103096858070,
+    "role_capsules_structurally_valid": true,
+    "role_checksums_valid": true,
+    "role_exits_zero": true,
+    "validator_exit": 1,
+    "validator_failure": "AssertionError: T01_OLD_RUNTIME registry closure id mismatch",
+    "aggregate_artifact_id": 10178817321,
+    "aggregate_artifact_zip_sha256": "3cd37d7906ff760e15a79c6801d215c8af42237c6ad69103d27e9c0a926564a8",
+    "aggregate_status": "INCOMPLETE_NON_PROMOTABLE",
+    "neutral_automation_invocations_before_qualification": 0,
+    "scientific_cells": 0,
+    "qualification_jobs": "SKIPPED",
+    "final_transport_adjudication": "SKIPPED"
+  },
+  "root_cause": {
+    "class": "REGISTRY_CLOSURE_WITNESS_DROPPED_BY_INHERITED_EVIDENCE_PROJECTION",
+    "execution_semantics_failure": false,
+    "registry_closure_execution_failure": false,
+    "explanation": "V4 replaces v3._prepare_native_substrate with a registry-closed substrate that returns a registries proof object. V3's inherited _fresh_hass constructs bootstrap_adapter from a fixed subset of substrate keys and omits substrate['registries']; therefore all three preflights execute and PASS but the serialized witness cannot prove registry closure to the independent v4 validator.",
+    "direct_artifact_witness": {
+      "T01_OLD_status": "PASS",
+      "T01_OLD_implementation": "replaymark.ve2.science-transport-qualification-runtime.v4",
+      "T01_OLD_automation_entity_materialized": true,
+      "T01_OLD_zero_invocation": true,
+      "T01_OLD_bootstrap_adapter_registries_key_present": false
+    },
+    "validator_behavior": "CORRECT_FAIL_CLOSED"
+  },
+  "scientific_hygiene": {
+    "scientific_fixture_mounted": false,
+    "scientific_execution_state_manifest_mounted": false,
+    "expected_frontier_mounted": false,
+    "historical_better_thermostat_action_mounted": false,
+    "neutral_qualification_stimulus_emitted": false,
+    "neutral_transport_rows_opened": 0,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  },
+  "remediation_law": {
+    "same_authority_rerun": false,
+    "v4_open_remains_failed_and_immutable": true,
+    "authorized_successor": "VE2_SCIENCE_TRANSPORT_QUALIFICATION_V5",
+    "execution_semantics_must_remain_identical_to_v4": true,
+    "registry_closure_implementation_must_remain_identical_to_v4": true,
+    "neutral_case_population_must_remain_identical": true,
+    "transport_pass_criteria_must_remain_identical": true,
+    "permitted_change": "Project the already-produced native registry closure proof object into bootstrap_adapter before canonical adapter hashing/serialization, and version the preflight validator/workflow metadata only as needed to recognize the v5 implementation identity.",
+    "projection_invariant": "The projected registries object must be the exact object returned by the same fresh Home Assistant instance's registry-closed substrate; key by HomeAssistant object identity, consume exactly once, reject missing/duplicate/stale witness, then recompute adapter_sha256.",
+    "forbidden": [
+      "any additional Home Assistant setup call",
+      "any change to native registry load ordering or API selection",
+      "any change to neutral triggers/actions",
+      "any change to clock driver",
+      "any scientific input access",
+      "manual reconstruction of a registry witness after execution",
+      "same-authority v4 rerun"
+    ]
+  }
+}
