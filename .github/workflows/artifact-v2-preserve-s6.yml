@@ -1,0 +1,180 @@
+name: artifact-v2 preserve sealed S6 authority
+
+on:
+  push:
+    branches:
+      - artifact-v2-s6-authority
+    paths:
+      - .github/workflows/artifact-v2-preserve-s6.yml
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: artifact-v2-preserve-s6
+  cancel-in-progress: false
+
+jobs:
+  preserve:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact preservation source commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: artifact-v2-s6-authority
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Enforce first-preservation boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "artifact-v2-s6-authority"
+          if [ -e artifact_v2/preserved ]; then
+            echo "artifact_v2/preserved already exists; refusing to overwrite preserved authority"
+            exit 1
+          fi
+          mkdir -p artifact_v2/preserved/zips work/extracted
+
+      - name: Fetch only the pre-bound public artifacts and preserve exact ZIP bytes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python artifact_v2/fetch_bound_public_artifacts_v2.py \
+            --source-manifest artifact_v2/S6_AUTHORITY_SOURCE_V1.json \
+            --repo risu-research/frb-exec-2609 \
+            --out work/extracted \
+            --preserve-zips-dir artifact_v2/preserved/zips
+          cp work/extracted/SOURCE_RUN_SNAPSHOT.json artifact_v2/preserved/SOURCE_RUN_SNAPSHOT.json
+
+      - name: Deterministically reduce the sealed authority to the bound manuscript view
+        shell: bash
+        run: |
+          set -euo pipefail
+          python artifact_v2/reduce_s6_paper_view.py \
+            --authority-root work/extracted/authority \
+            --enforcement work/extracted/enforcement/S6_X86_FIRST_COMPLETE_ENFORCEMENT_V1.json \
+            --source-manifest artifact_v2/S6_AUTHORITY_SOURCE_V1.json \
+            --run-artifacts-meta work/extracted/SOURCE_RUN_SNAPSHOT.json \
+            --out artifact_v2/preserved/PAPER_VIEW_V1.json
+
+      - name: Independently verify the preserved bundle offline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python artifact_v2/verify_preserved_s6.py \
+            --source-manifest artifact_v2/S6_AUTHORITY_SOURCE_V1.json \
+            --zips-dir artifact_v2/preserved/zips \
+            --out artifact_v2/preserved/OFFLINE_VERIFICATION_V1.json
+
+      - name: Require reducer and offline verifier to agree on the manuscript projection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          left = json.loads(Path('artifact_v2/preserved/PAPER_VIEW_V1.json').read_text())
+          right = json.loads(Path('artifact_v2/preserved/OFFLINE_VERIFICATION_V1.json').read_text())
+          assert left['paper_projection_v91'] == right['paper_projection_v91']
+          assert left['source']['aggregate_sha256'] == right['aggregate_sha256']
+          assert left['status'] == 'PASS_EXACT_V91_PROJECTION_FROM_SEALED_AUTHORITY'
+          assert right['status'] == 'PASS_SELF_CONTAINED_EXACT_V91_REPRODUCTION'
+          print('ARTIFACT_V2_DUAL_REDUCER_AGREEMENT=PASS')
+          PY
+
+      - name: Write preservation receipt and complete checksum manifest
+        shell: bash
+        env:
+          PRESERVATION_SOURCE_SHA: ${{ github.sha }}
+          PRESERVATION_RUN_ID: ${{ github.run_id }}
+          PRESERVATION_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+
+          root = Path('artifact_v2/preserved')
+          def digest(path: Path) -> str:
+              h = hashlib.sha256()
+              with path.open('rb') as f:
+                  for chunk in iter(lambda: f.read(1024 * 1024), b''):
+                      h.update(chunk)
+              return h.hexdigest()
+
+          zips = {}
+          for path in sorted((root / 'zips').glob('*.zip')):
+              zips[path.name] = {'sha256': digest(path), 'size_bytes': path.stat().st_size}
+          assert len(zips) == 8, f'expected 8 preserved ZIPs, got {len(zips)}'
+          total = sum(v['size_bytes'] for v in zips.values())
+          assert total < 60_000_000, f'unexpected preservation size: {total}'
+
+          receipt = {
+              'schema': 'replaymark.artifact-v2.preservation-receipt.v1',
+              'status': 'PRESERVED_EXACT_BOUND_BYTES_AFTER_DUAL_VERIFICATION',
+              'preservation_source_commit': os.environ['PRESERVATION_SOURCE_SHA'],
+              'preservation_workflow_run_id': int(os.environ['PRESERVATION_RUN_ID']),
+              'preservation_workflow_run_attempt': int(os.environ['PRESERVATION_RUN_ATTEMPT']),
+              'source_manifest_sha256': digest(Path('artifact_v2/S6_AUTHORITY_SOURCE_V1.json')),
+              'fetcher_v2_sha256': digest(Path('artifact_v2/fetch_bound_public_artifacts_v2.py')),
+              'paper_reducer_sha256': digest(Path('artifact_v2/reduce_s6_paper_view.py')),
+              'offline_verifier_sha256': digest(Path('artifact_v2/verify_preserved_s6.py')),
+              'preserved_zip_count': len(zips),
+              'preserved_zip_total_bytes': total,
+              'preserved_zips': zips,
+              'source_run_snapshot_sha256': digest(root / 'SOURCE_RUN_SNAPSHOT.json'),
+              'paper_view_sha256': digest(root / 'PAPER_VIEW_V1.json'),
+              'offline_verification_sha256': digest(root / 'OFFLINE_VERIFICATION_V1.json'),
+              'new_scientific_measurement': False,
+              'authority_replacement': False,
+              'timing_rerun': False,
+              'post_hoc_tuning': False,
+          }
+          (root / 'PRESERVATION_RECEIPT_V1.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+
+          rows = []
+          for path in sorted(p for p in root.rglob('*') if p.is_file() and p.name != 'PRESERVED_FILES_SHA256.txt'):
+              rows.append(f"{digest(path)}  {path.as_posix()}")
+          (root / 'PRESERVED_FILES_SHA256.txt').write_text('\n'.join(rows) + '\n')
+          print(f'ARTIFACT_V2_PRESERVED_BYTES={total}')
+          PY
+          sha256sum -c artifact_v2/preserved/PRESERVED_FILES_SHA256.txt
+
+      - name: Fail closed on any out-of-scope working-tree delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import subprocess
+          rows = subprocess.check_output(['git', 'status', '--porcelain'], text=True).splitlines()
+          if not rows:
+              raise SystemExit('expected preservation delta but working tree is clean')
+          bad = []
+          for row in rows:
+              path = row[3:]
+              if not path.startswith('artifact_v2/preserved'):
+                  bad.append(row)
+          if bad:
+              raise SystemExit('out-of-scope preservation delta: ' + repr(bad))
+          print('ARTIFACT_V2_DELTA_SCOPE=PASS')
+          PY
+
+      - name: Commit immutable preservation payload to the artifact branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add artifact_v2/preserved
+          git diff --cached --check
+          git commit -m 'Artifact V2: preserve exact sealed S6 authority bytes'
+          git push origin HEAD:refs/heads/artifact-v2-s6-authority
