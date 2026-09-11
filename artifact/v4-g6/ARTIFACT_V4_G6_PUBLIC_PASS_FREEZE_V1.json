@@ -1,0 +1,88 @@
+{
+  "schema": "replaymark.artifact-v4.g6-public-pass-freeze.v1",
+  "status": "FROZEN_ARTIFACT_V4_G6_PUBLIC_EVIDENCE_CLOSURE_PASS",
+  "scope": "Freeze the public evidence-only G6 falsification closure. This freezes this V4 campaign history only and does not prohibit later ReplayMark research under a new prospective identity.",
+  "closure_design": {
+    "mode": "EVIDENCE_ONLY_INDEPENDENT_RECONSTRUCTION",
+    "Verifier_A_rerun": false,
+    "Verifier_B_rerun": false,
+    "challenge_rerun": false,
+    "experiment_rerun": false,
+    "rationale": "G5 already executed the adversarial campaign. G6 independently attacks archival and self-consistency risk by reconstructing the verdict from exact frozen bytes rather than generating another scientific outcome."
+  },
+  "successful_public_execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "artifact-v4-g6-public-closure",
+    "run_id": 34655689832,
+    "job_id": 103447474323,
+    "run_attempt": 1,
+    "execution_head": "e7a4105949659d51571e178ba82a0aab5ca02784",
+    "run_conclusion": "success",
+    "workflow_path": ".github/workflows/artifact-v4-g6-public-closure.yml",
+    "workflow_git_blob": "0480f61bdb26cd78e8b301a72a1d4ce9127c3b84",
+    "closure_program_path": "artifact/v4-g6/g6_public_closure.py",
+    "closure_program_git_blob": "4a15c62d40794b6e4da09b99a65a4f948a6a8be9"
+  },
+  "source_G5_binding": {
+    "G5_public_pass_freeze_git_blob": "14bfc2bf40e3cf1b94dafc38d916ebc4ade03841",
+    "G5_independent_redownload_audit_git_blob": "ab83e8d9503692524c4e6a308f694d3770d506d9",
+    "G5_artifact_id": 10284868064,
+    "G5_artifact_zip_sha256": "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "G5_recursive_SHA256SUMS_entries_reverified": 1792,
+    "G5_recursive_checksum_mismatches": 0
+  },
+  "G6_evidence_capsule": {
+    "artifact_id": 10286245032,
+    "artifact_name": "replaymark-artifact-v4-g6-public-closure-candidate",
+    "size_bytes": 4146083,
+    "expires_at": "2026-12-10T22:50:16Z",
+    "github_digest": "sha256:9104004824717a927644d485fcc7c9d011bf285fc01c38a94603231a064a488e",
+    "independent_redownload_sha256": "9104004824717a927644d485fcc7c9d011bf285fc01c38a94603231a064a488e",
+    "digest_match": true,
+    "detection_matrix_sha256": "a7beb1450beeea5579e2ecc8ead7ef14c13b7f95a037769e2ba307cac9aa35d5",
+    "closure_receipt_sha256": "91830b387a1a34432169cdf581d22f06e0cc8affbcf7de57d008ad2dc18fac75",
+    "closure_manifest_sha256": "50c7cf397df6bab087538747c8c9726b54995f7ff9a49410161e768efdfbe5b4",
+    "constitution_sha256": "85f64189c61199fe86c25a9dfbaff9efc739a75a6ee90e4201a9f0f6ca89fb41",
+    "stdout_sha256": "9b6247d854ce17a91f6825156ed0a78a6d9645549402058e2e34f3e0843f1190"
+  },
+  "persistent_public_bindings": {
+    "closure_receipt_path": "artifact/v4-g6/G6_PUBLIC_CLOSURE_RECEIPT_V1.json",
+    "closure_receipt_git_blob": "141a58855fded4b8c49548282a9d1b2d9ed1a0b9",
+    "independent_redownload_audit_path": "artifact/v4-g6/G6_INDEPENDENT_REDOWNLOAD_AUDIT_V1.json",
+    "independent_redownload_audit_git_blob": "7d981cd159e688013bbcc7c42069ce8d389be5fa",
+    "detection_matrix_persisted_by_content_address": true,
+    "detection_matrix_content_address": "sha256:a7beb1450beeea5579e2ecc8ead7ef14c13b7f95a037769e2ba307cac9aa35d5",
+    "detection_matrix_resides_in_bound_G6_evidence_capsule": true
+  },
+  "recomputed_falsification_closure": {
+    "consequential": "49/49 DETECTED",
+    "metamorphic": "8/8 STABLE",
+    "false_negatives": 0,
+    "false_positives": 0,
+    "A_B_detection_disagreements": 0,
+    "unexplained_extra_kills": 0,
+    "dynamic_obligation_coverage": "60/60",
+    "static_obligation_coverage": "60/60",
+    "claim_to_authority_edge_coverage": "56/56",
+    "authority_node_exercise": "19/19",
+    "extraction_asymmetry_surface_coverage": "16/16",
+    "original_C14_detected_fail_closed": true,
+    "independent_C49_detected_fail_closed": true
+  },
+  "preserved_G6_failure": {
+    "run1_failure_seal_path": "artifact/v4-g6/G6_RUN1_PRE_RECONSTRUCTION_SCHEMA_SELECTOR_FAILURE_SEAL_V1.json",
+    "run1_failure_seal_git_blob": "fe1d4df3a43b7d292d34f865964cd144ffa6b8c2",
+    "run1_remains_failure": true,
+    "retroactive_pass": false
+  },
+  "scientific_noninterference": {
+    "new_measurement": false,
+    "historical_experiment_rerun": false,
+    "canonical_authority_replacement": false,
+    "manuscript_change": false,
+    "challenge_suite_change": false,
+    "threshold_change": false,
+    "prior_failure_reclassification": false
+  },
+  "next_private_closure": "Bind this public closure to the frozen private G0-G5 gate chain, exact G1 obligation universe, governance amendment, and complete inherited/preserved failure ledger; then issue the final V4 verdict."
+}
