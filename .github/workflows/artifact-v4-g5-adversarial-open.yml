@@ -1,0 +1,236 @@
+name: artifact-v4 g5 adversarial metamorphic first-complete
+
+on:
+  push:
+    branches:
+      - artifact-v4-g5-adversarial-open
+    paths:
+      - .github/workflows/artifact-v4-g5-adversarial-open.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: artifact-v4-g5-first-complete
+  cancel-in-progress: false
+
+env:
+  PRIVATE_SOURCE_SHA: 7d0f367fca8f434bbf85747c731646ebc710fb14
+  HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
+  FIXED_PROTOCOL_REF: 383ee2e1b192fda7c6ce3a9576d9c6a4eae0a77e
+  S3C0_LEGACY_PROTOCOL_REF: 23b7c85bca6cb85fde9f4361a0f9664d21c8ae8d
+  S3C0_LEGACY_OUTCOME_REF: ac20890bb4aa926e439802510de3723b74591c94
+  VE2_SHA: 25ebfd817420fa0f782419977e4ec166f6ca358a
+  PRESERVATION_BASE_SHA: b0ef07e121f70be8668873d7263b7c13d216c6a6
+  G4_PUBLIC_PASS_FREEZE: 98a901b678d93294af5d111b76ef6b148915130c
+
+jobs:
+  campaign:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout exact public G5 carrier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Pre-open transport and runtime gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'artifact-v4-g5-adversarial-open'
+          test -n "$SOURCE_READ_TOKEN"
+          node --version | grep -Eq '^v24\.'
+          python3 - <<'PY'
+          import sys
+          assert sys.version_info[:2] == (3,12), sys.version
+          print('PYTHON_3_12=PASS')
+          PY
+          git cat-file -e "$G4_PUBLIC_PASS_FREEZE^{commit}"
+          test "$(git rev-parse $PRESERVATION_BASE_SHA^{tree})" = 'b1fd508c81d9597b88fe2710cb921c87f76852ce'
+          echo 'G5_PREOPEN_TRANSPORT=PASS'
+
+      - name: Checkout exact frozen private G5 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5"
+          python3 tools/qx_private_source.py clone --sha "$PRIVATE_SOURCE_SHA" --dest "$SRC"
+          test "$(git -C "$SRC" rev-parse HEAD)" = "$PRIVATE_SOURCE_SHA"
+          git -C "$SRC" remote -v | grep -q . && { echo 'private remote survived checkout'; exit 1; } || true
+          echo 'PRIVATE_G5_EXACT_CHECKOUT=PASS'
+
+      - name: Verify frozen G5 source identities before challenge execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5"
+          python3 - <<'PY'
+          import os,subprocess
+          from pathlib import Path
+          src=Path(os.environ['RUNNER_TEMP'])/'private-v4-g5'
+          expected={
+            'artifact_v4/V4_G5_OPEN_CONSTITUTION.json':'f5af31c12e59f5f4e35efa597fb130fecfb9656d',
+            'artifact_v4/V4_G5_SOURCE_FREEZE_V1.json':'db8d6db3fd60a4d83ac55db9f90cb7e0221ed375',
+            'artifact_v4/g5_challenge_executor.py':'de465001c50cbd349a700d99dbc7fb09d17e2d39',
+            'artifact_v4/verifier_b.mjs':'809efb0ff3a26ab096af97d2b73b68045cf4d8c8',
+            'artifact_v4/g4_compare_blind_vectors_v2.py':'2368fa2acf53aabd28523698611005621a85d3dc',
+            'artifact_v3/compare_whole_paper_v1.py':'c2bcdfee5f61086a354df109d2a40e552594c09b',
+            'artifact_v4/g4_prepare_pristine_b_inputs.py':'7f76e2903d193636c4c12b01ae53a099d2c5b36b',
+            'artifact_v4/g4_python_json_compat_adapter.py':'b1db25f272987b1797ef0abf8828135e9413ff3d',
+            'artifact_v4/V4_G1_DEPENDENCY_GRAPH.json':'c322cb9f502496621f71e5e7067ddf6b3dd0cb1b',
+            'artifact_v4/V4_G2_COVERAGE_PROOF.json':'c7ded95c04a59b644be316b9ed81d4b89cacbf46',
+            'artifact_v4/V4_G2_PREEXECUTION_AMENDMENT_01_FORMAL_SCOPE_GUARD.json':'09ea03b71e01f7ffd96a7ce63b9542e0fcc262fb',
+            'artifact_v4/V4_G2_CHALLENGES_01_12.json':'4269cb074883647eecf49732dfd43f609918f01c',
+            'artifact_v4/V4_G2_CHALLENGES_13_24.json':'87adcdac6974774fa7bbbb33a3111a3a55c5af9a',
+            'artifact_v4/V4_G2_CHALLENGES_25_36.json':'9e00ebc54bed285e1f0a38c8875afe774479f136',
+            'artifact_v4/V4_G2_CHALLENGES_37_48.json':'262af59a2da47969721e88253138bd3da5c55896',
+            'artifact_v4/V4_G2_METAMORPHIC_01_08.json':'dac579c55aa0e20f774d4986af7b39a38359dedf',
+            'artifact_v4/G4_CANONICAL_BASELINE_PRIVATE_FINAL_FREEZE.json':'a4aaf18c667a81b1d339380a76a608a6f1323e33'
+          }
+          for rel,want in expected.items():
+              got=subprocess.check_output(['git','-C',str(src),'rev-parse',f'HEAD:{rel}'],text=True).strip()
+              assert got==want,(rel,got,want)
+          print('G5_FROZEN_IDENTITIES=PASS')
+          PY
+          python3 -m py_compile "$SRC/artifact_v4/g5_challenge_executor.py" "$SRC/artifact_v4/g4_compare_blind_vectors_v2.py" "$SRC/artifact_v3/compare_whole_paper_v1.py" "$SRC/artifact_v4/g4_prepare_pristine_b_inputs.py" "$SRC/artifact_v4/g4_python_json_compat_adapter.py"
+          node --check "$SRC/artifact_v4/verifier_b.mjs"
+          echo 'G5_STATIC_PROGRAM_QUALIFICATION=PASS'
+
+      - name: Checkout exact historical authority graph
+        shell: bash
+        run: |
+          set -euo pipefail
+          HIST="$RUNNER_TEMP/historical"
+          git init -q "$HIST"
+          git -C "$HIST" remote add origin https://github.com/risu-research/appeal-discovery-consumer.git
+          git -C "$HIST" fetch -q --no-tags origin "$HISTORICAL_SHA" "$FIXED_PROTOCOL_REF" "$S3C0_LEGACY_PROTOCOL_REF" "$S3C0_LEGACY_OUTCOME_REF"
+          for x in "$HISTORICAL_SHA" "$FIXED_PROTOCOL_REF" "$S3C0_LEGACY_PROTOCOL_REF" "$S3C0_LEGACY_OUTCOME_REF"; do git -C "$HIST" cat-file -e "$x^{commit}"; done
+          git -C "$HIST" checkout -q --detach "$HISTORICAL_SHA"
+          git -C "$HIST" remote remove origin
+          echo 'HISTORICAL_AUTHORITY_GRAPH=PASS'
+
+      - name: Materialize exact VE2 pre-result authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch -q --no-tags origin "$VE2_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$VE2_SHA"
+          VE2="$RUNNER_TEMP/ve2"
+          git worktree add -q --detach "$VE2" "$VE2_SHA"
+          test "$(git -C "$VE2" rev-parse HEAD^{tree})" = '88f796f2e8ff361aa07925500c80b2ce0f8532e9'
+          echo 'VE2_PRE_RESULT_EXACT=PASS'
+
+      - name: Materialize pristine G4-equivalent B inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5"; HIST="$RUNNER_TEMP/historical"; VE2="$RUNNER_TEMP/ve2"; RAW="$RUNNER_TEMP/g5-raw"; PRISTINE="$RUNNER_TEMP/g5-pristine"
+          python3 "$SRC/artifact_v4/g4_prepare_pristine_b_inputs.py" --source_root "$SRC" --historical_root "$HIST" --public_root "$GITHUB_WORKSPACE" --ve2_root "$VE2" --out_dir "$RAW"
+          python3 "$SRC/artifact_v4/g4_python_json_compat_adapter.py" --in-dir "$RAW" --out-dir "$PRISTINE"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          t=Path(os.environ['RUNNER_TEMP']); raw=json.loads((t/'g5-raw'/'B_INPUT_MATERIALIZATION_RECEIPT.json').read_text()); compat=json.loads((t/'g5-pristine'/'PYJSON_COMPAT_RECEIPT.json').read_text()); m=json.loads((t/'g5-pristine'/'B_INPUT_MANIFEST.json').read_text())
+          assert raw['status']=='PASS_PRISTINE_INPUT_MATERIALIZATION' and raw['role_count']==23 and raw['mutations_applied']==0
+          assert raw['expected_values_read'] is False and raw['verifier_a_output_read'] is False
+          assert compat['status']=='PASS_LEXICAL_COMPATIBILITY_ADAPTER' and compat['finite_semantics_changed'] is False and compat['unchanged_roles_byte_identical'] is True
+          assert len(m['roles'])==23
+          print('G5_PRISTINE_ROLE_INTERFACE=23/23_PASS')
+          PY
+
+      - name: Execute first-complete frozen G5 campaign
+        id: g5
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5"; PRISTINE="$RUNNER_TEMP/g5-pristine"; OUT="$RUNNER_TEMP/g5-out"
+          mkdir -p "$OUT"
+          set +e
+          python3 "$SRC/artifact_v4/g5_challenge_executor.py" --source-root "$SRC" --pristine-dir "$PRISTINE" --public-root "$GITHUB_WORKSPACE" --out-dir "$OUT" >"$OUT/G5_EXECUTOR_STDOUT.log" 2>"$OUT/G5_EXECUTOR_STDERR.log"
+          rc=$?
+          set -e
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "G5_EXECUTOR_RC=$rc"
+          cat "$OUT/G5_EXECUTOR_STDOUT.log" || true
+          if [ "$rc" -ne 0 ]; then tail -200 "$OUT/G5_EXECUTOR_STDERR.log" || true; fi
+          exit "$rc"
+
+      - name: Seal first-complete evidence index and recursive checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/g5-out"; mkdir -p "$OUT"
+          export EXECUTOR_RC='${{ steps.g5.outputs.rc }}'
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g5-out'
+          def H(p):
+              h=hashlib.sha256()
+              with p.open('rb') as f:
+                  for b in iter(lambda:f.read(1<<20),b''): h.update(b)
+              return h.hexdigest()
+          receipt=out/'G5_CAMPAIGN_RECEIPT.json'
+          index={
+            'schema':'replaymark.artifact-v4.g5-first-complete-evidence-index.v1',
+            'public_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'public_run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'public_execution_head':os.environ['GITHUB_SHA'],
+            'private_source_commit':os.environ['PRIVATE_SOURCE_SHA'],
+            'executor_rc':int(os.environ.get('EXECUTOR_RC') or -999),
+            'campaign_receipt_present':receipt.exists(),
+            'first_complete_campaign_preserved':True,
+            'G4_modified':False,
+            'canonical_authority_modified':False
+          }
+          if receipt.exists():
+              r=json.loads(receipt.read_text()); index['campaign_status']=r.get('status'); index['pass_gate']=r.get('pass_gate'); index['campaign_receipt_sha256']=H(receipt)
+          (out/'G5_EVIDENCE_INDEX.json').write_text(json.dumps(index,indent=2,sort_keys=True)+'\n')
+          files=sorted(p for p in out.rglob('*') if p.is_file() and p.name!='SHA256SUMS.txt')
+          (out/'SHA256SUMS.txt').write_text('\n'.join(f'{H(p)}  {p.relative_to(out).as_posix()}' for p in files)+'\n')
+          print('G5_EVIDENCE_FILE_COUNT='+str(len(files)))
+          print('G5_CAMPAIGN_RECEIPT_PRESENT='+str(receipt.exists()))
+          PY
+          cd "$OUT" && sha256sum -c SHA256SUMS.txt
+
+      - name: Upload immutable first-complete G5 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: replaymark-artifact-v4-g5-first-complete-evidence
+          path: ${{ runner.temp }}/g5-out/**
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6
+
+      - name: Final G5 gate
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/g5-out"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'g5-out'/'G5_CAMPAIGN_RECEIPT.json'
+          assert p.exists(),'G5 did not reach a complete campaign receipt; evidence has been preserved'
+          x=json.loads(p.read_text()); g=x['pass_gate']
+          assert x['status']=='PASS_G5_ADVERSARIAL_AND_METAMORPHIC_CHALLENGE',x['status']
+          assert g['consequential_challenges_executed']==48 and g['consequential_mutation_false_negatives']==0
+          assert g['metamorphic_challenges_executed']==8 and g['metamorphic_false_positives']==0
+          assert g['applicable_A_B_normalized_detection_disagreements']==0 and g['unexplained_extra_kills']==0
+          assert g['obligation_coverage']=='60/60' and g['edge_coverage']=='56/56' and g['authority_node_exercise']=='19/19' and g['asymmetry_surface_coverage']=='16/16'
+          assert g['post_hoc_reselection']==0 and g['new_scientific_measurements']==0 and g['historical_experiment_reruns']==0 and g['canonical_authority_modifications']==0
+          print('PASS_G5=48/48_CONSEQUENTIAL;8/8_METAMORPHIC;60/60_OBLIGATIONS;56/56_EDGES;19/19_NODES;16/16_ASYMMETRIES')
+          PY
