@@ -1,0 +1,16 @@
+{
+  "schema": "replaymark.artifact-v3.public-run-failure-seal.v1",
+  "status": "PRE_COMPARISON_IMPLEMENTATION_FAILURE_NOT_CONSUMED",
+  "run_id": 34626878550,
+  "run_attempt": 1,
+  "job_id": 103354004491,
+  "public_head": "837e75094c46dffaa634c8a43edf4e97d7b8fba7",
+  "private_source_commit": "3c4b6cc209bf5b6d938ac432be218818e87b700c",
+  "failure_stage": "independent derivation",
+  "exception": "KeyError: target_native_away_exact_all",
+  "claim_comparison_executed": false,
+  "whole_paper_receipt_created": false,
+  "scientific_result_consumed": false,
+  "repair_class": "IMPLEMENTATION_ONLY_FIELD_ACCESS_REPAIR",
+  "fresh_run_required": true
+}
