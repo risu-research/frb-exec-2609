@@ -31,6 +31,25 @@ def sha(value: Any) -> str:
     return hashlib.sha256(canonical(value)).hexdigest()
 
 
+def wait_summary(data: dict[str, Any]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for item in data["journal"]:
+        if item["event"] not in {"WAIT_END", "WAIT_ERROR"}:
+            continue
+        out.append(
+            {
+                "wait_index": item["wait_index"],
+                "wait_label": item["wait_label"],
+                "terminal_event": item["event"],
+                "observed_count_after": item["observed_count_after"],
+                "required_count": item["required_count"],
+                "inherited_timeout_seconds": item["inherited_timeout_seconds"],
+                "elapsed_ns": item["elapsed_ns"],
+            }
+        )
+    return out
+
+
 def verify_capsule(path: Path, expected_case: str) -> dict[str, Any]:
     data = json.loads(path.read_text())
     assert data["schema"] == SCHEMA
@@ -48,7 +67,9 @@ def verify_capsule(path: Path, expected_case: str) -> dict[str, Any]:
     law = data["observation_law"]
     assert law["fresh_hass_wrapper_delegates_exactly_once"] is True
     assert law["clock_driver_wrapper_delegates_exactly_once_when_called"] is True
+    assert law["wait_wrapper_delegates_exactly_once_when_called"] is True
     assert law["witness_collection_wrapper_delegates_exactly_once_when_called"] is True
+    assert law["wait_labels_derive_only_from_frozen_case_and_call_order"] is True
     assert law["trigger_definition_mutated"] is False
     assert law["action_definition_mutated"] is False
     assert law["clock_target_mutated"] is False
@@ -67,16 +88,25 @@ def verify_capsule(path: Path, expected_case: str) -> dict[str, Any]:
     assert hygiene["transition_blueprint_executed"] is False
     assert hygiene["historical_better_thermostat_action_dispatched"] is False
 
-    events = [item["event"] for item in data["journal"]]
+    journal = data["journal"]
+    assert [item["seq"] for item in journal] == list(range(1, len(journal) + 1))
+    events = [item["event"] for item in journal]
     assert events and events[0] == "CASE_BEGIN"
     assert events.count("FRESH_HASS_BEGIN") == 1
     assert events.count("FRESH_HASS_END") + events.count("FRESH_HASS_ERROR") == 1
+    assert events.count("WAIT_ERROR") <= 1
+
+    for item in journal:
+        if item["event"] in {"WAIT_BEGIN", "WAIT_END", "WAIT_ERROR"}:
+            assert item["inherited_timeout_seconds"] == 3.0
+            assert item["required_count"] == 1
 
     if data["status"] == "PASS":
         assert isinstance(data["row"], dict) and data["row"].get("pass") is True
         assert data["failure"] is None
         assert events[-1] == "CASE_END"
         assert events.count("WITNESS_COLLECTION_END") == 1
+        assert events.count("WAIT_ERROR") == 0
     else:
         assert data["status"] in {"ROW_FAIL", "EXCEPTION"}
         if data["status"] == "EXCEPTION":
@@ -94,10 +124,21 @@ def classify(data: dict[str, Any]) -> str:
         return "FRESH_HASS_OR_NATIVE_SETUP"
     if "CLOCK_DRIVER_ERROR" in events:
         return "CLOCK_DRIVER_EXCEPTION"
+
+    wait_error = next((item for item in data["journal"] if item["event"] == "WAIT_ERROR"), None)
+    if wait_error is not None:
+        label = wait_error["wait_label"]
+        mapping = {
+            "automation_invocation": "AUTOMATION_INVOCATION_TIMEOUT",
+            "neutral_service": "NEUTRAL_SERVICE_TIMEOUT",
+            "pre_clock_automation_invocation": "PRE_CLOCK_AUTOMATION_INVOCATION_TIMEOUT",
+            "post_clock_automation_invocation_already_present": "POST_CLOCK_AUTOMATION_INVOCATION_TIMEOUT",
+            "post_clock_neutral_service": "POST_CLOCK_NEUTRAL_SERVICE_TIMEOUT",
+        }
+        return mapping.get(label, "UNEXPECTED_WAIT_TIMEOUT")
+
     if "WITNESS_COLLECTION_ERROR" in events:
-        if "CLOCK_DRIVER_END" in events:
-            return "POST_CLOCK_NATIVE_TRIGGER_OR_WITNESS_TIMEOUT"
-        return "NATIVE_TRIGGER_OR_WITNESS_TIMEOUT"
+        return "TRACE_OR_POST_WAIT_WITNESS_FAILURE"
     if data["status"] == "ROW_FAIL":
         return "COMPLETED_ROW_FAILED_INVARIANT"
     return "CASE_BODY_BEFORE_WITNESS_COLLECTION"
@@ -119,6 +160,7 @@ def main() -> None:
     capsules = {case: verify_capsule(paths[case], case) for case in CASE_ORDER}
     statuses = {case: capsules[case]["status"] for case in CASE_ORDER}
     layers = {case: classify(capsules[case]) for case in CASE_ORDER}
+    waits = {case: wait_summary(capsules[case]) for case in CASE_ORDER}
     failing = [case for case in CASE_ORDER if statuses[case] != "PASS"]
     passing = [case for case in CASE_ORDER if statuses[case] == "PASS"]
 
@@ -129,6 +171,7 @@ def main() -> None:
         "case_order": CASE_ORDER,
         "case_status": statuses,
         "case_failure_layer": layers,
+        "case_wait_summary": waits,
         "passing_cases": passing,
         "failing_cases": failing,
         "earliest_failing_case_in_original_order": failing[0] if failing else None,
@@ -141,6 +184,7 @@ def main() -> None:
         "interpretation_law": {
             "each_case_ran_in_an_independent_clean_process": True,
             "existing_v5_neutral_case_functions_only": True,
+            "wait_primitive_observed_without_timeout_change": True,
             "diagnostic_does_not_change_transport_pass_criteria": True,
             "diagnostic_does_not_establish_a_transport_PASS": True,
             "only_a_successor_prospective_repair_may_be_selected_from_this_result": True,
@@ -149,7 +193,18 @@ def main() -> None:
     }
     out["adjudication_sha256"] = sha(out)
     Path(args.out).write_text(json.dumps(out, sort_keys=True, indent=2) + "\n")
-    print(json.dumps({"status": out["status"], "failing_cases": failing, "scientific_cells": 0}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "status": out["status"],
+                "failing_cases": failing,
+                "earliest_failing_case": out["earliest_failing_case_in_original_order"],
+                "earliest_failing_layer": out["earliest_failing_layer"],
+                "scientific_cells": 0,
+            },
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":
