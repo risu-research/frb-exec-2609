@@ -1,0 +1,242 @@
+name: artifact-v4 g3 clean-room qualification
+
+on:
+  push:
+    branches:
+      - artifact-v4-g3-qualification
+    paths:
+      - .github/workflows/artifact-v4-g3-qualification.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: artifact-v4-g3-cleanroom-qualification
+  cancel-in-progress: false
+
+env:
+  PRIVATE_SOURCE_SHA: 9ae5ce98c1df599316961fa96820be6d4631b372
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout exact public G3 carrier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Set up exact Node 24 major
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Freeze runtime and transport identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'artifact-v4-g3-qualification'
+          test -n "$SOURCE_READ_TOKEN"
+          node --version | grep -Eq '^v24\.'
+          python3 - <<'PY'
+          import sys
+          assert sys.version_info[:2] == (3,12), sys.version
+          print('PYTHON_3_12=PASS')
+          PY
+          python3 -m json.tool artifact/v4-g3/G3_TRANSPORT_FREEZE_V1.json >/dev/null
+          echo 'RUNTIME_AND_TRANSPORT_IDENTITIES=PASS'
+
+      - name: Checkout exact frozen private G3 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g3"
+          python3 tools/qx_private_source.py clone --sha "$PRIVATE_SOURCE_SHA" --dest "$SRC"
+          test "$(git -C "$SRC" rev-parse HEAD)" = "$PRIVATE_SOURCE_SHA"
+          git -C "$SRC" remote -v | grep -q . && { echo 'private remote survived checkout'; exit 1; } || true
+          echo 'PRIVATE_G3_EXACT_CHECKOUT=PASS'
+
+      - name: Verify frozen G2/G3 source identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g3"
+          python3 - <<'PY'
+          import os, subprocess
+          from pathlib import Path
+          src=Path(os.environ['RUNNER_TEMP'])/'private-v4-g3'
+          expected={
+            'artifact_v4/verifier_b.mjs':'809efb0ff3a26ab096af97d2b73b68045cf4d8c8',
+            'artifact_v4/materialize_semantic_snapshots.py':'cf9d4ccc7cfe35f709ff983500b2f5b969be600e',
+            'artifact_v4/g3_synthetic_qualification.mjs':'04246081f6b1b2b49409bb96274545616a3d87c0',
+            'artifact_v4/g3_static_audit.py':'13e0b3d3c02a9b77092f3d9ccec9d4eddde39ac3',
+            'artifact_v4/V4_G2_VALUE_FREE_B_INTERFACE.json':'eb919f0751c323e4c39324e91dbbd698728a366c',
+            'artifact_v4/V4_G2_SEMANTIC_SNAPSHOT_CONTRACT.json':'59c700c97cc873147581f3c096617c85848735b5',
+            'artifact_v4/V4_G2_PREEXECUTION_AMENDMENT_01_FORMAL_SCOPE_GUARD.json':'09ea03b71e01f7ffd96a7ce63b9542e0fcc262fb',
+            'artifact_v4/V4_G3_SOURCE_FREEZE_V1.json':'eeb7d3cc587da60b406325cdb376894db69ef882',
+          }
+          for rel,want in expected.items():
+              got=subprocess.check_output(['git','-C',str(src),'rev-parse',f'HEAD:{rel}'],text=True).strip()
+              assert got==want,(rel,got,want)
+          print('G2_G3_FROZEN_IDENTITIES=PASS')
+          PY
+
+      - name: Syntax-check frozen programs without scientific inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g3"
+          node --check "$SRC/artifact_v4/verifier_b.mjs"
+          node --check "$SRC/artifact_v4/g3_synthetic_qualification.mjs"
+          python3 -m py_compile "$SRC/artifact_v4/materialize_semantic_snapshots.py" "$SRC/artifact_v4/g3_static_audit.py"
+          echo 'PROGRAM_SYNTAX=PASS'
+
+      - name: Static clean-room isolation audit before materialization
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g3"
+          OUT="$RUNNER_TEMP/g3-out"
+          mkdir -p "$OUT"
+          python3 "$SRC/artifact_v4/g3_static_audit.py" --source-root "$SRC" --out "$OUT/STATIC_AUDIT_PRE.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'g3-out'/'STATIC_AUDIT_PRE.json').read_text())
+          assert x['status']=='PASS'
+          assert x['scientific_expected_values_opened'] is False
+          assert x['verifier_b_pristine_science_executed'] is False
+          print('STATIC_ISOLATION_PRE=PASS')
+          PY
+
+      - name: Run fabricated-fixture synthetic qualification only
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g3"
+          OUT="$RUNNER_TEMP/g3-out"
+          node "$SRC/artifact_v4/g3_synthetic_qualification.mjs" | tee "$OUT/SYNTHETIC_QUALIFICATION_STDOUT.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'g3-out'/'SYNTHETIC_QUALIFICATION_STDOUT.json'
+          x=json.loads(p.read_text())
+          assert x['status']=='PASS_G3_SYNTHETIC_QUALIFICATION'
+          assert all(v is True for k,v in x.items() if k!='status')
+          print('SYNTHETIC_QUALIFICATION=PASS')
+          PY
+
+      - name: Materialize value-free finite semantic snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g3"
+          OUT="$RUNNER_TEMP/g3-out"
+          SNAP="$OUT/snapshots"
+          python3 "$SRC/artifact_v4/materialize_semantic_snapshots.py" --source-root "$SRC" --out-dir "$SNAP" | tee "$OUT/MATERIALIZER_STDOUT.json"
+          test -f "$SNAP/RSTAR_SEMANTIC_SNAPSHOT.json"
+          test -f "$SNAP/Q_THERMOSTAT_SEMANTIC_SNAPSHOT.json"
+          test -f "$SNAP/SEMANTIC_MATERIALIZATION_RECEIPT.json"
+          echo 'VALUE_FREE_SNAPSHOTS_MATERIALIZED=PASS'
+
+      - name: Audit materialized snapshots and re-run isolation scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g3"
+          OUT="$RUNNER_TEMP/g3-out"
+          SNAP="$OUT/snapshots"
+          python3 "$SRC/artifact_v4/g3_static_audit.py" --source-root "$SRC" --snapshot-dir "$SNAP" --out "$OUT/STATIC_AUDIT_POST.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g3-out'
+          x=json.loads((out/'STATIC_AUDIT_POST.json').read_text())
+          assert x['status']=='PASS'
+          s=x['snapshot_validation']
+          assert s['checked'] is True
+          assert s['q_states']==32
+          assert s['q_max_horizon']==4
+          assert s['rstar_worlds']>0 and s['rstar_queries']>0
+          forbidden=list(out.rglob('B_CLAIMS*.json'))+list(out.rglob('WHOLE_PAPER*.json'))+list(out.rglob('DERIVED_CLAIMS*.json'))
+          assert not forbidden, forbidden
+          print('SNAPSHOT_AND_ISOLATION_POST=PASS')
+          PY
+
+      - name: Seal G3 qualification receipt and checksums without executing B on science
+        shell: bash
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          PUBLIC_HEAD: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g3"
+          OUT="$RUNNER_TEMP/g3-out"
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g3-out'; src=Path(os.environ['RUNNER_TEMP'])/'private-v4-g3'; snap=out/'snapshots'
+          def H(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          receipt={
+            'schema':'replaymark.artifact-v4.g3-cleanroom-qualification-receipt.v1',
+            'status':'PASS_G3_CLEANROOM_ISOLATION_QUALIFICATION',
+            'public_run_id':int(os.environ['RUN_ID']),
+            'public_run_attempt':int(os.environ['RUN_ATTEMPT']),
+            'public_execution_head':os.environ['PUBLIC_HEAD'],
+            'private_source_commit':os.environ['PRIVATE_SOURCE_SHA'],
+            'runtime':{
+              'node':subprocess.check_output(['node','--version'],text=True).strip(),
+              'python':subprocess.check_output(['python3','--version'],text=True).strip(),
+              'runner':'ubuntu-24.04'
+            },
+            'program_git_blobs':{
+              rel:subprocess.check_output(['git','-C',str(src),'rev-parse',f'HEAD:{rel}'],text=True).strip()
+              for rel in ['artifact_v4/verifier_b.mjs','artifact_v4/materialize_semantic_snapshots.py','artifact_v4/g3_synthetic_qualification.mjs','artifact_v4/g3_static_audit.py']
+            },
+            'snapshot_sha256':{
+              'RSTAR_SEMANTIC_SNAPSHOT.json':H(snap/'RSTAR_SEMANTIC_SNAPSHOT.json'),
+              'Q_THERMOSTAT_SEMANTIC_SNAPSHOT.json':H(snap/'Q_THERMOSTAT_SEMANTIC_SNAPSHOT.json'),
+              'SEMANTIC_MATERIALIZATION_RECEIPT.json':H(snap/'SEMANTIC_MATERIALIZATION_RECEIPT.json')
+            },
+            'static_audit_pre_sha256':H(out/'STATIC_AUDIT_PRE.json'),
+            'static_audit_post_sha256':H(out/'STATIC_AUDIT_POST.json'),
+            'synthetic_qualification_sha256':H(out/'SYNTHETIC_QUALIFICATION_STDOUT.json'),
+            'materializer_stdout_sha256':H(out/'MATERIALIZER_STDOUT.json'),
+            'verifier_b_pristine_scientific_execution':False,
+            'verifier_b_scientific_claim_vector_created':False,
+            'expected_values_opened_to_b':False,
+            'v3_or_v92_comparison_executed':False,
+            'v4_challenge_executed':False,
+            'new_scientific_measurement':False,
+            'historical_experiment_rerun':False,
+            'authority_replacement':False,
+          }
+          (out/'G3_QUALIFICATION_RECEIPT.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          names=['STATIC_AUDIT_PRE.json','STATIC_AUDIT_POST.json','SYNTHETIC_QUALIFICATION_STDOUT.json','MATERIALIZER_STDOUT.json','G3_QUALIFICATION_RECEIPT.json','snapshots/RSTAR_SEMANTIC_SNAPSHOT.json','snapshots/Q_THERMOSTAT_SEMANTIC_SNAPSHOT.json','snapshots/SEMANTIC_MATERIALIZATION_RECEIPT.json']
+          (out/'SHA256SUMS.txt').write_text('\n'.join(f"{H(out/n)}  {n}" for n in names)+'\n')
+          print('G3_QUALIFICATION_RECEIPT_SEALED=PASS')
+          PY
+          cd "$OUT"
+          sha256sum -c SHA256SUMS.txt
+
+      - name: Upload immutable G3 qualification capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: replaymark-artifact-v4-g3-cleanroom-qualification
+          path: |
+            ${{ runner.temp }}/g3-out/STATIC_AUDIT_PRE.json
+            ${{ runner.temp }}/g3-out/STATIC_AUDIT_POST.json
+            ${{ runner.temp }}/g3-out/SYNTHETIC_QUALIFICATION_STDOUT.json
+            ${{ runner.temp }}/g3-out/MATERIALIZER_STDOUT.json
+            ${{ runner.temp }}/g3-out/G3_QUALIFICATION_RECEIPT.json
+            ${{ runner.temp }}/g3-out/SHA256SUMS.txt
+            ${{ runner.temp }}/g3-out/snapshots/RSTAR_SEMANTIC_SNAPSHOT.json
+            ${{ runner.temp }}/g3-out/snapshots/Q_THERMOSTAT_SEMANTIC_SNAPSHOT.json
+            ${{ runner.temp }}/g3-out/snapshots/SEMANTIC_MATERIALIZATION_RECEIPT.json
+          if-no-files-found: error
+          retention-days: 90
