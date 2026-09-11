@@ -1,0 +1,1 @@
+This working branch contains post-freeze administrative noise and is not an execution authority. Canonical source freeze: f8f84585a60e3da53881e7c63a111abf81ae4ff4. Canonical one-file OPEN child: e7e8751207afac2199e19441ab6f78a22e195f81. Execution branches must be created directly from those SHAs.
