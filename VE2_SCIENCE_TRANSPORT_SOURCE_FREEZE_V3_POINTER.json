@@ -1,0 +1,6 @@
+{
+  "schema": "replaymark.ve2.science-transport-source-freeze-pointer.v3",
+  "source_freeze": "f8f84585a60e3da53881e7c63a111abf81ae4ff4",
+  "open_child": "e7e8751207afac2199e19441ab6f78a22e195f81",
+  "note": "Pointer metadata only; execution authority is the exact one-file OPEN child lineage."
+}
