@@ -12,7 +12,7 @@ permissions:
   actions: read
 
 env:
-  PRIVATE_SOURCE_SHA: e1069969b5f1c548a7e39e080ef6e3115393ae7a
+  PRIVATE_SOURCE_SHA: 1b69bd4120a2ec0c79d6154beb6c37c9bf2a9bec
   HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
   FIXED_PROTOCOL_REF: 383ee2e1b192fda7c6ce3a9576d9c6a4eae0a77e
   S3C0_LEGACY_PROTOCOL_REF: 23b7c85bca6cb85fde9f4361a0f9664d21c8ae8d
@@ -55,17 +55,18 @@ jobs:
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/G5_RUN2_COMPLETE_FAILURE_SEAL_V1.json)" = '183e628c0133fe0b696bf438a0d6f736e8b4d9f7'
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G5_C14_INDEPENDENT_TWIN_FREEZE_V1.json)" = '2bfd9a4fb4d68416d46e16a9858185eac8585635'
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G5_POSTMISS_REMEDIATION_CONSTITUTION_V1.json)" = 'bcb4eea889619ee4f0b4220563739807575f33f5'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/G5_BV2_PRISTINE_QUALIFICATION_RUN1_FAILURE_SEAL_V1.json)" = 'f27d234f737bd4c60306ec403a087e17e69c0aab'
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/verifier_b.mjs)" = '809efb0ff3a26ab096af97d2b73b68045cf4d8c8'
-          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/g5_verifier_b_v2_materializer.py)" = '16d4cfad98864df1eba45a5b5e0f6581ff0c7c97'
-          python3 -m py_compile "$SRC/artifact_v4/g5_verifier_b_v2_materializer.py"
-          echo 'BV2_REPAIR_LINEAGE=PASS'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/g5_verifier_b_v2_materializer_v2.py)" = '4129ad522ad27084be70f2749f0580fd12e9a928'
+          python3 -m py_compile "$SRC/artifact_v4/g5_verifier_b_v2_materializer_v2.py"
+          echo 'BV2_REPAIR_V2_LINEAGE=PASS'
 
       - name: Materialize and statically qualify Verifier B v2
         shell: bash
         run: |
           set -euo pipefail
           SRC="$RUNNER_TEMP/private-bv2q"; OUT="$RUNNER_TEMP/bv2q"; mkdir -p "$OUT"
-          python3 "$SRC/artifact_v4/g5_verifier_b_v2_materializer.py" --old "$SRC/artifact_v4/verifier_b.mjs" --out "$OUT/verifier_b_v2.mjs" --receipt "$OUT/BV2_MATERIALIZATION_RECEIPT.json"
+          python3 "$SRC/artifact_v4/g5_verifier_b_v2_materializer_v2.py" --old "$SRC/artifact_v4/verifier_b.mjs" --out "$OUT/verifier_b_v2.mjs" --receipt "$OUT/BV2_MATERIALIZATION_RECEIPT.json"
           node --check "$OUT/verifier_b_v2.mjs"
           ! grep -Eq 'C14_|C49_|V4_G2_CHALLENGE|CLAIM_LEDGER|replacement_expected|expected mutant' "$OUT/verifier_b_v2.mjs"
           python3 - <<'PY'
@@ -73,8 +74,10 @@ jobs:
           from pathlib import Path
           o=Path(os.environ['RUNNER_TEMP'])/'bv2q'; p=o/'verifier_b_v2.mjs'; r=json.loads((o/'BV2_MATERIALIZATION_RECEIPT.json').read_text())
           h=hashlib.sha256(p.read_bytes()).hexdigest()
-          assert r['status']=='PASS_MATERIALIZED_VERIFIER_B_V2' and r['new_sha256']==h
+          assert r['status']=='PASS_MATERIALIZED_VERIFIER_B_V2_ESCAPE_CORRECTED' and r['new_sha256']==h
           assert r['replacement_cardinalities']=={'helper_marker':1,'E06_block':1}
+          assert r['semantic_repair_contract_changed_since_v1'] is False
+          assert r['only_generated_regex_escape_encoding_corrected'] is True
           print('BV2_SHA256='+h)
           PY
 
@@ -117,9 +120,11 @@ jobs:
           PY
 
       - name: Execute repaired B v2 on pristine authority only
+        id: bv2
+        continue-on-error: true
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
           Q="$RUNNER_TEMP/bv2q"; P="$RUNNER_TEMP/bv2-pristine"; S="$RUNNER_TEMP/bv2-sandbox"
           mkdir -p "$S"
           cp "$Q/verifier_b_v2.mjs" "$S/verifier_b.mjs"
@@ -130,41 +135,62 @@ jobs:
           for rec in m['roles'].values():
               src=p/rec['path']; dst=s/rec['path']; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(src,dst)
           PY
+          set +e
           (cd "$S" && env -i PATH="$PATH" HOME="$HOME" node ./verifier_b.mjs --manifest ./B_INPUT_MANIFEST.json --out "$RUNNER_TEMP/bv2q/BV2_VECTOR.json" --trace-out "$RUNNER_TEMP/bv2q/BV2_TRACE.json") >"$Q/BV2_STDOUT.log" 2>"$Q/BV2_STDERR.log"
-          python3 - <<'PY'
-          import hashlib,json,os
-          from pathlib import Path
-          t=Path(os.environ['RUNNER_TEMP']); q=t/'bv2q'; v=json.loads((q/'BV2_VECTOR.json').read_text()); h=hashlib.sha256((q/'BV2_VECTOR.json').read_bytes()).hexdigest()
-          assert len(v)==42, len(v)
-          assert h==os.environ['EXPECTED_G4_B_VECTOR_SHA256'],(h,os.environ['EXPECTED_G4_B_VECTOR_SHA256'])
-          print('BV2_PRISTINE_42_CLAIMS_EXACT_G4_VECTOR=PASS')
-          PY
+          rc=$?
+          set -e
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "BV2_PRISTINE_RC=$rc"
+          if [ "$rc" -ne 0 ]; then cat "$Q/BV2_STDERR.log" || true; fi
+          exit "$rc"
 
-      - name: Write qualification receipt and checksums
+      - name: Write qualification evidence and checksums
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
-          Q="$RUNNER_TEMP/bv2q"
+          Q="$RUNNER_TEMP/bv2q"; mkdir -p "$Q"
+          export BV2_RC='${{ steps.bv2.outputs.rc }}'
           python3 - <<'PY'
           import hashlib,json,os
           from pathlib import Path
           q=Path(os.environ['RUNNER_TEMP'])/'bv2q'
           H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
-          mat=json.loads((q/'BV2_MATERIALIZATION_RECEIPT.json').read_text())
-          rec={'schema':'replaymark.artifact-v4.g5-verifier-b-v2-pristine-qualification.v1','status':'PASS_BV2_PRISTINE_QUALIFICATION','verifier_b_v2_sha256':H(q/'verifier_b_v2.mjs'),'baseline_claim_count':42,'baseline_vector_sha256':H(q/'BV2_VECTOR.json'),'baseline_exact_frozen_G4_B':H(q/'BV2_VECTOR.json')==os.environ['EXPECTED_G4_B_VECTOR_SHA256'],'challenge_executed':False,'mutant_materialized':False,'challenge_catalog_visible_to_B':False,'expected_manuscript_values_visible_to_B':False,'materialization_receipt_sha256':H(q/'BV2_MATERIALIZATION_RECEIPT.json'),'trace_sha256':H(q/'BV2_TRACE.json')}
+          vector=q/'BV2_VECTOR.json'; trace=q/'BV2_TRACE.json'; mat=q/'BV2_MATERIALIZATION_RECEIPT.json'; stderr=q/'BV2_STDERR.log'; stdout=q/'BV2_STDOUT.log'
+          rc=int(os.environ.get('BV2_RC') or -999)
+          rec={'schema':'replaymark.artifact-v4.g5-verifier-b-v2-pristine-qualification.v2','status':'PASS_BV2_PRISTINE_QUALIFICATION' if rc==0 and vector.exists() else 'FAIL_BV2_PRISTINE_QUALIFICATION','verifier_b_v2_sha256':H(q/'verifier_b_v2.mjs'),'B_rc':rc,'baseline_claim_count':None,'baseline_vector_sha256':H(vector) if vector.exists() else None,'baseline_exact_frozen_G4_B':False,'challenge_executed':False,'mutant_materialized':False,'challenge_catalog_visible_to_B':False,'expected_manuscript_values_visible_to_B':False,'materialization_receipt_sha256':H(mat),'trace_sha256':H(trace) if trace.exists() else None,'stderr_sha256':H(stderr) if stderr.exists() else None,'stdout_sha256':H(stdout) if stdout.exists() else None}
+          if vector.exists():
+              v=json.loads(vector.read_text()); rec['baseline_claim_count']=len(v); rec['baseline_exact_frozen_G4_B']=len(v)==42 and H(vector)==os.environ['EXPECTED_G4_B_VECTOR_SHA256']
           (q/'BV2_PRISTINE_QUALIFICATION_RECEIPT.json').write_text(json.dumps(rec,indent=2,sort_keys=True)+'\n')
-          assert rec['baseline_exact_frozen_G4_B']
           print(json.dumps(rec,sort_keys=True))
           PY
           cd "$Q"
-          sha256sum verifier_b_v2.mjs BV2_MATERIALIZATION_RECEIPT.json BV2_VECTOR.json BV2_TRACE.json BV2_STDOUT.log BV2_STDERR.log BV2_PRISTINE_QUALIFICATION_RECEIPT.json > SHA256SUMS.txt
+          find . -maxdepth 1 -type f ! -name SHA256SUMS.txt -printf '%P\n' | sort | while read f; do sha256sum "$f"; done > SHA256SUMS.txt
           sha256sum -c SHA256SUMS.txt
 
       - name: Upload immutable B v2 qualification evidence
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: replaymark-artifact-v4-g5-bv2-pristine-qualification
+          name: replaymark-artifact-v4-g5-bv2-pristine-qualification-v2
           path: ${{ runner.temp }}/bv2q/**
           if-no-files-found: error
           retention-days: 90
           compression-level: 6
+
+      - name: Final pristine qualification gate
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'bv2q'/'BV2_PRISTINE_QUALIFICATION_RECEIPT.json'
+          assert p.exists(),'qualification receipt absent'
+          x=json.loads(p.read_text())
+          assert x['status']=='PASS_BV2_PRISTINE_QUALIFICATION',x
+          assert x['B_rc']==0 and x['baseline_claim_count']==42 and x['baseline_exact_frozen_G4_B'] is True,x
+          assert x['challenge_executed'] is False and x['mutant_materialized'] is False
+          print('PASS_BV2_PRISTINE_42_OF_42_EXACT_G4_BASELINE')
+          PY
