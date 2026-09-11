@@ -1,0 +1,39 @@
+{
+  "schema": "replaymark.ve2.scientific-authority-open.v2",
+  "status": "OPEN_SUCCESSOR_FIRST_COMPLETE_ONLY",
+  "predecessor_failure_seal": "0ad575daefe14c01aeab13f0b8e0c318e0eff3ad",
+  "source_freeze": "e81152d53a9312e3325ef16579b010cc00991589",
+  "public_static_pass": "c87690fb5d5c96d0f637504c897822d973d24583",
+  "private_static_pass_receipt": "710523c866e381e14c048a8c8b11a2909b1f3c1a",
+  "frozen_v1_workflow_sha256": "52df67631b1959f4a9d4185b0d5672d02d0498461b94d698c3043604959e27aa",
+  "successor_workflow": ".github/workflows/ve2-authoritative-first-complete-v2.yml",
+  "authority_branch": "ve2-scientific-authority-v2",
+  "required_run_attempt": 1,
+  "scientific_authority_opened": true,
+  "scientific_result_opened": true,
+  "scientific_cells_at_open": 0,
+  "frontier_result_seen": false,
+  "result_dependent_rerun_authorized": false,
+  "same_authority_rerun_after_observation": false,
+  "successful_subset_carry_forward": false,
+  "single_serial_authority": true,
+  "parallel_replica_matrix": false,
+  "raw_stage_artifacts_expected": 16,
+  "scientific_row_cells_if_complete": 352,
+  "all_raw_stage_artifacts_sealed_before_frontier_access": true,
+  "scientific_execution_body": {
+    "source": "exact run blocks extracted from frozen v1 workflow after full-file SHA-256 verification",
+    "worker_source_changes_from_static_pass": 0,
+    "runtime_bundle_changes_from_static_pass": 0,
+    "contract_changes_from_static_pass": 0,
+    "blueprint_changes_from_static_pass": 0,
+    "frontier_changes_from_static_pass": 0,
+    "stage_order_changes_from_static_pass": 0
+  },
+  "failure_semantics": {
+    "fail_closed": true,
+    "fallback": false,
+    "retry": false,
+    "regeneration": false
+  }
+}
