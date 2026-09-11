@@ -1,0 +1,51 @@
+{
+  "schema": "replaymark.artifact-v4.g6-run1-pre-reconstruction-schema-selector-failure-seal.v1",
+  "status": "FROZEN_G6_RUN1_PRE_RECONSTRUCTION_SCHEMA_SELECTOR_FAILURE_NOT_CONSUMED",
+  "public_execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "artifact-v4-g6-public-closure",
+    "run_id": 34655606576,
+    "job_id": 103447213352,
+    "run_attempt": 1,
+    "execution_head": "f7f12331495df0e8e3e25cf86eba08126b382de6",
+    "conclusion": "failure"
+  },
+  "completed_before_failure": {
+    "G5_public_freeze_git_blob_assertion": "PASS",
+    "G5_independent_audit_git_blob_assertion": "PASS",
+    "G6_closure_program_static_compile": "PASS",
+    "exact_G5_artifact_redownload": "PASS",
+    "G5_artifact_outer_sha256": "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "G5_artifact_outer_sha256_match": true
+  },
+  "failure": {
+    "stage": "BEFORE_G5_ARCHIVE_EXTRACTION_AND_BEFORE_RAW_CASE_RECONSTRUCTION",
+    "exception": "KeyError: zip_sha256",
+    "cause": "The new G6 closure implementation referenced evidence_capsule.zip_sha256 in the already-frozen G5 public freeze, while the frozen field is evidence_capsule.independent_redownload_sha256.",
+    "classification": "G6_METADATA_SCHEMA_SELECTOR_IMPLEMENTATION_DEFECT",
+    "raw_case_results_parsed": false,
+    "G6_detection_matrix_created": false,
+    "G6_closure_receipt_created": false,
+    "Verifier_A_executed": false,
+    "Verifier_B_executed": false,
+    "challenge_executed": false,
+    "experiment_executed": false,
+    "scientific_result_consumed": false
+  },
+  "prospective_repair": {
+    "only_change": "Replace the nonexistent evidence_capsule.zip_sha256 selector with the exact pre-existing evidence_capsule.independent_redownload_sha256 selector.",
+    "artifact_id_changed": false,
+    "artifact_digest_changed": false,
+    "reconstruction_rules_changed": false,
+    "pass_criteria_changed": false,
+    "scientific_authority_changed": false,
+    "challenge_suite_changed": false,
+    "threshold_changed": false,
+    "fresh_run_required": true
+  },
+  "preservation": {
+    "run1_remains_failed": true,
+    "run1_may_not_be_retroactively_relabelled_pass": true,
+    "failure_is_part_of_final_V4_failure_ledger": true
+  }
+}
