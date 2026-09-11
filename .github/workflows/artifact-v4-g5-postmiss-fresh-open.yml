@@ -1,0 +1,283 @@
+name: artifact-v4 g5 postmiss fresh complete
+
+on:
+  push:
+    branches:
+      - artifact-v4-g5-postmiss-fresh-open
+    paths:
+      - .github/workflows/artifact-v4-g5-postmiss-fresh-open.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: artifact-v4-g5-postmiss-fresh-complete
+  cancel-in-progress: false
+
+env:
+  PRIVATE_SOURCE_SHA: 6e44eaee0cbf3048614493d139907a712db28446
+  POSTMISS_SOURCE_FREEZE_BLOB: 8f3fb1ead275aebabef8bd8fbf987313e8a4c155
+  OUTER_EXECUTOR_BLOB: 297ae5349f83324d087406a9cd040bf5ed7b52b3
+  POSTMISS_EXECUTOR_V2_BLOB: 2d5e2cae6f1f81fd3739c9576bbbc5ede33c8621
+  BV2_PASS_SEAL_BLOB: b46b4bcfe28e63044d0a1133456a332ac4cc8bf8
+  RUN2_COMPLETE_FAILURE_BLOB: 183e628c0133fe0b696bf438a0d6f736e8b4d9f7
+  C49_TWIN_BLOB: 2bfd9a4fb4d68416d46e16a9858185eac8585635
+  POSTMISS_CONSTITUTION_BLOB: bcb4eea889619ee4f0b4220563739807575f33f5
+  ORIGINAL_EXECUTOR_BLOB: de465001c50cbd349a700d99dbc7fb09d17e2d39
+  BASE_REPAIR_MATERIALIZER_BLOB: 5516d162924bfc9348e8b9982ea6fca706325092
+  BV2_MATERIALIZER_BLOB: 063ff2abf66a980d81f9f78a14c304c22a1eba15
+  REPAIRED_BASE_SHA256: 481e73b0ed5ff82c89ebce0fe586f0386ec3a2fb9cc03d216add4ea672344145
+  QUALIFIED_BV2_SHA256: 66f51c48cb8baa9edc254852a5b35df5063a979e41dca063c7a0bf0b47c340e3
+  EXPECTED_G4_B_VECTOR_SHA256: 65b2b519b45315589d885d75d17dc716b255db5c88612652b6201dca93b5103c
+  HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
+  FIXED_PROTOCOL_REF: 383ee2e1b192fda7c6ce3a9576d9c6a4eae0a77e
+  S3C0_LEGACY_PROTOCOL_REF: 23b7c85bca6cb85fde9f4361a0f9664d21c8ae8d
+  S3C0_LEGACY_OUTCOME_REF: ac20890bb4aa926e439802510de3723b74591c94
+  VE2_SHA: 25ebfd817420fa0f782419977e4ec166f6ca358a
+  G4_PUBLIC_PASS_FREEZE: 98a901b678d93294af5d111b76ef6b148915130c
+
+jobs:
+  campaign:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout exact public post-miss carrier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Pre-open public lineage and runtime gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'artifact-v4-g5-postmiss-fresh-open'
+          test -n "$SOURCE_READ_TOKEN"
+          node --version | grep -Eq '^v24\.'
+          python3 - <<'PY'
+          import sys
+          assert sys.version_info[:2] == (3,12), sys.version
+          print('PYTHON_3_12=PASS')
+          PY
+          git cat-file -e "$G4_PUBLIC_PASS_FREEZE^{commit}"
+          echo 'POSTMISS_PUBLIC_PREOPEN_RUNTIME=PASS'
+
+      - name: Checkout exact private post-miss frozen source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5-postmiss"
+          python3 tools/qx_private_source.py clone --sha "$PRIVATE_SOURCE_SHA" --dest "$SRC"
+          test "$(git -C "$SRC" rev-parse HEAD)" = "$PRIVATE_SOURCE_SHA"
+          git -C "$SRC" remote -v | grep -q . && { echo 'private remote survived checkout'; exit 1; } || true
+          echo 'POSTMISS_PRIVATE_EXACT_CHECKOUT=PASS'
+
+      - name: Verify frozen source, history, challenge, and pass-seal identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5-postmiss"
+          export SRC
+          python3 - <<'PY'
+          import os,subprocess
+          from pathlib import Path
+          src=Path(os.environ['SRC'])
+          expected={
+            'artifact_v4/V4_G5_POSTMISS_SOURCE_FREEZE_V1.json':os.environ['POSTMISS_SOURCE_FREEZE_BLOB'],
+            'artifact_v4/g5_postmiss_campaign_executor_v3.py':os.environ['OUTER_EXECUTOR_BLOB'],
+            'artifact_v4/g5_postmiss_campaign_executor_v2.py':os.environ['POSTMISS_EXECUTOR_V2_BLOB'],
+            'artifact_v4/G5_BV2_PRISTINE_QUALIFICATION_PASS_SEAL_V1.json':os.environ['BV2_PASS_SEAL_BLOB'],
+            'artifact_v4/G5_RUN2_COMPLETE_FAILURE_SEAL_V1.json':os.environ['RUN2_COMPLETE_FAILURE_BLOB'],
+            'artifact_v4/V4_G5_C14_INDEPENDENT_TWIN_FREEZE_V1.json':os.environ['C49_TWIN_BLOB'],
+            'artifact_v4/V4_G5_POSTMISS_REMEDIATION_CONSTITUTION_V1.json':os.environ['POSTMISS_CONSTITUTION_BLOB'],
+            'artifact_v4/g5_challenge_executor.py':os.environ['ORIGINAL_EXECUTOR_BLOB'],
+            'artifact_v4/g5_run2_executor_repair_materializer_v2.py':os.environ['BASE_REPAIR_MATERIALIZER_BLOB'],
+            'artifact_v4/g5_verifier_b_v2_materializer_v3.py':os.environ['BV2_MATERIALIZER_BLOB'],
+            'artifact_v4/verifier_b.mjs':'809efb0ff3a26ab096af97d2b73b68045cf4d8c8',
+            'artifact_v4/V4_G1_DEPENDENCY_GRAPH.json':'c322cb9f502496621f71e5e7067ddf6b3dd0cb1b',
+            'artifact_v4/V4_G2_COVERAGE_PROOF.json':'c7ded95c04a59b644be316b9ed81d4b89cacbf46',
+            'artifact_v4/V4_G2_CHALLENGES_01_12.json':'4269cb074883647eecf49732dfd43f609918f01c',
+            'artifact_v4/V4_G2_CHALLENGES_13_24.json':'87adcdac6974774fa7bbbb33a3111a3a55c5af9a',
+            'artifact_v4/V4_G2_CHALLENGES_25_36.json':'9e00ebc54bed285e1f0a38c8875afe774479f136',
+            'artifact_v4/V4_G2_CHALLENGES_37_48.json':'262af59a2da47969721e88253138bd3da5c55896',
+            'artifact_v4/V4_G2_METAMORPHIC_01_08.json':'dac579c55aa0e20f774d4986af7b39a38359dedf',
+            'artifact_v4/V4_G2_PREEXECUTION_AMENDMENT_01_FORMAL_SCOPE_GUARD.json':'09ea03b71e01f7ffd96a7ce63b9542e0fcc262fb',
+            'artifact_v4/g4_prepare_pristine_b_inputs.py':'7f76e2903d193636c4c12b01ae53a099d2c5b36b',
+            'artifact_v4/g4_python_json_compat_adapter.py':'b1db25f272987b1797ef0abf8828135e9413ff3d',
+            'artifact_v4/g4_compare_blind_vectors_v2.py':'2368fa2acf53aabd28523698611005621a85d3dc',
+            'artifact_v3/compare_whole_paper_v1.py':'c2bcdfee5f61086a354df109d2a40e552594c09b'
+          }
+          for rel,want in expected.items():
+              got=subprocess.check_output(['git','-C',str(src),'rev-parse',f'HEAD:{rel}'],text=True).strip()
+              assert got==want,(rel,got,want)
+          print('POSTMISS_ALL_FROZEN_IDENTITIES=PASS')
+          PY
+          python3 -m py_compile "$SRC/artifact_v4/g5_postmiss_campaign_executor_v3.py" "$SRC/artifact_v4/g5_postmiss_campaign_executor_v2.py" "$SRC/artifact_v4/g5_run2_executor_repair_materializer_v2.py" "$SRC/artifact_v4/g5_verifier_b_v2_materializer_v3.py" "$SRC/artifact_v4/g4_prepare_pristine_b_inputs.py" "$SRC/artifact_v4/g4_python_json_compat_adapter.py"
+          echo 'POSTMISS_STATIC_SOURCE_QUALIFICATION=PASS'
+
+      - name: Materialize exact repaired base executor and qualified Verifier B v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5-postmiss"; MAT="$RUNNER_TEMP/postmiss-materialized"; mkdir -p "$MAT"
+          BASE="$MAT/g5-repaired-base.py"; BV2="$MAT/verifier_b_v2.mjs"
+          python3 "$SRC/artifact_v4/g5_run2_executor_repair_materializer_v2.py" --old "$SRC/artifact_v4/g5_challenge_executor.py" --out "$BASE"
+          test "$(sha256sum "$BASE" | awk '{print $1}')" = "$REPAIRED_BASE_SHA256"
+          python3 -m py_compile "$BASE"
+          python3 "$SRC/artifact_v4/g5_verifier_b_v2_materializer_v3.py" --old "$SRC/artifact_v4/verifier_b.mjs" --out "$BV2" --receipt "$MAT/BV2_MATERIALIZATION_RECEIPT.json"
+          test "$(sha256sum "$BV2" | awk '{print $1}')" = "$QUALIFIED_BV2_SHA256"
+          node --check "$BV2"
+          ! grep -Eq 'C14_|C49_|V4_G2_CHALLENGE|CLAIM_LEDGER|replacement_expected|expected mutant' "$BV2"
+          export MAT BASE BV2
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          mat=Path(os.environ['MAT']); H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          r=json.loads((mat/'BV2_MATERIALIZATION_RECEIPT.json').read_text())
+          assert r['status']=='PASS_MATERIALIZED_VERIFIER_B_V2_SECTION_BOUNDARY_CORRECTED'
+          rec={'schema':'replaymark.artifact-v4.g5-postmiss-materialization-binding.v1','status':'PASS_EXACT_MATERIALIZATION_BINDING','private_source_commit':os.environ['PRIVATE_SOURCE_SHA'],'repaired_base_sha256':H(Path(os.environ['BASE'])),'qualified_Bv2_sha256':H(Path(os.environ['BV2'])),'expected_G4_B_vector_sha256':os.environ['EXPECTED_G4_B_VECTOR_SHA256'],'challenge_catalog_visible_to_B':False,'manuscript_expected_values_visible_to_B':False,'new_scientific_measurement':False}
+          (mat/'POSTMISS_MATERIALIZATION_BINDING_RECEIPT.json').write_text(json.dumps(rec,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(rec,sort_keys=True))
+          PY
+          echo 'POSTMISS_MATERIALIZED_PROGRAM_IDENTITIES=PASS'
+
+      - name: Checkout exact historical authority graph
+        shell: bash
+        run: |
+          set -euo pipefail
+          HIST="$RUNNER_TEMP/historical"
+          git init -q "$HIST"
+          git -C "$HIST" remote add origin https://github.com/risu-research/appeal-discovery-consumer.git
+          git -C "$HIST" fetch -q --no-tags origin "$HISTORICAL_SHA" "$FIXED_PROTOCOL_REF" "$S3C0_LEGACY_PROTOCOL_REF" "$S3C0_LEGACY_OUTCOME_REF"
+          for x in "$HISTORICAL_SHA" "$FIXED_PROTOCOL_REF" "$S3C0_LEGACY_PROTOCOL_REF" "$S3C0_LEGACY_OUTCOME_REF"; do git -C "$HIST" cat-file -e "$x^{commit}"; done
+          git -C "$HIST" checkout -q --detach "$HISTORICAL_SHA"
+          git -C "$HIST" remote remove origin
+          echo 'POSTMISS_HISTORICAL_AUTHORITY_GRAPH=PASS'
+
+      - name: Materialize exact VE2 pre-result authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch -q --no-tags origin "$VE2_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$VE2_SHA"
+          VE2="$RUNNER_TEMP/ve2"
+          git worktree add -q --detach "$VE2" "$VE2_SHA"
+          test "$(git -C "$VE2" rev-parse HEAD^{tree})" = '88f796f2e8ff361aa07925500c80b2ce0f8532e9'
+          echo 'POSTMISS_VE2_PRE_RESULT_EXACT=PASS'
+
+      - name: Fresh pristine B input materialization
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5-postmiss"; HIST="$RUNNER_TEMP/historical"; VE2="$RUNNER_TEMP/ve2"; RAW="$RUNNER_TEMP/g5-postmiss-raw"; PRISTINE="$RUNNER_TEMP/g5-postmiss-pristine"
+          python3 "$SRC/artifact_v4/g4_prepare_pristine_b_inputs.py" --source_root "$SRC" --historical_root "$HIST" --public_root "$GITHUB_WORKSPACE" --ve2_root "$VE2" --out_dir "$RAW"
+          python3 "$SRC/artifact_v4/g4_python_json_compat_adapter.py" --in-dir "$RAW" --out-dir "$PRISTINE"
+          export RAW PRISTINE
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw=json.loads((Path(os.environ['RAW'])/'B_INPUT_MATERIALIZATION_RECEIPT.json').read_text()); compat=json.loads((Path(os.environ['PRISTINE'])/'PYJSON_COMPAT_RECEIPT.json').read_text()); m=json.loads((Path(os.environ['PRISTINE'])/'B_INPUT_MANIFEST.json').read_text())
+          assert raw['status']=='PASS_PRISTINE_INPUT_MATERIALIZATION' and raw['role_count']==23 and raw['mutations_applied']==0
+          assert raw['expected_values_read'] is False and raw['verifier_a_output_read'] is False
+          assert compat['status']=='PASS_LEXICAL_COMPATIBILITY_ADAPTER' and compat['finite_semantics_changed'] is False and compat['unchanged_roles_byte_identical'] is True
+          assert len(m['roles'])==23
+          print('POSTMISS_PRISTINE_ROLE_INTERFACE=23/23_PASS')
+          PY
+
+      - name: Execute fresh complete post-miss 49+8 campaign from ordinal 1
+        id: g5
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g5-postmiss"; MAT="$RUNNER_TEMP/postmiss-materialized"; PRISTINE="$RUNNER_TEMP/g5-postmiss-pristine"; OUT="$RUNNER_TEMP/g5-postmiss-out"
+          rm -rf "$OUT"; mkdir -p "$OUT"; rmdir "$OUT"
+          STDOUT="$RUNNER_TEMP/G5_POSTMISS_EXECUTOR_STDOUT.log"; STDERR="$RUNNER_TEMP/G5_POSTMISS_EXECUTOR_STDERR.log"
+          set +e
+          python3 "$SRC/artifact_v4/g5_postmiss_campaign_executor_v3.py" --source-root "$SRC" --pristine-dir "$PRISTINE" --public-root "$GITHUB_WORKSPACE" --out-dir "$OUT" --base-executor "$MAT/g5-repaired-base.py" --verifier-b "$MAT/verifier_b_v2.mjs" >"$STDOUT" 2>"$STDERR"
+          rc=$?
+          set -e
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          mkdir -p "$OUT"
+          cp "$STDOUT" "$OUT/G5_POSTMISS_EXECUTOR_STDOUT.log"
+          cp "$STDERR" "$OUT/G5_POSTMISS_EXECUTOR_STDERR.log"
+          cp "$MAT/BV2_MATERIALIZATION_RECEIPT.json" "$OUT/"
+          cp "$MAT/POSTMISS_MATERIALIZATION_BINDING_RECEIPT.json" "$OUT/"
+          echo "G5_POSTMISS_EXECUTOR_RC=$rc"
+          cat "$STDOUT" || true
+          if [ "$rc" -ne 0 ]; then tail -400 "$STDERR" || true; fi
+          exit "$rc"
+
+      - name: Seal post-miss evidence index and recursive checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/g5-postmiss-out"; mkdir -p "$OUT"
+          export EXECUTOR_RC='${{ steps.g5.outputs.rc }}'
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g5-postmiss-out'
+          def H(p):
+              h=hashlib.sha256()
+              with p.open('rb') as f:
+                  for b in iter(lambda:f.read(1<<20),b''): h.update(b)
+              return h.hexdigest()
+          receipt=out/'G5_POSTMISS_CAMPAIGN_RECEIPT.json'; preflight=out/'G5_POSTMISS_OUTER_PREFLIGHT_RECEIPT.json'
+          idx={'schema':'replaymark.artifact-v4.g5-postmiss-evidence-index.v1','public_run_id':int(os.environ['GITHUB_RUN_ID']),'public_run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),'public_execution_head':os.environ['GITHUB_SHA'],'private_source_commit':os.environ['PRIVATE_SOURCE_SHA'],'postmiss_source_freeze_blob':os.environ['POSTMISS_SOURCE_FREEZE_BLOB'],'outer_executor_blob':os.environ['OUTER_EXECUTOR_BLOB'],'postmiss_executor_v2_blob':os.environ['POSTMISS_EXECUTOR_V2_BLOB'],'repaired_base_sha256':os.environ['REPAIRED_BASE_SHA256'],'qualified_Bv2_sha256':os.environ['QUALIFIED_BV2_SHA256'],'executor_rc':int(os.environ['EXECUTOR_RC']) if os.environ.get('EXECUTOR_RC','').strip() else None,'campaign_receipt_present':receipt.exists(),'campaign_receipt_sha256':H(receipt) if receipt.exists() else None,'outer_preflight_present':preflight.exists(),'outer_preflight_sha256':H(preflight) if preflight.exists() else None,'evidence_preserved_on_failure':True,'new_scientific_measurement':False,'historical_experiment_rerun':False,'canonical_authority_replacement':False}
+          (out/'G5_POSTMISS_EVIDENCE_INDEX.json').write_text(json.dumps(idx,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(idx,sort_keys=True))
+          PY
+          cd "$OUT"
+          find . -type f ! -name SHA256SUMS.txt -printf '%P\n' | sort | while read f; do sha256sum "$f"; done > SHA256SUMS.txt
+          sha256sum -c SHA256SUMS.txt
+
+      - name: Upload immutable post-miss campaign evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: replaymark-artifact-v4-g5-postmiss-pass-candidate
+          path: ${{ runner.temp }}/g5-postmiss-out/**
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6
+
+      - name: Final G5 post-miss pass gate
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/g5-postmiss-out"
+          export EXECUTOR_RC='${{ steps.g5.outputs.rc }}'
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g5-postmiss-out'; p=out/'G5_POSTMISS_CAMPAIGN_RECEIPT.json'; pre=out/'G5_POSTMISS_OUTER_PREFLIGHT_RECEIPT.json'
+          assert os.environ.get('EXECUTOR_RC')=='0',os.environ.get('EXECUTOR_RC')
+          assert p.exists() and pre.exists()
+          q=json.loads(pre.read_text()); assert q['status']=='PASS_POSTMISS_OUTER_IDENTITY_AND_FRESHNESS_GATE' and q['fresh_output_directory'] is True and q['challenge_results_reused'] is False
+          r=json.loads(p.read_text()); assert r['status']=='PASS_G5_POSTMISS_ADVERSARIAL_AND_METAMORPHIC_CHALLENGE',r['status']
+          g=r['pass_gate']
+          assert g['consequential_challenges_executed']==49
+          assert g['original_consequential_challenges_preserved']==48 and g['independent_twin_challenges_executed']==1
+          assert g['metamorphic_challenges_executed']==8
+          assert g['consequential_mutation_false_negatives']==0
+          assert g['metamorphic_false_positives']==0
+          assert g['applicable_A_B_normalized_detection_disagreements']==0
+          assert g['unexplained_extra_kills']==0
+          assert g['dynamic_obligation_coverage']=='60/60' and g['dynamic_obligations_missing']==[] and g['dynamic_obligations_extra']==[]
+          assert g['static_obligation_coverage']=='60/60' and g['edge_coverage']=='56/56' and g['authority_node_exercise']=='19/19' and g['asymmetry_surface_coverage']=='16/16'
+          assert g['original_C14_detected'] is True and g['independent_C49_twin_detected'] is True
+          assert g['post_hoc_reselection']==0 and g['new_scientific_measurements']==0 and g['historical_experiment_reruns']==0 and g['canonical_authority_modifications']==0
+          s=r['scientific_noninterference']; assert s['new_measurement'] is False and s['historical_experiment_rerun'] is False and s['canonical_authority_replacement'] is False and s['manuscript_change'] is False and s['verifier_A_change'] is False and s['verifier_B_change_authorized_only_after_preserved_G5_miss'] is True
+          assert r['G4_baseline_remains_frozen'] is True
+          print('PASS_G5_POSTMISS_49_OF_49_META_8_OF_8_DYNAMIC_60_OF_60')
+          PY
