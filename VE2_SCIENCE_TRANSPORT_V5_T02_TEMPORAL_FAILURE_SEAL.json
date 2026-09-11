@@ -1,0 +1,84 @@
+{
+  "schema": "replaymark.ve2.science-transport-v5-t02-temporal-failure-seal.v1",
+  "status": "SEALED_NON_PROMOTABLE_PRE_SCIENCE_FAILURE",
+  "authority": {
+    "source_freeze_public_head": "25f62e0b06657da50484e63a570cf7750432df68",
+    "open_commit": "f6515d7ba31dfa616c223264a19e6aefd6d05a1e",
+    "run_id": 34545805201,
+    "run_attempt": 1,
+    "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5"
+  },
+  "sealed_outcomes": {
+    "open_gate": "PASS",
+    "bootstrap_preflight_t01_old": "PASS",
+    "bootstrap_preflight_t01_new": "PASS",
+    "bootstrap_preflight_t02": "PASS",
+    "independent_preflight_adjudication": "PASS",
+    "t01_old_neutral_transport": "PASS",
+    "t01_new_neutral_transport": "PASS",
+    "t02_neutral_transport": "INFRASTRUCTURE_INCOMPLETE",
+    "final_transport_adjudication": "NOT_RUN_BECAUSE_T02_EXIT_NONZERO"
+  },
+  "immutable_artifacts": {
+    "preflight_aggregate": {
+      "artifact_id": 10178982598,
+      "zip_sha256": "23a5ced40f709d1c58417f6bd4e7e92ab52740fe3275bbed1b5c53e8efe3836f"
+    },
+    "t01_old": {
+      "artifact_id": 10179002775,
+      "zip_sha256": "939839578da6554f403017108a63a833be285a5d93155c4f93cd6f55039a8d6e",
+      "result_sha256": "9fa7803171033f0748a690edee856bd76fa6c082cad0142ec347e0437d8560cc"
+    },
+    "t01_new": {
+      "artifact_id": 10179022586,
+      "zip_sha256": "8e1b0bcbd2200f80ac90ecc7a65ca0eee78714d7be603f364146a8e749ccd9af",
+      "result_sha256": "db7f4ae94b3aac789c4d282f7fb77180652fc00a813e1287936992da0bff3690"
+    },
+    "t02": {
+      "artifact_id": 10179014301,
+      "zip_sha256": "80246e1ec947447fcc4838d4b9df5348ae1aaee5b8abd9bba2eb16f6958334ed",
+      "runtime_exit": 2,
+      "result_sha256": "996968324c81666be03c461a12beaff0f36ef940fcfaac866fde1e1b17d16b5a",
+      "failure": "TimeoutError: timed out waiting for neutral transport witness",
+      "phase": "NEUTRAL_CASES",
+      "rows_preserved_in_terminal_result": 0
+    },
+    "aggregate": {
+      "artifact_id": 10179027245,
+      "zip_sha256": "7ff48d61985ec7c8311a137870bd2f222046eb271f87b4bf079e990134fe2e85"
+    }
+  },
+  "interpretation": {
+    "established": [
+      "cross-version native bootstrap closure passed on all three frozen runtimes",
+      "independent zero-invocation preflight adjudication passed",
+      "T01 state transport passed on Home Assistant 2022.10.0",
+      "T01 state transport passed on Home Assistant 2026.1.0",
+      "T02 Home Assistant 2026.9.0 reached neutral-case execution and timed out waiting for a neutral transport witness"
+    ],
+    "not_established": [
+      "which T02 case first failed",
+      "whether exactly one or multiple T02 temporal cases fail in isolation",
+      "whether the defect is trigger scheduling, test-equivalent clock driving, startup event transport, delay transport, or witness collection"
+    ],
+    "reason_terminal_rows_do_not_localize_failure": "the inherited v3 T02 expression constructs the result list eagerly; an exception in a later case prevents already-completed rows from being assigned to the terminal result"
+  },
+  "scientific_hygiene": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "expected_frontier_read": false,
+    "T01_or_T02_execution_state_used": false,
+    "transition_blueprint_executed": false,
+    "historical_better_thermostat_action_dispatched": false
+  },
+  "successor_law": {
+    "same_authority_rerun": false,
+    "v5_must_never_be_rerun_for_promotion": true,
+    "authorized_next_authority": "NON_PROMOTABLE_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_V1",
+    "diagnostic_may_execute_only_existing_v5_neutral_case_functions_in_clean_isolated_processes": true,
+    "diagnostic_may_not_read_scientific_state_manifests_expected_frontiers_transition_blueprints_or_historical_actions": true,
+    "diagnostic_result_may_only_select_a_prospective_transport_repair_and_may_not_promote_scientific_or_transport_results": true
+  }
+}
