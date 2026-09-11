@@ -1,0 +1,73 @@
+{
+  "schema": "replaymark.ve3.gate2-public-execution-preinput-failure.v1",
+  "status": "PRE_INPUT_SOURCE_ANCESTRY_PROOF_FAILURE",
+  "authority_role": "IMMUTABLE_PUBLIC_EXECUTION_FAILURE_SEAL",
+  "public_open_commit": "b52056cf206edfd2947a4324aaf6dbaf738de776",
+  "public_source_freeze_commit": "db18ca04a593cfad12d569c6942a8324a15bce68",
+  "private_protocol_commit": "6e4721894f24f27b69e4f2f2396defc77a581b60",
+  "private_source_freeze_commit": "6caac34fea960018a0c2c9716ae92d995c368618",
+  "private_preinput_failure_seal_commit": "72994fc3d784d3277b2be412ed10ac348bd99afa",
+  "github_actions": {
+    "run_id": 34561826719,
+    "run_attempt": 1,
+    "job_id": 103145972747,
+    "workflow": "VE3 Gate 2 Public Census V1",
+    "head_sha": "b52056cf206edfd2947a4324aaf6dbaf738de776",
+    "conclusion": "failure"
+  },
+  "passed_before_failure": [
+    "runner assignment and setup",
+    "pinned actions/checkout execution",
+    "exact one-file OPEN gate",
+    "OPEN lineage values",
+    "public runner Git blob equals private frozen runner blob 80bed2044d191df3d861d9cbcf1c2aba232579ca",
+    "public validator Git blob equals private frozen validator blob 60b6e77a4bd45e5fab50d12c32e6264a86dc5cdc"
+  ],
+  "earliest_failure_boundary": "PUBLIC_SOURCE_FREEZE_PARENT_ANCESTRY_ASSERTION_BEFORE_DEPENDENCY_INSTALL_AND_BEFORE_CENSUS_EXECUTION",
+  "root_cause": {
+    "classification": "SHALLOW_CHECKOUT_PROOF_DEFECT",
+    "checkout_fetch_depth": 2,
+    "required_local_commits_for_assertion": 3,
+    "failed_expression": "git rev-parse db18ca04a593cfad12d569c6942a8324a15bce68^",
+    "observed_error": "fatal: ambiguous argument 'db18ca04a593cfad12d569c6942a8324a15bce68^': unknown revision or path not in the working tree",
+    "interpretation": "OPEN and its parent source-freeze were fetched, but the source-freeze parent needed only for provenance validation was outside the depth-2 local checkout. No census input had been opened."
+  },
+  "scientific_hygiene": {
+    "host_parser_dependency_installed": false,
+    "census_runner_started": false,
+    "frozen_upstream_repository_clone_started": false,
+    "upstream_blueprint_body_opened_by_authority": false,
+    "upstream_history_opened_by_authority": false,
+    "adjacent_pair_enumeration_started": false,
+    "native_blueprint_parser_invoked": false,
+    "old_or_new_native_action_semantics_executed": false,
+    "compatibility_frontier_seen": false,
+    "replaymark_executed": false,
+    "target_attestation_executed": false,
+    "census_result_exposed": false,
+    "scientific_cells": 0
+  },
+  "step_disposition": {
+    "checkout": "PASS",
+    "open_gate": "PASS",
+    "source_identity_validation": "FAIL_PRE_INPUT",
+    "install_dependency": "SKIPPED",
+    "execute_census": "SKIPPED",
+    "bind_result": "SKIPPED",
+    "independent_result_validation": "SKIPPED",
+    "seal_result": "SKIPPED"
+  },
+  "authorized_successor_remediation": {
+    "allowed_change_only": "Increase checkout ancestry availability enough to prove source-freeze parent; minimum prospective correction is fetch-depth 2 to 3.",
+    "runner_blob_must_remain": "80bed2044d191df3d861d9cbcf1c2aba232579ca",
+    "validator_blob_must_remain": "60b6e77a4bd45e5fab50d12c32e6264a86dc5cdc",
+    "repository_universe_change": false,
+    "census_protocol_change": false,
+    "classifier_change": false,
+    "eligibility_rule_change": false,
+    "change_family_taxonomy_change": false,
+    "go_or_stop_criterion_change": false,
+    "same_authority_rerun": false,
+    "fresh_open_required": true
+  }
+}
