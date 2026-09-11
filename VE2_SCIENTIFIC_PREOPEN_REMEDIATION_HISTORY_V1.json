@@ -1,0 +1,54 @@
+{
+  "schema": "replaymark.ve2.scientific-preopen-remediation-history.v1",
+  "status": "FROZEN_BEFORE_SCIENTIFIC_OPEN",
+  "scientific_exposure": {
+    "scientific_result_opened": false,
+    "scientific_cells": 0,
+    "frontier_result_seen": false
+  },
+  "repairs": [
+    {
+      "id": "NATIVE_HISTORY_MANIFEST_BINDING",
+      "superseded": "ve2_scientific_native_execution_v1.py",
+      "selected": "ve2_scientific_native_execution_v2.py",
+      "defect": "The v1 handoff loader compared report.manifest_sha256 (raw mounted file bytes) with a canonical manifest recomputation.",
+      "repair_scope": "V2 changes only the handoff comparison to report.manifest_canonical_sha256 and delegates all execution semantics to frozen v1.",
+      "scientific_input_consumed_before_repair": false
+    },
+    {
+      "id": "POSTRUN_ACCOUNTING",
+      "superseded": "ve2_scientific_postrun_adjudicate_v1.py",
+      "intermediate": "ve2_scientific_postrun_adjudicate_v2.py",
+      "selected": "ve2_scientific_postrun_adjudicate_v3.py",
+      "defect": "V1 reported 176 scientific cells and also used 176 for raw_stage_instances; 176 is one-replica row count, while the authority has 352 row/cell instances and 16 raw stage artifacts.",
+      "repair_scope": "Selected v3 records 352 scientific row/cell instances, 16 raw stage artifacts, T01=16 and T02=336 without changing scientific adjudication semantics.",
+      "scientific_input_consumed_before_repair": false
+    },
+    {
+      "id": "POSTRUN_FRONTIER_IDENTITY_TYPE",
+      "superseded": "ve2_scientific_postrun_adjudicate_v1.py and v2",
+      "selected": "ve2_scientific_postrun_adjudicate_v3.py",
+      "defect": "Frozen frontier constants are 40-hex Git blob SHA-1 identities, but v1/v2 compared them to raw-file SHA-256.",
+      "repair_scope": "V3 computes the Git blob identity from exact file bytes before parsing either frontier, and only after the complete 16-stage raw seal.",
+      "scientific_input_consumed_before_repair": false
+    },
+    {
+      "id": "RUNTIME_INPUT_BYTE_TRANSPLANT",
+      "selected": "ve2_scientific_capsule_static_build_v1.py",
+      "defect_avoided": "Manual/model retransmission of large T02 blueprint text can change bytes even when semantics appear unchanged.",
+      "repair_scope": "Static qualification retrieves pinned upstream raw bytes, verifies SHA-256 plus Git blob identity, then copies bytes without parsing/reserialization. Original result-free manifests are projected to a smaller label-free runtime surface.",
+      "scientific_input_consumed_before_repair": false
+    }
+  ],
+  "authoritative_preopen_components": {
+    "native_execution": "ve2_scientific_native_execution_v2.py",
+    "native_execution_semantics_base": "ve2_scientific_native_execution_v1.py",
+    "strict_contract_runtime": "ve2_scientific_contract_runtime_v1.py",
+    "raw_independent_validator": "ve2_scientific_independent_validate_v1.py",
+    "all_raw_seal": "ve2_scientific_raw_seal_v1.py",
+    "postrun_adjudicator": "ve2_scientific_postrun_adjudicate_v3.py",
+    "runtime_bundle_builder": "ve2_scientific_capsule_static_build_v1.py",
+    "science_workflow_candidate": ".github/workflows/ve2-authoritative-first-complete-v1.yml"
+  },
+  "same_authority_rerun_after_result_exposure": false
+}
