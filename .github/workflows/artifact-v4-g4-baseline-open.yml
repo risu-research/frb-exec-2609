@@ -1,0 +1,294 @@
+name: artifact-v4 g4 blind dual-implementation baseline
+
+on:
+  push:
+    branches:
+      - artifact-v4-g4-baseline-open
+    paths:
+      - .github/workflows/artifact-v4-g4-baseline-open.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: artifact-v4-g4-blind-baseline
+  cancel-in-progress: false
+
+env:
+  PRIVATE_SOURCE_SHA: 84269307120bb85d48959f66d1117b65cd01406f
+  HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
+  FIXED_PROTOCOL_REF: 383ee2e1b192fda7c6ce3a9576d9c6a4eae0a77e
+  S3C0_LEGACY_PROTOCOL_REF: 23b7c85bca6cb85fde9f4361a0f9664d21c8ae8d
+  S3C0_LEGACY_OUTCOME_REF: ac20890bb4aa926e439802510de3723b74591c94
+  VE2_SHA: 25ebfd817420fa0f782419977e4ec166f6ca358a
+  PRESERVATION_BASE_SHA: b0ef07e121f70be8668873d7263b7c13d216c6a6
+
+jobs:
+  baseline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout exact public G4 carrier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Pre-open transport and runtime freeze
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'artifact-v4-g4-baseline-open'
+          test -n "$SOURCE_READ_TOKEN"
+          node --version | grep -Eq '^v24\.'
+          python3 - <<'PY'
+          import sys
+          assert sys.version_info[:2] == (3,12), sys.version
+          print('PYTHON_3_12=PASS')
+          PY
+          python3 -m json.tool artifact/v4-g4/G4_TRANSPORT_FREEZE_V1.json >/dev/null
+          test "$(git rev-parse $PRESERVATION_BASE_SHA^{tree})" = 'b1fd508c81d9597b88fe2710cb921c87f76852ce'
+          echo 'G4_PREOPEN_TRANSPORT=PASS'
+
+      - name: Checkout exact frozen private G4 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"
+          python3 tools/qx_private_source.py clone --sha "$PRIVATE_SOURCE_SHA" --dest "$SRC"
+          test "$(git -C "$SRC" rev-parse HEAD)" = "$PRIVATE_SOURCE_SHA"
+          git -C "$SRC" remote -v | grep -q . && { echo 'private remote survived checkout'; exit 1; } || true
+          echo 'PRIVATE_G4_EXACT_CHECKOUT=PASS'
+
+      - name: Verify frozen G4 identities before any baseline execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"
+          python3 - <<'PY'
+          import os, subprocess
+          from pathlib import Path
+          src=Path(os.environ['RUNNER_TEMP'])/'private-v4-g4'
+          expected={
+            'artifact_v4/V4_G4_BASELINE_OPEN_CONSTITUTION.json':'7d026917bc3c6df5791726c20d0bdc7b9d63161c',
+            'artifact_v4/V4_G4_SOURCE_FREEZE_V1.json':'b8de19de33332f62178dbe52094579f1bd013004',
+            'artifact_v4/verifier_b.mjs':'809efb0ff3a26ab096af97d2b73b68045cf4d8c8',
+            'artifact_v4/materialize_semantic_snapshots.py':'cf9d4ccc7cfe35f709ff983500b2f5b969be600e',
+            'artifact_v4/g4_prepare_pristine_b_inputs.py':'7f76e2903d193636c4c12b01ae53a099d2c5b36b',
+            'artifact_v4/g4_compare_blind_vectors.py':'51b62eaa50b1aca95df88d066be15d6cd500f574',
+            'artifact_v3/derive_whole_paper_v1.py':'2e7fb497f440902e1c3a7f813dd3fad0c2308af0',
+            'artifact_v3/compare_whole_paper_v1.py':'c2bcdfee5f61086a354df109d2a40e552594c09b',
+            'artifact_v3/CLAIM_LEDGER_V2_MANUSCRIPT_V92.json':'a6f6ac3b10244c1daaf8150ea9b1b045f8d19f18'
+          }
+          for rel,want in expected.items():
+              got=subprocess.check_output(['git','-C',str(src),'rev-parse',f'HEAD:{rel}'],text=True).strip()
+              assert got==want,(rel,got,want)
+          print('G4_FROZEN_IDENTITIES=PASS')
+          PY
+          node --check "$SRC/artifact_v4/verifier_b.mjs"
+          python3 -m py_compile "$SRC/artifact_v4/g4_prepare_pristine_b_inputs.py" "$SRC/artifact_v4/g4_compare_blind_vectors.py" "$SRC/artifact_v3/derive_whole_paper_v1.py" "$SRC/artifact_v3/compare_whole_paper_v1.py"
+
+      - name: Checkout exact historical authority graph including subauthorities
+        shell: bash
+        run: |
+          set -euo pipefail
+          HIST="$RUNNER_TEMP/historical"
+          git init -q "$HIST"
+          git -C "$HIST" remote add origin https://github.com/risu-research/appeal-discovery-consumer.git
+          git -C "$HIST" fetch -q --no-tags origin "$HISTORICAL_SHA" "$FIXED_PROTOCOL_REF" "$S3C0_LEGACY_PROTOCOL_REF" "$S3C0_LEGACY_OUTCOME_REF"
+          test "$(git -C "$HIST" rev-parse FETCH_HEAD)" = "$S3C0_LEGACY_OUTCOME_REF"
+          git -C "$HIST" checkout -q --detach "$HISTORICAL_SHA"
+          for x in "$HISTORICAL_SHA" "$FIXED_PROTOCOL_REF" "$S3C0_LEGACY_PROTOCOL_REF" "$S3C0_LEGACY_OUTCOME_REF"; do git -C "$HIST" cat-file -e "$x^{commit}"; done
+          git -C "$HIST" remote remove origin
+          echo 'HISTORICAL_AUTHORITY_GRAPH=PASS'
+
+      - name: Materialize exact VE2 pre-result authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch -q --no-tags origin "$VE2_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$VE2_SHA"
+          VE2="$RUNNER_TEMP/ve2"
+          git worktree add -q --detach "$VE2" "$VE2_SHA"
+          test "$(git -C "$VE2" rev-parse HEAD^{tree})" = '88f796f2e8ff361aa07925500c80b2ce0f8532e9'
+          echo 'VE2_PRE_RESULT_EXACT=PASS'
+
+      - name: Blind-open Verifier A and seal before B runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; HIST="$RUNNER_TEMP/historical"; VE2="$RUNNER_TEMP/ve2"; OUT="$RUNNER_TEMP/g4-out"
+          mkdir -p "$OUT"
+          python3 "$SRC/artifact_v3/derive_whole_paper_v1.py" --source_root "$SRC" --historical_root "$HIST" --public_root "$GITHUB_WORKSPACE" --ve2_root "$VE2" --out "$OUT/A_DERIVED_WRAPPER.json"
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g4-out'; p=out/'A_DERIVED_WRAPPER.json'; x=json.loads(p.read_text())
+          assert x['status']=='DERIVED_WITHOUT_MANUSCRIPT_EXPECTED_VALUES' and x['claim_count']==42
+          assert x['derivation_law']['claim_ledger_read'] is False and x['derivation_law']['manuscript_expected_values_read'] is False
+          (out/'A_CLAIM_VECTOR.json').write_text(json.dumps(x['claims'],indent=2,sort_keys=True)+'\n')
+          H=lambda q:hashlib.sha256(q.read_bytes()).hexdigest()
+          seal={'schema':'replaymark.artifact-v4.g4-A-blind-seal.v1','status':'A_SEALED_BEFORE_B_RUNTIME','claim_count':42,'wrapper_sha256':H(p),'claim_vector_sha256':H(out/'A_CLAIM_VECTOR.json'),'B_output_read':False,'expected_values_read':False}
+          (out/'A_BLIND_SEAL.json').write_text(json.dumps(seal,indent=2,sort_keys=True)+'\n')
+          print('A_BLIND_DERIVATION_SEALED=PASS')
+          PY
+
+      - name: Prepare pristine B role inputs without A or expected-value access
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; HIST="$RUNNER_TEMP/historical"; VE2="$RUNNER_TEMP/ve2"; PREP="$RUNNER_TEMP/b-prep"
+          python3 "$SRC/artifact_v4/g4_prepare_pristine_b_inputs.py" --source_root "$SRC" --historical_root "$HIST" --public_root "$GITHUB_WORKSPACE" --ve2_root "$VE2" --out_dir "$PREP"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'b-prep'/'B_INPUT_MATERIALIZATION_RECEIPT.json'; x=json.loads(p.read_text())
+          assert x['status']=='PASS_PRISTINE_INPUT_MATERIALIZATION' and x['role_count']==23 and x['expected_values_read'] is False and x['verifier_a_output_read'] is False and x['mutations_applied']==0
+          print('B_PRISTINE_INPUTS=PASS')
+          PY
+
+      - name: Build physically sanitized B runtime workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; PREP="$RUNNER_TEMP/b-prep"; BBOX="$RUNNER_TEMP/b-sandbox"
+          mkdir -p "$BBOX"
+          cp "$SRC/artifact_v4/verifier_b.mjs" "$BBOX/verifier_b.mjs"
+          python3 - <<'PY'
+          import json,os,shutil
+          from pathlib import Path
+          t=Path(os.environ['RUNNER_TEMP']); prep=t/'b-prep'; box=t/'b-sandbox'
+          m=json.loads((prep/'B_INPUT_MANIFEST.json').read_text())
+          shutil.copyfile(prep/'B_INPUT_MANIFEST.json',box/'B_INPUT_MANIFEST.json')
+          for rec in m['roles'].values(): shutil.copyfile(prep/rec['path'],box/rec['path'])
+          allowed={'verifier_b.mjs','B_INPUT_MANIFEST.json'}|{r['path'] for r in m['roles'].values()}
+          got={p.name for p in box.iterdir() if p.is_file()}
+          assert got==allowed,(sorted(got-allowed),sorted(allowed-got))
+          assert len(m['roles'])==23
+          print(f'B_SANDBOX_FILE_COUNT={len(got)}')
+          PY
+          ! find "$BBOX" -type f | grep -E 'CLAIM_LEDGER|DERIVED_CLAIMS|WHOLE_PAPER|DEPENDENCY_GRAPH|CHALLENGE|docx|pdf'
+          echo 'B_SANITIZED_RUNTIME=PASS'
+
+      - name: Blind-open Verifier B in sanitized workspace and seal
+        shell: bash
+        run: |
+          set -euo pipefail
+          BBOX="$RUNNER_TEMP/b-sandbox"; OUT="$RUNNER_TEMP/g4-out"
+          (cd "$BBOX" && node ./verifier_b.mjs --manifest ./B_INPUT_MANIFEST.json --out "$OUT/B_CLAIM_VECTOR.json" --trace-out "$OUT/B_DERIVATION_TRACE.json")
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g4-out'; b=json.loads((out/'B_CLAIM_VECTOR.json').read_text()); tr=json.loads((out/'B_DERIVATION_TRACE.json').read_text())
+          assert len(b)==42 and tr['expected_values_read'] is False and tr['verifier_a_output_read'] is False and tr['network_used'] is False and tr['package_installation'] is False
+          H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          seal={'schema':'replaymark.artifact-v4.g4-B-blind-seal.v1','status':'B_SEALED_BEFORE_A_B_COMPARISON','claim_count':len(b),'claim_vector_sha256':H(out/'B_CLAIM_VECTOR.json'),'trace_sha256':H(out/'B_DERIVATION_TRACE.json'),'A_output_read':False,'expected_values_read':False,'sanitized_runtime':True}
+          (out/'B_BLIND_SEAL.json').write_text(json.dumps(seal,indent=2,sort_keys=True)+'\n')
+          print('B_BLIND_DERIVATION_SEALED=PASS')
+          PY
+
+      - name: Compare sealed A and B without opening expected values
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; OUT="$RUNNER_TEMP/g4-out"; CMP="$RUNNER_TEMP/compare-sandbox"
+          mkdir -p "$CMP"; cp "$SRC/artifact_v4/g4_compare_blind_vectors.py" "$CMP/compare.py"
+          python3 "$CMP/compare.py" --a "$OUT/A_CLAIM_VECTOR.json" --b "$OUT/B_CLAIM_VECTOR.json" --out "$OUT/A_B_BLIND_COMPARISON.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'g4-out'/'A_B_BLIND_COMPARISON.json').read_text())
+          print('A_B_STATUS='+x['status'])
+          print('A_B_DIFF_COUNT='+str(x['diff_count']))
+          PY
+
+      - name: Enforce A equals B before any v92 open
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'g4-out'/'A_B_BLIND_COMPARISON.json').read_text())
+          assert x['status']=='A_B_EXACT_MATCH' and x['deep_json_equal'] is True and x['diff_count']==0, x['first_diffs']
+          assert x['A_claim_count']==42 and x['B_claim_count']==42
+          print('A_B_EXACT_42_CLAIM_MATCH=PASS')
+          PY
+
+      - name: Only now open frozen v92 comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; OUT="$RUNNER_TEMP/g4-out"
+          python3 "$SRC/artifact_v3/compare_whole_paper_v1.py" --source-root "$SRC" --derived "$OUT/A_DERIVED_WRAPPER.json" --out "$OUT/V92_COMPARISON_RECEIPT.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'g4-out'/'V92_COMPARISON_RECEIPT.json').read_text())
+          assert x['status']=='PASS_WHOLE_PAPER_V3'
+          assert x['claim_summary']=={'total':42,'pass':42,'fail':0}
+          assert all(i['pass'] for i in x['invariants']) and not x['mismatches']
+          print(f"V92_AFTER_AB_MATCH=PASS;INVARIANTS={len(x['invariants'])}/{len(x['invariants'])}")
+          PY
+
+      - name: Seal G4 baseline receipt and checksums
+        shell: bash
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          PUBLIC_HEAD: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/g4-out"
+          python3 - <<'PY'
+          import hashlib,json,os,subprocess
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g4-out'
+          H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          ab=json.loads((out/'A_B_BLIND_COMPARISON.json').read_text()); v=json.loads((out/'V92_COMPARISON_RECEIPT.json').read_text())
+          receipt={
+            'schema':'replaymark.artifact-v4.g4-baseline-dual-implementation-receipt.v1',
+            'status':'PASS_G4_BASELINE_DUAL_IMPLEMENTATION',
+            'public_run_id':int(os.environ['RUN_ID']),'public_run_attempt':int(os.environ['RUN_ATTEMPT']),'public_execution_head':os.environ['PUBLIC_HEAD'],
+            'private_source_commit':os.environ['PRIVATE_SOURCE_SHA'],
+            'A_claim_count':ab['A_claim_count'],'B_claim_count':ab['B_claim_count'],'A_B_exact_match':ab['deep_json_equal'],'A_B_diff_count':ab['diff_count'],
+            'A_claim_vector_sha256':H(out/'A_CLAIM_VECTOR.json'),'B_claim_vector_sha256':H(out/'B_CLAIM_VECTOR.json'),
+            'A_blind_seal_sha256':H(out/'A_BLIND_SEAL.json'),'B_blind_seal_sha256':H(out/'B_BLIND_SEAL.json'),'A_B_comparison_sha256':H(out/'A_B_BLIND_COMPARISON.json'),
+            'v92_comparison_sha256':H(out/'V92_COMPARISON_RECEIPT.json'),'v92_status':v['status'],'v92_claim_summary':v['claim_summary'],'v92_invariants_pass':sum(1 for i in v['invariants'] if i['pass']),'v92_invariants_total':len(v['invariants']),'v92_mismatch_count':len(v['mismatches']),
+            'open_order_observed':['A_SEALED','B_SEALED','A_B_COMPARED','V92_OPENED_AFTER_MATCH'],
+            'B_expected_values_read':False,'B_A_output_read':False,'challenge_executed':False,'metamorphic_transform_executed':False,
+            'new_scientific_measurement':False,'historical_experiment_rerun':False,'authority_replacement':False
+          }
+          assert receipt['A_claim_count']==42 and receipt['B_claim_count']==42 and receipt['A_B_exact_match'] and receipt['A_B_diff_count']==0
+          assert receipt['v92_status']=='PASS_WHOLE_PAPER_V3' and receipt['v92_claim_summary']=={'total':42,'pass':42,'fail':0} and receipt['v92_mismatch_count']==0 and receipt['v92_invariants_pass']==receipt['v92_invariants_total']
+          (out/'G4_BASELINE_RECEIPT.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          names=['A_DERIVED_WRAPPER.json','A_CLAIM_VECTOR.json','A_BLIND_SEAL.json','B_CLAIM_VECTOR.json','B_DERIVATION_TRACE.json','B_BLIND_SEAL.json','A_B_BLIND_COMPARISON.json','V92_COMPARISON_RECEIPT.json','G4_BASELINE_RECEIPT.json']
+          (out/'SHA256SUMS.txt').write_text('\n'.join(f"{H(out/n)}  {n}" for n in names)+'\n')
+          print('G4_BASELINE_RECEIPT=PASS')
+          PY
+          cd "$OUT" && sha256sum -c SHA256SUMS.txt
+
+      - name: Upload immutable G4 baseline capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: replaymark-artifact-v4-g4-blind-baseline-pass-candidate
+          path: |
+            ${{ runner.temp }}/g4-out/A_DERIVED_WRAPPER.json
+            ${{ runner.temp }}/g4-out/A_CLAIM_VECTOR.json
+            ${{ runner.temp }}/g4-out/A_BLIND_SEAL.json
+            ${{ runner.temp }}/g4-out/B_CLAIM_VECTOR.json
+            ${{ runner.temp }}/g4-out/B_DERIVATION_TRACE.json
+            ${{ runner.temp }}/g4-out/B_BLIND_SEAL.json
+            ${{ runner.temp }}/g4-out/A_B_BLIND_COMPARISON.json
+            ${{ runner.temp }}/g4-out/V92_COMPARISON_RECEIPT.json
+            ${{ runner.temp }}/g4-out/G4_BASELINE_RECEIPT.json
+            ${{ runner.temp }}/g4-out/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 90
