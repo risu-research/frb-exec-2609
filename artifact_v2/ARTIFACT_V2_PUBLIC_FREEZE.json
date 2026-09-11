@@ -42,7 +42,7 @@
     "workflow_result": "success",
     "preserved_zip_count": 8,
     "preserved_zip_total_bytes": 47541033,
-    "preservation_receipt_sha256": "bcd6fbef3d04b8bccf33e2b3987f93a88f6c71c0fd1c557f1dbe617bb716cf43",
+    "preservation_receipt_sha256": "89955470c09f7a74e06c2a26fe49f4f5f854092b82233c14f9520a6977728f8b",
     "paper_view_sha256": "076ffb6d12dd509775de441f5fff5f124b79a0acf15bba4c66b35a5c8bbcbce8",
     "offline_verification_sha256": "5ca0b4cbfee164bf2032f59365bca5690e0de72d36ab8f89b0c5a1e5dbcdb70e",
     "source_run_snapshot_sha256": "d5288de282be0f6d30008bebe75de1ee3c7eb7526a3389fb43a974ea0a3d0d62"
