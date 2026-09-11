@@ -149,6 +149,12 @@ jobs:
           PY
           sha256sum -c artifact_v2/preserved/PRESERVED_FILES_SHA256.txt
 
+      - name: Remove ephemeral extraction workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf work
+
       - name: Fail closed on any out-of-scope working-tree delta
         shell: bash
         run: |
