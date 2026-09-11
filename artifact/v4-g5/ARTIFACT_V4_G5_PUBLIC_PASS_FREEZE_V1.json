@@ -1,0 +1,120 @@
+{
+  "schema": "replaymark.artifact-v4.g5-public-pass-freeze.v1",
+  "status": "FROZEN_ARTIFACT_V4_G5_POSTMISS_PASS",
+  "scope": "Freeze the completed Artifact V4 G5 adversarial/metamorphic campaign after a fresh 49+8 execution and independent evidence redownload/recomputation. This freezes V4 campaign history only; it does not prohibit future ReplayMark research or later prospectively versioned artifacts.",
+  "public_execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "artifact-v4-g5-postmiss-fresh-open",
+    "workflow_path": ".github/workflows/artifact-v4-g5-postmiss-fresh-open.yml",
+    "workflow_git_blob": "1f018b707e8df55df180614b7d25ce7c86a476a3",
+    "run_id": 34654381011,
+    "job_id": 103443473100,
+    "run_attempt": 1,
+    "execution_head": "055c6d13822907fa8692fc83cab303534185dd2b",
+    "run_conclusion": "success"
+  },
+  "private_frozen_source": {
+    "repository": "risu-research/replaymark",
+    "branch": "artifact-v4-g5-adversarial-open",
+    "source_commit": "6e44eaee0cbf3048614493d139907a712db28446",
+    "postmiss_source_freeze_path": "artifact_v4/V4_G5_POSTMISS_SOURCE_FREEZE_V1.json",
+    "postmiss_source_freeze_git_blob": "8f3fb1ead275aebabef8bd8fbf987313e8a4c155",
+    "outer_executor_git_blob": "297ae5349f83324d087406a9cd040bf5ed7b52b3",
+    "inner_postmiss_executor_git_blob": "2d5e2cae6f1f81fd3739c9576bbbc5ede33c8621",
+    "original_G5_executor_git_blob": "de465001c50cbd349a700d99dbc7fb09d17e2d39",
+    "base_executor_repair_materializer_git_blob": "5516d162924bfc9348e8b9982ea6fca706325092",
+    "Bv2_materializer_git_blob": "063ff2abf66a980d81f9f78a14c304c22a1eba15",
+    "qualified_Bv2_pass_seal_git_blob": "b46b4bcfe28e63044d0a1133456a332ac4cc8bf8",
+    "postmiss_remediation_constitution_git_blob": "bcb4eea889619ee4f0b4220563739807575f33f5",
+    "C49_independent_twin_freeze_git_blob": "2bfd9a4fb4d68416d46e16a9858185eac8585635"
+  },
+  "materialized_program_identities": {
+    "repaired_base_executor_sha256": "481e73b0ed5ff82c89ebce0fe586f0386ec3a2fb9cc03d216add4ea672344145",
+    "qualified_Verifier_B_v2_sha256": "66f51c48cb8baa9edc254852a5b35df5063a979e41dca063c7a0bf0b47c340e3",
+    "pristine_G4_B_vector_sha256": "65b2b519b45315589d885d75d17dc716b255db5c88612652b6201dca93b5103c",
+    "pristine_claim_count": 42
+  },
+  "fresh_campaign_result": {
+    "campaign_status": "PASS_G5_POSTMISS_ADVERSARIAL_AND_METAMORPHIC_CHALLENGE",
+    "consequential_challenges": "49/49 DETECTED",
+    "original_consequential_challenges_preserved": 48,
+    "independent_twin_challenges": 1,
+    "metamorphic_challenges": "8/8 STABLE",
+    "consequential_false_negatives": 0,
+    "metamorphic_false_positives": 0,
+    "applicable_A_B_detection_disagreements": 0,
+    "unexplained_extra_kills": 0,
+    "dynamic_obligation_coverage": "60/60",
+    "dynamic_obligations_missing": [],
+    "dynamic_obligations_extra": [],
+    "static_obligation_coverage": "60/60",
+    "claim_to_authority_edge_coverage": "56/56",
+    "authority_node_exercise": "19/19",
+    "V3_extraction_asymmetry_surface_coverage": "16/16",
+    "original_C14_detected": true,
+    "independent_C49_twin_detected": true,
+    "post_hoc_reselection": 0
+  },
+  "evidence_capsule": {
+    "artifact_id": 10284868064,
+    "artifact_name": "replaymark-artifact-v4-g5-postmiss-pass-candidate",
+    "size_bytes": 4098281,
+    "expires_at": "2026-12-10T22:31:32Z",
+    "github_digest": "sha256:cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "independent_redownload_sha256": "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "github_digest_matches_independent_redownload": true,
+    "all_recursive_SHA256SUMS_entries_verified": true,
+    "internal_sha256": {
+      "G5_POSTMISS_CAMPAIGN_RECEIPT.json": "5a15c41f569f8505f86219594f3c7548fb83833c576a78dc441301074793c827",
+      "G5_POSTMISS_CASE_RESULTS.json": "84b040774ed5ab1d17da64ed82acb57942c07be6596ac0f934d9952d86baf671",
+      "G5_POSTMISS_EVIDENCE_INDEX.json": "b6db5a2c21cbbafd91d5f405fe4249eb52d31d127329e9c157a74da12c2c36fc",
+      "G5_POSTMISS_OUTER_PREFLIGHT_RECEIPT.json": "0288ca3e3614f9bd8ad45c0b5338b7400222577785dbab927e1fff489e8cf810",
+      "POSTMISS_MATERIALIZATION_BINDING_RECEIPT.json": "848d97349a4059dc198c3a7033bdc28caaf88d5769c98dd6e17a8788045f2a7a",
+      "BV2_MATERIALIZATION_RECEIPT.json": "7768c0cf79cdb961bd6d3e95a9bb204b7c9d9cf72a3ff543674aab84ce839ca1",
+      "G5_POSTMISS_PRISTINE_BASELINE_SEAL.json": "e8eab66f5bce7def9165b43d9a51c5226a88d6f15958a524e2941d8cf9f61f5b",
+      "PRISTINE_B_VECTOR.json": "65b2b519b45315589d885d75d17dc716b255db5c88612652b6201dca93b5103c",
+      "PRISTINE_B_TRACE.json": "8da32289a932bf80868a3ef35e1ca3f00c982bec064214912e9d4948abe880cb",
+      "SHA256SUMS.txt": "1f7412c0513fb8428bfa913f7e43fd8df6acb656b80ecd7caa1ddb3745b41a4b"
+    }
+  },
+  "independent_redownload_audit": {
+    "path": "artifact/v4-g5/ARTIFACT_V4_G5_INDEPENDENT_REDOWNLOAD_AUDIT_V1.json",
+    "git_blob": "ab83e8d9503692524c4e6a308f694d3770d506d9",
+    "local_audit_sha256_before_publication": "ea7bc02ea2da154aa4dbc2ccbdd5f4d5b855c9e5c33427e0001188d70de8ce04",
+    "status": "PASS_INDEPENDENT_REDOWNLOAD_AND_RECOMPUTATION",
+    "independently_recomputed_dynamic_union": "60/60",
+    "all_49_consequential_records_DETECTED": true,
+    "all_8_metamorphic_records_STABLE": true,
+    "C14_detection_mode": "FAIL_CLOSED",
+    "C49_detection_mode": "FAIL_CLOSED"
+  },
+  "preserved_failure_history": {
+    "V3_Run1_and_Run2_failures_preserved": true,
+    "G5_Run1_partial_failure_preserved": true,
+    "G5_Run2_preopen_hash_failure_preserved": true,
+    "G5_original_complete_Run2_FAIL_preserved": true,
+    "G5_original_complete_Run2_failure_seal_git_blob": "183e628c0133fe0b696bf438a0d6f736e8b4d9f7",
+    "original_C14_substantive_miss_preserved": true,
+    "C37_and_C47_scorer_overconstraint_history_preserved": true,
+    "Bv2_pristine_qualification_Run1_failure_preserved": true,
+    "Bv2_pristine_qualification_Run2_failure_preserved": true,
+    "no_retroactive_pass_claimed_for_any_failed_run": true
+  },
+  "scientific_noninterference": {
+    "new_measurement": false,
+    "historical_experiment_rerun": false,
+    "canonical_authority_replacement": false,
+    "manuscript_change": false,
+    "Verifier_A_change": false,
+    "Verifier_B_change_from_G4": true,
+    "Verifier_B_change_was_prospectively_authorized_only_after_preserved_G5_miss": true,
+    "challenge_suite_weakened": false,
+    "pass_threshold_lowered": false
+  },
+  "closure": {
+    "this_V4_G5_campaign_is_immutable_after_this_freeze": true,
+    "future_ReplayMark_research_is_permitted": true,
+    "future_versions_must_use_new_prospective_identity": true,
+    "future_work_may_build_on_but_not_rewrite_this_history": true
+  }
+}
