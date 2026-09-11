@@ -1,0 +1,316 @@
+name: VE2 scientific preopen static qualification v2
+
+on:
+  push:
+    branches:
+      - ve2-scientific-static-qualification-v2
+
+permissions:
+  contents: write
+
+env:
+  V1_FAILURE_SEAL: 16245ba7500a81ccff18f9380b1be3e5d7a63f23
+  OUTPUT_BRANCH: ve2-scientific-capsule-sealed-v1
+  SCIENCE_BRANCH: ve2-scientific-authority-v1
+  T01_OLD_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e
+  T01_TARGET_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7
+  T02_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+
+jobs:
+  qualify-and-seal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 220
+
+      - name: Enforce exact v2 static OPEN and packaging-only successor lineage
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test -f VE2_SCIENTIFIC_STATIC_QUALIFICATION_OPEN_V2.json
+          source_freeze="$(git rev-parse HEAD^)"
+          git merge-base --is-ancestor "$V1_FAILURE_SEAL" "$source_freeze"
+          mapfile -t open_delta < <(git diff --name-only "$source_freeze..HEAD" | LC_ALL=C sort)
+          test "${#open_delta[@]}" = '1'
+          test "${open_delta[0]}" = 'VE2_SCIENTIFIC_STATIC_QUALIFICATION_OPEN_V2.json'
+          mapfile -t source_delta < <(git diff --name-only "$V1_FAILURE_SEAL..$source_freeze" | LC_ALL=C sort)
+          expected=(
+            '.github/workflows/ve2-scientific-static-qualification-v2.yml'
+            'VE2_SCIENTIFIC_STATIC_PACKAGING_REMEDIATION_V2.json'
+          )
+          test "${#source_delta[@]}" = "${#expected[@]}"
+          for i in "${!expected[@]}"; do test "${source_delta[$i]}" = "${expected[$i]}"; done
+          if git ls-tree -r --name-only "$source_freeze" | grep -Eq '^VE2_SCIENTIFIC_AUTHORITY_OPEN'; then
+            echo 'scientific OPEN exists in v2 source freeze' >&2
+            exit 2
+          fi
+          if git ls-remote --exit-code origin "refs/heads/$SCIENCE_BRANCH" >/dev/null 2>&1; then
+            echo 'scientific authority branch already exists' >&2
+            exit 2
+          fi
+          if git ls-remote --exit-code origin "refs/heads/$OUTPUT_BRANCH" >/dev/null 2>&1; then
+            echo 'sealed runtime branch already exists before successor qualification' >&2
+            exit 2
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          opened=json.loads(Path('VE2_SCIENTIFIC_STATIC_QUALIFICATION_OPEN_V2.json').read_text())
+          assert opened['schema']=='replaymark.ve2.scientific-static-qualification-open.v2'
+          assert opened['status']=='OPEN_STATIC_SUCCESSOR_PACKAGING_REPAIR_ONLY'
+          assert opened['predecessor_failure_seal']=='16245ba7500a81ccff18f9380b1be3e5d7a63f23'
+          assert opened['scientific_result_opened'] is False
+          assert opened['scientific_cells']==0
+          assert opened['frontier_result_seen'] is False
+          assert opened['science_open_authorized'] is False
+          remediation=json.loads(Path('VE2_SCIENTIFIC_STATIC_PACKAGING_REMEDIATION_V2.json').read_text())
+          assert remediation['repair']['scope']=='PACKAGING_ONLY'
+          assert remediation['repair']['scientific_semantics_changed'] is False
+          assert remediation['successor_law']['successful_subset_carry_forward'] is False
+          PY
+          echo "source_freeze=$source_freeze" >> "$GITHUB_OUTPUT"
+
+      - name: Reprove unchanged scientific source firewall from scratch
+        shell: bash
+        env:
+          SOURCE_FREEZE: ${{ steps.gate.outputs.source_freeze }}
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/static
+          python -m py_compile \
+            ve2_scientific_capsule_static_build_v1.py \
+            ve2_scientific_contract_runtime_v1.py \
+            ve2_scientific_independent_validate_v1.py \
+            ve2_scientific_native_execution_v1.py \
+            ve2_scientific_native_execution_v2.py \
+            ve2_scientific_postrun_adjudicate_v1.py \
+            ve2_scientific_postrun_adjudicate_v2.py \
+            ve2_scientific_postrun_adjudicate_v3.py \
+            ve2_scientific_preflight_driver_v1.py \
+            ve2_scientific_preflight_validate_v1.py \
+            ve2_scientific_raw_seal_v1.py \
+            ve2_scientific_static_verify_v1.py
+          python ve2_scientific_static_verify_v1.py \
+            --source-freeze "$SOURCE_FREEZE" \
+            --out qualification/static/VE2_SCIENTIFIC_STATIC_SOURCE_VALIDATION_V1.json \
+            > qualification/static/STDOUT.txt 2> qualification/static/STDERR.txt
+
+      - name: Retrieve exact pinned upstream blueprint bytes afresh
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/upstream
+          curl --fail --silent --show-error --location --retry 3 --proto '=https' --tlsv1.2 \
+            'https://raw.githubusercontent.com/KartoffelToby/better_thermostat/cd4c3121c92f59d5ac1f3533424bc570209ce6ef/blueprints/night_mode.yaml' \
+            -o qualification/upstream/T01_OLD.yaml
+          curl --fail --silent --show-error --location --retry 3 --proto '=https' --tlsv1.2 \
+            'https://raw.githubusercontent.com/KartoffelToby/better_thermostat/96ae2f87b3b1a1b095dbf1f74f37f63fbc34c32f/blueprints/night_mode.yaml' \
+            -o qualification/upstream/T01_NEW.yaml
+          curl --fail --silent --show-error --location --retry 3 --proto '=https' --tlsv1.2 \
+            'https://raw.githubusercontent.com/KartoffelToby/better_thermostat/ac189909982c5edea1260e767027d6fad90ef4bd/blueprints/weekly_heating_schedule.yaml' \
+            -o qualification/upstream/T02_OLD.yaml
+          curl --fail --silent --show-error --location --retry 3 --proto '=https' --tlsv1.2 \
+            'https://raw.githubusercontent.com/KartoffelToby/better_thermostat/5b4496de5659fd2c6ec5c67a9797e6659797866c/blueprints/weekly_heating_schedule.yaml' \
+            -o qualification/upstream/T02_NEW.yaml
+
+      - name: Rebuild answer-free byte-preserving runtime bundle from scratch
+        shell: bash
+        env:
+          SOURCE_FREEZE: ${{ steps.gate.outputs.source_freeze }}
+        run: |
+          set -euo pipefail
+          python ve2_scientific_capsule_static_build_v1.py \
+            --t01-manifest VE2_T01_EXECUTION_STATE_MANIFEST_V1.json \
+            --t02-manifest VE2_T02_EXECUTION_STATE_MANIFEST_V1.json \
+            --t01-old-blueprint qualification/upstream/T01_OLD.yaml \
+            --t01-new-blueprint qualification/upstream/T01_NEW.yaml \
+            --t02-old-blueprint qualification/upstream/T02_OLD.yaml \
+            --t02-new-blueprint qualification/upstream/T02_NEW.yaml \
+            --source-freeze "$SOURCE_FREEZE" \
+            --out-dir qualification/runtime \
+            > qualification/RUNTIME_BUILD_STDOUT.txt 2> qualification/RUNTIME_BUILD_STDERR.txt
+
+      - name: Reverify exact Home Assistant image versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/images
+          verify_image() {
+            local role="$1" image="$2" expected="$3"
+            docker pull "$image" >/dev/null
+            docker image inspect "$image" > "qualification/images/${role}_INSPECT.json"
+            observed="$(docker run --rm --network none --entrypoint python3 "$image" -c 'from homeassistant.const import __version__; print(__version__)')"
+            test "$observed" = "$expected"
+            printf '%s\n' "$observed" > "qualification/images/${role}_VERSION.txt"
+          }
+          verify_image T01_OLD "$T01_OLD_IMAGE" '2022.10.0'
+          verify_image T01_TARGET "$T01_TARGET_IMAGE" '2026.1.0'
+          verify_image T02 "$T02_IMAGE" '2026.9.0'
+
+      - name: Rerun all four serial zero-stimulus blueprint preflights
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qualification/preflight
+          chmod 0777 qualification/preflight
+          common_mounts=(
+            -v "$PWD/ve2_scientific_native_execution_v1.py:/work/ve2_scientific_native_execution_v1.py:ro"
+            -v "$PWD/ve2_scientific_native_execution_v2.py:/work/ve2_scientific_native_execution_v2.py:ro"
+            -v "$PWD/ve2_scientific_preflight_driver_v1.py:/work/runner.py:ro"
+            -v "$PWD/ve2_scientific_contract_runtime_v1.py:/work/ve2_scientific_contract_runtime_v1.py:ro"
+            -v "$PWD/ve2_e0r_semantic_boundary_v1.py:/work/ve2_e0r_semantic_boundary_v1.py:ro"
+            -v "$PWD/ve2_science_transport_qualify_v3.py:/work/ve2_science_transport_qualify_v3.py:ro"
+            -v "$PWD/ve2_science_transport_qualify_v4.py:/work/ve2_science_transport_qualify_v4.py:ro"
+            -v "$PWD/ve2_science_transport_qualify_v5.py:/work/ve2_science_transport_qualify_v5.py:ro"
+            -v "$PWD/ve2_science_transport_qualify_v6.py:/work/ve2_science_transport_qualify_v6.py:ro"
+            -v "$PWD/qualification/preflight:/results"
+          )
+          preflight() {
+            local role="$1" transition="$2" source_role="$3" image="$4" blueprint="$5"
+            docker run --rm --network none "${common_mounts[@]}" \
+              -v "$blueprint:/input/blueprint.yaml:ro" \
+              --entrypoint python3 "$image" /work/runner.py \
+              --transition "$transition" --preflight-only --source-role "$source_role" \
+              --blueprint /input/blueprint.yaml --out "/results/${role}.json" \
+              > "qualification/preflight/${role}_STDOUT.txt" \
+              2> "qualification/preflight/${role}_STDERR.txt"
+          }
+          preflight T01_OLD T01 old "$T01_OLD_IMAGE" "$PWD/qualification/runtime/blueprints/T01_OLD_NIGHT_MODE.yaml"
+          preflight T01_NEW T01 new "$T01_TARGET_IMAGE" "$PWD/qualification/runtime/blueprints/T01_NEW_NIGHT_MODE.yaml"
+          preflight T02_OLD T02 old "$T02_IMAGE" "$PWD/qualification/runtime/blueprints/T02_OLD_WEEKLY_HEATING_SCHEDULE.yaml"
+          preflight T02_NEW T02 new "$T02_IMAGE" "$PWD/qualification/runtime/blueprints/T02_NEW_WEEKLY_HEATING_SCHEDULE.yaml"
+
+      - name: Independently revalidate all four zero-stimulus preflights
+        shell: bash
+        run: |
+          set -euo pipefail
+          python ve2_scientific_preflight_validate_v1.py \
+            --t01-old qualification/preflight/T01_OLD.json \
+            --t01-new qualification/preflight/T01_NEW.json \
+            --t02-old qualification/preflight/T02_OLD.json \
+            --t02-new qualification/preflight/T02_NEW.json \
+            --out qualification/preflight/VE2_SCIENTIFIC_PREFLIGHT_INDEPENDENT_VALIDATION_V1.json \
+            > qualification/preflight/VALIDATOR_STDOUT.txt \
+            2> qualification/preflight/VALIDATOR_STDERR.txt
+
+      - name: Seal v2 static qualification evidence and result
+        shell: bash
+        env:
+          SOURCE_FREEZE: ${{ steps.gate.outputs.source_freeze }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          def fsha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          static=json.loads(Path('qualification/static/VE2_SCIENTIFIC_STATIC_SOURCE_VALIDATION_V1.json').read_text())
+          pre=json.loads(Path('qualification/preflight/VE2_SCIENTIFIC_PREFLIGHT_INDEPENDENT_VALIDATION_V1.json').read_text())
+          bundle=json.loads(Path('qualification/runtime/VE2_SCIENTIFIC_RUNTIME_BUNDLE_RECEIPT_V1.json').read_text())
+          remediation=json.loads(Path('VE2_SCIENTIFIC_STATIC_PACKAGING_REMEDIATION_V2.json').read_text())
+          assert static['status']=='PASS'
+          assert pre['status']=='PASS'
+          assert bundle['status']=='PASS_PRE_SCIENCE_RUNTIME_BUNDLE'
+          assert remediation['repair']['scope']=='PACKAGING_ONLY'
+          result={
+            'schema':'replaymark.ve2.scientific-static-qualification-result.v2',
+            'status':'PASS_PRE_SCIENCE',
+            'predecessor_failure_seal':os.environ['V1_FAILURE_SEAL'],
+            'source_freeze':os.environ['SOURCE_FREEZE'],
+            'static_open_head':os.environ['GITHUB_SHA'],
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'successful_subset_carry_forward':False,
+            'static_source_validation_sha256':fsha('qualification/static/VE2_SCIENTIFIC_STATIC_SOURCE_VALIDATION_V1.json'),
+            'runtime_bundle_receipt_sha256':fsha('qualification/runtime/VE2_SCIENTIFIC_RUNTIME_BUNDLE_RECEIPT_V1.json'),
+            'preflight_validation_sha256':fsha('qualification/preflight/VE2_SCIENTIFIC_PREFLIGHT_INDEPENDENT_VALIDATION_V1.json'),
+            'science_workflow_sha256':fsha('.github/workflows/ve2-authoritative-first-complete-v1.yml'),
+            'packaging_repair_sha256':fsha('VE2_SCIENTIFIC_STATIC_PACKAGING_REMEDIATION_V2.json'),
+            'science_branch_created':False,
+            'science_open_created':False,
+            'scientific_exposure':{
+              'scientific_result_opened':False,
+              'scientific_cells':0,
+              'frontier_result_seen':False,
+              'trigger_stimulus_emitted':False,
+            },
+          }
+          raw=json.dumps(result,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+          result['result_sha256']=hashlib.sha256(raw).hexdigest()
+          Path('qualification/VE2_SCIENTIFIC_STATIC_QUALIFICATION_RESULT_V2.json').write_text(json.dumps(result,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd qualification && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+
+      - name: Create immutable content-addressed runtime capsule branch with frozen identity
+        id: seal
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code origin "refs/heads/$OUTPUT_BRANCH" >/dev/null 2>&1; then
+            echo 'sealed output branch already exists; refusing overwrite' >&2
+            exit 2
+          fi
+          git config --local user.name 'ReplayMark VE2 Static Seal'
+          git config --local user.email 'replaymark-ve2-static-seal@users.noreply.github.com'
+          test "$(git config --local user.name)" = 'ReplayMark VE2 Static Seal'
+          test "$(git config --local user.email)" = 'replaymark-ve2-static-seal@users.noreply.github.com'
+          index="$RUNNER_TEMP/ve2-static-v2-seal.index"
+          rm -f "$index"
+          export GIT_INDEX_FILE="$index"
+          git read-tree "$GITHUB_SHA"
+          add_exact() {
+            local src="$1" dest="$2"
+            local before after blob
+            before="$(sha256sum "$src" | awk '{print $1}')"
+            blob="$(git hash-object -w --no-filters "$src")"
+            after="$(git cat-file blob "$blob" | sha256sum | awk '{print $1}')"
+            test "$before" = "$after"
+            git update-index --add --cacheinfo "100644,$blob,$dest"
+          }
+          add_exact qualification/runtime/manifests/VE2_T01_RUNTIME_MANIFEST_V1.json scientific_capsule/runtime/manifests/VE2_T01_RUNTIME_MANIFEST_V1.json
+          add_exact qualification/runtime/manifests/VE2_T02_RUNTIME_MANIFEST_V1.json scientific_capsule/runtime/manifests/VE2_T02_RUNTIME_MANIFEST_V1.json
+          add_exact qualification/runtime/blueprints/T01_OLD_NIGHT_MODE.yaml scientific_capsule/runtime/blueprints/T01_OLD_NIGHT_MODE.yaml
+          add_exact qualification/runtime/blueprints/T01_NEW_NIGHT_MODE.yaml scientific_capsule/runtime/blueprints/T01_NEW_NIGHT_MODE.yaml
+          add_exact qualification/runtime/blueprints/T02_OLD_WEEKLY_HEATING_SCHEDULE.yaml scientific_capsule/runtime/blueprints/T02_OLD_WEEKLY_HEATING_SCHEDULE.yaml
+          add_exact qualification/runtime/blueprints/T02_NEW_WEEKLY_HEATING_SCHEDULE.yaml scientific_capsule/runtime/blueprints/T02_NEW_WEEKLY_HEATING_SCHEDULE.yaml
+          add_exact qualification/runtime/VE2_SCIENTIFIC_RUNTIME_BUNDLE_RECEIPT_V1.json scientific_capsule/runtime/VE2_SCIENTIFIC_RUNTIME_BUNDLE_RECEIPT_V1.json
+          add_exact qualification/preflight/T01_OLD.json scientific_capsule/static_preflight/T01_OLD.json
+          add_exact qualification/preflight/T01_NEW.json scientific_capsule/static_preflight/T01_NEW.json
+          add_exact qualification/preflight/T02_OLD.json scientific_capsule/static_preflight/T02_OLD.json
+          add_exact qualification/preflight/T02_NEW.json scientific_capsule/static_preflight/T02_NEW.json
+          add_exact qualification/preflight/VE2_SCIENTIFIC_PREFLIGHT_INDEPENDENT_VALIDATION_V1.json scientific_capsule/static_preflight/VE2_SCIENTIFIC_PREFLIGHT_INDEPENDENT_VALIDATION_V1.json
+          add_exact qualification/static/VE2_SCIENTIFIC_STATIC_SOURCE_VALIDATION_V1.json scientific_capsule/VE2_SCIENTIFIC_STATIC_SOURCE_VALIDATION_V1.json
+          add_exact qualification/VE2_SCIENTIFIC_STATIC_QUALIFICATION_RESULT_V2.json VE2_SCIENTIFIC_STATIC_QUALIFICATION_RESULT_V2.json
+          tree="$(git write-tree)"
+          commit="$(printf '%s\n' 'Seal VE2 pre-science runtime capsule after static v2' | git commit-tree "$tree" -p "$GITHUB_SHA")"
+          test "$(git rev-parse "$commit^")" = "$GITHUB_SHA"
+          git push origin "$commit:refs/heads/$OUTPUT_BRANCH"
+          printf '%s\n' "$tree" > qualification/SEALED_TREE.txt
+          printf '%s\n' "$commit" > qualification/SEALED_COMMIT.txt
+          printf '%s\n' 'ReplayMark VE2 Static Seal' > qualification/SEALED_AUTHOR_NAME.txt
+          printf '%s\n' 'replaymark-ve2-static-seal@users.noreply.github.com' > qualification/SEALED_AUTHOR_EMAIL.txt
+          echo "sealed_tree=$tree" >> "$GITHUB_OUTPUT"
+          echo "sealed_commit=$commit" >> "$GITHUB_OUTPUT"
+
+      - name: Assert science remains unopened after sealed branch creation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e VE2_SCIENTIFIC_AUTHORITY_OPEN_V1.json
+          if git ls-remote --exit-code origin "refs/heads/$SCIENCE_BRANCH" >/dev/null 2>&1; then
+            echo 'science branch appeared during static v2 qualification' >&2
+            exit 2
+          fi
+          git ls-remote --exit-code origin "refs/heads/$OUTPUT_BRANCH" >/dev/null
+
+      - name: Upload immutable static v2 qualification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-scientific-static-qualification-v2-evidence
+          path: qualification/
+          if-no-files-found: error
+          retention-days: 90
