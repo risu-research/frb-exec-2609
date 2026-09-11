@@ -1,0 +1,319 @@
+name: artifact-v4 g4 pristine dual-implementation open v2
+
+on:
+  push:
+    branches:
+      - artifact-v4-g4-dual-open
+    paths:
+      - .github/workflows/artifact-v4-g4-dual-open-v2.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: artifact-v4-g4-pristine-dual-open-v2
+  cancel-in-progress: false
+
+env:
+  A_SOURCE_SHA: 6470cb501dae1c781f1c42672e672096ff63f2fc
+  G4_SOURCE_SHA: b26302e925ebade8bacb45b1d34c2415000ad2c6
+  HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
+  FIXED_PROTOCOL_SHA: 383ee2e1b192fda7c6ce3a9576d9c6a4eae0a77e
+  S3C0_LEGACY_EXEC_SHA: 23b7c85bca6cb85fde9f4361a0f9664d21c8ae8d
+  S3C0_LEGACY_OUTCOME_SHA: ac20890bb4aa926e439802510de3723b74591c94
+  VE2_SHA: 25ebfd817420fa0f782419977e4ec166f6ca358a
+  S6_SHA: 511744b34d230707e2606697d348b48c80b4bb6d
+
+jobs:
+  derive_a:
+    name: A — frozen V3 derivation, expected-blind
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout exact public G4 carrier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Materialize exact A source and physically scrub expected-contract files
+        shell: bash
+        run: |
+          set -euo pipefail
+          FULL="$RUNNER_TEMP/a-full"; CLEAN="$RUNNER_TEMP/a-clean"
+          python3 tools/qx_private_source.py clone --sha "$A_SOURCE_SHA" --dest "$FULL"
+          test "$(git -C "$FULL" rev-parse HEAD)" = "$A_SOURCE_SHA"
+          test "$(git -C "$FULL" rev-parse HEAD:artifact_v3/derive_whole_paper_v1.py)" = '2e7fb497f440902e1c3a7f813dd3fad0c2308af0'
+          python3 - <<'PY'
+          import os,shutil
+          from pathlib import Path
+          full=Path(os.environ['RUNNER_TEMP'])/'a-full'; clean=Path(os.environ['RUNNER_TEMP'])/'a-clean'
+          def ignore(path,names):
+              if Path(path)==full: return [x for x in ('.git','artifact_v3') if x in names]
+              return []
+          shutil.copytree(full,clean,ignore=ignore)
+          (clean/'artifact_v3').mkdir(); shutil.copy2(full/'artifact_v3'/'derive_whole_paper_v1.py',clean/'artifact_v3'/'derive_whole_paper_v1.py')
+          PY
+          rm -rf "$FULL"
+          test ! -d "$CLEAN/.git"
+          test "$(git -C "$CLEAN" hash-object "$CLEAN/artifact_v3/derive_whole_paper_v1.py")" = '2e7fb497f440902e1c3a7f813dd3fad0c2308af0'
+          if find "$CLEAN" -type f \( -iname '*CLAIM_LEDGER*' -o -name 'compare_whole_paper_v1.py' -o -iname '*AuthorityCorrection*' -o -iname '*FinalSubmissionAudit*' \) -print -quit | grep -q .; then echo 'expected-contract material survived A scrub'; exit 1; fi
+          echo 'A_EXPECTED_CONTRACT_PHYSICALLY_ABSENT=PASS'
+
+      - name: Checkout exact historical and VE2 authorities for A
+        shell: bash
+        run: |
+          set -euo pipefail
+          HIST="$RUNNER_TEMP/a-historical"; VE2="$RUNNER_TEMP/a-ve2"
+          git init -q "$HIST"; git -C "$HIST" remote add origin https://github.com/risu-research/appeal-discovery-consumer.git; git -C "$HIST" fetch -q --depth=1 origin "$HISTORICAL_SHA"; test "$(git -C "$HIST" rev-parse FETCH_HEAD)" = "$HISTORICAL_SHA"; git -C "$HIST" checkout -q --detach FETCH_HEAD; git -C "$HIST" remote remove origin
+          git init -q "$VE2"; git -C "$VE2" remote add origin https://github.com/risu-research/frb-exec-2609.git; git -C "$VE2" fetch -q --depth=1 origin "$VE2_SHA"; test "$(git -C "$VE2" rev-parse FETCH_HEAD)" = "$VE2_SHA"; git -C "$VE2" checkout -q --detach FETCH_HEAD; git -C "$VE2" remote remove origin
+          test "$(git -C "$VE2" rev-parse HEAD^{tree})" = '88f796f2e8ff361aa07925500c80b2ce0f8532e9'
+
+      - name: Derive A pristine 42-claim vector without expected values
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/a-out"; mkdir -p "$OUT"
+          python3 "$RUNNER_TEMP/a-clean/artifact_v3/derive_whole_paper_v1.py" --source_root "$RUNNER_TEMP/a-clean" --historical_root "$RUNNER_TEMP/a-historical" --public_root "$GITHUB_WORKSPACE" --ve2_root "$RUNNER_TEMP/a-ve2" --out "$OUT/A_DERIVED_CLAIMS.json"
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'a-out'; p=out/'A_DERIVED_CLAIMS.json'; x=json.loads(p.read_text())
+          assert x['status']=='DERIVED_WITHOUT_MANUSCRIPT_EXPECTED_VALUES' and x['claim_count']==42
+          assert x['derivation_law']['claim_ledger_read'] is False and x['derivation_law']['manuscript_expected_values_read'] is False
+          meta={'schema':'replaymark.v4.g4-a-pristine-derivation.v1','status':'SEALED_A_PRISTINE_42_CLAIMS_EXPECTED_BLIND','claim_count':42,'derived_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'A_source_commit':os.environ['A_SOURCE_SHA'],'expected_contract_present_in_A_runtime':False,'new_scientific_measurement':False,'historical_experiment_rerun':False,'mutation_executed':False}
+          (out/'A_STAGE_RECEIPT.json').write_text(json.dumps(meta,indent=2,sort_keys=True)+'\n')
+          rows=[f"{hashlib.sha256(f.read_bytes()).hexdigest()}  {f.name}" for f in sorted(out.glob('*.json'))]; (out/'SHA256SUMS.txt').write_text('\n'.join(rows)+'\n')
+          print('A_PRISTINE_DERIVATION_SEALED=PASS')
+          PY
+          cd "$OUT"; sha256sum -c SHA256SUMS.txt
+
+      - name: Upload sealed A derivation
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v4-g4-v2-a-pristine-derivation
+          path: |
+            ${{ runner.temp }}/a-out/A_DERIVED_CLAIMS.json
+            ${{ runner.temp }}/a-out/A_STAGE_RECEIPT.json
+            ${{ runner.temp }}/a-out/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 90
+
+  derive_b:
+    name: B — clean-room Node derivation, A/v92-blind
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout exact public G4 carrier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Set up exact Node runtime
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.20.0
+
+      - name: Checkout exact frozen G4 private source and verify B identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/g4-source"; python3 tools/qx_private_source.py clone --sha "$G4_SOURCE_SHA" --dest "$SRC"
+          test "$(git -C "$SRC" rev-parse HEAD)" = "$G4_SOURCE_SHA"
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/verifier_b.mjs)" = '809efb0ff3a26ab096af97d2b73b68045cf4d8c8'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/materialize_semantic_snapshots.py)" = 'cf9d4ccc7cfe35f709ff983500b2f5b969be600e'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/g3_static_audit.py)" = '13e0b3d3c02a9b77092f3d9ccec9d4eddde39ac3'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/g4_materialize_pristine_b_roles.py)" = '27a22853e8d485fff39876e6a076c203390d9322'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G4_STAGED_DUAL_OPEN_FREEZE_V1.json)" = 'e6cef982b15982fce6d85a7b456ecf687afe6c35'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G4_PREOPEN_SOURCE_FREEZE_V1.json)" = '37795d08f6ad3743d1f0fe7477c5be707ce775a6'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G3_FREEZE_RECEIPT.json)" = 'dc9e1857d07fb81d0bd2c878709f84a5d745cc5b'
+          node --version | grep -Fx 'v24.20.0'
+          echo 'B_FROZEN_SOURCE_IDENTITIES=PASS'
+
+      - name: Materialize exact full-history and public authority roots for B
+        shell: bash
+        run: |
+          set -euo pipefail
+          HIST="$RUNNER_TEMP/b-historical"; VE2="$RUNNER_TEMP/b-ve2"; S6="$RUNNER_TEMP/b-s6"
+          git init -q "$HIST"; git -C "$HIST" remote add origin https://github.com/risu-research/appeal-discovery-consumer.git
+          for sha in "$HISTORICAL_SHA" "$FIXED_PROTOCOL_SHA" "$S3C0_LEGACY_EXEC_SHA" "$S3C0_LEGACY_OUTCOME_SHA"; do git -C "$HIST" fetch -q --depth=1 origin "$sha"; test "$(git -C "$HIST" rev-parse FETCH_HEAD)" = "$sha"; done
+          git -C "$HIST" checkout -q --detach "$HISTORICAL_SHA"; git -C "$HIST" remote remove origin
+          git init -q "$VE2"; git -C "$VE2" remote add origin https://github.com/risu-research/frb-exec-2609.git; git -C "$VE2" fetch -q --depth=1 origin "$VE2_SHA"; git -C "$VE2" checkout -q --detach FETCH_HEAD; git -C "$VE2" remote remove origin; test "$(git -C "$VE2" rev-parse HEAD)" = "$VE2_SHA"; test "$(git -C "$VE2" rev-parse HEAD^{tree})" = '88f796f2e8ff361aa07925500c80b2ce0f8532e9'
+          git init -q "$S6"; git -C "$S6" remote add origin https://github.com/risu-research/frb-exec-2609.git; git -C "$S6" fetch -q --depth=1 origin "$S6_SHA"; git -C "$S6" checkout -q --detach FETCH_HEAD; git -C "$S6" remote remove origin; test "$(git -C "$S6" rev-parse HEAD:artifact_v2/preserved/PAPER_VIEW_V1.json)" = 'a5d0ec368cc2a0e07bd8e7838f6d3878de3b1e3b'
+          test "$(git rev-parse HEAD:artifact/v3-preservation/legacy-motion-light/N1_MOTION_LIGHT_REPLICATED.json)" = 'ccbb110d46ee1173f332cd51ce680dfe1cc8ecb7'
+
+      - name: Materialize and re-audit value-free semantic snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/g4-source"; SNAP="$RUNNER_TEMP/b-snapshots"
+          python3 "$SRC/artifact_v4/materialize_semantic_snapshots.py" --source-root "$SRC" --out-dir "$SNAP"
+          test "$(sha256sum "$SNAP/RSTAR_SEMANTIC_SNAPSHOT.json" | cut -d' ' -f1)" = '47f974662ba911191334725eafc019580509c69afa11ef600c50de9a1203957a'
+          test "$(sha256sum "$SNAP/Q_THERMOSTAT_SEMANTIC_SNAPSHOT.json" | cut -d' ' -f1)" = '8848a9636d64788af65d053e0be072b9e8fa40746ef6ff24d67bec7a78fd44f6'
+          python3 "$SRC/artifact_v4/g3_static_audit.py" --source-root "$SRC" --snapshot-dir "$SNAP" --out "$RUNNER_TEMP/B_STATIC_AUDIT.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'B_STATIC_AUDIT.json').read_text()); assert x['status']=='PASS' and x['scientific_expected_values_opened'] is False and x['verifier_b_pristine_science_executed'] is False
+          print('B_PREOPEN_ISOLATION_REAUDIT=PASS')
+          PY
+
+      - name: Build explicit digest-bound pristine B role set
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/g4-source"; INPUT="$RUNNER_TEMP/b-input"
+          python3 "$SRC/artifact_v4/g4_materialize_pristine_b_roles.py" --private-root "$SRC" --historical-root "$RUNNER_TEMP/b-historical" --public-root "$GITHUB_WORKSPACE" --ve2-root "$RUNNER_TEMP/b-ve2" --s6-root "$RUNNER_TEMP/b-s6" --snapshot-dir "$RUNNER_TEMP/b-snapshots" --out-dir "$INPUT"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'b-input'/'ROLE_MATERIALIZATION_RECEIPT.json').read_text()); assert x['status']=='PASS_PRISTINE_ROLE_SET_MATERIALIZED' and x['role_count']==23; assert x['expected_values_read'] is False and x['verifier_a_output_read'] is False and x['challenge_catalog_read'] is False
+          print('B_PRISTINE_ROLE_SET=PASS')
+          PY
+
+      - name: Execute frozen B in isolated repository-free working directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          ISO="$RUNNER_TEMP/b-isolated"; OUT="$RUNNER_TEMP/b-out"; mkdir -p "$ISO" "$OUT"
+          cp "$RUNNER_TEMP/g4-source/artifact_v4/verifier_b.mjs" "$ISO/verifier_b.mjs"; cp -a "$RUNNER_TEMP/b-input" "$ISO/inputs"
+          cp "$RUNNER_TEMP/B_STATIC_AUDIT.json" "$OUT/B_STATIC_AUDIT.json"; cp "$RUNNER_TEMP/b-input/ROLE_MATERIALIZATION_RECEIPT.json" "$OUT/ROLE_MATERIALIZATION_RECEIPT.json"; cp "$RUNNER_TEMP/b-input/manifest.json" "$OUT/INPUT_MANIFEST.json"
+          rm -rf "$RUNNER_TEMP/g4-source" "$RUNNER_TEMP/b-historical" "$RUNNER_TEMP/b-ve2" "$RUNNER_TEMP/b-s6" "$RUNNER_TEMP/b-snapshots" "$RUNNER_TEMP/b-input"
+          test ! -e "$ISO/.git"; cd "$ISO"
+          node verifier_b.mjs --manifest inputs/manifest.json --out "$OUT/B_CLAIMS.json" --trace-out "$OUT/B_TRACE.json"
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'b-out'; b=json.loads((out/'B_CLAIMS.json').read_text()); t=json.loads((out/'B_TRACE.json').read_text()); assert isinstance(b,dict) and len(b)==42; assert t['expected_values_read'] is False and t['verifier_a_output_read'] is False and t['network_used'] is False and t['package_installation'] is False; assert t['claim_vector_sha256']==hashlib.sha256((out/'B_CLAIMS.json').read_bytes()).hexdigest()
+          meta={'schema':'replaymark.v4.g4-b-pristine-derivation.v1','status':'SEALED_B_PRISTINE_42_CLAIMS_EXPECTED_AND_A_BLIND','claim_count':42,'B_claims_sha256':hashlib.sha256((out/'B_CLAIMS.json').read_bytes()).hexdigest(),'B_trace_sha256':hashlib.sha256((out/'B_TRACE.json').read_bytes()).hexdigest(),'expected_values_read':False,'verifier_a_output_read':False,'repository_present_in_B_working_directory':False,'new_scientific_measurement':False,'historical_experiment_rerun':False,'mutation_executed':False}; (out/'B_STAGE_RECEIPT.json').write_text(json.dumps(meta,indent=2,sort_keys=True)+'\n'); rows=[f"{hashlib.sha256(f.read_bytes()).hexdigest()}  {f.name}" for f in sorted(out.glob('*.json'))]; (out/'SHA256SUMS.txt').write_text('\n'.join(rows)+'\n'); print('B_PRISTINE_DERIVATION_SEALED=PASS')
+          PY
+          cd "$OUT"; sha256sum -c SHA256SUMS.txt
+
+      - name: Upload sealed B derivation
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v4-g4-v2-b-pristine-derivation
+          path: |
+            ${{ runner.temp }}/b-out/B_CLAIMS.json
+            ${{ runner.temp }}/b-out/B_TRACE.json
+            ${{ runner.temp }}/b-out/B_STAGE_RECEIPT.json
+            ${{ runner.temp }}/b-out/B_STATIC_AUDIT.json
+            ${{ runner.temp }}/b-out/ROLE_MATERIALIZATION_RECEIPT.json
+            ${{ runner.temp }}/b-out/INPUT_MANIFEST.json
+            ${{ runner.temp }}/b-out/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 90
+
+  compare_ab:
+    name: A↔B — expected-blind exact comparison
+    needs: [derive_a, derive_b]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout public expected-blind comparator only
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+      - name: Assert comparator identity and expected-contract absence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD:tools/g4_compare_ab.py)" = 'd2c1d3751af243a1f113f40c1fa1fa14b3241f55'
+          if find "$GITHUB_WORKSPACE" -type f \( -iname '*CLAIM_LEDGER*' -o -name 'compare_whole_paper_v1.py' -o -iname '*AuthorityCorrection*' -o -iname '*FinalSubmissionAudit*' \) -print -quit | grep -q .; then echo 'expected-contract material present in A-B comparator workspace'; exit 1; fi
+          echo 'AB_EXPECTED_CONTRACT_ABSENT=PASS'
+      - name: Download sealed A artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: v4-g4-v2-a-pristine-derivation
+          path: ${{ runner.temp }}/A
+      - name: Download sealed B artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: v4-g4-v2-b-pristine-derivation
+          path: ${{ runner.temp }}/B
+      - name: Verify stage checksums and compare A-B exactly
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd "$RUNNER_TEMP/A" && sha256sum -c SHA256SUMS.txt); (cd "$RUNNER_TEMP/B" && sha256sum -c SHA256SUMS.txt)
+          OUT="$RUNNER_TEMP/ab-out"; mkdir -p "$OUT"; set +e
+          python3 tools/g4_compare_ab.py --a "$RUNNER_TEMP/A/A_DERIVED_CLAIMS.json" --b "$RUNNER_TEMP/B/B_CLAIMS.json" --b-trace "$RUNNER_TEMP/B/B_TRACE.json" --out "$OUT/AB_COMPARISON_RECEIPT.json"; rc=$?; set -e
+          python3 - <<'PY'
+          import hashlib,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'ab-out'; p=out/'AB_COMPARISON_RECEIPT.json'
+          if p.exists(): (out/'SHA256SUMS.txt').write_text(f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}\n")
+          PY
+          exit "$rc"
+      - name: Upload A-B comparison receipt even on divergence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v4-g4-v2-ab-blind-comparison
+          path: |
+            ${{ runner.temp }}/ab-out/AB_COMPARISON_RECEIPT.json
+            ${{ runner.temp }}/ab-out/SHA256SUMS.txt
+          if-no-files-found: warn
+          retention-days: 90
+
+  compare_v92:
+    name: v92 — open expected contract only after exact A=B
+    needs: [compare_ab]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout public G4 carrier after A-B pass
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+      - name: Download sealed A, B, and A-B artifacts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          pattern: v4-g4-v2-*
+          path: ${{ runner.temp }}/stages
+      - name: Verify A-B pass before any v92 source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'stages'; x=json.loads((root/'v4-g4-v2-ab-blind-comparison'/'AB_COMPARISON_RECEIPT.json').read_text()); assert x['status']=='PASS_A_EQUALS_B_EXACT_42_OF_42' and x['exact_match_count']==42 and not x['mismatches']; assert x['expected_values_opened'] is False and x['claim_ledger_opened'] is False; print('AB_COMMIT_REVEAL_GATE=PASS')
+          PY
+      - name: Open exact frozen v92 contract source only now
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/v92-source"; python3 tools/qx_private_source.py clone --sha "$A_SOURCE_SHA" --dest "$SRC"; test "$(git -C "$SRC" rev-parse HEAD)" = "$A_SOURCE_SHA"; test "$(git -C "$SRC" rev-parse HEAD:artifact_v3/compare_whole_paper_v1.py)" = 'c2bcdfee5f61086a354df109d2a40e552594c09b'; test "$(git -C "$SRC" rev-parse HEAD:artifact_v3/CLAIM_LEDGER_V2_MANUSCRIPT_V92.json)" = 'a6f6ac3b10244c1daaf8150ea9b1b045f8d19f18'; echo 'V92_EXPECTED_CONTRACT_OPENED_AFTER_AB_PASS=PASS'
+      - name: Compare agreed A-B vector to frozen v92 and all 18 invariants
+        shell: bash
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          PUBLIC_HEAD: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/stages"; A="$ROOT/v4-g4-v2-a-pristine-derivation/A_DERIVED_CLAIMS.json"; SRC="$RUNNER_TEMP/v92-source"; OUT="$RUNNER_TEMP/g4-final"; mkdir -p "$OUT"
+          python3 "$SRC/artifact_v3/compare_whole_paper_v1.py" --source-root "$SRC" --derived "$A" --out "$OUT/V92_COMPARISON_RECEIPT.json"
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          rt=Path(os.environ['RUNNER_TEMP']); out=rt/'g4-final'; root=rt/'stages'; H=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest(); v=json.loads((out/'V92_COMPARISON_RECEIPT.json').read_text()); assert v['status']=='PASS_WHOLE_PAPER_V3' and v['claim_summary']=={'total':42,'pass':42,'fail':0}; assert len(v['invariants'])==18 and all(x['pass'] for x in v['invariants']) and not v['mismatches']; abp=root/'v4-g4-v2-ab-blind-comparison'/'AB_COMPARISON_RECEIPT.json'; ab=json.loads(abp.read_text()); assert ab['status']=='PASS_A_EQUALS_B_EXACT_42_OF_42'; a=root/'v4-g4-v2-a-pristine-derivation'/'A_DERIVED_CLAIMS.json'; b=root/'v4-g4-v2-b-pristine-derivation'/'B_CLAIMS.json'; bt=root/'v4-g4-v2-b-pristine-derivation'/'B_TRACE.json'; final={'schema':'replaymark.artifact-v4.g4-hosted-baseline-closure.v1','status':'PASS_G4_BASELINE_DUAL_IMPLEMENTATION_CLOSURE','public_run_id':int(os.environ['RUN_ID']),'public_run_attempt':int(os.environ['RUN_ATTEMPT']),'public_execution_head':os.environ['PUBLIC_HEAD'],'A_claims':'42/42 complete before comparison','B_claims':'42/42 complete before comparison','A_equals_B':'42/42 exact','v92_contract':'42/42 exact','cross_claim_invariants':'18/18','A_derived_sha256':H(a),'B_claims_sha256':H(b),'B_trace_sha256':H(bt),'AB_receipt_sha256':H(abp),'v92_receipt_sha256':H(out/'V92_COMPARISON_RECEIPT.json'),'expected_values_opened_only_after_AB_pass':True,'B_expected_values_read':False,'B_verifier_a_output_read':False,'new_scientific_measurement':False,'historical_experiment_rerun':False,'authority_replacement':False,'mutation_executed':False,'metamorphic_challenge_executed':False}; (out/'G4_HOSTED_FINAL_RECEIPT.json').write_text(json.dumps(final,indent=2,sort_keys=True)+'\n'); rows=[f"{H(p)}  {p.name}" for p in sorted(out.glob('*.json'))]; (out/'SHA256SUMS.txt').write_text('\n'.join(rows)+'\n'); print('G4_BASELINE_DUAL_IMPLEMENTATION_CLOSURE=PASS')
+          PY
+          cd "$OUT"; sha256sum -c SHA256SUMS.txt
+      - name: Upload immutable G4 baseline closure capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: replaymark-artifact-v4-g4-baseline-closure-v2
+          path: |
+            ${{ runner.temp }}/g4-final/V92_COMPARISON_RECEIPT.json
+            ${{ runner.temp }}/g4-final/G4_HOSTED_FINAL_RECEIPT.json
+            ${{ runner.temp }}/g4-final/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 90
