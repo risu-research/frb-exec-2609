@@ -1,0 +1,133 @@
+{
+  "schema": "replaymark.public-artifact-v3.legacy-authority-preservation.v1",
+  "status": "PRESERVATION_MANIFEST_VERIFIED_BEFORE_ACTIONS_EXPIRY",
+  "purpose": "Cryptographically bind recovered predecessor-repository scientific authorities before finite GitHub Actions retention expires. This manifest does not create or replace scientific authority.",
+  "preservation_rules": {
+    "new_experiment": false,
+    "historical_rerun": false,
+    "result_reinterpretation": false,
+    "authority_replacement": false,
+    "private_manuscript_metadata_exported": false,
+    "downloaded_archive_sha256_must_equal_preexisting_authority": true
+  },
+  "verified_archives": [
+    {
+      "label": "legacy-e3b-decisive",
+      "historical_repository": "risu-research/appeal-discovery-consumer",
+      "run_id": 33935626964,
+      "artifact_id": 9960088059,
+      "artifact_name": "agentmark-e3b-decisive-v2",
+      "archive_bytes": 4145,
+      "expected_zip_sha256": "829e05748ae38c76f880ab57538112a980c1da3d3ebedd4b84c1e6409093eb95",
+      "observed_zip_sha256": "829e05748ae38c76f880ab57538112a980c1da3d3ebedd4b84c1e6409093eb95",
+      "digest_match": true,
+      "critical_member": "e3b_r0_r1_r2_certificate.json",
+      "critical_member_sha256": "46d0ef0c82cf1fd40c3746cffb667d101d32a5431e7b52f99a9fa7fecf323b12",
+      "durable_preexisting_git_mirror": "agentmark-paper-results-freeze:agentmark_paper/evidence/e3b/primary.json.gz"
+    },
+    {
+      "label": "legacy-e3b-safety-boundary",
+      "historical_repository": "risu-research/appeal-discovery-consumer",
+      "run_id": 33935626964,
+      "artifact_id": 9960095929,
+      "artifact_name": "agentmark-e3b-safety-boundary",
+      "archive_bytes": 3727,
+      "expected_zip_sha256": "214a25bc666336d86d0e59f2031713b6d79d3cdd9704b8e6f9b75da03bfef257",
+      "observed_zip_sha256": "214a25bc666336d86d0e59f2031713b6d79d3cdd9704b8e6f9b75da03bfef257",
+      "digest_match": true,
+      "critical_member": "e3b_replay_safety_sweep.json",
+      "critical_member_sha256": "2d0d4933799fd9a29ff861289dbb31b5ee91aca1444dd72a5ebc9adbc0358e22"
+    },
+    {
+      "label": "legacy-e3c-home-assistant",
+      "historical_repository": "risu-research/appeal-discovery-consumer",
+      "run_id": 33942887473,
+      "artifact_id": 9962430737,
+      "artifact_name": "agentmark-e3c-home-assistant-replicated",
+      "archive_bytes": 19061,
+      "expected_zip_sha256": "7ef5140a6dcdaee508154d49071aa15733da95b7507ead7d8d63afc963a12cb3",
+      "observed_zip_sha256": "7ef5140a6dcdaee508154d49071aa15733da95b7507ead7d8d63afc963a12cb3",
+      "digest_match": true,
+      "critical_member": "e3c_home_assistant_replicated.json",
+      "critical_member_sha256": "9e1e91d4e7733880da8236b3a4afb3647f8aa9582fe8f7d6d2a8ec44f038653b",
+      "durable_preexisting_git_mirror": "agentmark-paper-results-freeze:agentmark_paper/evidence/e3c/primary.json"
+    },
+    {
+      "label": "legacy-official-motion-light",
+      "historical_repository": "risu-research/appeal-discovery-consumer",
+      "run_id": 33946985750,
+      "artifact_id": 9963663630,
+      "artifact_name": "agentmark-n1-official-motion-light-replicated",
+      "archive_bytes": 15726,
+      "expected_zip_sha256": "14dfde9ff11865a548984ec4858429258d2d4fc1b7584c41d96a251530eb3f27",
+      "observed_zip_sha256": "14dfde9ff11865a548984ec4858429258d2d4fc1b7584c41d96a251530eb3f27",
+      "digest_match": true,
+      "critical_member": "N1_MOTION_LIGHT_REPLICATED.json",
+      "critical_member_sha256": "4812816bd830b5e71d89843f8510c44f93c37a89b054ae8ef7a9358e90ec00f7",
+      "durable_preexisting_git_mirror": "agentmark-paper-results-freeze:agentmark_paper/evidence/n1/primary.json"
+    },
+    {
+      "label": "legacy-n2-natural-controller",
+      "historical_repository": "risu-research/appeal-discovery-consumer",
+      "run_id": 33965918153,
+      "artifact_id": 9969439579,
+      "artifact_name": "agentmark-n2-better-thermostat-v4-replicated",
+      "archive_bytes": 1103883,
+      "expected_zip_sha256": "76bd2850156040139aabd935ccab44f01fb27344770c2f04a055fed81ee901b7",
+      "observed_zip_sha256": "76bd2850156040139aabd935ccab44f01fb27344770c2f04a055fed81ee901b7",
+      "digest_match": true,
+      "critical_member": "N2_BETTER_THERMOSTAT_REPLICATED.json",
+      "critical_member_sha256": "df389a937832374008e459afd2a0454e632675a713b0a3b2b7d1b9258894d446",
+      "durable_preexisting_git_mirror": "agentmark-paper-results-freeze:agentmark_paper/evidence/n2/primary.json"
+    },
+    {
+      "label": "legacy-n2b-decision-equivalence",
+      "historical_repository": "risu-research/appeal-discovery-consumer",
+      "run_id": 33972619262,
+      "artifact_id": 9971397583,
+      "artifact_name": "agentmark-n2b-decision-equivalence-v2-replicated",
+      "archive_bytes": 1088775,
+      "expected_zip_sha256": "4d75b17e6bd0bd9ba41cb574f9bca022364c312c09b215b74a36a92fda5861db",
+      "observed_zip_sha256": "4d75b17e6bd0bd9ba41cb574f9bca022364c312c09b215b74a36a92fda5861db",
+      "digest_match": true,
+      "critical_member": "N2B_DECISION_EQUIVALENCE_V2_REPLICATED.json",
+      "critical_member_sha256": "93975a490a6af4e48e35152a77129430df0b0f7883015fc2ce72bd0d6fdffe75",
+      "durable_preexisting_git_mirror": "agentmark-paper-results-freeze:agentmark_paper/evidence/n2b/primary.json"
+    },
+    {
+      "label": "legacy-horizon-runtime",
+      "historical_repository": "risu-research/appeal-discovery-consumer",
+      "run_id": 34010550012,
+      "artifact_id": 9982336698,
+      "artifact_name": "replaymark-n2-horizon-runtime-promoted",
+      "archive_bytes": 753723,
+      "expected_zip_sha256": "7a594987991d407b0702411b70859d5d9eecb4034f43c8908f44e9cf6299a098",
+      "observed_zip_sha256": "7a594987991d407b0702411b70859d5d9eecb4034f43c8908f44e9cf6299a098",
+      "digest_match": true,
+      "critical_member": "N2_HORIZON_RUNTIME_REPLICATED.json",
+      "critical_member_sha256": "60c2cf2ad7e5ac24b7af74199877d59812e7d214900a1982dba7395703467f51",
+      "freeze_commit": "9220089e4d4c99b0e85844838f33796ac538da1b"
+    },
+    {
+      "label": "legacy-fixed-work-queue-certificate",
+      "historical_repository": "risu-research/appeal-discovery-consumer",
+      "run_id": 34001927512,
+      "artifact_id": 9979756800,
+      "artifact_name": "replaymark-e3b-confirmatory-certificate",
+      "archive_bytes": 1480,
+      "expected_zip_sha256": "23d61d3ca1ac1b6f07d490db1d4728d8212c8de847c0224fc1b7e8f16348f8a3",
+      "observed_zip_sha256": "23d61d3ca1ac1b6f07d490db1d4728d8212c8de847c0224fc1b7e8f16348f8a3",
+      "digest_match": true,
+      "critical_member": "confirmatory_certificate.json",
+      "critical_member_sha256": "ce3a2d9cebf8fb3baf37867ea58c2b5ce1a76b722de86bb07ceeecf8429c4123",
+      "durable_preexisting_git_mirror": "replaymark-e3b-downstream:replaymark_e3b_downstream/evidence/confirmatory_certificate.json"
+    }
+  ],
+  "verification_summary": {
+    "archives_downloaded": 8,
+    "archive_digest_matches": 8,
+    "archive_digest_mismatches": 0,
+    "scientific_reruns": 0,
+    "new_measurements": 0
+  }
+}
