@@ -1,0 +1,40 @@
+{
+  "schema": "replaymark.ve3.upstream-census-public-open.v1",
+  "status": "OPEN_PUBLIC_GATE_2_CENSUS_ONLY",
+  "authority_role": "ONE_SHOT_PUBLIC_EXECUTION_OPEN",
+  "public_source_freeze_commit": "db18ca04a593cfad12d569c6942a8324a15bce68",
+  "private_protocol_commit": "6e4721894f24f27b69e4f2f2396defc77a581b60",
+  "private_source_freeze_commit": "6caac34fea960018a0c2c9716ae92d995c368618",
+  "private_failure_seal_commit": "72994fc3d784d3277b2be412ed10ac348bd99afa",
+  "one_shot": true,
+  "allowed": [
+    "open the four exact frozen public upstream histories",
+    "enumerate delivered first-parent automation-blueprint lineages",
+    "audit reachable-DAG YAML blob coverage",
+    "enumerate every adjacent content-changing blob pair",
+    "run structural parsing and frozen Home Assistant blueprint schema qualification",
+    "apply byte-identical frozen deterministic INCLUDE/EXCLUDE classifier",
+    "seal the complete census as an exact one-file child of this OPEN"
+  ],
+  "forbidden": [
+    "execute OLD or NEW native trigger/action behavior",
+    "compare OLD and NEW projected consequential outputs",
+    "compute compatible or retired state labels",
+    "create an expected compatibility frontier",
+    "execute ReplayMark or Replay All",
+    "build a target semantic snapshot",
+    "run target attestation",
+    "change repository universe, state cap, classifier, family taxonomy, GO criterion, or kill criterion"
+  ],
+  "frozen_heads": {
+    "Blackymas/NSPanel_HA_Blueprint": "05ecefde2bac5db8bc96c02148058518d78a06fb",
+    "EPMatt/awesome-ha-blueprints": "79b7c6b65a0d19de0863d588c600803cbc879a34",
+    "Sian-Lee-SA/Home-Assistant-Switch-Manager": "4b600075fae2d7bab5673afbfd28df5a8ac77e6b",
+    "SirGoodenough/HA_Blueprints": "abfe45f22ad06e11a8ca9bab302fb6e5ab3cf107"
+  },
+  "upstream_history_opened_before_open": false,
+  "compatibility_frontier_seen_before_open": false,
+  "old_new_native_outputs_seen_before_open": false,
+  "scientific_cells_before_open": 0,
+  "same_authority_rerun_after_exposure": false
+}
