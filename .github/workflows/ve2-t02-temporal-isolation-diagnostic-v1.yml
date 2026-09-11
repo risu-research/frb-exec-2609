@@ -1,0 +1,292 @@
+name: VE2 T02 temporal isolation diagnostic v1
+
+on:
+  push:
+    branches:
+      - ve2-t02-temporal-isolation-diagnostic-v1
+
+permissions:
+  contents: read
+
+env:
+  V5_FAILURE_SEAL: c17d2506e465b9bb3ac71cb04cb7c10c0360ba01
+  V3_RUNTIME_BLOB: 7b31244a3a4505399e5885b017fd81bb06209176
+  V4_RUNTIME_BLOB: 8c33de1d8717983ffecd4a45634de0d2469ac19d
+  V5_RUNTIME_BLOB: 20914078395995116cbd88cdd63063f4fb6907f0
+  DIAGNOSTIC_RUNTIME_BLOB: 7596e71534f4e91547e418c145780b73ddfa3188
+  DIAGNOSTIC_VALIDATOR_BLOB: 7b52f402b7c23e92bf479e6bb8e809afde54f6b3
+  DIAGNOSTIC_CONTRACT_BLOB: eafe2d88bda93b8cc81b7fdea5aae843c4268c90
+  T02_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+
+jobs:
+  open-gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      source_freeze: ${{ steps.gate.outputs.source_freeze }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 80
+      - id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test -f VE2_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_OPEN_V1.json
+          source_freeze="$(git rev-parse HEAD^)"
+          git merge-base --is-ancestor "$V5_FAILURE_SEAL" "$source_freeze"
+
+          mapfile -t open_delta < <(git diff --name-only "$source_freeze..HEAD")
+          test "${#open_delta[@]}" = '1'
+          test "${open_delta[0]}" = 'VE2_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_OPEN_V1.json'
+
+          mapfile -t source_delta < <(git diff --name-only "$V5_FAILURE_SEAL..$source_freeze")
+          expected=(
+            '.github/workflows/ve2-t02-temporal-isolation-diagnostic-v1.yml'
+            'VE2_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_CONTRACT_V1.json'
+            've2_t02_temporal_isolation_diagnostic_v1.py'
+            've2_t02_temporal_isolation_validate_v1.py'
+          )
+          test "${#source_delta[@]}" = "${#expected[@]}"
+          for i in "${!expected[@]}"; do test "${source_delta[$i]}" = "${expected[$i]}"; done
+
+          test "$(git hash-object --no-filters ve2_science_transport_qualify_v3.py)" = "$V3_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_science_transport_qualify_v4.py)" = "$V4_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_science_transport_qualify_v5.py)" = "$V5_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_t02_temporal_isolation_diagnostic_v1.py)" = "$DIAGNOSTIC_RUNTIME_BLOB"
+          test "$(git hash-object --no-filters ve2_t02_temporal_isolation_validate_v1.py)" = "$DIAGNOSTIC_VALIDATOR_BLOB"
+          test "$(git hash-object --no-filters VE2_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_CONTRACT_V1.json)" = "$DIAGNOSTIC_CONTRACT_BLOB"
+
+          python - "$source_freeze" <<'PY'
+          import ast,json,sys
+          from pathlib import Path
+
+          c=json.load(open('VE2_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_CONTRACT_V1.json'))
+          assert c['status']=='FROZEN_NON_PROMOTABLE_PRE_SCIENCE_DIAGNOSTIC'
+          assert c['authority']['v5_failure_seal']=='c17d2506e465b9bb3ac71cb04cb7c10c0360ba01'
+          assert c['runtime']['home_assistant_version']=='2026.9.0'
+          assert c['runtime']['diagnostic_runtime_blob']=='7596e71534f4e91547e418c145780b73ddfa3188'
+          assert c['runtime']['diagnostic_validator_blob']=='7b52f402b7c23e92bf479e6bb8e809afde54f6b3'
+          assert c['case_isolation']['one_case_per_fresh_process'] is True
+          assert c['case_isolation']['case_function_body_modified'] is False
+          assert c['case_isolation']['trigger_definition_modified'] is False
+          assert c['case_isolation']['action_definition_modified'] is False
+          assert c['case_isolation']['clock_target_modified'] is False
+          assert c['case_isolation']['wait_timeout_modified'] is False
+          assert c['adjudication']['transport_pass_may_be_declared'] is False
+          assert c['scientific_firewall']['scientific_cells']==0
+
+          o=json.load(open('VE2_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_OPEN_V1.json'))
+          assert o=={
+            'schema':'replaymark.ve2.t02-temporal-isolation-diagnostic-open.v1',
+            'authority':'NON_PROMOTABLE_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_V1',
+            'source_freeze_public_head':sys.argv[1],
+            'v5_failure_seal':'c17d2506e465b9bb3ac71cb04cb7c10c0360ba01',
+            'diagnostic_non_promotable':True,
+            'scientific_result_opened':False,
+            'frontier_result_seen':False,
+            'scientific_cells':0,
+            'same_authority_rerun':False,
+          }
+
+          forbidden={
+            'VE2_T01_EXECUTION_STATE_MANIFEST_V1.json',
+            'VE2_T02_EXECUTION_STATE_MANIFEST_V1.json',
+            'VE2_T01_EXPECTED_FRONTIER_V1.json',
+            'VE2_T02_EXPECTED_FRONTIER_V1.json',
+            'VE2_T01_NATIVE_SEMANTICS_V1.json',
+            'VE2_T02_NATIVE_SEMANTICS_V1.json',
+          }
+          source=Path('ve2_t02_temporal_isolation_diagnostic_v1.py').read_text()
+          tree=ast.parse(source)
+          strings={n.value for n in ast.walk(tree) if isinstance(n,ast.Constant) and isinstance(n.value,str)}
+          assert forbidden.isdisjoint(strings)
+          assert 'v3.run_state()' in source
+          assert 'v3.run_state_for' in source
+          assert 'v3.run_time' in source
+          assert 'v3.run_startup_delay' in source
+          assert 'v3._drive_clock = observed_drive' in source
+          assert 'v3._collect_case = observed_collect' in source
+          assert 'v3._fresh_hass = observed_fresh' in source
+          for forbidden_call in ('async_setup_component(', '.async_load(', 'hass.services.', 'hass.states.'):
+              assert forbidden_call not in source
+          PY
+
+          python -m py_compile \
+            ve2_science_transport_qualify_v3.py \
+            ve2_science_transport_qualify_v4.py \
+            ve2_science_transport_qualify_v5.py \
+            ve2_t02_temporal_isolation_diagnostic_v1.py \
+            ve2_t02_temporal_isolation_validate_v1.py
+          echo "source_freeze=$source_freeze" >> "$GITHUB_OUTPUT"
+
+  isolate-case:
+    needs: open-gate
+    strategy:
+      fail-fast: false
+      matrix:
+        case: [state, state_for_120s, time, homeassistant_start_delay_30s]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CASE: ${{ matrix.case }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+      - name: Verify exact frozen T02 runtime identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          docker pull "$T02_IMAGE"
+          docker image inspect "$T02_IMAGE" > "results/${CASE}_IMAGE_INSPECT.json"
+          observed="$(docker run --rm --network none --entrypoint python3 "$T02_IMAGE" -c 'from homeassistant.const import __version__; print(__version__)')"
+          test "$observed" = '2026.9.0'
+          printf '%s\n' "$observed" > "results/${CASE}_HA_VERSION.txt"
+      - name: Execute exactly one inherited v5 neutral case with observation-only journal
+        id: runtime
+        shell: bash
+        run: |
+          set -uo pipefail
+          chmod 0777 results
+          set +e
+          docker run --rm --network none \
+            -v "$PWD/ve2_science_transport_qualify_v3.py:/work/ve2_science_transport_qualify_v3.py:ro" \
+            -v "$PWD/ve2_science_transport_qualify_v4.py:/work/ve2_science_transport_qualify_v4.py:ro" \
+            -v "$PWD/ve2_science_transport_qualify_v5.py:/work/ve2_science_transport_qualify_v5.py:ro" \
+            -v "$PWD/ve2_t02_temporal_isolation_diagnostic_v1.py:/work/diagnostic.py:ro" \
+            -v "$PWD/results:/results" \
+            --entrypoint python3 "$T02_IMAGE" \
+            /work/diagnostic.py --case "$CASE" --out "/results/${CASE}.json" \
+            > "results/${CASE}_STDOUT.txt" 2> "results/${CASE}_STDERR.txt"
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > "results/${CASE}_EXIT.txt"
+          echo "runtime_rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Seal isolated case capsule regardless of case outcome
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "results/${CASE}.json"
+          CASE="$CASE" RUNTIME_RC="${{ steps.runtime.outputs.runtime_rc }}" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p={
+            'schema':'replaymark.ve2.t02-temporal-isolation-case-provenance.v1',
+            'case':os.environ['CASE'],
+            'execution_head':os.environ['GITHUB_SHA'],
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'runtime_exit':int(os.environ['RUNTIME_RC']),
+            'diagnostic_non_promotable':True,
+            'scientific_result_opened':False,
+            'frontier_result_seen':False,
+            'scientific_cells':0,
+          }
+          Path(f"results/{os.environ['CASE']}_PROVENANCE.json").write_text(json.dumps(p,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd results && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+      - name: Upload immutable isolated case capsule
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-t02-temporal-isolation-v1-${{ matrix.case }}
+          path: results/
+          if-no-files-found: error
+          retention-days: 90
+
+  adjudicate:
+    needs: isolate-case
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+      - name: Create total aggregate surface
+        run: mkdir -p aggregate downloads
+      - name: Download all four isolated case capsules
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: ve2-t02-temporal-isolation-v1-*
+          path: downloads
+          merge-multiple: false
+      - name: Verify all four capsule checksums and presence
+        shell: bash
+        run: |
+          set -euo pipefail
+          for case in state state_for_120s time homeassistant_start_delay_30s; do
+            root="downloads/ve2-t02-temporal-isolation-v1-${case}"
+            test -d "$root"
+            (cd "$root" && sha256sum -c CHECKSUMS.sha256)
+            test -f "$root/${case}.json"
+            test -f "$root/${case}_EXIT.txt"
+          done
+      - name: Independently adjudicate exact failing primitive and layer
+        id: validator
+        shell: bash
+        run: |
+          set +e
+          python ve2_t02_temporal_isolation_validate_v1.py \
+            --state downloads/ve2-t02-temporal-isolation-v1-state/state.json \
+            --state-for-120s downloads/ve2-t02-temporal-isolation-v1-state_for_120s/state_for_120s.json \
+            --time downloads/ve2-t02-temporal-isolation-v1-time/time.json \
+            --homeassistant-start-delay-30s downloads/ve2-t02-temporal-isolation-v1-homeassistant_start_delay_30s/homeassistant_start_delay_30s.json \
+            --out aggregate/VE2_T02_TEMPORAL_ISOLATION_ADJUDICATION_V1.json \
+            > aggregate/VALIDATOR_STDOUT.txt 2> aggregate/VALIDATOR_STDERR.txt
+          rc=$?
+          echo "validator_rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Seal aggregate diagnostic provenance regardless of outcome
+        shell: bash
+        env:
+          VALIDATOR_RC: ${{ steps.validator.outputs.validator_rc }}
+          SOURCE_FREEZE: ${{ needs.open-gate.outputs.source_freeze }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          adjud=Path('aggregate/VE2_T02_TEMPORAL_ISOLATION_ADJUDICATION_V1.json')
+          parsed=json.loads(adjud.read_text()) if adjud.exists() else None
+          p={
+            'schema':'replaymark.ve2.t02-temporal-isolation-aggregate-provenance.v1',
+            'status':'SEALED_DIAGNOSTIC' if os.environ['VALIDATOR_RC']=='0' else 'SEALED_VALIDATION_FAILURE',
+            'execution_head':os.environ['GITHUB_SHA'],
+            'source_freeze_public_head':os.environ['SOURCE_FREEZE'],
+            'run_id':int(os.environ['GITHUB_RUN_ID']),
+            'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+            'v5_failure_seal':os.environ['V5_FAILURE_SEAL'],
+            'independent_validator_pass':os.environ['VALIDATOR_RC']=='0',
+            'diagnostic_status':None if parsed is None else parsed.get('status'),
+            'transport_promotion_authorized':False,
+            'scientific_promotion_authorized':False,
+            'scientific_result_opened':False,
+            'frontier_result_seen':False,
+            'scientific_cells':0,
+          }
+          Path('aggregate/VE2_T02_TEMPORAL_ISOLATION_PROVENANCE_V1.json').write_text(json.dumps(p,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd aggregate && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+      - name: Upload immutable aggregate diagnostic evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-t02-temporal-isolation-v1-aggregate
+          path: aggregate/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Surface diagnosis only after complete evidence seal
+        shell: bash
+        env:
+          VALIDATOR_RC: ${{ steps.validator.outputs.validator_rc }}
+        run: |
+          set -euo pipefail
+          test "$VALIDATOR_RC" = '0'
+          python - <<'PY'
+          import json
+          a=json.load(open('aggregate/VE2_T02_TEMPORAL_ISOLATION_ADJUDICATION_V1.json'))
+          assert a['status'] in {'DIAGNOSED','ALL_ISOLATED_CASES_PASS'}
+          assert a['transport_promotion_authorized'] is False
+          assert a['scientific_promotion_authorized'] is False
+          assert a['scientific_cells']==0
+          PY
