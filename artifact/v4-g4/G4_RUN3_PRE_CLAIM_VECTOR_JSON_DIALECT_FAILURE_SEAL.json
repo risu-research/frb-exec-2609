@@ -1,0 +1,57 @@
+{
+  "schema": "replaymark.artifact-v4.g4-run3-pre-claim-vector-json-dialect-failure-seal.v1",
+  "status": "PRE_CLAIM_VECTOR_INPUT_DIALECT_FAILURE_NOT_CONSUMED",
+  "run": {
+    "run_id": 34637564315,
+    "run_attempt": 1,
+    "public_head": "0211bf1474589e9a543910b08be5473486877e6d",
+    "workflow_conclusion": "failure",
+    "A_job_id": 103389083598,
+    "A_job_conclusion": "success",
+    "B_job_id": 103389083950,
+    "B_job_conclusion": "failure"
+  },
+  "B_progress_before_failure": {
+    "frozen_private_source_identity_pass": true,
+    "node_24_20_0_identity_pass": true,
+    "authority_roots_pass": true,
+    "RSTAR_snapshot_exact_digest_pass": true,
+    "Q_snapshot_exact_digest_pass": true,
+    "static_isolation_reaudit_pass": true,
+    "pristine_23_role_manifest_materialized": true,
+    "role_manifest_sha256": "d9c176d46bac36ebe5fc912c18c8290cd20f96597329c8716e3c8c780904e757",
+    "repository_trees_removed_before_B_runtime": true,
+    "B_runtime_started": true,
+    "B_claim_vector_written": false,
+    "B_trace_written": false
+  },
+  "failure": {
+    "stage": "Verifier B input parsing before claim vector materialization",
+    "role": "E3B_DECISIVE",
+    "message": "invalid JSON: No number after minus sign in JSON at position 13228 (line 585 column 53)",
+    "classification": "AUTHORITY_SERIALIZATION_DIALECT_COMPATIBILITY_FAILURE_BEFORE_CLAIM_VECTOR",
+    "interpretation": "The exact frozen authority member was byte-preserved and passed its archive/member identities, but the clean-room Node parser accepted strict RFC JSON only. The historical Python-produced authority contains a non-RFC numeric token accepted by Python's JSON dialect. No claim comparison occurred."
+  },
+  "exposure_state": {
+    "A_artifact_downloaded_or_inspected_for_failure_diagnosis": false,
+    "A_claim_values_observed_for_B_repair": false,
+    "B_claim_vector_observed": false,
+    "A_B_comparison_executed": false,
+    "v92_expected_contract_opened_in_G4": false,
+    "mutation_executed": false,
+    "metamorphic_challenge_executed": false
+  },
+  "prospective_repair_boundary": {
+    "allowed": "Add a value-agnostic historical-Python-JSON compatibility parser that recognizes bare NaN, Infinity, and -Infinity outside JSON strings and maps them to the corresponding JavaScript numeric values while leaving authority bytes and all claim derivation logic unchanged. Requalify the changed B parser on fabricated nonfinite fixtures and static isolation before a fresh G4 open.",
+    "forbidden": [
+      "inspect A claim values for parser repair",
+      "open v92 expected values",
+      "modify or normalize frozen authority bytes in place",
+      "change claim derivation formulas or expected outputs",
+      "change authority identities, success thresholds, or claim interfaces"
+    ],
+    "fresh_cleanroom_requalification_required": true,
+    "fresh_G4_run_required": true
+  },
+  "scientific_interpretation": "Run3 produced no B claim vector, no A-B comparison, and no v92 comparison. This is a pre-claim-vector parser-compatibility failure, not an N-version semantic disagreement."
+}
