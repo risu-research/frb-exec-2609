@@ -25,6 +25,9 @@
   "v6_delta": {
     "runtime_blob": "941b80b1c42781094fc8b3bb1a83861d80ae01da",
     "preflight_validator_blob": "c584a2aeaeae3f9be280f35503503c4fb3a92cbc",
+    "static_validator_blob": "5492b042cfc42842f253204da2e554fdb343286f",
+    "remediation_blob": "e53b9dc0cebf56eb033b57f3760774bb7ccce663",
+    "context_applicability_proof_blob": "7807c5454a91e1adff98b5bef69b39379d7489d7",
     "repair_id": "replaymark.ve2.t02-homeassistant-start-lifecycle-repair.v1",
     "execution_semantic_changes": 1,
     "old_signal": "homeassistant_start",
