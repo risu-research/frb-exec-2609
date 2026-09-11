@@ -1,0 +1,39 @@
+{
+  "schema": "replaymark.artifact-v4.g5-run2-repair-hash-qualification-pass-seal.v1",
+  "status": "FROZEN_PRECHALLENGE_REPAIR_HASH_QUALIFICATION_PASS",
+  "qualification": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "artifact-v4-g5-run2-repair-hash-qualification",
+    "run_id": 34651271015,
+    "job_id": 103433748351,
+    "execution_head": "bdd961e9d1ad549e20d3082459fa454cbf835f51",
+    "conclusion": "success"
+  },
+  "frozen_repair_identity": {
+    "old_executor_git_blob": "de465001c50cbd349a700d99dbc7fb09d17e2d39",
+    "old_executor_sha256": "e61ab814125e22f6ccc43483ac7d25a3e9734ec2e7e68ee7466210a9c62d7bce",
+    "repaired_executor_sha256": "481e73b0ed5ff82c89ebce0fe586f0386ec3a2fb9cc03d216add4ea672344145",
+    "replacement_count": 3,
+    "replacement_cardinalities": [1,1,1],
+    "python_compile_pass": true
+  },
+  "evidence_capsule": {
+    "artifact_id": 10283752578,
+    "artifact_name": "replaymark-artifact-v4-g5-run2-repair-hash-qualification",
+    "size_bytes": 13529,
+    "zip_sha256": "51a9f56ae2fa090d0b613528881c624c01290307ccf3a865ac55f9ffe0f9b9bc",
+    "independent_redownload_verified": true,
+    "internal_SHA256SUMS_verified": true,
+    "qualification_receipt_sha256": "7b9175c348808708142aee39ef0c460e5937628d704574648fc21a2446005e05",
+    "repaired_executor_sha256": "481e73b0ed5ff82c89ebce0fe586f0386ec3a2fb9cc03d216add4ea672344145",
+    "SHA256SUMS_sha256": "b90fefdbfe770f71d37a47d8b1c8a561adc626e22b60d7c25a41726072b99d8a"
+  },
+  "nonobservation_boundary": {
+    "challenge_executor_executed": false,
+    "verifier_B_executed": false,
+    "mutant_materialized": false,
+    "scientific_outcome_observed": false,
+    "manuscript_expected_values_read": false
+  },
+  "conclusion": "The exact repaired executor byte identity is now prospectively qualified. It may be bound into a new Run2 source freeze; no G5 scientific/adversarial outcome has yet been consumed by Run2."
+}
