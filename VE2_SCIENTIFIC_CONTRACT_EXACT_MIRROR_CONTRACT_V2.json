@@ -1,0 +1,52 @@
+{
+  "schema": "replaymark.ve2.scientific-contract-exact-mirror-contract.v2",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_failure_seal": "4fe589aa0b73a1e2ea89320222e7ec11534ce8e0",
+  "inherits_v1_contract": "VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_CONTRACT_V1.json",
+  "authorized_delta": {
+    "change_count": 1,
+    "change": "artifact extraction root for exact-source lookup",
+    "old_root": "e0r/",
+    "new_root": "e0r/ve2-e0r-v3-first-attempt-evidence/",
+    "artifact_id_changed": false,
+    "run_id_changed": false,
+    "expected_sha256_changed": false,
+    "expected_git_blob_changed": false,
+    "byte_processing_changed": false,
+    "mirror_destination_changed": false
+  },
+  "authority": {
+    "public_transport_pass_seal": "10b0012372af591fbc5e39cacacd1642b1c505c5",
+    "public_e0r_pass_seal": "390280823553b2c9b7c5996953891cfae5648fb1",
+    "e0r_open": "ce6b9aaa45a583663011c233f082f76a0c7bc996",
+    "e0r_run_id": 34535765216,
+    "e0r_artifact_id": 10175341605,
+    "e0r_artifact_name": "ve2-e0r-v3-first-attempt-evidence",
+    "e0r_artifact_zip_sha256": "6e4fe767a3f55b8c6fa37ddbda4413be9e6ff72fc74ea7087fd60195cdcc8e8a"
+  },
+  "exact_source_identities": {
+    "t01": {"bytes":12029,"sha256":"c42254e9556da27f0cc760c379b311d002dc775131b79a6cc3ab0af8b2a34b50","git_blob":"e95f7001095366a66240cb4201fe227729f7b4c2"},
+    "t02": {"bytes":811037,"sha256":"450b2fb1752900eda757a705e590d060aeca30d51dc5d0b05803bb71555ff409","git_blob":"7585079d3c1b65a5fcf8ad50b7b30f6a009d67b6"},
+    "freeze_receipt": {"bytes":3218,"sha256":"42d80c963eabe2627f257dd1aecf0701ad9ac1124420d562dd028ef9677f3a23","git_blob":"da0b624613a4b5f4d3f5e16570893866660f6731"},
+    "independent_validation": {"bytes":897,"sha256":"fd1a25b019e0bf34f4c423c1919d7f4a816e1077e13f80ee4834e8a447895849","git_blob":"c80d274b43e0d4088d6b1bf7b16b9843f66328a8"}
+  },
+  "execution_law": {
+    "source_freeze_required": true,
+    "exact_one_file_open_required": true,
+    "run_attempt_1_only": true,
+    "same_authority_rerun": false,
+    "output_branch": "ve2-scientific-contract-mirror-seal-v2",
+    "output_branch_must_not_preexist": true,
+    "git_hash_object_no_filters": true,
+    "git_update_index_cacheinfo": true,
+    "json_reserialization_for_source_files": false,
+    "line_ending_normalization": false
+  },
+  "scientific_firewall": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "expected_frontier_read": false,
+    "runtime_scientific_case_executed": false
+  }
+}
