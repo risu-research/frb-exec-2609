@@ -1,0 +1,93 @@
+{
+  "boundary_checks": {
+    "native_q767_loses_one_per_trial": true,
+    "native_q768_lossless": true,
+    "r1_q511_loses_one_per_trial": true,
+    "r1_q512_lossless": true,
+    "r2_q767_loses_one_per_trial": true,
+    "r2_q768_lossless": true
+  },
+  "broker_image_digest": "eclipse-mosquitto@sha256:6f8d8a947c506f8a2290ec65cd4bd2bc7cb4d43fb5f6271f861cb013e2ef9797",
+  "broker_version_sys": "mosquitto version 2.1.2",
+  "confirmation_pass": true,
+  "coverage": {
+    "conditions_per_trial": 3,
+    "measured_condition_executions": 144,
+    "queue_limits": [
+      511,
+      512,
+      767,
+      768
+    ],
+    "replicas": [
+      "A",
+      "B"
+    ],
+    "task_executions": 18432,
+    "trials_per_replica_queue": 6
+  },
+  "downstream_conclusion": {
+    "native_loss_fraction_at_r1_selected_q512": 0.3333333333333333,
+    "q512_r1_classification": "LOSSLESS",
+    "q512_r2_classification": "LOSSY",
+    "q512_target_native_classification": "LOSSY",
+    "r1_minimum_lossless_queue_messages": 512,
+    "r1_underprovision_fraction_of_native_requirement": 0.3333333333333333,
+    "r2_minimum_lossless_queue_messages": 768,
+    "target_native_minimum_lossless_queue_messages": 768,
+    "target_native_over_r1_requirement_ratio": 1.5
+  },
+  "errors": [],
+  "git_sha": "14305a233a93b9c89cf3e069b927877d6f5d6eb5",
+  "input_files": [
+    "confirmatory_A_q511.json",
+    "confirmatory_A_q512.json",
+    "confirmatory_A_q767.json",
+    "confirmatory_A_q768.json",
+    "confirmatory_B_q511.json",
+    "confirmatory_B_q512.json",
+    "confirmatory_B_q767.json",
+    "confirmatory_B_q768.json"
+  ],
+  "input_sha256": {
+    "confirmatory_A_q511.json": "1b16dd3db0893332899b9e8a03d88af0fa08a6dea236e96b0f8db6a88114cbe7",
+    "confirmatory_A_q512.json": "bf33dfbcbb652bcafdd5dd0e3e5e71086a91727f907c6e19a99e13ac50e47b84",
+    "confirmatory_A_q767.json": "b4849d0862fd808ba8f6ede865bdf6f5303befe2119fddffd8777852465fde9e",
+    "confirmatory_A_q768.json": "de3769e5bb111e4c383011575173c863ad38f786b3374e9a5859ba4df47aa775",
+    "confirmatory_B_q511.json": "fbe782474d04001614fae260a0f497a628fdc41b7158761d754318c4cf28b725",
+    "confirmatory_B_q512.json": "531c7dd96b9859021dd535fbcafe09306716ab7d6b3794a9710e58a088765614",
+    "confirmatory_B_q767.json": "5f52a9bfce6973dbfca6c4c3da3edd119e5b611669e03c32d3b1daed9daa60ba",
+    "confirmatory_B_q768.json": "e1700c11f2c5ad1749a67acdc96e8c6ed6eeb6160399fa561d9e48e46b8cb42f"
+  },
+  "per_queue": {
+    "511": {
+      "R1_TIMING": {"cells": 12, "delivered": 6132, "generated": 6144, "loss": 12},
+      "R2_SEMANTIC": {"cells": 12, "delivered": 6132, "generated": 9216, "loss": 3084},
+      "TARGET_NATIVE": {"cells": 12, "delivered": 6132, "generated": 9216, "loss": 3084}
+    },
+    "512": {
+      "R1_TIMING": {"cells": 12, "delivered": 6144, "generated": 6144, "loss": 0},
+      "R2_SEMANTIC": {"cells": 12, "delivered": 6144, "generated": 9216, "loss": 3072},
+      "TARGET_NATIVE": {"cells": 12, "delivered": 6144, "generated": 9216, "loss": 3072}
+    },
+    "767": {
+      "R1_TIMING": {"cells": 12, "delivered": 6144, "generated": 6144, "loss": 0},
+      "R2_SEMANTIC": {"cells": 12, "delivered": 9204, "generated": 9216, "loss": 12},
+      "TARGET_NATIVE": {"cells": 12, "delivered": 9204, "generated": 9216, "loss": 12}
+    },
+    "768": {
+      "R1_TIMING": {"cells": 12, "delivered": 6144, "generated": 6144, "loss": 0},
+      "R2_SEMANTIC": {"cells": 12, "delivered": 9216, "generated": 9216, "loss": 0},
+      "TARGET_NATIVE": {"cells": 12, "delivered": 9216, "generated": 9216, "loss": 0}
+    }
+  },
+  "primary_checks": {
+    "native_q512_loses_exactly_3072": true,
+    "native_q512_loss_fraction_one_third": true,
+    "r1_q512_lossless_all": true,
+    "r2_q512_loses_exactly_3072": true
+  },
+  "protocol": "replaymark_e3b_downstream/CONFIRMATORY_PROTOCOL.md",
+  "schema": "replaymark.e3b.downstream.queue_confirmatory_certificate.v1",
+  "status": "CONFIRMATORY_CERTIFICATE"
+}
