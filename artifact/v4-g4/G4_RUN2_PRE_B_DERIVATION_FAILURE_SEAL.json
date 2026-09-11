@@ -1,0 +1,55 @@
+{
+  "schema": "replaymark.artifact-v4.g4-run2-pre-b-derivation-failure-seal.v1",
+  "status": "PRE_B_DERIVATION_ROLE_MATERIALIZER_NAMESPACE_FAILURE_NOT_CONSUMED",
+  "run": {
+    "run_id": 34637257396,
+    "run_attempt": 1,
+    "public_head": "cbdc74badc3d7c19a3b5cac270f3233d0079526c",
+    "workflow_conclusion": "failure",
+    "A_job_id": 103388069530,
+    "A_job_conclusion": "success",
+    "B_job_id": 103388069745,
+    "B_job_conclusion": "failure"
+  },
+  "B_progress_before_failure": {
+    "frozen_private_source_identity_pass": true,
+    "node_24_20_0_identity_pass": true,
+    "historical_VE2_S6_authority_roots_pass": true,
+    "value_free_RSTAR_snapshot_materialized_and_digest_matched": true,
+    "value_free_Q_snapshot_materialized_and_digest_matched": true,
+    "G3_static_isolation_reaudit_pass": true,
+    "role_materializer_started": true,
+    "role_materializer_completed": false,
+    "B_runtime_started": false,
+    "B_claim_vector_exists": false
+  },
+  "failure": {
+    "stage": "Build explicit digest-bound pristine B role set",
+    "exception": "KeyError: 'historical'",
+    "exact_location": "artifact_v4/g4_materialize_pristine_b_roles.py direct-role root lookup",
+    "cause": "The materializer stored root paths under CLI names private_root/historical_root/public_root/ve2_root/s6_root but direct-role declarations used normalized keys private/historical/public/ve2/s6. This is a namespace/plumbing defect before B execution.",
+    "classification": "PRE_B_DERIVATION_IMPLEMENTATION_NAMESPACE_FAILURE"
+  },
+  "exposure_state": {
+    "A_artifact_downloaded_or_inspected_for_diagnosis": false,
+    "A_claim_values_exposed_to_B_or_repair": false,
+    "B_claim_values_observed": false,
+    "A_B_comparison_executed": false,
+    "v92_expected_contract_opened_in_G4": false,
+    "mutation_executed": false,
+    "metamorphic_challenge_executed": false
+  },
+  "prospective_repair_boundary": {
+    "allowed": "Change only the role-materializer root-key namespace construction so CLI roots are mapped to the already-declared normalized keys private/historical/public/ve2/s6.",
+    "forbidden": [
+      "change any authority identity or role bytes",
+      "change Verifier B source or derivation semantics",
+      "change Verifier A source or outputs",
+      "read A claim values to guide repair",
+      "open v92 expected values",
+      "change claim interfaces or pass thresholds"
+    ],
+    "fresh_run_required": true
+  },
+  "scientific_interpretation": "Run2 generated no B claim vector and reached no A-B comparison. The failure is transport/materialization plumbing, not a scientific or N-version semantic result."
+}
