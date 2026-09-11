@@ -12,7 +12,7 @@ permissions:
   actions: read
 
 env:
-  PRIVATE_SOURCE_SHA: 1b69bd4120a2ec0c79d6154beb6c37c9bf2a9bec
+  PRIVATE_SOURCE_SHA: b9b8c3c5b2984bfd38d3a581acb2068bdee3e0de
   HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
   FIXED_PROTOCOL_REF: 383ee2e1b192fda7c6ce3a9576d9c6a4eae0a77e
   S3C0_LEGACY_PROTOCOL_REF: 23b7c85bca6cb85fde9f4361a0f9664d21c8ae8d
@@ -56,17 +56,19 @@ jobs:
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G5_C14_INDEPENDENT_TWIN_FREEZE_V1.json)" = '2bfd9a4fb4d68416d46e16a9858185eac8585635'
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G5_POSTMISS_REMEDIATION_CONSTITUTION_V1.json)" = 'bcb4eea889619ee4f0b4220563739807575f33f5'
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/G5_BV2_PRISTINE_QUALIFICATION_RUN1_FAILURE_SEAL_V1.json)" = 'f27d234f737bd4c60306ec403a087e17e69c0aab'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/G5_BV2_PRISTINE_QUALIFICATION_RUN2_FAILURE_SEAL_V1.json)" = '2ffc37d03810cfa2b7997d7d147d93f9263f687c'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G5_BV2_QUALIFICATION_RUN2_REMEDIATION_FREEZE_V1.json)" = '6e90e376d5787450558f785d1420915ed540014e'
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/verifier_b.mjs)" = '809efb0ff3a26ab096af97d2b73b68045cf4d8c8'
-          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/g5_verifier_b_v2_materializer_v2.py)" = '4129ad522ad27084be70f2749f0580fd12e9a928'
-          python3 -m py_compile "$SRC/artifact_v4/g5_verifier_b_v2_materializer_v2.py"
-          echo 'BV2_REPAIR_V2_LINEAGE=PASS'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/g5_verifier_b_v2_materializer_v3.py)" = '063ff2abf66a980d81f9f78a14c304c22a1eba15'
+          python3 -m py_compile "$SRC/artifact_v4/g5_verifier_b_v2_materializer_v3.py"
+          echo 'BV2_REPAIR_V3_LINEAGE=PASS'
 
       - name: Materialize and statically qualify Verifier B v2
         shell: bash
         run: |
           set -euo pipefail
           SRC="$RUNNER_TEMP/private-bv2q"; OUT="$RUNNER_TEMP/bv2q"; mkdir -p "$OUT"
-          python3 "$SRC/artifact_v4/g5_verifier_b_v2_materializer_v2.py" --old "$SRC/artifact_v4/verifier_b.mjs" --out "$OUT/verifier_b_v2.mjs" --receipt "$OUT/BV2_MATERIALIZATION_RECEIPT.json"
+          python3 "$SRC/artifact_v4/g5_verifier_b_v2_materializer_v3.py" --old "$SRC/artifact_v4/verifier_b.mjs" --out "$OUT/verifier_b_v2.mjs" --receipt "$OUT/BV2_MATERIALIZATION_RECEIPT.json"
           node --check "$OUT/verifier_b_v2.mjs"
           ! grep -Eq 'C14_|C49_|V4_G2_CHALLENGE|CLAIM_LEDGER|replacement_expected|expected mutant' "$OUT/verifier_b_v2.mjs"
           python3 - <<'PY'
@@ -74,10 +76,10 @@ jobs:
           from pathlib import Path
           o=Path(os.environ['RUNNER_TEMP'])/'bv2q'; p=o/'verifier_b_v2.mjs'; r=json.loads((o/'BV2_MATERIALIZATION_RECEIPT.json').read_text())
           h=hashlib.sha256(p.read_bytes()).hexdigest()
-          assert r['status']=='PASS_MATERIALIZED_VERIFIER_B_V2_ESCAPE_CORRECTED' and r['new_sha256']==h
+          assert r['status']=='PASS_MATERIALIZED_VERIFIER_B_V2_SECTION_BOUNDARY_CORRECTED' and r['new_sha256']==h
           assert r['replacement_cardinalities']=={'helper_marker':1,'E06_block':1}
-          assert r['semantic_repair_contract_changed_since_v1'] is False
-          assert r['only_generated_regex_escape_encoding_corrected'] is True
+          assert r['semantic_repair_contract_changed_since_v2'] is False
+          assert r['only_n2Section_multiline_flag_removed_since_v2'] is True
           print('BV2_SHA256='+h)
           PY
 
@@ -154,11 +156,9 @@ jobs:
           python3 - <<'PY'
           import hashlib,json,os
           from pathlib import Path
-          q=Path(os.environ['RUNNER_TEMP'])/'bv2q'
-          H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
-          vector=q/'BV2_VECTOR.json'; trace=q/'BV2_TRACE.json'; mat=q/'BV2_MATERIALIZATION_RECEIPT.json'; stderr=q/'BV2_STDERR.log'; stdout=q/'BV2_STDOUT.log'
-          rc=int(os.environ.get('BV2_RC') or -999)
-          rec={'schema':'replaymark.artifact-v4.g5-verifier-b-v2-pristine-qualification.v2','status':'PASS_BV2_PRISTINE_QUALIFICATION' if rc==0 and vector.exists() else 'FAIL_BV2_PRISTINE_QUALIFICATION','verifier_b_v2_sha256':H(q/'verifier_b_v2.mjs'),'B_rc':rc,'baseline_claim_count':None,'baseline_vector_sha256':H(vector) if vector.exists() else None,'baseline_exact_frozen_G4_B':False,'challenge_executed':False,'mutant_materialized':False,'challenge_catalog_visible_to_B':False,'expected_manuscript_values_visible_to_B':False,'materialization_receipt_sha256':H(mat),'trace_sha256':H(trace) if trace.exists() else None,'stderr_sha256':H(stderr) if stderr.exists() else None,'stdout_sha256':H(stdout) if stdout.exists() else None}
+          q=Path(os.environ['RUNNER_TEMP'])/'bv2q'; H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          vector=q/'BV2_VECTOR.json'; trace=q/'BV2_TRACE.json'; mat=q/'BV2_MATERIALIZATION_RECEIPT.json'; stderr=q/'BV2_STDERR.log'; stdout=q/'BV2_STDOUT.log'; rc=int(os.environ.get('BV2_RC') or -999)
+          rec={'schema':'replaymark.artifact-v4.g5-verifier-b-v2-pristine-qualification.v3','status':'PASS_BV2_PRISTINE_QUALIFICATION' if rc==0 and vector.exists() else 'FAIL_BV2_PRISTINE_QUALIFICATION','verifier_b_v2_sha256':H(q/'verifier_b_v2.mjs'),'B_rc':rc,'baseline_claim_count':None,'baseline_vector_sha256':H(vector) if vector.exists() else None,'baseline_exact_frozen_G4_B':False,'challenge_executed':False,'mutant_materialized':False,'challenge_catalog_visible_to_B':False,'expected_manuscript_values_visible_to_B':False,'materialization_receipt_sha256':H(mat),'trace_sha256':H(trace) if trace.exists() else None,'stderr_sha256':H(stderr) if stderr.exists() else None,'stdout_sha256':H(stdout) if stdout.exists() else None}
           if vector.exists():
               v=json.loads(vector.read_text()); rec['baseline_claim_count']=len(v); rec['baseline_exact_frozen_G4_B']=len(v)==42 and H(vector)==os.environ['EXPECTED_G4_B_VECTOR_SHA256']
           (q/'BV2_PRISTINE_QUALIFICATION_RECEIPT.json').write_text(json.dumps(rec,indent=2,sort_keys=True)+'\n')
@@ -172,7 +172,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: replaymark-artifact-v4-g5-bv2-pristine-qualification-v2
+          name: replaymark-artifact-v4-g5-bv2-pristine-qualification-v3
           path: ${{ runner.temp }}/bv2q/**
           if-no-files-found: error
           retention-days: 90
