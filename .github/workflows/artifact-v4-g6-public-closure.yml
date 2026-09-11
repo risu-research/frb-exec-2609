@@ -1,0 +1,69 @@
+name: artifact-v4 g6 public closure
+
+on:
+  push:
+    branches:
+      - artifact-v4-g6-public-closure
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  close-v4-public-evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout frozen G6 closure source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Assert closure source identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object artifact/v4-g5/ARTIFACT_V4_G5_PUBLIC_PASS_FREEZE_V1.json)" = "14bfc2bf40e3cf1b94dafc38d916ebc4ade03841"
+          test "$(git hash-object artifact/v4-g5/ARTIFACT_V4_G5_INDEPENDENT_REDOWNLOAD_AUDIT_V1.json)" = "ab83e8d9503692524c4e6a308f694d3770d506d9"
+          python -m py_compile artifact/v4-g6/g6_public_closure.py
+
+      - name: Download exact frozen G5 evidence artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body -L \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/risu-research/frb-exec-2609/actions/artifacts/10284868064/zip" \
+            -o g5-frozen.zip
+          echo "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573  g5-frozen.zip" | sha256sum -c -
+
+      - name: Independently reconstruct G6 closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf g6-output
+          python artifact/v4-g6/g6_public_closure.py --zip g5-frozen.zip --out g6-output --repo-root . | tee G6_STDOUT.log
+          grep -q 'PASS_G6_PUBLIC_EVIDENCE_CLOSURE' G6_STDOUT.log
+          test -f g6-output/G6_PUBLIC_DETECTION_MATRIX_V1.json
+          test -f g6-output/G6_PUBLIC_CLOSURE_RECEIPT_V1.json
+          test -f g6-output/SHA256SUMS_G6_PUBLIC.txt
+          (cd g6-output && sha256sum -c SHA256SUMS_G6_PUBLIC.txt)
+
+      - name: Package closure evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp artifact/v4-g6/G6_PUBLIC_CLOSURE_CONSTITUTION_V1.json g6-output/
+          cp G6_STDOUT.log g6-output/
+          sha256sum g6-output/G6_PUBLIC_CLOSURE_CONSTITUTION_V1.json g6-output/G6_STDOUT.log > g6-output/SHA256SUMS_G6_AUX.txt
+
+      - name: Upload immutable G6 public closure candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: replaymark-artifact-v4-g6-public-closure-candidate
+          path: g6-output/
+          if-no-files-found: error
+          retention-days: 90
