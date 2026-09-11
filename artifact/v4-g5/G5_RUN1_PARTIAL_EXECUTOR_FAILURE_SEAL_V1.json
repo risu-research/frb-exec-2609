@@ -1,0 +1,77 @@
+{
+  "schema": "replaymark.artifact-v4.g5-run1-partial-executor-failure-seal.v1",
+  "status": "FROZEN_G5_RUN1_PARTIAL_EXECUTOR_CONTROL_FLOW_FAILURE_NOT_SCIENTIFIC_VERDICT",
+  "classification": "PARTIAL_CAMPAIGN_C10_PRE_OUTCOME_MUTATOR_CONTROL_FLOW_FAILURE_NOT_COMPLETE",
+  "run": {
+    "public_repository": "risu-research/frb-exec-2609",
+    "public_branch": "artifact-v4-g5-adversarial-open",
+    "public_run_id": 34649881590,
+    "public_job_id": 103429301134,
+    "public_run_attempt": 1,
+    "public_execution_head": "89e2edfbdf590ec8f0e0ae4759a6c9d8b84dec1f",
+    "private_source_commit": "7d0f367fca8f434bbf85747c731646ebc710fb14",
+    "workflow_conclusion": "failure"
+  },
+  "evidence_artifact": {
+    "artifact_id": 10283238158,
+    "artifact_name": "replaymark-artifact-v4-g5-first-complete-evidence",
+    "size_bytes": 428537,
+    "zip_sha256": "c2ed4d9b2ca03d07ae54242bad67711fa5a03705b2bd278a57a68a215dda646e",
+    "independent_redownload_sha256_verified": true,
+    "recursive_sha256sum_entries": 191,
+    "recursive_sha256sum_check": "PASS_ALL_191_INDEXED_FILES",
+    "case_results_sha256": "ad6b333f42c3ea222e35ce3b486887d1235dd94dc3dad11f236418a93df073cd",
+    "evidence_index_sha256": "90a14546eb8b56703c73b34c9581504bc8b48fcfe79f91ad54e88d0405af7aec",
+    "pristine_baseline_seal_sha256": "1503a9f2525064e2b8bea7b7e86cf51710ec3c1bb4753baafa7c2c81d98bd18a",
+    "pristine_B_vector_sha256": "65b2b519b45315589d885d75d17dc716b255db5c88612652b6201dca93b5103c",
+    "executor_stderr_sha256": "41e359377e0e8d675759890fde5be76e9d620765ab56a4321f95c417f261d184"
+  },
+  "pre_failure_successes": {
+    "pristine_B_reproduction": "PASS_EXACT_G4_B_VECTOR",
+    "completed_consequential_outcomes": 5,
+    "completed_outcomes_in_frozen_order": [
+      {"ordinal":1,"challenge_id":"C27_FIXED_WORK_PROTOCOL_TASK_COUNT","status":"DETECTED","B_normalized_detected":true,"unexplained_extra_changed_claims":[]},
+      {"ordinal":2,"challenge_id":"C39_VE2_EXPECTED_QUOTIENT_COMPATIBLE","status":"DETECTED","B_normalized_detected":true,"unexplained_extra_changed_claims":[]},
+      {"ordinal":3,"challenge_id":"C38_VE2_VERSION_LOCK_POLICY","status":"DETECTED","B_normalized_detected":true,"unexplained_extra_changed_claims":[]},
+      {"ordinal":4,"challenge_id":"C43_S6_P99_COHERENT_SHIFT","status":"DETECTED","B_normalized_detected":true,"unexplained_extra_changed_claims":[]},
+      {"ordinal":5,"challenge_id":"C30_S3C3_OPTIMISTIC_ERROR_COUNT","status":"DETECTED","B_normalized_detected":true,"unexplained_extra_changed_claims":[]}
+    ],
+    "these_outcomes_are_preserved_but_not_a_G5_verdict": true
+  },
+  "failure": {
+    "ordinal": 6,
+    "challenge_id": "C10_E05_BROKER_TRIAL_SCALE",
+    "stage": "MUTATOR_BEFORE_B_RUNTIME_FOR_C10",
+    "error": "PreOutcomeFailure: C10_E05_BROKER_TRIAL_SCALE: mutation made no byte change in E3B_DECISIVE",
+    "B_invoked_for_C10": false,
+    "C10_semantic_outcome_observed": false,
+    "G5_campaign_receipt_present": false,
+    "root_cause": "Python one-line if suite semantics placed the intended mutation statements after the colon on the same physical line. Because len(trials)>=2, the entire suite, including pop and return, was skipped; the no-byte-change guard then failed closed.",
+    "scientific_classification": "EXECUTOR_CONTROL_FLOW_IMPLEMENTATION_DEFECT_NOT_MUTATION_MISS"
+  },
+  "prospective_static_audit": {
+    "audit_basis": "After the C10 control-flow exception, inspect the already-frozen executor source for the identical syntactic pattern only; do not inspect unexecuted scientific outcomes.",
+    "same_defect_sites": [
+      "C10_E05_BROKER_TRIAL_SCALE guard/mutation line",
+      "C21_HORIZON_DEPTH1_SUFFIX and C23_HORIZON_DEPTH2_SUFFIX shared alternate-token guard/mutation line",
+      "C47_E39_N2_REPLICA_CARDINALITY guard/mutation line"
+    ],
+    "repair_scope": "Split each guard onto its own block and place the already-frozen mutation statements after the guard. Do not alter selectors, mutation magnitudes, challenge targets, expected detections, Verifier A, Verifier B, or authorities.",
+    "challenge_outcomes_used_to_tune_unexecuted_mutations": false
+  },
+  "preservation_law": {
+    "Run1_remains_failed_and_partial": true,
+    "Run1_may_not_be_retroactively_relabelled_PASS": true,
+    "five_completed_outcomes_remain_immutable_evidence": true,
+    "C10_pre_outcome_failure_remains_immutable_evidence": true,
+    "challenge_catalog_deleted_or_reselected": false,
+    "challenge_parameters_changed": false,
+    "verifier_A_changed": false,
+    "verifier_B_changed": false,
+    "canonical_authority_changed": false,
+    "manuscript_changed": false,
+    "new_scientific_measurement": false,
+    "historical_experiment_rerun": false,
+    "fresh_full_48_plus_8_campaign_required_after_prospective_repair": true
+  }
+}
