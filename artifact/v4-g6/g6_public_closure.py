@@ -58,7 +58,7 @@ def main():
     if not zpath.is_file(): die("artifact zip absent")
     outer_sha=sha256_file(zpath)
     if outer_sha!=EXPECTED["zip_sha256"]: die("artifact ZIP sha256 mismatch")
-    if freeze["evidence_capsule"]["zip_sha256"]!=outer_sha: die("freeze-to-artifact ZIP binding mismatch")
+    if freeze["evidence_capsule"]["independent_redownload_sha256"]!=outer_sha: die("freeze-to-artifact ZIP binding mismatch")
     if audit["artifact"]["independently_recomputed_zip_sha256"]!=outer_sha: die("audit-to-artifact ZIP binding mismatch")
 
     extract=out/"g5_extract"; extract.mkdir(exist_ok=True)
