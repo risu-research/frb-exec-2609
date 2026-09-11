@@ -1,0 +1,82 @@
+{
+  "schema": "replaymark.artifact-v4.g3-public-qualification-freeze.v1",
+  "status": "FROZEN_G3_CLEANROOM_ISOLATION_QUALIFIED_NO_SCIENTIFIC_B_OPEN",
+  "public_execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "artifact-v4-g3-qualification",
+    "workflow": ".github/workflows/artifact-v4-g3-qualification.yml",
+    "run_id": 34635159425,
+    "run_attempt": 1,
+    "job_id": 103381142631,
+    "execution_head": "62ce0dc874c3afc2cd361a1988ef943b554d48c3",
+    "workflow_conclusion": "success"
+  },
+  "private_source": {
+    "commit": "9ae5ce98c1df599316961fa96820be6d4631b372",
+    "g3_source_freeze_blob": "eeb7d3cc587da60b406325cdb376894db69ef882",
+    "verifier_b_blob": "809efb0ff3a26ab096af97d2b73b68045cf4d8c8",
+    "semantic_materializer_blob": "cf9d4ccc7cfe35f709ff983500b2f5b969be600e",
+    "synthetic_qualification_blob": "04246081f6b1b2b49409bb96274545616a3d87c0",
+    "static_audit_blob": "13e0b3d3c02a9b77092f3d9ccec9d4eddde39ac3"
+  },
+  "artifact": {
+    "id": 10276884785,
+    "name": "replaymark-artifact-v4-g3-cleanroom-qualification",
+    "size_bytes": 6942,
+    "zip_sha256": "436592d8551882888e7d0dbde3013d3f1155523dd140347be1f86493ea40e7ee",
+    "independent_redownload_digest_match": true,
+    "internal_sha256_manifest_all_pass": true
+  },
+  "capsule_file_sha256": {
+    "STATIC_AUDIT_PRE.json": "8133795ab66d28ebfaaefff3408c4e26b9919c1d01a3172bc5568f2f0ee4a05e",
+    "STATIC_AUDIT_POST.json": "dae2df44ff2c3f2f0dff851142aa3b5508a39a98109a020a4ab131d1c9f50c1b",
+    "SYNTHETIC_QUALIFICATION_STDOUT.json": "5d7165c07295e4470442ccd8e93b4f9e602c75dbe99154a08649ae0653f0978d",
+    "MATERIALIZER_STDOUT.json": "90a3e890d6b0234fc7b7c0d1aefcd11976c58588b4cfcb6bba6456c30aef8526",
+    "G3_QUALIFICATION_RECEIPT.json": "e86d26610fcbc1e29ce9ff8f46ad6e260a7d0fbd1dfcec8c2d025efdfb555e6a",
+    "snapshots/RSTAR_SEMANTIC_SNAPSHOT.json": "47f974662ba911191334725eafc019580509c69afa11ef600c50de9a1203957a",
+    "snapshots/Q_THERMOSTAT_SEMANTIC_SNAPSHOT.json": "8848a9636d64788af65d053e0be072b9e8fa40746ef6ff24d67bec7a78fd44f6",
+    "snapshots/SEMANTIC_MATERIALIZATION_RECEIPT.json": "01336250882dec81f41150b8789719b8504d83deab1a9a0788acae64252308f9"
+  },
+  "qualified_runtime": {
+    "runner": "ubuntu-24.04",
+    "node": "v24.20.0",
+    "python": "Python 3.12.3"
+  },
+  "qualified_properties": {
+    "verifier_b_syntax": "PASS",
+    "materializer_python_syntax": "PASS",
+    "static_cleanroom_audit_pre": "PASS",
+    "synthetic_fabricated_fixture_qualification": "PASS",
+    "value_free_semantic_materialization": "PASS",
+    "static_cleanroom_audit_post": "PASS",
+    "snapshot_schema_audit": "PASS",
+    "verifier_b_allowed_imports_only": true,
+    "verifier_b_forbidden_input_identifiers_absent": true,
+    "verifier_b_high_risk_expected_literals_absent": true,
+    "verifier_b_network_subprocess_dynamic_scan_tokens_absent": true,
+    "verifier_b_directory_enumeration_absent": true,
+    "materializer_does_not_execute_q_compiler_or_definition_partition": true,
+    "materializer_does_not_execute_production_or_oracle_rstar": true,
+    "snapshot_rstar_worlds": 4,
+    "snapshot_rstar_queries": 6,
+    "snapshot_q_states": 32,
+    "snapshot_q_max_horizon": 4
+  },
+  "gate_separation": {
+    "verifier_b_pristine_scientific_execution": false,
+    "verifier_b_scientific_claim_vector_created": false,
+    "expected_values_opened_to_b": false,
+    "v3_or_v92_comparison_executed": false,
+    "v4_consequential_challenge_executed": false,
+    "v4_metamorphic_challenge_executed": false,
+    "first_pristine_b_open_remains_g4": true
+  },
+  "scientific_noninterference": {
+    "new_scientific_measurement": false,
+    "historical_experiment_rerun": false,
+    "authority_replacement": false,
+    "manuscript_change": false,
+    "v3_result_change": false
+  },
+  "interpretation": "G3 establishes source identity, runtime qualification, clean-room isolation, generic semantic-engine behavior on fabricated fixtures, and value-free semantic snapshot integrity. It does not establish that Verifier B reproduces the 42 ReplayMark claims; that first scientific derivation is intentionally unopened until G4."
+}
