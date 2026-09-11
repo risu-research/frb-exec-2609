@@ -1,0 +1,255 @@
+name: VE2 scientific postrun deviation analysis v1
+
+on:
+  push:
+    branches:
+      - ve2-scientific-postrun-deviation-qualification-v1
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  RAW_RESULT_SEAL: 2021a94faa764994bf8382d0c9b9261a24fd735d
+  SCIENCE_RUN_ID: '34557055906'
+  SCIENCE_ARTIFACT_ID: '10183051324'
+  SCIENCE_ARTIFACT_NAME: ve2-authoritative-first-complete-v2-evidence
+  SCIENCE_ARTIFACT_ZIP_SHA256: 3f035c444912b05ff0a44439f89be94aa4b1c2730cea987ae3ec7718b65e4c53
+  ARTIFACT_ROOT: evidence/ve2-authoritative-first-complete-v2-evidence
+  RAW_SEAL_FILE_SHA256: 3a73be12921d99aa1a903e602c02ef8e166067185cfaf577caf3fea6ee5b0769
+
+jobs:
+  adjudicate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 260
+
+      - name: Enforce exact post-result analysis authority
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test -f VE2_SCIENTIFIC_POSTRUN_DEVIATION_OPEN_V1.json
+          source_freeze="$(git rev-parse HEAD^)"
+          git merge-base --is-ancestor "$RAW_RESULT_SEAL" "$source_freeze"
+
+          mapfile -t open_delta < <(git diff --name-only "$source_freeze..HEAD" | LC_ALL=C sort)
+          test "${#open_delta[@]}" = '1'
+          test "${open_delta[0]}" = 'VE2_SCIENTIFIC_POSTRUN_DEVIATION_OPEN_V1.json'
+
+          mapfile -t source_delta < <(git diff --name-only "$RAW_RESULT_SEAL..$source_freeze" | LC_ALL=C sort)
+          expected=(
+            '.github/workflows/ve2-scientific-postrun-deviation-v1.yml'
+            'VE2_SCIENTIFIC_POSTRUN_DEVIATION_CONTRACT_V1.json'
+            've2_scientific_postrun_deviation_adjudicate_v1.py'
+          )
+          test "${#source_delta[@]}" = "${#expected[@]}"
+          for i in "${!expected[@]}"; do test "${source_delta[$i]}" = "${expected[$i]}"; done
+
+          python - "$source_freeze" <<'PY'
+          import json,sys
+          c=json.load(open('VE2_SCIENTIFIC_POSTRUN_DEVIATION_CONTRACT_V1.json'))
+          assert c['schema']=='replaymark.ve2.scientific-postrun-deviation-contract.v1'
+          assert c['status']=='FROZEN_POST_RESULT_ANALYSIS_ONLY'
+          assert c['raw_result_authority']['raw_result_seal']=='2021a94faa764994bf8382d0c9b9261a24fd735d'
+          assert c['raw_result_authority']['scientific_run_id']==34557055906
+          assert c['raw_result_authority']['scientific_run_attempt']==1
+          assert c['raw_result_authority']['evidence_artifact_id']==10183051324
+          assert c['scientific_hygiene']['scientific_worker_rerun_authorized'] is False
+          assert c['scientific_hygiene']['docker_or_native_science_execution_authorized'] is False
+          assert c['immutable_preregistration']['expected_frontier_rewrite_authorized'] is False
+          assert c['immutable_preregistration']['post_hoc_weighted_repartition_promoted'] is False
+          o=json.load(open('VE2_SCIENTIFIC_POSTRUN_DEVIATION_OPEN_V1.json'))
+          assert o=={
+            'schema':'replaymark.ve2.scientific-postrun-deviation-open.v1',
+            'status':'OPEN_POST_RESULT_ANALYSIS_ONLY',
+            'source_freeze':sys.argv[1],
+            'raw_result_seal':'2021a94faa764994bf8382d0c9b9261a24fd735d',
+            'scientific_run_id':34557055906,
+            'evidence_artifact_id':10183051324,
+            'scientific_worker_rerun':False,
+            'expected_frontier_rewrite':False,
+            'analysis_is_post_result':True,
+          }
+          PY
+          echo "source_freeze=$source_freeze" >> "$GITHUB_OUTPUT"
+
+      - name: Verify exact scientific evidence artifact metadata
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "/repos/$GITHUB_REPOSITORY/actions/artifacts/$SCIENCE_ARTIFACT_ID" > artifact-metadata.json
+          python - <<'PY'
+          import json,os
+          m=json.load(open('artifact-metadata.json'))
+          assert m['id']==int(os.environ['SCIENCE_ARTIFACT_ID'])
+          assert m['name']==os.environ['SCIENCE_ARTIFACT_NAME']
+          assert m['expired'] is False
+          assert m['digest']=='sha256:'+os.environ['SCIENCE_ARTIFACT_ZIP_SHA256']
+          r=m['workflow_run']
+          assert r['id']==int(os.environ['SCIENCE_RUN_ID'])
+          assert r['head_sha']=='727889c1254a76fe6f6596c2be7ade47dd96ee33'
+          PY
+
+      - name: Download exact immutable scientific evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: '10183051324'
+          path: evidence
+          github-token: ${{ github.token }}
+          repository: risu-research/frb-exec-2609
+          run-id: '34557055906'
+
+      - name: Reverify immutable evidence bytes before any model read
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$ARTIFACT_ROOT/raw"
+          test -d "$ARTIFACT_ROOT/adjudication"
+          test -d "$ARTIFACT_ROOT/evidence-seal"
+          (cd "$ARTIFACT_ROOT/raw" && sha256sum -c CHECKSUMS.sha256)
+          (cd "$ARTIFACT_ROOT/adjudication" && sha256sum -c CHECKSUMS.sha256)
+          (cd "$ARTIFACT_ROOT/evidence-seal" && sha256sum -c CHECKSUMS.sha256)
+          test "$(sha256sum "$ARTIFACT_ROOT/raw/VE2_ALL_RAW_STAGE_ARTIFACTS_SEALED_V1.json" | awk '{print $1}')" = "$RAW_SEAL_FILE_SHA256"
+          python -m py_compile ve2_scientific_postrun_deviation_adjudicate_v1.py ve2_transition_semantics_v1.py
+
+      - name: Adjudicate preregistration deviation against observed native boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p analysis
+          python ve2_scientific_postrun_deviation_adjudicate_v1.py \
+            --raw-dir "$ARTIFACT_ROOT/raw" \
+            --raw-seal "$ARTIFACT_ROOT/raw/VE2_ALL_RAW_STAGE_ARTIFACTS_SEALED_V1.json" \
+            --t01-frontier VE2_T01_EXPECTED_FRONTIER_V1.json \
+            --t02-frontier VE2_T02_EXPECTED_FRONTIER_V1.json \
+            --model-source ve2_transition_semantics_v1.py \
+            --t02-old-blueprint scientific_capsule/runtime/blueprints/T02_OLD_WEEKLY_HEATING_SCHEDULE.yaml \
+            --out analysis/VE2_SCIENTIFIC_POSTRUN_DEVIATION_ADJUDICATION_V1.json \
+            > analysis/STDOUT.txt 2> analysis/STDERR.txt
+
+      - name: Independently validate deviation-analysis result shape and exact empirical counts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('analysis/VE2_SCIENTIFIC_POSTRUN_DEVIATION_ADJUDICATION_V1.json')
+          d=json.loads(p.read_text())
+          assert d['schema']=='replaymark.ve2.scientific-postrun-deviation-adjudication.v1'
+          assert d['status']=='CORE_METHOD_PASS_AUXILIARY_MODEL_FALSIFIED'
+          assert d['experimental_integrity']['status']=='PASS'
+          assert d['preregistered_expected_frontier_exact_match']['status']=='FAIL'
+          assert d['preregistered_expected_frontier_exact_match']['expectations_rewritten'] is False
+          assert d['auxiliary_transition_model_fidelity']['status']=='FAIL'
+          assert d['core_replaymark_observed_native_boundary']['status']=='PASS'
+          assert d['weighted_abstract_reconstruction']['status']=='WITHHELD_NOT_PROMOTED'
+          assert d['interpretation_law']['result_dependent_science_rerun_authorized'] is False
+
+          t01=d['core_replaymark_observed_native_boundary']['t01']
+          assert len(t01)==2
+          for r in t01:
+            assert r['observed_native_boundary']=={'compatible':0,'retired':2}
+            assert r['replaymark']=={'admit':0,'block':2,'unsafe_observed_retired_dispatch':0}
+            assert r['core_empirical_pass'] is True
+
+          t02=d['core_replaymark_observed_native_boundary']['t02']
+          assert len(t02)==2
+          for r in t02:
+            assert r['observed_native_boundary']=={'compatible':20,'retired':22}
+            assert r['replaymark_empirical']=={
+              'observed_compatible_admitted':20,
+              'observed_retired_blocked':22,
+              'unsafe_observed_retired_historical_dispatch':0,
+              'unnecessary_native_recovery':0,
+            }
+            assert r['replay_all']=={'observed_retired_historical_dispatch':12}
+            assert r['core_empirical_pass'] is True
+          assert d['core_replaymark_observed_native_boundary']['t02_two_replica_total']=={
+            'observed_compatible_instances':40,
+            'observed_retired_instances':44,
+            'replaymark_observed_compatible_admitted':40,
+            'replaymark_observed_retired_blocked':44,
+            'unsafe_observed_retired_historical_dispatch':0,
+            'replay_all_observed_retired_historical_dispatch':24,
+          }
+          assert d['core_replaymark_observed_native_boundary']['t02_semantic_replica_agreement'] is True
+
+          mf=d['auxiliary_transition_model_fidelity']['t02']
+          for r in mf:
+            assert r['old_action_agreement']=='37/42'
+            assert r['new_action_agreement']=='42/42'
+            assert r['old_action_mismatch_count']==5
+            assert r['new_action_mismatch_count']==0
+            assert r['compatibility_classification_mismatch_count']==2
+            assert r['all_old_mismatches_cluster_at_startup_with_pause_disabled'] is True
+            assert [x['execution_state_id'] for x in r['old_action_mismatches']]==[
+              'VE2-T02-S03','VE2-T02-S07','VE2-T02-S22','VE2-T02-S29','VE2-T02-S36'
+            ]
+            assert [x['execution_state_id'] for x in r['classification_mismatches']]==[
+              'VE2-T02-S07','VE2-T02-S36'
+            ]
+          rc=d['auxiliary_transition_model_fidelity']['root_cause_forensics']
+          assert rc['classification']=='FROZEN_MODEL_FALSE_LITERAL_TRUTHINESS_ASSUMPTION_FALSIFIED_BY_NATIVE_EXECUTION'
+
+          validation={
+            'schema':'replaymark.ve2.scientific-postrun-deviation-independent-validation.v1',
+            'status':'PASS',
+            'adjudication_sha256':d['adjudication_sha256'],
+            'raw_science_rerun':False,
+            'preregistered_negative_result_preserved':True,
+            'core_empirical_boundary_pass_confirmed':True,
+            'weighted_144_state_promotion_withheld':True,
+          }
+          Path('analysis/VE2_SCIENTIFIC_POSTRUN_DEVIATION_INDEPENDENT_VALIDATION_V1.json').write_text(json.dumps(validation,sort_keys=True,indent=2)+'\n')
+          PY
+
+      - name: Seal post-result analysis evidence
+        shell: bash
+        env:
+          SOURCE_FREEZE: ${{ steps.gate.outputs.source_freeze }}
+        run: |
+          set -euo pipefail
+          cp artifact-metadata.json analysis/SCIENTIFIC_ARTIFACT_METADATA.json
+          SOURCE_FREEZE="$SOURCE_FREEZE" python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          def fsha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          d=json.load(open('analysis/VE2_SCIENTIFIC_POSTRUN_DEVIATION_ADJUDICATION_V1.json'))
+          v=json.load(open('analysis/VE2_SCIENTIFIC_POSTRUN_DEVIATION_INDEPENDENT_VALIDATION_V1.json'))
+          receipt={
+            'schema':'replaymark.ve2.scientific-postrun-deviation-analysis-receipt.v1',
+            'status':'PASS_REPRODUCIBLE_POST_RESULT_ANALYSIS',
+            'source_freeze':os.environ['SOURCE_FREEZE'],
+            'analysis_open':os.environ['GITHUB_SHA'],
+            'scientific_run_id':34557055906,
+            'scientific_run_attempt':1,
+            'scientific_artifact_id':10183051324,
+            'scientific_artifact_zip_sha256':'3f035c444912b05ff0a44439f89be94aa4b1c2730cea987ae3ec7718b65e4c53',
+            'raw_seal_file_sha256':'3a73be12921d99aa1a903e602c02ef8e166067185cfaf577caf3fea6ee5b0769',
+            'adjudication_file_sha256':fsha('analysis/VE2_SCIENTIFIC_POSTRUN_DEVIATION_ADJUDICATION_V1.json'),
+            'adjudication_canonical_sha256':d['adjudication_sha256'],
+            'independent_validation_file_sha256':fsha('analysis/VE2_SCIENTIFIC_POSTRUN_DEVIATION_INDEPENDENT_VALIDATION_V1.json'),
+            'overall_status':d['status'],
+            'scientific_worker_rerun':False,
+            'expected_frontier_rewritten':False,
+            'weighted_144_state_claim_promoted':False,
+          }
+          Path('analysis/VE2_SCIENTIFIC_POSTRUN_DEVIATION_ANALYSIS_RECEIPT_V1.json').write_text(json.dumps(receipt,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd analysis && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+
+      - name: Upload immutable post-result analysis
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-scientific-postrun-deviation-v1-evidence
+          path: analysis/
+          if-no-files-found: error
+          retention-days: 90
