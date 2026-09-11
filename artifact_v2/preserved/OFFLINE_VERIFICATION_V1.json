@@ -1,0 +1,91 @@
+{
+  "aggregate_sha256": "9dd9a0363d04a413b380fefcf3d35a56c50a089ba321f2812c5a94b741a18adf",
+  "exact_unrounded": {
+    "e3b_full_compile_median_ms_by_replica": [
+      108.1062,
+      107.668031
+    ],
+    "largest_p50_max_min_ratio": 1.1129364376930442,
+    "max_anchor_peak_rss_bytes": 29548544.0,
+    "thermostat_q_compile_median_ms_by_replica": [
+      4.022657,
+      3.879646
+    ],
+    "worst_e3b_p99_9_budget_percent": 2.3436816570000105,
+    "worst_e3b_p99_9_ns": 2343681.6570000104,
+    "worst_e3b_p99_budget_percent": 1.3714531700000003,
+    "worst_e3b_p99_ns": 1371453.1700000002
+  },
+  "frozen_interpretations": {
+    "F1_online_N_decoupling": "EMPIRICALLY_FLAT_OVER_MEASURED_RANGE",
+    "F6_authorization_footprint": "MATERIAL_AUTHORIZATION_FOOTPRINT_EFFECT_NOT_ESTABLISHED",
+    "contract_canonical_bytes": "INSUFFICIENT_SUPPORT",
+    "full_contract_wall_time": "INSUFFICIENT_SUPPORT",
+    "peak_rss": "INSUFFICIENT_SUPPORT",
+    "q_only_wall_time": "SEMANTIC_SEPARATION_NOT_ESTABLISHED",
+    "real_E3b_100ms_budget": "REPORT_ONLY_NO_POST_HOC_SUCCESS_THRESHOLD"
+  },
+  "hygiene": {
+    "aggregate_status": "AGGREGATED_BEFORE_VERDICT_ENFORCEMENT",
+    "authority_rewritten": false,
+    "authority_zip_exact": true,
+    "fresh_claim_bytes_identical_to_authority_raw_members": true,
+    "fresh_claim_zips_exact": true,
+    "performance_value_selection": false,
+    "raw_to_aggregate_cross_checks": true,
+    "sealed_complete_enforcement": true,
+    "source_valid_record_rerun": false,
+    "stronger_offline_scaling_claim_permitted": false,
+    "thresholds_changed_after_observation": false,
+    "unfavorable_results_preserved": true
+  },
+  "manuscript_snapshot": {
+    "sha256": "49a38fe979749fd9071b5d0299ce146989bd2846b2f7c945ef905794e80aef7b",
+    "version": "v91_FinalSubmissionAudit"
+  },
+  "paper_projection_v91": {
+    "anchor_peak_rss_lt_decimal_mb": 30,
+    "e3b_full_compile_median_ms_range_1dp": [
+      "107.7",
+      "108.1"
+    ],
+    "f1_all_blocks_flat": true,
+    "f1_eligible_replica_seed_blocks": 10,
+    "f1_online_N_levels": [
+      32,
+      64,
+      128,
+      256
+    ],
+    "largest_p50_max_min_ratio_3dp": "1.113",
+    "positive_offline_scaling_claim": false,
+    "thermostat_q_compile_median_ms_range_2dp": [
+      "3.88",
+      "4.02"
+    ],
+    "worst_e3b_p99_9_budget_percent_3dp": "2.344",
+    "worst_e3b_p99_9_ms_3dp": "2.344",
+    "worst_e3b_p99_budget_percent_3dp": "1.371",
+    "worst_e3b_p99_ms_3dp": "1.371"
+  },
+  "public_source_run": {
+    "branch": "qx-run-v2",
+    "head_sha": "f5461c9adf94f5adc2542355283b4c9f85a468ae",
+    "repository": "risu-research/frb-exec-2609",
+    "run_attempt": 1,
+    "run_id": 34368556819,
+    "workflow_conclusion": "success"
+  },
+  "schema": "replaymark.artifact-v2.offline-s6-verification.v1",
+  "status": "PASS_SELF_CONTAINED_EXACT_V91_REPRODUCTION",
+  "verified_zip_sha256": {
+    "replaymark-s6-x86-first-complete-authority-v6-public-substrate-v2": "88cf0809117ab2c9266d4de1cb0e80f58c1165bd9635bcfe970628b8a3fd6e62",
+    "replaymark-s6-x86-first-complete-enforcement-v6-public-substrate-v2": "8d7b306f0770e0015488a28ad73c704198fb411fa1dee0231885f0fb035c08da",
+    "s6-anchors-A": "426a71bdd2079e411c080f2df036925d5fb20d78d43171961dce1ad2f855870e",
+    "s6-anchors-B": "4e82d48eeae59c5f6d51984f8ef0db0672713b94bd7744e9704a47d1de3a6006",
+    "s6-e3b-budget-A": "a66913df8433020ea5eb7d8f5fa03c6a16ea53dd1b1a586d99e70159564fc524",
+    "s6-e3b-budget-B": "b2fcfbfaf7f1c3b2601a64363661bdbc7e171b2000ee232e03c58a7495707e69",
+    "s6-online-f12-A": "88984f4d68a9e0cad1c564959a4ea3ca3230dfe9bcaf71f34bb92adf4a9d693a",
+    "s6-online-f12-B": "3a6260372dd02935f3bcb3a781fcb4312c3c74c60bd4b6b0261e4acd61e25282"
+  }
+}

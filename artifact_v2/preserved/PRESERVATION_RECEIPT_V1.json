@@ -1,0 +1,54 @@
+{
+  "authority_replacement": false,
+  "fetcher_v2_sha256": "482f1741ee68aa197ce3bd61b592e2ee2a05900666d2670bddc07ca9838c8e15",
+  "new_scientific_measurement": false,
+  "offline_verification_sha256": "5ca0b4cbfee164bf2032f59365bca5690e0de72d36ab8f89b0c5a1e5dbcdb70e",
+  "offline_verifier_sha256": "f74102308bdc9b3d4df40cf36185d7ef8d15f5daefdaac9d4976b213e148bbd1",
+  "paper_reducer_sha256": "75319af4f757b2897b910304a63151fcd0fbff38a3d5922a7d56877c07d77aff",
+  "paper_view_sha256": "076ffb6d12dd509775de441f5fff5f124b79a0acf15bba4c66b35a5c8bbcbce8",
+  "post_hoc_tuning": false,
+  "preservation_source_commit": "adb37bd5572b1a12284e47cb935fc56782c325a6",
+  "preservation_workflow_run_attempt": 1,
+  "preservation_workflow_run_id": 34610333483,
+  "preserved_zip_count": 8,
+  "preserved_zip_total_bytes": 47541033,
+  "preserved_zips": {
+    "replaymark-s6-x86-first-complete-authority-v6-public-substrate-v2.zip": {
+      "sha256": "88cf0809117ab2c9266d4de1cb0e80f58c1165bd9635bcfe970628b8a3fd6e62",
+      "size_bytes": 26213926
+    },
+    "replaymark-s6-x86-first-complete-enforcement-v6-public-substrate-v2.zip": {
+      "sha256": "8d7b306f0770e0015488a28ad73c704198fb411fa1dee0231885f0fb035c08da",
+      "size_bytes": 1431
+    },
+    "s6-anchors-A.zip": {
+      "sha256": "426a71bdd2079e411c080f2df036925d5fb20d78d43171961dce1ad2f855870e",
+      "size_bytes": 1367
+    },
+    "s6-anchors-B.zip": {
+      "sha256": "4e82d48eeae59c5f6d51984f8ef0db0672713b94bd7744e9704a47d1de3a6006",
+      "size_bytes": 1371
+    },
+    "s6-e3b-budget-A.zip": {
+      "sha256": "a66913df8433020ea5eb7d8f5fa03c6a16ea53dd1b1a586d99e70159564fc524",
+      "size_bytes": 315814
+    },
+    "s6-e3b-budget-B.zip": {
+      "sha256": "b2fcfbfaf7f1c3b2601a64363661bdbc7e171b2000ee232e03c58a7495707e69",
+      "size_bytes": 312005
+    },
+    "s6-online-f12-A.zip": {
+      "sha256": "88984f4d68a9e0cad1c564959a4ea3ca3230dfe9bcaf71f34bb92adf4a9d693a",
+      "size_bytes": 9864149
+    },
+    "s6-online-f12-B.zip": {
+      "sha256": "3a6260372dd02935f3bcb3a781fcb4312c3c74c60bd4b6b0261e4acd61e25282",
+      "size_bytes": 10830970
+    }
+  },
+  "schema": "replaymark.artifact-v2.preservation-receipt.v1",
+  "source_manifest_sha256": "6b19a6eb002f760231901b1e2e0f086a53f547893db3721cb4aae6fa55215d9b",
+  "source_run_snapshot_sha256": "d5288de282be0f6d30008bebe75de1ee3c7eb7526a3389fb43a974ea0a3d0d62",
+  "status": "PRESERVED_EXACT_BOUND_BYTES_AFTER_DUAL_VERIFICATION",
+  "timing_rerun": false
+}
