@@ -1,0 +1,145 @@
+{
+  "schema": "replaymark.ve2.scientific-result-deviation-seal.v1",
+  "status": "CORE_METHOD_PASS_AUXILIARY_MODEL_FALSIFIED",
+  "lineage": {
+    "public_static_pass": "c87690fb5d5c96d0f637504c897822d973d24583",
+    "authority_v1_open_gate_failure_seal": "0ad575daefe14c01aeab13f0b8e0c318e0eff3ad",
+    "authority_v2_open": "727889c1254a76fe6f6596c2be7ade47dd96ee33",
+    "raw_result_seal": "2021a94faa764994bf8382d0c9b9261a24fd735d",
+    "postrun_analysis_source_freeze": "bbb21e167a0cc0cae5ec981d28b36d0850a8c6a0",
+    "postrun_analysis_open": "e4421284c0c08bcd0715b7fff767812cdd37943d"
+  },
+  "scientific_authority": {
+    "run_id": 34557055906,
+    "run_attempt": 1,
+    "evidence_artifact_id": 10183051324,
+    "evidence_artifact_name": "ve2-authoritative-first-complete-v2-evidence",
+    "evidence_zip_sha256": "3f035c444912b05ff0a44439f89be94aa4b1c2730cea987ae3ec7718b65e4c53",
+    "raw_stage_artifacts": 16,
+    "scientific_cells": 352,
+    "raw_seal_file_sha256": "3a73be12921d99aa1a903e602c02ef8e166067185cfaf577caf3fea6ee5b0769",
+    "raw_seal_canonical_sha256": "9011d15657e38d604878446878ee8dd137ffb52912fef49471e54dd4fd0a62e5",
+    "all_stage_independent_validations": "PASS",
+    "same_authority_rerun": false,
+    "successful_subset_carry_forward": false
+  },
+  "postrun_reproducible_analysis": {
+    "run_id": 34558006469,
+    "run_attempt": 1,
+    "artifact_id": 10183277396,
+    "artifact_name": "ve2-scientific-postrun-deviation-v1-evidence",
+    "artifact_zip_sha256": "bc07e669e29b50bd31e209ba097f18662eef8bb9de5bc36f048d4664805b1832",
+    "artifact_size_bytes": 5808,
+    "adjudication_file_sha256": "f269c98e40f41e33d80727e63559318ebb23d1003e9b1900353fae7892fe55d1",
+    "adjudication_canonical_sha256": "68c11a83f3b59dac112974394763cc32a4aecd13f9558c1a3fbfbeb45f092f24",
+    "independent_validation_file_sha256": "e5eca70f20915ba75dcf590fe288d2ccf4b92767890bc6fd716d9aa038417c75",
+    "analysis_receipt_file_sha256": "848250d3a781522a4b25639ec84de40703cf785eed7838aec4c6943faacf42dc",
+    "scientific_worker_rerun": false
+  },
+  "result_axes": {
+    "experimental_integrity": "PASS",
+    "preregistered_expected_frontier_exact_match": "FAIL",
+    "auxiliary_transition_model_fidelity": "FAIL",
+    "core_replaymark_observed_native_boundary": "PASS"
+  },
+  "t01": {
+    "per_replica": {
+      "observed_native_compatible": 0,
+      "observed_native_retired": 2,
+      "replaymark_admit": 0,
+      "replaymark_block": 2,
+      "unsafe_observed_retired_historical_dispatch": 0,
+      "preregistered_exact_match": true
+    },
+    "two_replica": {
+      "observed_native_retired_instances": 4,
+      "replaymark_retired_blocked": 4,
+      "unsafe_observed_retired_historical_dispatch": 0
+    }
+  },
+  "t02": {
+    "frozen_preregistered_quotient": {
+      "compatible": 18,
+      "retired": 24,
+      "weighted_abstract_compatible": 97,
+      "weighted_abstract_retired": 47,
+      "rewritten_after_result": false
+    },
+    "observed_per_replica": {
+      "native_compatible": 20,
+      "native_retired": 22,
+      "replaymark_observed_compatible_admitted": 20,
+      "replaymark_observed_retired_blocked": 22,
+      "unsafe_observed_retired_historical_dispatch": 0,
+      "unnecessary_native_recovery": 0,
+      "replay_all_observed_retired_historical_dispatch": 12
+    },
+    "observed_two_replica_total": {
+      "native_compatible_instances": 40,
+      "native_retired_instances": 44,
+      "replaymark_observed_compatible_admitted": 40,
+      "replaymark_observed_retired_blocked": 44,
+      "unsafe_observed_retired_historical_dispatch": 0,
+      "replay_all_observed_retired_historical_dispatch": 24
+    },
+    "semantic_replica_agreement": true
+  },
+  "auxiliary_model_falsification": {
+    "old_action_agreement_per_replica": "37/42",
+    "new_action_agreement_per_replica": "42/42",
+    "old_action_mismatch_count_per_replica": 5,
+    "new_action_mismatch_count_per_replica": 0,
+    "compatibility_classification_flip_count_per_replica": 2,
+    "old_action_mismatch_state_ids": [
+      "VE2-T02-S03",
+      "VE2-T02-S07",
+      "VE2-T02-S22",
+      "VE2-T02-S29",
+      "VE2-T02-S36"
+    ],
+    "classification_flip_state_ids": [
+      "VE2-T02-S07",
+      "VE2-T02-S36"
+    ],
+    "mismatch_cluster": "startup_when_enable_pause_switch_false",
+    "root_cause_classification": "FROZEN_MODEL_FALSE_LITERAL_TRUTHINESS_ASSUMPTION_FALSIFIED_BY_NATIVE_EXECUTION",
+    "frozen_transition_model_git_blob": "cc57cd825b6d8bf68d2c661efbdc5d6357699b53",
+    "old_blueprint_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115",
+    "interpretation": "The preregistered auxiliary model represented disabled pause as the synthetic Python string 'false' and then treated bool('false') as true. Native Home Assistant startup execution did not exhibit that modeled block. Five old-action predictions therefore failed, and two of those changed the predicted compatibility class."
+  },
+  "preregistered_failure_preserved": {
+    "t02_expected_old_native_source_agreement": "42/42",
+    "t02_observed_old_native_source_agreement": "37/42",
+    "t02_expected_new_direct_source_agreement": "42/42",
+    "t02_observed_new_direct_source_agreement": "42/42",
+    "t02_observed_direct_reference_disagreement": 5,
+    "t02_model_frame_replaymark_compatible_classes_executed": 18,
+    "t02_model_frame_replaymark_retired_classes_blocked": 22,
+    "t02_model_frame_unsafe_retired_historical_dispatch": 2,
+    "expected_frontier_rewritten": false
+  },
+  "claim_scope": {
+    "promoted": [
+      "16-stage 352-cell raw experimental integrity",
+      "T01 observed native compatibility boundary and ReplayMark decisions",
+      "T02 42-representative observed native compatibility boundary per replica",
+      "T02 ReplayMark safe reuse/block decisions against observed native boundary",
+      "two-replica semantic reproducibility",
+      "Replay All observed-retired historical dispatch count",
+      "falsification of the frozen auxiliary old-startup truthiness assumption"
+    ],
+    "withheld": [
+      "preregistered T02 exact-frontier success",
+      "model-derived 144-state weighted 97/47 promotion",
+      "any post-hoc replacement weighted split presented as preregistered"
+    ]
+  },
+  "scientific_hygiene": {
+    "negative_preregistered_result_preserved": true,
+    "auxiliary_model_repaired_post_hoc": false,
+    "expected_frontier_rewritten": false,
+    "raw_science_rerun": false,
+    "weighted_144_state_claim_promoted": false,
+    "core_empirical_result_reported_separately": true
+  }
+}
