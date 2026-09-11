@@ -1,0 +1,28 @@
+{
+  "schema": "replaymark.artifact-v4.g4-public-transport-freeze.v1",
+  "status": "FROZEN_BEFORE_G4_BASELINE_OPEN",
+  "private_source_commit": "84269307120bb85d48959f66d1117b65cd01406f",
+  "historical_predecessor_commit": "d017fde0d9ee5c225cf09199f54a510851b082ff",
+  "ve2_pre_result_commit": "25ebfd817420fa0f782419977e4ec166f6ca358a",
+  "ve2_pre_result_tree": "88f796f2e8ff361aa07925500c80b2ce0f8532e9",
+  "public_preservation_base": "b0ef07e121f70be8668873d7263b7c13d216c6a6",
+  "private_program_blobs": {
+    "g4_constitution": "7d026917bc3c6df5791726c20d0bdc7b9d63161c",
+    "g4_source_freeze": "PENDING_BIND_AT_EXECUTION_FROM_EXACT_PRIVATE_COMMIT",
+    "verifier_A": "2e7fb497f440902e1c3a7f813dd3fad0c2308af0",
+    "verifier_B": "809efb0ff3a26ab096af97d2b73b68045cf4d8c8",
+    "semantic_materializer": "cf9d4ccc7cfe35f709ff983500b2f5b969be600e",
+    "pristine_B_input_materializer": "7f76e2903d193636c4c12b01ae53a099d2c5b36b",
+    "blind_AB_comparator": "51b62eaa50b1aca95df88d066be15d6cd500f574",
+    "v92_comparator": "c2bcdfee5f61086a354df109d2a40e552594c09b"
+  },
+  "execution_order": [
+    "A_DERIVE_SEAL",
+    "B_PREPARE_SANITIZE_DERIVE_SEAL",
+    "A_B_COMPARE_SEAL",
+    "V92_COMPARE_ONLY_IF_A_B_MATCH",
+    "FINAL_BASELINE_RECEIPT"
+  ],
+  "forbidden_in_G4": ["challenge execution","metamorphic execution","new measurement","historical experiment rerun","authority replacement","expected-value tuning"],
+  "public_base_contains_only_preexisting_authority_mirrors_and_transport_helpers_needed_for_reproducible_execution": true
+}
