@@ -1,0 +1,51 @@
+{
+  "schema": "replaymark.ve2.scientific-first-complete-raw-result-seal.v2",
+  "status": "RAW_SCIENCE_COMPLETE_POSTRUN_EXPECTATION_MISMATCH",
+  "authority": {
+    "open_commit": "727889c1254a76fe6f6596c2be7ade47dd96ee33",
+    "workflow": ".github/workflows/ve2-authoritative-first-complete-v2.yml",
+    "run_id": 34557055906,
+    "run_attempt": 1,
+    "same_authority_rerun_authorized": false,
+    "successful_subset_carry_forward": false
+  },
+  "evidence_artifact": {
+    "artifact_id": 10183051324,
+    "artifact_name": "ve2-authoritative-first-complete-v2-evidence",
+    "zip_sha256": "3f035c444912b05ff0a44439f89be94aa4b1c2730cea987ae3ec7718b65e4c53",
+    "size_bytes": 187844,
+    "expired_at_seal_creation": false
+  },
+  "raw_science": {
+    "serial_sixteen_stage_step": "SUCCESS",
+    "raw_stage_artifacts": 16,
+    "scientific_cells": 352,
+    "all_stage_independent_validations": "PASS",
+    "raw_seal_step": "SUCCESS",
+    "raw_seal_file_sha256": "3a73be12921d99aa1a903e602c02ef8e166067185cfaf577caf3fea6ee5b0769",
+    "raw_seal_canonical_sha256": "9011d15657e38d604878446878ee8dd137ffb52912fef49471e54dd4fd0a62e5",
+    "expected_frontier_read_before_raw_seal": false
+  },
+  "postrun": {
+    "frozen_adjudicator": "ve2_scientific_postrun_adjudicate_v3.py",
+    "adjudication_step": "FAIL_CLOSED",
+    "failure": "AssertionError: t02-promotion-per-replica",
+    "adjudication_stderr_sha256": "a277e82018d5fdb5aec83d74296d89dffdc51356daafe034b90541fdf411f3f7",
+    "postrun_adjudication_output_present": false,
+    "frontier_was_opened_only_after_complete_raw_seal": true
+  },
+  "preliminary_forensic_classification": {
+    "t01_raw_replicas_consistent": true,
+    "t02_raw_replicas_consistent": true,
+    "t02_expected_quotient_compatible": 18,
+    "t02_expected_quotient_retired": 24,
+    "t02_observed_native_compatible_per_replica": 20,
+    "t02_observed_native_retired_per_replica": 22,
+    "t02_replaymark_admit_per_replica": 20,
+    "t02_replaymark_block_per_replica": 22,
+    "t02_replaymark_unsafe_observed_retired_dispatch_per_replica": 0,
+    "suspected_auxiliary_model_mismatch": true,
+    "expected_frontier_will_not_be_rewritten": true
+  },
+  "next_authorized_action": "Analyze the exact immutable artifact post-result without re-running scientific workers; distinguish preregistered model fidelity from empirical ReplayMark boundary performance."
+}
