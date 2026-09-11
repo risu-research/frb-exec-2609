@@ -1,0 +1,108 @@
+{
+  "schema": "replaymark.ve2.t02-temporal-diagnosis-seal.v1",
+  "status": "SEALED_DIAGNOSED_NON_PROMOTABLE_PRE_SCIENCE",
+  "authority": {
+    "v5_failure_seal": "c17d2506e465b9bb3ac71cb04cb7c10c0360ba01",
+    "diagnostic_source_freeze": "4e8770b41e6fa0ec4c5eff3763765581b908c396",
+    "diagnostic_open": "8367a94bc6d315a33122a1502f205ecb910de0e5",
+    "diagnostic_run_id": 34547040426,
+    "diagnostic_run_attempt": 1,
+    "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "private_science_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5"
+  },
+  "immutable_diagnostic_artifacts": {
+    "state": {
+      "artifact_id": 10179416178,
+      "zip_sha256": "80f2d8866eea81682db4579fcfb60bc7fc42e5f123bec0ab44f906f6b93a4799",
+      "capsule_sha256": "239a55d21dfc396697f10b5c8f509fe16e7c09aea1a3a6717370242b865cfe98",
+      "status": "PASS"
+    },
+    "state_for_120s": {
+      "artifact_id": 10179413517,
+      "zip_sha256": "396fc7290748524ba81703e318db0e67df69eb3133770f4f556f6b855801936a",
+      "capsule_sha256": "10ea31df8a1f649644a6761037b3a516faefe2ae53ce51b499b2dd7e810ce410",
+      "status": "PASS"
+    },
+    "time": {
+      "artifact_id": 10179414007,
+      "zip_sha256": "de21f5bab4831395163a1d55b60dbe96486c7bce36e9b1712e8f5aea03ea0bb6",
+      "capsule_sha256": "11425e56cb454369c1a6a8fb5e24bd024b4a65d0eb656553344d00d58084bc16",
+      "status": "PASS"
+    },
+    "homeassistant_start_delay_30s": {
+      "artifact_id": 10179415948,
+      "zip_sha256": "9402ff0198a70ab501eacefb2b5be2bf81a0d5a360535ca5265ad02d3c4d134e",
+      "capsule_sha256": "096a5e628e35d27c2b62b6c52f252395eb398a0dd450aadd82644aafb9ad417b",
+      "status": "EXCEPTION",
+      "failure": "TimeoutError: timed out waiting for neutral transport witness"
+    },
+    "aggregate": {
+      "artifact_id": 10179419915,
+      "zip_sha256": "de622e6c5dd2990e2620096b1c9eaa816ed918ceb85f72b5a296468995496c57",
+      "adjudication_sha256": "dd748b2adb3063fa5f4e5f614af0da6109c6ecdfe0a9d3c34f558545b16a1acd"
+    }
+  },
+  "independent_diagnosis": {
+    "passing_cases": ["state", "state_for_120s", "time"],
+    "failing_cases": ["homeassistant_start_delay_30s"],
+    "earliest_failing_case_in_original_order": "homeassistant_start_delay_30s",
+    "failure_layer": "CASE_BODY_BEFORE_WITNESS_COLLECTION",
+    "journal": [
+      "CASE_BEGIN",
+      "FRESH_HASS_BEGIN",
+      "FRESH_HASS_END",
+      "CASE_ERROR"
+    ],
+    "clock_driver_entered": false,
+    "witness_collection_entered": false,
+    "therefore_timeout_location": "first wait for automation invocation immediately after lifecycle event emission"
+  },
+  "source_proof": {
+    "home_assistant_tag": "2026.9.0",
+    "home_assistant_tag_commit": "dfb5a9e690daaf204b542896e4b595e61a11a401",
+    "native_trigger_source": "homeassistant/components/homeassistant/triggers/homeassistant.py",
+    "native_start_trigger_listener": "EVENT_HOMEASSISTANT_STARTED",
+    "native_start_trigger_listener_value": "homeassistant_started",
+    "v5_emitted_signal_symbol": "EVENT_HOMEASSISTANT_START",
+    "v5_emitted_signal_value": "homeassistant_start",
+    "signals_are_distinct": true,
+    "official_test_semantics": "arm start trigger while CoreState.not_running and exercise actual start lifecycle; EVENT_HOMEASSISTANT_STARTED is the trigger signal",
+    "diagnosed_root_cause": "v5 startup neutral case emitted homeassistant_start while the admitted 2026.9.0 native start trigger listens once for homeassistant_started"
+  },
+  "provenance_harness_note": {
+    "diagnostic_aggregate_source_freeze_public_head_was_empty": true,
+    "cause": "workflow needs scoping did not propagate the open-gate output into the adjudicate job",
+    "scientific_or_diagnostic_effect": "none",
+    "canonical_source_freeze_recovered_from_exact_OPEN_parent": "4e8770b41e6fa0ec4c5eff3763765581b908c396",
+    "diagnostic_rerun_authorized": false
+  },
+  "prospective_repair_authorization": {
+    "successor": "VE2_CROSS_VERSION_SCIENCE_TRANSPORT_PRE_SCIENCE_V6",
+    "authorized_semantic_change_count": 1,
+    "authorized_change": "for the T02 homeassistant start neutral case only, emit the exact source-proven EVENT_HOMEASSISTANT_STARTED signal instead of EVENT_HOMEASSISTANT_START",
+    "authorized_native_signal": "homeassistant_started",
+    "state_case_change": false,
+    "state_for_case_change": false,
+    "time_case_change": false,
+    "delay_duration_change": false,
+    "clock_driver_change": false,
+    "wait_timeout_change": false,
+    "trigger_definition_change": false,
+    "action_definition_change": false,
+    "bootstrap_or_registry_change": false,
+    "transport_pass_criteria_change": false,
+    "result_dependent_fallback": false,
+    "same_authority_rerun": false
+  },
+  "scientific_hygiene": {
+    "diagnostic_non_promotable": true,
+    "transport_pass_established_by_diagnostic": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "expected_frontier_read": false,
+    "execution_state_manifests_used": false,
+    "transition_blueprint_executed": false,
+    "historical_better_thermostat_action_dispatched": false
+  }
+}
