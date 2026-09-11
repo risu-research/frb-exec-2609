@@ -1,0 +1,33 @@
+{
+  "schema": "replaymark.artifact-v4.g6-final-witness-source-freeze.v1",
+  "status": "FROZEN_BEFORE_SANITIZED_FINAL_WITNESS_EXECUTION",
+  "branch": "artifact-v4-g6-final-witness",
+  "source_components": {
+    "private_attestation_capsule": {
+      "path": "artifact/v4-g6-final/G6_PRIVATE_ATTESTATION_CAPSULE_V1.json",
+      "git_blob": "fa953f7f9431b47d7f7d6786593bbb6f7278e047"
+    },
+    "final_witness_program": {
+      "path": "artifact/v4-g6-final/g6_final_witness.py",
+      "git_blob": "e3461711389a6a1d87c62a761affd9ecd74271b3"
+    }
+  },
+  "bound_public_evidence": {
+    "G6_public_receipt_git_blob": "141a58855fded4b8c49548282a9d1b2d9ed1a0b9",
+    "G6_independent_audit_git_blob": "7d981cd159e688013bbcc7c42069ce8d389be5fa",
+    "G6_public_pass_freeze_git_blob": "50f7a47afbbdad3ac2f3753d7b7e34e9c4b57a30",
+    "G6_public_Run1_failure_seal_git_blob": "fe1d4df3a43b7d292d34f865964cd144ffa6b8c2",
+    "G5_public_pass_freeze_git_blob": "14bfc2bf40e3cf1b94dafc38d916ebc4ade03841",
+    "G5_independent_audit_git_blob": "ab83e8d9503692524c4e6a308f694d3770d506d9"
+  },
+  "preexecution_facts": {
+    "final_witness_executed": false,
+    "final_witness_outcome_observed": false,
+    "private_G6_Run1_preserved_as_failure": true,
+    "scientific_rerun_planned": false,
+    "Verifier_A_rerun_planned": false,
+    "Verifier_B_rerun_planned": false,
+    "challenge_rerun_planned": false
+  },
+  "freeze_rule": "After the final-witness outcome is observed, these source bytes may not be modified to rescue the verdict. Any failure must be preserved and repaired under a new source-freeze identity."
+}
