@@ -1,0 +1,11 @@
+{
+  "schema": "replaymark.ve2.scientific-postrun-deviation-open.v1",
+  "status": "OPEN_POST_RESULT_ANALYSIS_ONLY",
+  "source_freeze": "bbb21e167a0cc0cae5ec981d28b36d0850a8c6a0",
+  "raw_result_seal": "2021a94faa764994bf8382d0c9b9261a24fd735d",
+  "scientific_run_id": 34557055906,
+  "evidence_artifact_id": 10183051324,
+  "scientific_worker_rerun": false,
+  "expected_frontier_rewrite": false,
+  "analysis_is_post_result": true
+}
