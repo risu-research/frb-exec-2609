@@ -1,0 +1,364 @@
+name: artifact-v4 g4 canonical JSON-value blind open
+
+on:
+  push:
+    branches:
+      - artifact-v4-g4-canonical-open
+    paths:
+      - .github/workflows/artifact-v4-g4-canonical-open.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: artifact-v4-g4-canonical-value-open
+  cancel-in-progress: false
+
+env:
+  PRIVATE_SOURCE_SHA: a2b311bb35e0e17d4e1799cfd0094c8727663d2b
+  HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
+  FIXED_PROTOCOL_REF: 383ee2e1b192fda7c6ce3a9576d9c6a4eae0a77e
+  S3C0_LEGACY_PROTOCOL_REF: 23b7c85bca6cb85fde9f4361a0f9664d21c8ae8d
+  S3C0_LEGACY_OUTCOME_REF: ac20890bb4aa926e439802510de3723b74591c94
+  VE2_SHA: 25ebfd817420fa0f782419977e4ec166f6ca358a
+  PRESERVATION_BASE_SHA: b0ef07e121f70be8668873d7263b7c13d216c6a6
+
+jobs:
+  baseline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    steps:
+      - name: Checkout exact public canonical-open carrier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Pre-open transport freeze
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'artifact-v4-g4-canonical-open'
+          test -n "$SOURCE_READ_TOKEN"
+          node --version | grep -Eq '^v24\.'
+          python3 - <<'PY'
+          import sys
+          assert sys.version_info[:2] == (3,12), sys.version
+          print('PYTHON_3_12=PASS')
+          PY
+          python3 -m json.tool artifact/v4-g4/G4_TRANSPORT_FREEZE_V1.json >/dev/null
+          python3 -m json.tool artifact/v4-g4/G4_RUN4_DIVERGENCE_PUBLIC_SEAL.json >/dev/null
+          test "$(git rev-parse $PRESERVATION_BASE_SHA^{tree})" = 'b1fd508c81d9597b88fe2710cb921c87f76852ce'
+          echo 'G4_CANONICAL_PREOPEN_TRANSPORT=PASS'
+
+      - name: Checkout exact frozen private canonical-open source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"
+          python3 tools/qx_private_source.py clone --sha "$PRIVATE_SOURCE_SHA" --dest "$SRC"
+          test "$(git -C "$SRC" rev-parse HEAD)" = "$PRIVATE_SOURCE_SHA"
+          git -C "$SRC" remote -v | grep -q . && { echo 'private remote survived checkout'; exit 1; } || true
+          echo 'PRIVATE_G4_CANONICAL_EXACT_CHECKOUT=PASS'
+
+      - name: Verify prospective source identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"
+          python3 - <<'PY'
+          import os, subprocess
+          from pathlib import Path
+          src=Path(os.environ['RUNNER_TEMP'])/'private-v4-g4'
+          expected={
+            'artifact_v4/V4_G4_BASELINE_OPEN_CONSTITUTION.json':'7d026917bc3c6df5791726c20d0bdc7b9d63161c',
+            'artifact_v4/G4_RUN4_BASELINE_DIVERGENCE_SEAL_V1.json':'1e56584953a3ac3a46ab09773987f47d814e2fe4',
+            'artifact_v4/V4_G4_JSON_NUMBER_SEMANTICS_REMEDIATION_V1.json':'1f45dc097587f8126d4be5061c9fa062f8a00a0a',
+            'artifact_v4/g4_compare_blind_vectors_v2.py':'2368fa2acf53aabd28523698611005621a85d3dc',
+            'artifact_v4/g4_compare_blind_vectors.py':'51b62eaa50b1aca95df88d066be15d6cd500f574',
+            'artifact_v4/verifier_b.mjs':'809efb0ff3a26ab096af97d2b73b68045cf4d8c8',
+            'artifact_v4/g4_python_json_compat_adapter.py':'b1db25f272987b1797ef0abf8828135e9413ff3d',
+            'artifact_v4/g4_prepare_pristine_b_inputs.py':'7f76e2903d193636c4c12b01ae53a099d2c5b36b',
+            'artifact_v4/materialize_semantic_snapshots.py':'cf9d4ccc7cfe35f709ff983500b2f5b969be600e',
+            'artifact_v3/derive_whole_paper_v1.py':'2e7fb497f440902e1c3a7f813dd3fad0c2308af0',
+            'artifact_v3/compare_whole_paper_v1.py':'c2bcdfee5f61086a354df109d2a40e552594c09b',
+            'artifact_v3/CLAIM_LEDGER_V2_MANUSCRIPT_V92.json':'a6f6ac3b10244c1daaf8150ea9b1b045f8d19f18'
+          }
+          for rel,want in expected.items():
+              got=subprocess.check_output(['git','-C',str(src),'rev-parse',f'HEAD:{rel}'],text=True).strip()
+              assert got==want,(rel,got,want)
+          print('G4_CANONICAL_FROZEN_IDENTITIES=PASS')
+          PY
+          node --check "$SRC/artifact_v4/verifier_b.mjs"
+          python3 -m py_compile "$SRC/artifact_v4/g4_compare_blind_vectors_v2.py" "$SRC/artifact_v4/g4_python_json_compat_adapter.py" "$SRC/artifact_v4/g4_prepare_pristine_b_inputs.py" "$SRC/artifact_v3/derive_whole_paper_v1.py" "$SRC/artifact_v3/compare_whole_paper_v1.py"
+
+      - name: Qualify comparator v2 before scientific open
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; Q="$RUNNER_TEMP/comparator-q"
+          mkdir -p "$Q"
+          python3 - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          q=Path(os.environ['RUNNER_TEMP'])/'comparator-q'
+          cmp=Path(os.environ['RUNNER_TEMP'])/'private-v4-g4'/'artifact_v4'/'g4_compare_blind_vectors_v2.py'
+          cases=[
+            ('eq_integral_lexeme', {'x':'RAW:1.0'}, {'x':'RAW:1'}, True, 1),
+            ('eq_decimal_lexeme', {'x':'RAW:0.10'}, {'x':'RAW:0.1'}, True, 1),
+            ('numeric_value_change', {'x':'RAW:1'}, {'x':'RAW:1.0001'}, False, None),
+            ('bool_vs_number', {'x':True}, {'x':'RAW:1'}, False, None),
+            ('string_vs_number', {'x':'1'}, {'x':'RAW:1'}, False, None),
+            ('missing_key', {'x':'RAW:1'}, {'x':'RAW:1','y':'RAW:2'}, False, None),
+            ('array_order', {'x':['RAW:1','RAW:2']}, {'x':['RAW:2','RAW:1']}, False, None),
+          ]
+          def emit(v):
+              if isinstance(v,dict): return '{'+','.join(json.dumps(k)+':'+emit(x) for k,x in v.items())+'}'
+              if isinstance(v,list): return '['+','.join(emit(x) for x in v)+']'
+              if isinstance(v,str) and v.startswith('RAW:'): return v[4:]
+              return json.dumps(v)
+          for name,a,b,should_equal,repr_count in cases:
+              pa=q/(name+'-A.json'); pb=q/(name+'-B.json'); po=q/(name+'-out.json')
+              pa.write_text(emit(a)+'\n'); pb.write_text(emit(b)+'\n')
+              subprocess.run(['python3',str(cmp),'--a',str(pa),'--b',str(pb),'--out',str(po)],check=True,stdout=subprocess.DEVNULL)
+              r=json.loads(po.read_text())
+              assert r['canonical_json_value_equal'] is should_equal,(name,r)
+              if repr_count is not None: assert r['representation_only_numeric_diff_count']==repr_count,(name,r)
+          pa=q/'nonfinite-A.json'; pb=q/'nonfinite-B.json'; po=q/'nonfinite-out.json'
+          pa.write_text('{"x":NaN}\n'); pb.write_text('{"x":NaN}\n')
+          p=subprocess.run(['python3',str(cmp),'--a',str(pa),'--b',str(pb),'--out',str(po)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+          assert p.returncode!=0,'nonfinite unexpectedly accepted'
+          print('G4_COMPARATOR_V2_QUALIFICATION=8/8_PASS')
+          PY
+
+      - name: Checkout exact historical authority graph
+        shell: bash
+        run: |
+          set -euo pipefail
+          HIST="$RUNNER_TEMP/historical"
+          git init -q "$HIST"
+          git -C "$HIST" remote add origin https://github.com/risu-research/appeal-discovery-consumer.git
+          git -C "$HIST" fetch -q --no-tags origin "$HISTORICAL_SHA" "$FIXED_PROTOCOL_REF" "$S3C0_LEGACY_PROTOCOL_REF" "$S3C0_LEGACY_OUTCOME_REF"
+          for x in "$HISTORICAL_SHA" "$FIXED_PROTOCOL_REF" "$S3C0_LEGACY_PROTOCOL_REF" "$S3C0_LEGACY_OUTCOME_REF"; do git -C "$HIST" cat-file -e "$x^{commit}"; done
+          git -C "$HIST" checkout -q --detach "$HISTORICAL_SHA"
+          git -C "$HIST" remote remove origin
+          echo 'HISTORICAL_AUTHORITY_GRAPH=PASS'
+
+      - name: Materialize exact VE2 pre-result authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch -q --no-tags origin "$VE2_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$VE2_SHA"
+          VE2="$RUNNER_TEMP/ve2"
+          git worktree add -q --detach "$VE2" "$VE2_SHA"
+          test "$(git -C "$VE2" rev-parse HEAD^{tree})" = '88f796f2e8ff361aa07925500c80b2ce0f8532e9'
+          echo 'VE2_PRE_RESULT_EXACT=PASS'
+
+      - name: Fresh blind Verifier A and seal
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; HIST="$RUNNER_TEMP/historical"; VE2="$RUNNER_TEMP/ve2"; OUT="$RUNNER_TEMP/g4-out"
+          mkdir -p "$OUT"
+          python3 "$SRC/artifact_v3/derive_whole_paper_v1.py" --source_root "$SRC" --historical_root "$HIST" --public_root "$GITHUB_WORKSPACE" --ve2_root "$VE2" --out "$OUT/A_DERIVED_WRAPPER.json"
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g4-out'; p=out/'A_DERIVED_WRAPPER.json'; x=json.loads(p.read_text())
+          assert x['status']=='DERIVED_WITHOUT_MANUSCRIPT_EXPECTED_VALUES' and x['claim_count']==42
+          assert x['derivation_law']['claim_ledger_read'] is False and x['derivation_law']['manuscript_expected_values_read'] is False
+          (out/'A_CLAIM_VECTOR.json').write_text(json.dumps(x['claims'],indent=2,sort_keys=True)+'\n')
+          H=lambda q:hashlib.sha256(q.read_bytes()).hexdigest()
+          (out/'A_BLIND_SEAL.json').write_text(json.dumps({'schema':'replaymark.artifact-v4.g4-A-blind-seal.v2','status':'A_SEALED_BEFORE_B_RUNTIME','claim_count':42,'wrapper_sha256':H(p),'claim_vector_sha256':H(out/'A_CLAIM_VECTOR.json'),'B_output_read':False,'expected_values_read':False},indent=2,sort_keys=True)+'\n')
+          print('A_FRESH_BLIND_SEAL=PASS')
+          PY
+
+      - name: Materialize pristine raw B role inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; HIST="$RUNNER_TEMP/historical"; VE2="$RUNNER_TEMP/ve2"; PREP="$RUNNER_TEMP/b-prep"
+          python3 "$SRC/artifact_v4/g4_prepare_pristine_b_inputs.py" --source_root "$SRC" --historical_root "$HIST" --public_root "$GITHUB_WORKSPACE" --ve2_root "$VE2" --out_dir "$PREP"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'b-prep'/'B_INPUT_MATERIALIZATION_RECEIPT.json').read_text())
+          assert x['status']=='PASS_PRISTINE_INPUT_MATERIALIZATION' and x['role_count']==23 and x['expected_values_read'] is False and x['verifier_a_output_read'] is False and x['mutations_applied']==0
+          print('B_RAW_PRISTINE_INPUTS=PASS')
+          PY
+
+      - name: Apply unchanged nonfinite-only lexical compatibility adapter
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; RAW="$RUNNER_TEMP/b-prep"; COMPAT="$RUNNER_TEMP/b-compat"; OUT="$RUNNER_TEMP/g4-out"
+          python3 "$SRC/artifact_v4/g4_python_json_compat_adapter.py" --in-dir "$RAW" --out-dir "$COMPAT"
+          cp "$COMPAT/PYJSON_COMPAT_RECEIPT.json" "$OUT/PYJSON_COMPAT_RECEIPT.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'b-compat'/'PYJSON_COMPAT_RECEIPT.json').read_text())
+          assert x['status']=='PASS_LEXICAL_COMPATIBILITY_ADAPTER'
+          assert x['unchanged_roles_byte_identical'] is True and x['finite_semantics_changed'] is False
+          assert x['expected_values_read'] is False and x['verifier_A_output_read'] is False and x['challenge_catalog_read'] is False
+          print('PYJSON_COMPATIBILITY=PASS')
+          PY
+
+      - name: Build physically sanitized B runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; PREP="$RUNNER_TEMP/b-compat"; BBOX="$RUNNER_TEMP/b-sandbox"
+          mkdir -p "$BBOX"; cp "$SRC/artifact_v4/verifier_b.mjs" "$BBOX/verifier_b.mjs"
+          python3 - <<'PY'
+          import json,os,shutil
+          from pathlib import Path
+          t=Path(os.environ['RUNNER_TEMP']); prep=t/'b-compat'; box=t/'b-sandbox'; m=json.loads((prep/'B_INPUT_MANIFEST.json').read_text())
+          shutil.copyfile(prep/'B_INPUT_MANIFEST.json',box/'B_INPUT_MANIFEST.json')
+          for rec in m['roles'].values(): shutil.copyfile(prep/rec['path'],box/rec['path'])
+          allowed={'verifier_b.mjs','B_INPUT_MANIFEST.json'}|{r['path'] for r in m['roles'].values()}; got={p.name for p in box.iterdir() if p.is_file()}
+          assert got==allowed and len(m['roles'])==23,(sorted(got),len(m['roles']))
+          print('B_SANDBOX_FILE_COUNT='+str(len(got)))
+          PY
+          ! find "$BBOX" -type f | grep -E 'CLAIM_LEDGER|DERIVED_CLAIMS|WHOLE_PAPER|DEPENDENCY_GRAPH|CHALLENGE|docx|pdf|PYJSON_COMPAT_RECEIPT'
+          echo 'B_SANITIZED_RUNTIME=PASS'
+
+      - name: Fresh blind unchanged Verifier B and seal
+        id: b_open
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          BBOX="$RUNNER_TEMP/b-sandbox"; OUT="$RUNNER_TEMP/g4-out"
+          set +e
+          (cd "$BBOX" && node ./verifier_b.mjs --manifest ./B_INPUT_MANIFEST.json --out "$OUT/B_CLAIM_VECTOR.json" --trace-out "$OUT/B_DERIVATION_TRACE.json") >"$OUT/B_STDOUT.log" 2>"$OUT/B_STDERR.log"
+          rc=$?; set -e
+          if [ "$rc" -ne 0 ]; then
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g4-out'; (out/'B_RUNTIME_FAILURE.json').write_text(json.dumps({'status':'B_RUNTIME_FAILED_BEFORE_SEAL','A_output_read':False,'expected_values_read':False,'stdout':(out/'B_STDOUT.log').read_text(errors='replace'),'stderr':(out/'B_STDERR.log').read_text(errors='replace')},indent=2,sort_keys=True)+'\n')
+          PY
+            exit "$rc"
+          fi
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g4-out'; b=json.loads((out/'B_CLAIM_VECTOR.json').read_text()); tr=json.loads((out/'B_DERIVATION_TRACE.json').read_text()); H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          assert len(b)==42 and tr['expected_values_read'] is False and tr['verifier_a_output_read'] is False and tr['network_used'] is False and tr['package_installation'] is False
+          (out/'B_BLIND_SEAL.json').write_text(json.dumps({'schema':'replaymark.artifact-v4.g4-B-blind-seal.v2','status':'B_SEALED_BEFORE_A_B_COMPARISON','claim_count':42,'claim_vector_sha256':H(out/'B_CLAIM_VECTOR.json'),'trace_sha256':H(out/'B_DERIVATION_TRACE.json'),'A_output_read':False,'expected_values_read':False,'sanitized_runtime':True},indent=2,sort_keys=True)+'\n')
+          print('B_FRESH_BLIND_SEAL=PASS')
+          PY
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+
+      - name: Compare sealed A and B under frozen JSON-value semantics
+        id: ab
+        if: steps.b_open.outputs.ok == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; OUT="$RUNNER_TEMP/g4-out"
+          python3 "$SRC/artifact_v4/g4_compare_blind_vectors_v2.py" --a "$OUT/A_CLAIM_VECTOR.json" --b "$OUT/B_CLAIM_VECTOR.json" --out "$OUT/A_B_CANONICAL_COMPARISON.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ['RUNNER_TEMP'])/'g4-out'/'A_B_CANONICAL_COMPARISON.json').read_text())
+          ok=x['A_claim_count']==42 and x['B_claim_count']==42 and x['canonical_json_value_equal'] is True and x['semantic_diff_count']==0
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('match='+('true' if ok else 'false')+'\n')
+          print('A_B_STATUS='+x['status']); print('SEMANTIC_DIFF_COUNT='+str(x['semantic_diff_count'])); print('REPRESENTATION_ONLY_NUMERIC_DIFF_COUNT='+str(x['representation_only_numeric_diff_count']))
+          PY
+
+      - name: Open frozen v92 comparison only after fresh A-B canonical match
+        id: v92
+        if: steps.ab.outputs.match == 'true'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          SRC="$RUNNER_TEMP/private-v4-g4"; OUT="$RUNNER_TEMP/g4-out"
+          set +e
+          python3 "$SRC/artifact_v3/compare_whole_paper_v1.py" --source-root "$SRC" --derived "$OUT/A_DERIVED_WRAPPER.json" --out "$OUT/V92_COMPARISON_RECEIPT.json"
+          rc=$?; set -e
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'g4-out'/'V92_COMPARISON_RECEIPT.json'; ok=False
+          if p.exists():
+              x=json.loads(p.read_text()); ok=x.get('status')=='PASS_WHOLE_PAPER_V3' and x.get('claim_summary')=={'total':42,'pass':42,'fail':0} and all(i.get('pass') for i in x.get('invariants',[])) and not x.get('mismatches')
+              print('V92_STATUS='+str(x.get('status'))); print('V92_INVARIANTS='+str(sum(1 for i in x.get('invariants',[]) if i.get('pass')))+'/'+str(len(x.get('invariants',[]))))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('ok='+('true' if ok else 'false')+'\n')
+          PY
+          exit "$rc"
+
+      - name: Seal G4 canonical baseline PASS receipt
+        if: steps.ab.outputs.match == 'true' && steps.v92.outputs.ok == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/g4-out"
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g4-out'; H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest(); ab=json.loads((out/'A_B_CANONICAL_COMPARISON.json').read_text()); v=json.loads((out/'V92_COMPARISON_RECEIPT.json').read_text()); compat=json.loads((out/'PYJSON_COMPAT_RECEIPT.json').read_text())
+          receipt={'schema':'replaymark.artifact-v4.g4-canonical-baseline-dual-implementation-receipt.v1','status':'PASS_G4_BASELINE_DUAL_IMPLEMENTATION_CANONICAL_JSON_VALUE','public_run_id':int(os.environ['GITHUB_RUN_ID']),'public_run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),'public_execution_head':os.environ['GITHUB_SHA'],'private_source_commit':os.environ['PRIVATE_SOURCE_SHA'],'preserved_run4_divergence':{'run_id':34640240768,'artifact_id':10279188874,'zip_sha256':'b310e8267e7b2f1ece3174050a180ca7bcbe283de9793f4b4412c1f64828fc9f','v1_status':'A_B_DIVERGENCE','v1_raw_diff_count':7,'retroactive_pass':False},'A_claim_count':ab['A_claim_count'],'B_claim_count':ab['B_claim_count'],'A_B_canonical_json_value_match':ab['canonical_json_value_equal'],'A_B_semantic_diff_count':ab['semantic_diff_count'],'A_B_representation_only_numeric_diff_count':ab['representation_only_numeric_diff_count'],'A_claim_vector_sha256':H(out/'A_CLAIM_VECTOR.json'),'B_claim_vector_sha256':H(out/'B_CLAIM_VECTOR.json'),'A_blind_seal_sha256':H(out/'A_BLIND_SEAL.json'),'B_blind_seal_sha256':H(out/'B_BLIND_SEAL.json'),'A_B_comparison_sha256':H(out/'A_B_CANONICAL_COMPARISON.json'),'python_json_compatibility_receipt_sha256':H(out/'PYJSON_COMPAT_RECEIPT.json'),'compat_rewritten_roles':compat['rewritten_roles'],'v92_comparison_sha256':H(out/'V92_COMPARISON_RECEIPT.json'),'v92_status':v['status'],'v92_claim_summary':v['claim_summary'],'v92_invariants_pass':sum(1 for i in v['invariants'] if i['pass']),'v92_invariants_total':len(v['invariants']),'v92_mismatch_count':len(v['mismatches']),'open_order_observed':['COMPARATOR_V2_QUALIFIED','A_FRESH_SEALED','B_RAW_INPUTS_BOUND','NONFINITE_ONLY_ADAPTER','B_FRESH_SEALED','A_B_CANONICAL_VALUE_COMPARED','V92_OPENED_AFTER_MATCH'],'B_expected_values_read':False,'B_A_output_read':False,'challenge_executed':False,'metamorphic_transform_executed':False,'new_scientific_measurement':False,'historical_experiment_rerun':False,'authority_replacement':False}
+          assert receipt['A_claim_count']==42 and receipt['B_claim_count']==42 and receipt['A_B_canonical_json_value_match'] and receipt['A_B_semantic_diff_count']==0
+          assert receipt['v92_status']=='PASS_WHOLE_PAPER_V3' and receipt['v92_claim_summary']=={'total':42,'pass':42,'fail':0} and receipt['v92_mismatch_count']==0 and receipt['v92_invariants_pass']==receipt['v92_invariants_total']
+          (out/'G4_CANONICAL_BASELINE_RECEIPT.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print('G4_CANONICAL_BASELINE_PASS_RECEIPT=SEALED')
+          PY
+
+      - name: Seal evidence index and checksums
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/g4-out"; mkdir -p "$OUT"
+          python3 - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path(os.environ['RUNNER_TEMP'])/'g4-out'; H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+          candidates=['A_DERIVED_WRAPPER.json','A_CLAIM_VECTOR.json','A_BLIND_SEAL.json','PYJSON_COMPAT_RECEIPT.json','B_CLAIM_VECTOR.json','B_DERIVATION_TRACE.json','B_BLIND_SEAL.json','B_RUNTIME_FAILURE.json','B_STDOUT.log','B_STDERR.log','A_B_CANONICAL_COMPARISON.json','V92_COMPARISON_RECEIPT.json','G4_CANONICAL_BASELINE_RECEIPT.json']
+          present=[n for n in candidates if (out/n).exists()]
+          evidence={'schema':'replaymark.artifact-v4.g4-canonical-open-evidence-index.v1','public_run_id':int(os.environ['GITHUB_RUN_ID']),'public_run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),'public_execution_head':os.environ['GITHUB_SHA'],'private_source_commit':os.environ['PRIVATE_SOURCE_SHA'],'present_files':{n:H(out/n) for n in present},'A_vector_present':(out/'A_CLAIM_VECTOR.json').exists(),'B_vector_present':(out/'B_CLAIM_VECTOR.json').exists(),'A_B_comparison_present':(out/'A_B_CANONICAL_COMPARISON.json').exists(),'v92_comparison_present':(out/'V92_COMPARISON_RECEIPT.json').exists(),'v92_open_law':'v92 comparison may be present only after fresh canonical JSON-value A-B match','preserved_run4_divergence':34640240768,'challenge_executed':False}
+          if evidence['v92_comparison_present']:
+              assert evidence['A_B_comparison_present']; ab=json.loads((out/'A_B_CANONICAL_COMPARISON.json').read_text()); assert ab['canonical_json_value_equal'] is True and ab['semantic_diff_count']==0
+          (out/'G4_CANONICAL_OPEN_EVIDENCE_INDEX.json').write_text(json.dumps(evidence,indent=2,sort_keys=True)+'\n'); present.append('G4_CANONICAL_OPEN_EVIDENCE_INDEX.json')
+          (out/'SHA256SUMS.txt').write_text('\n'.join(f"{H(out/n)}  {n}" for n in present)+'\n')
+          print('G4_CANONICAL_EVIDENCE_SEALED='+','.join(present))
+          PY
+          cd "$OUT" && sha256sum -c SHA256SUMS.txt
+
+      - name: Upload G4 canonical-open evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: replaymark-artifact-v4-g4-canonical-open-evidence
+          path: ${{ runner.temp }}/g4-out/*
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Final G4 canonical baseline gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/g4-out"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'g4-out'/'G4_CANONICAL_BASELINE_RECEIPT.json'
+          assert p.exists(),'G4 canonical open did not reach PASS receipt; evidence capsule was preserved'
+          x=json.loads(p.read_text())
+          assert x['status']=='PASS_G4_BASELINE_DUAL_IMPLEMENTATION_CANONICAL_JSON_VALUE'
+          assert x['A_claim_count']==42 and x['B_claim_count']==42 and x['A_B_canonical_json_value_match'] is True and x['A_B_semantic_diff_count']==0
+          assert x['v92_status']=='PASS_WHOLE_PAPER_V3' and x['v92_claim_summary']=={'total':42,'pass':42,'fail':0} and x['v92_invariants_pass']==x['v92_invariants_total'] and x['v92_mismatch_count']==0
+          print('PASS_G4_CANONICAL_BASELINE=42_A=42_B=V92;SEMANTIC_DIFFS=0;ALL_INVARIANTS_PASS')
+          PY
