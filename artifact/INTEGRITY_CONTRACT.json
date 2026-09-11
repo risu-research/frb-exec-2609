@@ -1,0 +1,25 @@
+{
+  "schema": "frb.execution-artifact.integrity.v1",
+  "status": "INTERNAL_FIRST_VERSION_READ_ONLY",
+  "authority_role": "NON_AUTHORITY_EXECUTION_CARRIER",
+  "carrier_base_commit": "bcf42964a3fa74e127f22a5364185049b4f94cff",
+  "timing_enabled": false,
+  "scientific_sources_mutable": false,
+  "may_replace_first_complete_authority": false,
+  "paper_metadata_exported": false,
+  "private_authority_identifiers_exported": false,
+  "rules": {
+    "fail_closed_on_missing_guard": true,
+    "new_scientific_measurement_in_v1": false,
+    "performance_optimization_in_v1": false,
+    "result_selection_or_threshold_change_in_v1": false,
+    "existing_result_reinterpretation_in_v1": false
+  },
+  "required_root_guards": [
+    "DO_NOT_CITE",
+    "STAGING_ONLY",
+    "PERFORMANCE_LOCKED",
+    "NO_TIMING",
+    "STATIC_ONLY"
+  ]
+}
