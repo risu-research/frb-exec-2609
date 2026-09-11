@@ -8,7 +8,7 @@
   "public_preservation_base": "b0ef07e121f70be8668873d7263b7c13d216c6a6",
   "private_program_blobs": {
     "g4_constitution": "7d026917bc3c6df5791726c20d0bdc7b9d63161c",
-    "g4_source_freeze": "PENDING_BIND_AT_EXECUTION_FROM_EXACT_PRIVATE_COMMIT",
+    "g4_source_freeze": "b8de19de33332f62178dbe52094579f1bd013004",
     "verifier_A": "2e7fb497f440902e1c3a7f813dd3fad0c2308af0",
     "verifier_B": "809efb0ff3a26ab096af97d2b73b68045cf4d8c8",
     "semantic_materializer": "cf9d4ccc7cfe35f709ff983500b2f5b969be600e",
