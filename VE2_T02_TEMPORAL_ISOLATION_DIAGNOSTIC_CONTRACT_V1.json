@@ -15,8 +15,8 @@
     "v3_runtime_blob": "7b31244a3a4505399e5885b017fd81bb06209176",
     "v4_runtime_blob": "8c33de1d8717983ffecd4a45634de0d2469ac19d",
     "v5_runtime_blob": "20914078395995116cbd88cdd63063f4fb6907f0",
-    "diagnostic_runtime_blob": "7596e71534f4e91547e418c145780b73ddfa3188",
-    "diagnostic_validator_blob": "7b52f402b7c23e92bf479e6bb8e809afde54f6b3"
+    "diagnostic_runtime_blob": "5b2ac8bfe7a278ed7b80ad8b51eb0c9ca2b60492",
+    "diagnostic_validator_blob": "bf65af81ff17d9c8e781e70981964b6dc227402c"
   },
   "case_isolation": {
     "order_for_interpretation_only": [
@@ -44,7 +44,10 @@
   "observation_only_instrumentation": {
     "fresh_hass_boundary": true,
     "clock_driver_boundary": true,
+    "wait_primitive_boundary": true,
     "witness_collection_boundary": true,
+    "wait_labels_derive_only_from_frozen_case_and_call_order": true,
+    "inherited_wait_timeout_seconds": 3.0,
     "delegates_to_exact_inherited_function_once": true,
     "return_value_modified": false,
     "exception_suppressed_for_case_semantics": false,
@@ -56,6 +59,8 @@
     "first_failing_case_in_original_order_reported": true,
     "all_failing_cases_reported": true,
     "failure_layer_reported_from_observation_journal": true,
+    "automation_vs_service_timeout_distinguished": true,
+    "pre_clock_vs_post_clock_timeout_distinguished_for_startup_delay": true,
     "transport_pass_may_be_declared": false,
     "scientific_pass_may_be_declared": false,
     "only_prospective_repair_selection_authorized": true
