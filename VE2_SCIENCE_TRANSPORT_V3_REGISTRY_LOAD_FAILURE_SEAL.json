@@ -1,0 +1,108 @@
+{
+  "schema": "replaymark.ve2.science-transport-v3-registry-load-failure-seal.v1",
+  "status": "SEALED_PRE_SCIENCE_PREFLIGHT_FAILURE_NOT_CONSUMED",
+  "authority": {
+    "source_freeze": "f8f84585a60e3da53881e7c63a111abf81ae4ff4",
+    "open_commit": "e7e8751207afac2199e19441ab6f78a22e195f81",
+    "run_id": 34544763427,
+    "run_attempt": 1,
+    "run_conclusion": "failure",
+    "private_preopen_authority": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "predecessor_v2_failure_seal": "edaa6525243e4b06092379a314b7faea78b4aae4"
+  },
+  "progress_established_by_v3": {
+    "open_gate": "PASS",
+    "exact_image_version_preflight_all_roles": "PASS",
+    "automation_import_circularity_from_v2": "CLOSED",
+    "config_entries_installation": "REACHED",
+    "timezone_api_drift_from_v2": "CLOSED",
+    "trigger_helper_bootstrap": "REACHED",
+    "failure_provenance_totality": "PASS",
+    "qualification_stimulus_emitted": false
+  },
+  "root_cause": {
+    "class": "NATIVE_ENTITY_REGISTRY_NOT_FULLY_LOADED_BEFORE_AUTOMATION_MATERIALIZATION",
+    "common_boundary": "Home Assistant state-trigger validation/entity-platform registration requires the native entity registry to be fully loaded before the neutral automation entity is materialized.",
+    "T01_OLD_RUNTIME": {
+      "ha_version": "2022.10.0",
+      "observed": "state trigger validation calls entity_registry.async_get(hass), but hass.data[DATA_REGISTRY] is absent",
+      "exception": "KeyError: 'entity_registry'",
+      "artifact_id": 10178612009,
+      "artifact_zip_sha256": "c51396635ccad129c086aa8957f10bd1acecb350ea0c02d240fa7e773cc7461a",
+      "preflight_json_sha256": "2e771d484d8b54555212561cf1369468cc40e2ad78b2a223c844309b5a67cc94",
+      "stderr_sha256": "204f01e7bb650ef01d39779f2d8ccd32a5ee7526fedea381581ac5af016f2e42"
+    },
+    "T01_NEW_RUNTIME": {
+      "ha_version": "2026.1.0",
+      "observed": "entity registry object exists but EntityRegistry.entities has not been initialized by native async_load",
+      "exception": "AttributeError: 'EntityRegistry' object has no attribute 'entities'",
+      "artifact_id": 10178624542,
+      "artifact_zip_sha256": "05822b81a028fe1bb7a991bb7ad6472b0dd891184d72ce65c84991128806a8e8",
+      "preflight_json_sha256": "6cc0830207ea3e9a94e6ab3b50719fca7bc90e6289ffc0dfbc00fc5135ad6df9",
+      "stderr_sha256": "f131691c727a1588260b54a00b204f685bca49d8456823cd0c8796ec94d22d29"
+    },
+    "T02_RUNTIME": {
+      "ha_version": "2026.9.0",
+      "observed": "entity registry object exists but EntityRegistry.entities has not been initialized by native async_load",
+      "exception": "AttributeError: 'EntityRegistry' object has no attribute 'entities'",
+      "artifact_id": 10178626142,
+      "artifact_zip_sha256": "593f99dff0710559365ef54b5ad4e51ce7c565815e7da0c0c8b02b092ad734a1",
+      "preflight_json_sha256": "ee54b2ba6eba87960b3e2fcfd4b90b979358f339baa97ea6ff08e16f17d6ae2b",
+      "stderr_sha256": "922d944c7fd2b065c8329c12ac8aef96d0536a61bbd1ef1e828b84d83848411f"
+    }
+  },
+  "native_source_proof": {
+    "HA_2022_10_entity_registry_blob": "e58dde19127bbbe1c3e8ca8d5d8ad21de3b9fd85",
+    "HA_2022_10_entity_registry_law": "entity_registry.async_load(hass) creates DATA_REGISTRY, creates EntityRegistry, then awaits registry.async_load which initializes entities",
+    "HA_2022_10_device_registry_blob": "908db74d40dffed78a3fd2595a9716139a02178e",
+    "HA_2022_10_device_registry_law": "device_registry.async_load(hass) creates and fully loads the registry",
+    "HA_2026_9_entity_registry_law": "entity_registry.async_load(..., load_empty=...) requires a fully loaded device registry and awaits device_registry.async_wait_loaded before entity processing",
+    "HA_2026_9_device_registry_law": "device_registry.async_setup creates registry; device_registry.async_load(..., load_empty=...) fully loads it and sets the loaded event",
+    "official_test_substrate": "Home Assistant tests load device and entity registries before ordinary integration/entity-platform execution."
+  },
+  "aggregate_failure_evidence": {
+    "artifact_id": 10178629943,
+    "artifact_zip_sha256": "8894d82d2c0f3908b9063aa2c58e5ff8b2043afb6f1db77c4947449b470599a9",
+    "provenance_sha256": "fd3b93b78db2c00d779e0d06e0c96c2d31a017b9dae8f47248ba27eb7b88619e",
+    "status": "INCOMPLETE_NON_PROMOTABLE",
+    "neutral_trigger_stimulus_emitted": false,
+    "neutral_automation_invocations_before_qualification": 0,
+    "promotion_to_neutral_transport_qualification": false
+  },
+  "scientific_hygiene": {
+    "transition_blueprint_executed": false,
+    "T01_or_T02_execution_state_used": false,
+    "expected_frontier_read": false,
+    "historical_better_thermostat_action_dispatched": false,
+    "neutral_transport_rows_opened": 0,
+    "neutral_qualification_stimulus_emitted": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  },
+  "remediation_law": {
+    "same_authority_rerun": false,
+    "v3_open_remains_failed_and_immutable": true,
+    "authorized_successor": "VE2_SCIENCE_TRANSPORT_QUALIFICATION_V4",
+    "required_change": "Before helper/automation setup, prospectively initialize native device registry then native entity registry through each runtime's official async load API. Select optional load_empty argument by function signature before execution. Never synthesize registry internals or assign .entities manually.",
+    "ordering": [
+      "ConfigEntries",
+      "loader",
+      "timezone",
+      "native device registry full load",
+      "native entity registry full load",
+      "entity/condition/trigger helpers",
+      "automation/trace setup"
+    ],
+    "forbidden": [
+      "manual hass.data entity_registry injection",
+      "manual EntityRegistry.entities assignment",
+      "manual DeviceRegistry loaded-event manipulation",
+      "retry-after-failed-registry-load through alternate path",
+      "scientific state/population/frontier/pass-rule changes"
+    ],
+    "transport_case_population_changed": false,
+    "transport_pass_criteria_changed": false,
+    "scientific_estimand_changed": false
+  }
+}
