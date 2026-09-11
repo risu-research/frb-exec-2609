@@ -1,0 +1,31 @@
+{
+  "schema": "replaymark.artifact-v4.g4-run3-b-prevector-parser-failure.v1",
+  "status": "B_PREVECTOR_IMPLEMENTATION_FAILURE_NOT_CONSUMED",
+  "run_id": 34639363912,
+  "run_attempt": 1,
+  "job_id": 103394998260,
+  "public_execution_head": "587e4579c42705fb374c90ba58425939a66d680d",
+  "completed_before_failure": [
+    "all transport/runtime/source identity gates",
+    "exact historical authority graph checkout",
+    "exact VE2 pre-result authority materialization",
+    "Verifier A independent 42-claim derivation and blind seal",
+    "B pristine 23-role input materialization",
+    "B physically sanitized 25-file runtime workspace"
+  ],
+  "failed_step": "Blind-open Verifier B in sanitized workspace and seal",
+  "classification": "NODE_STRICT_JSON_REJECTED_PREEXISTING_NONFINITE_AUTHORITY_TOKEN",
+  "exact_failure": "E3B_DECISIVE: invalid JSON: No number after minus sign in JSON at position 13228 (line 585 column 53)",
+  "diagnosis": "The frozen E3B authority is a pre-existing Python-JSON artifact containing a bare non-finite numeric token such as -Infinity. Python's historical authority consumer accepts non-finite JSON constants, while Node JSON.parse is strict RFC JSON and rejected the bytes before any B claim vector was emitted. This is a cross-runtime parser compatibility defect in clean-room Verifier B, not a scientific claim mismatch.",
+  "scientific_exposure": {
+    "A_claim_vector_created_and_sealed": true,
+    "B_claim_vector_created": false,
+    "A_B_comparison_executed": false,
+    "v92_comparison_executed": false,
+    "challenge_executed": false,
+    "metamorphic_transform_executed": false
+  },
+  "repair_boundary": "Prospectively extend B's input parser only to tokenize bare NaN/Infinity/-Infinity outside JSON strings into explicit non-numeric sentinel strings before JSON.parse. Preserve finite numbers and all strings byte-semantically. The repaired parser must never coerce a non-finite sentinel into a finite numeric value; any claim derivation that touches one must fail closed. No authority, claim logic, expected value, protocol, threshold, estimator, semantic snapshot, or A program may change.",
+  "fresh_blind_open_required": true,
+  "run3_may_not_be_reinterpreted_as_A_B_result": true
+}
