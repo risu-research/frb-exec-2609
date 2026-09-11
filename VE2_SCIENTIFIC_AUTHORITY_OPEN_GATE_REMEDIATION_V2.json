@@ -1,0 +1,48 @@
+{
+  "schema": "replaymark.ve2.scientific-authority-open-gate-remediation.v2",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_failure_seal": "0ad575daefe14c01aeab13f0b8e0c318e0eff3ad",
+  "predecessor_open_commit": "7fa7268b4d36751eaa6d6b8efb6e0decb358893b",
+  "predecessor_run_id": 34556762361,
+  "defect": {
+    "class": "OPEN_SCHEMA_BINDING_DEFECT",
+    "observed_failure": "KeyError: result_dependent_rerun_authorized",
+    "scientific_worker_started": false,
+    "scientific_cells": 0,
+    "frontier_result_seen": false
+  },
+  "repair": {
+    "successor_open_filename": "VE2_SCIENTIFIC_AUTHORITY_OPEN_V2.json",
+    "successor_branch": "ve2-scientific-authority-v2",
+    "required_top_level_field": "result_dependent_rerun_authorized",
+    "required_top_level_value": false,
+    "same_authority_rerun": false,
+    "successful_subset_carry_forward": false
+  },
+  "execution_preservation": {
+    "frozen_v1_workflow_path": ".github/workflows/ve2-authoritative-first-complete-v1.yml",
+    "frozen_v1_workflow_sha256": "52df67631b1959f4a9d4185b0d5672d02d0498461b94d698c3043604959e27aa",
+    "successor_harness_must_execute_exact_v1_run_blocks": [
+      "Verify sealed runtime bundle and immutable execution sources",
+      "Run exact serial sixteen-stage first-complete authority",
+      "Seal all raw stage artifacts before frontier access",
+      "Independent post-run adjudication after complete raw seal only",
+      "Seal authority evidence"
+    ],
+    "scientific_worker_source_changes": 0,
+    "runtime_bundle_changes": 0,
+    "compiled_contract_changes": 0,
+    "blueprint_changes": 0,
+    "expected_frontier_changes": 0,
+    "stage_order_changes": 0,
+    "postrun_expectation_changes": 0
+  },
+  "authority_law": {
+    "required_run_attempt": 1,
+    "single_serial_authority": true,
+    "result_dependent_rerun_authorized": false,
+    "same_authority_rerun_after_observation": false,
+    "successful_subset_carry_forward": false,
+    "all_raw_stage_artifacts_sealed_before_frontier_access": true
+  }
+}
