@@ -1,0 +1,14 @@
+{
+  "schema": "replaymark.ve2.scientific-static-qualification-open.v2",
+  "status": "OPEN_STATIC_SUCCESSOR_PACKAGING_REPAIR_ONLY",
+  "predecessor_failure_seal": "16245ba7500a81ccff18f9380b1be3e5d7a63f23",
+  "source_freeze": "b6d892f5d30ef6f76c111adb05250fa0f484651d",
+  "qualification_branch": "ve2-scientific-static-qualification-v2",
+  "sealed_output_branch": "ve2-scientific-capsule-sealed-v1",
+  "successful_subset_carry_forward": false,
+  "scientific_result_opened": false,
+  "scientific_cells": 0,
+  "frontier_result_seen": false,
+  "science_open_authorized": false,
+  "same_authority_rerun_after_result_exposure": false
+}
