@@ -1,0 +1,101 @@
+{
+  "schema": "replaymark.public-artifact-v3.preservation-mirror-completion.v1",
+  "status": "FROZEN_PRESERVATION_ONLY_COMPLETION",
+  "parent_manifest": {
+    "path": "artifact/v3-preservation/PRESERVATION_MANIFEST_V1.json",
+    "git_blob": "4bb1089209db156aca3843a1573bfb386d47af26"
+  },
+  "public_base_commit": "511744b34d230707e2606697d348b48c80b4bb6d",
+  "pre_completion_head": "dfd417cabc3fced6ddec8d773a6e9682510680fd",
+  "noninterference": {
+    "base_is_merge_base": true,
+    "behind_by": 0,
+    "changed_existing_scientific_files": 0,
+    "all_added_paths_under_artifact_v3_preservation": true,
+    "new_experiment": false,
+    "historical_rerun": false,
+    "result_reinterpretation": false,
+    "authority_replacement": false
+  },
+  "full_archive_exact_mirrors": [
+    {
+      "label": "legacy-e3b-decisive",
+      "path": "artifact/v3-preservation/archives/legacy-e3b-decisive.zip",
+      "git_blob": "278d3aa4e763833217dd1ae86b2116d06cf8545a",
+      "zip_sha256": "829e05748ae38c76f880ab57538112a980c1da3d3ebedd4b84c1e6409093eb95",
+      "artifact_id": 9960088059
+    },
+    {
+      "label": "legacy-e3b-safety-boundary",
+      "path": "artifact/v3-preservation/archives/legacy-e3b-safety-boundary.zip",
+      "git_blob": "eb1460194afcbe67d9d083159e536fa4283392e2",
+      "zip_sha256": "214a25bc666336d86d0e59f2031713b6d79d3cdd9704b8e6f9b75da03bfef257",
+      "artifact_id": 9960095929
+    },
+    {
+      "label": "legacy-fixed-work-queue-certificate",
+      "path": "artifact/v3-preservation/archives/legacy-fixed-work-queue-certificate.zip",
+      "git_blob": "d2b9d9b8b87a9cde45e36ce356ab820b6c2a19bc",
+      "zip_sha256": "23d61d3ca1ac1b6f07d490db1d4728d8212c8de847c0224fc1b7e8f16348f8a3",
+      "artifact_id": 9979756800
+    }
+  ],
+  "canonical_exact_mirrors": [
+    {
+      "label": "official-motion-light-primary",
+      "path": "artifact/v3-preservation/legacy-motion-light/N1_MOTION_LIGHT_REPLICATED.json",
+      "git_blob": "ccbb110d46ee1173f332cd51ce680dfe1cc8ecb7",
+      "content_sha256": "4812816bd830b5e71d89843f8510c44f93c37a89b054ae8ef7a9358e90ec00f7"
+    },
+    {
+      "label": "official-motion-light-preregistration",
+      "path": "artifact/v3-preservation/legacy-motion-light/PREREGISTRATION.md",
+      "git_blob": "14a981d81d666292981fba4aa0c73388bcf67d7a"
+    },
+    {
+      "label": "horizon-runtime-primary",
+      "path": "artifact/v3-preservation/legacy-horizon/N2_HORIZON_RUNTIME_REPLICATED.json",
+      "git_blob": "6a5bdf003a0c75373fec46d333034f0c512227ce",
+      "content_sha256": "60c2cf2ad7e5ac24b7af74199877d59812e7d214900a1982dba7395703467f51"
+    },
+    {
+      "label": "fixed-work-queue-certificate",
+      "path": "artifact/v3-preservation/legacy-fixed-work-queue/confirmatory_certificate.json",
+      "git_blob": "e0367811af08fd96d71e26b42689523c0083b1f9",
+      "content_sha256": "ce3a2d9cebf8fb3baf37867ea58c2b5ce1a76b722de86bb07ceeecf8429c4123"
+    }
+  ],
+  "verified_before_expiry_but_not_duplicated_as_full_zip_here": [
+    {
+      "label": "legacy-e3c-home-assistant",
+      "artifact_id": 9962430737,
+      "zip_sha256": "7ef5140a6dcdaee508154d49071aa15733da95b7507ead7d8d63afc963a12cb3",
+      "reason": "canonical primary already has durable predecessor-Git mirror"
+    },
+    {
+      "label": "legacy-official-motion-light",
+      "artifact_id": 9963663630,
+      "zip_sha256": "14dfde9ff11865a548984ec4858429258d2d4fc1b7584c41d96a251530eb3f27",
+      "reason": "canonical primary and preregistration are byte-exact mirrored in this branch"
+    },
+    {
+      "label": "legacy-n2-natural-controller",
+      "artifact_id": 9969439579,
+      "zip_sha256": "76bd2850156040139aabd935ccab44f01fb27344770c2f04a055fed81ee901b7",
+      "reason": "canonical primary already has durable predecessor-Git mirror"
+    },
+    {
+      "label": "legacy-n2b-decision-equivalence",
+      "artifact_id": 9971397583,
+      "zip_sha256": "4d75b17e6bd0bd9ba41cb574f9bca022364c312c09b215b74a36a92fda5861db",
+      "reason": "canonical primary already has durable predecessor-Git mirror"
+    },
+    {
+      "label": "legacy-horizon-runtime",
+      "artifact_id": 9982336698,
+      "zip_sha256": "7a594987991d407b0702411b70859d5d9eecb4034f43c8908f44e9cf6299a098",
+      "reason": "canonical promoted aggregate is byte-exact mirrored in this branch"
+    }
+  ],
+  "completion_rule": "Preservation completeness is about lossless retention of paper-bearing authority and its provenance, not gratuitous duplication of every large raw archive. A full archive is mirrored when it contains unique non-Git authority needed for closure; otherwise an exact canonical aggregate plus independently verified original archive digest is sufficient for this V3 carrier."
+}
