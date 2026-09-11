@@ -1,0 +1,72 @@
+{
+  "schema": "replaymark.ve2.science-transport-v6-lifecycle-signal-remediation.v1",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_diagnosis_seal": "5f541f3976946ca21d3a911b49f6f0f69158d369",
+  "predecessor_v5_failure_seal": "c17d2506e465b9bb3ac71cb04cb7c10c0360ba01",
+  "diagnostic_authority": {
+    "source_freeze": "4e8770b41e6fa0ec4c5eff3763765581b908c396",
+    "open": "8367a94bc6d315a33122a1502f205ecb910de0e5",
+    "run_id": 34547040426,
+    "result": {
+      "state": "PASS",
+      "state_for_120s": "PASS",
+      "time": "PASS",
+      "homeassistant_start_delay_30s": "EXCEPTION"
+    }
+  },
+  "source_evidence": {
+    "home_assistant_version": "2026.9.0",
+    "home_assistant_tag_commit": "dfb5a9e690daaf204b542896e4b595e61a11a401",
+    "native_trigger_file": "homeassistant/components/homeassistant/triggers/homeassistant.py",
+    "native_listener_symbol": "EVENT_HOMEASSISTANT_STARTED",
+    "native_listener_value": "homeassistant_started",
+    "mis_emitted_predecessor_symbol": "EVENT_HOMEASSISTANT_START",
+    "mis_emitted_predecessor_value": "homeassistant_start",
+    "official_test_uses_actual_start_lifecycle": true
+  },
+  "repair": {
+    "repair_id": "replaymark.ve2.t02-homeassistant-started-signal-repair.v1",
+    "authorized_semantic_changes": 1,
+    "change": "replace only the startup-case emitted lifecycle signal with exact Home Assistant EVENT_HOMEASSISTANT_STARTED",
+    "runtime_wrapper": "ve2_science_transport_qualify_v6.py",
+    "runtime_blob": "3c3af5b6dd54bebea7faed905cec6da066e1ee32",
+    "preflight_validator_blob": "c584a2aeaeae3f9be280f35503503c4fb3a92cbc",
+    "additional_home_assistant_setup_calls": 0,
+    "bootstrap_changed": false,
+    "registry_loading_changed": false,
+    "state_case_changed": false,
+    "state_for_case_changed": false,
+    "time_case_changed": false,
+    "startup_trigger_definition_changed": false,
+    "startup_action_definition_changed": false,
+    "delay_duration_changed": false,
+    "clock_driver_changed": false,
+    "wait_timeout_changed": false,
+    "witness_collection_changed": false,
+    "transport_pass_criteria_changed": false,
+    "result_dependent_fallback": false,
+    "retry_after_failure": false
+  },
+  "successor_execution_law": {
+    "new_authority_required": true,
+    "v5_never_rerun_for_promotion": true,
+    "diagnostic_never_rerun_for_promotion": true,
+    "v6_attempt_1_only_promotable": true,
+    "full_three_runtime_preflight_required": true,
+    "independent_preflight_adjudication_required": true,
+    "full_t01_old_transport_required": true,
+    "full_t01_new_transport_required": true,
+    "full_t02_four_case_transport_required": true,
+    "unchanged_independent_transport_validator_required": true,
+    "all_raw_role_artifacts_sealed_before_final_adjudication": true
+  },
+  "scientific_hygiene": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "expected_frontier_read": false,
+    "execution_state_manifests_used": false,
+    "transition_blueprint_executed": false,
+    "historical_better_thermostat_action_dispatched": false
+  }
+}
