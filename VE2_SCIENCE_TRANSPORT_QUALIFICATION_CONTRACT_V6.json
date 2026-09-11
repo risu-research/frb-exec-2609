@@ -19,17 +19,21 @@
     "bootstrap_or_registry_law_changed_from_v5": false,
     "clock_transport_law_changed_from_v5": false,
     "double_witness_law_changed_from_v5": false,
-    "neutral_case_population_changed_from_v5": false
+    "neutral_case_population_changed_from_v5": false,
+    "independent_transport_validator_changed": false
   },
   "v6_delta": {
-    "runtime_blob": "3c3af5b6dd54bebea7faed905cec6da066e1ee32",
+    "runtime_blob": "941b80b1c42781094fc8b3bb1a83861d80ae01da",
     "preflight_validator_blob": "c584a2aeaeae3f9be280f35503503c4fb3a92cbc",
-    "repair_id": "replaymark.ve2.t02-homeassistant-started-signal-repair.v1",
-    "semantic_change_count": 1,
+    "repair_id": "replaymark.ve2.t02-homeassistant-start-lifecycle-repair.v1",
+    "execution_semantic_changes": 1,
     "old_signal": "homeassistant_start",
     "new_signal": "homeassistant_started",
     "new_signal_source_symbol": "homeassistant.const.EVENT_HOMEASSISTANT_STARTED",
+    "witness_applicability_changes": 1,
+    "startup_root_parent_applicability": "NOT_APPLICABLE_NATIVE_TRIGGER_DOES_NOT_PROPAGATE_EVENT_CONTEXT",
     "affects_only_case": "homeassistant_start_delay_30s",
+    "collector_algorithm_changed": false,
     "additional_home_assistant_setup_calls": 0,
     "trigger_definition_changed": false,
     "action_definition_changed": false,
@@ -39,6 +43,7 @@
     "state_case_changed": false,
     "state_for_case_changed": false,
     "time_case_changed": false,
+    "native_witness_capture_changed": false,
     "result_dependent_fallback": false,
     "retry_after_failure": false
   },
