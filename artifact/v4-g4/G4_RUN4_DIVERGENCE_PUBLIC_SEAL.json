@@ -1,0 +1,26 @@
+{
+  "schema": "replaymark.artifact-v4.g4-run4-public-divergence-seal.v1",
+  "status": "FROZEN_RUN4_BLIND_DIVERGENCE",
+  "run_id": 34640240768,
+  "job_id": 103397872522,
+  "public_execution_head": "9c81a256d17a664d4f297ea83d31e07db270d2b4",
+  "private_source_commit": "80bb5a86afac42e1699d0036c71def6be731b628",
+  "artifact_id": 10279188874,
+  "artifact_zip_sha256": "b310e8267e7b2f1ece3174050a180ca7bcbe283de9793f4b4412c1f64828fc9f",
+  "A_claim_vector_sha256": "d94daab49f31576c797efa55545cfb006a409c48cbf5a243fceead5a511f17a6",
+  "B_claim_vector_sha256": "65b2b519b45315589d885d75d17dc716b255db5c88612652b6201dca93b5103c",
+  "v1_comparator_status": "A_B_DIVERGENCE",
+  "v1_diff_count": 7,
+  "v92_comparison_executed": false,
+  "postrun_authority_only_adjudication": {
+    "semantic_numeric_value_diff_count": 0,
+    "structural_or_nonnumeric_diff_count": 0,
+    "representation_only_numeric_diff_count": 7,
+    "classification": "CROSS_LANGUAGE_JSON_NUMBER_REPRESENTATION_DIVERGENCE"
+  },
+  "history_law": {
+    "run4_remains_divergent_under_the_frozen_v1_comparator": true,
+    "no_retroactive_pass": true,
+    "fresh_blind_open_required": true
+  }
+}
