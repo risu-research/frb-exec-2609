@@ -1,0 +1,90 @@
+name: artifact-v2 self-contained verification
+
+on:
+  push:
+    branches:
+      - artifact-v2-s6-authority
+    paths:
+      - .github/workflows/artifact-v2-self-contained-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout immutable Artifact V2 branch state
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Require preserved payload ancestry and frozen preservation receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 27602b85b210e19e9b38e9db84787b0331d978e3 HEAD
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('artifact_v2/preserved/PRESERVATION_RECEIPT_V1.json').read_text())
+          assert r['status'] == 'PRESERVED_EXACT_BOUND_BYTES_AFTER_DUAL_VERIFICATION'
+          assert r['preservation_source_commit'] == 'adb37bd5572b1a12284e47cb935fc56782c325a6'
+          assert r['preservation_workflow_run_id'] == 34610333483
+          assert r['preserved_zip_count'] == 8
+          assert r['new_scientific_measurement'] is False
+          assert r['authority_replacement'] is False
+          assert r['timing_rerun'] is False
+          assert r['post_hoc_tuning'] is False
+          print('ARTIFACT_V2_PRESERVATION_RECEIPT=PASS')
+          PY
+
+      - name: Verify every committed preserved byte against the checksum manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum -c artifact_v2/preserved/PRESERVED_FILES_SHA256.txt
+
+      - name: Reproduce the bound manuscript projection without source Actions artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python artifact_v2/verify_preserved_s6.py \
+            --source-manifest artifact_v2/S6_AUTHORITY_SOURCE_V1.json \
+            --zips-dir artifact_v2/preserved/zips \
+            --out /tmp/OFFLINE_VERIFICATION_V1.json
+          cmp /tmp/OFFLINE_VERIFICATION_V1.json artifact_v2/preserved/OFFLINE_VERIFICATION_V1.json
+
+      - name: Require exact v91 projection and preserved negative result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('/tmp/OFFLINE_VERIFICATION_V1.json').read_text())
+          assert r['status'] == 'PASS_SELF_CONTAINED_EXACT_V91_REPRODUCTION'
+          assert r['manuscript_snapshot']['sha256'] == '49a38fe979749fd9071b5d0299ce146989bd2846b2f7c945ef905794e80aef7b'
+          assert r['aggregate_sha256'] == '9dd9a0363d04a413b380fefcf3d35a56c50a089ba321f2812c5a94b741a18adf'
+          p = r['paper_projection_v91']
+          assert p['largest_p50_max_min_ratio_3dp'] == '1.113'
+          assert p['worst_e3b_p99_ms_3dp'] == '1.371'
+          assert p['worst_e3b_p99_9_ms_3dp'] == '2.344'
+          assert p['thermostat_q_compile_median_ms_range_2dp'] == ['3.88', '4.02']
+          assert p['e3b_full_compile_median_ms_range_1dp'] == ['107.7', '108.1']
+          assert p['anchor_peak_rss_lt_decimal_mb'] == 30
+          assert p['positive_offline_scaling_claim'] is False
+          h = r['hygiene']
+          assert h['aggregate_status'] == 'AGGREGATED_BEFORE_VERDICT_ENFORCEMENT'
+          assert h['sealed_complete_enforcement'] is True
+          assert h['fresh_claim_bytes_identical_to_authority_raw_members'] is True
+          assert h['raw_to_aggregate_cross_checks'] is True
+          assert h['stronger_offline_scaling_claim_permitted'] is False
+          print('ARTIFACT_V2_SELF_CONTAINED=PASS')
+          PY
