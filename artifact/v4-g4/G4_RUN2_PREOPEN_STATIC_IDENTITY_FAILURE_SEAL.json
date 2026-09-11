@@ -1,0 +1,14 @@
+{
+  "schema": "replaymark.artifact-v4.g4-run2-preopen-static-identity-failure.v1",
+  "status": "PRE_SCIENTIFIC_OPEN_STATIC_ASSERTION_FAILURE_NOT_CONSUMED",
+  "run_id": 34639207967,
+  "run_attempt": 1,
+  "job_id": 103394492093,
+  "public_execution_head": "e3febc1ace25ab82892d92471d2126f658e08011",
+  "failed_step": "Verify frozen G4 identities before any baseline execution",
+  "classification": "INCORRECT_EXPECTED_BLOB_FOR_RUN1_FAILURE_SEAL",
+  "diagnosis": "The workflow asserted an incorrect Git blob for the newly added private Run1 failure-seal file. All scientific program identities remained unchanged. Failure occurred before historical checkout and before either verifier executed.",
+  "scientific_exposure": {"verifier_A_executed":false,"verifier_B_executed":false,"A_B_comparison_executed":false,"v92_comparison_executed":false,"challenge_executed":false},
+  "correct_private_run1_failure_seal_blob": "dfca8c24f6b2c890b223874ab9044a596a3dac6f",
+  "fresh_run_required": true
+}
