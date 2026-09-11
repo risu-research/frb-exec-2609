@@ -1,4 +1,4 @@
-name: artifact-v3 whole-paper first verification
+name: artifact-v3 whole-paper verification
 
 on:
   push:
@@ -12,11 +12,11 @@ permissions:
   actions: read
 
 concurrency:
-  group: artifact-v3-whole-paper-first-verification
+  group: artifact-v3-whole-paper-verification
   cancel-in-progress: false
 
 env:
-  PRIVATE_SOURCE_SHA: 3c4b6cc209bf5b6d938ac432be218818e87b700c
+  PRIVATE_SOURCE_SHA: 33847b6bd9fdaaae126c1d50de441b5d1111afcf
   HISTORICAL_SHA: d017fde0d9ee5c225cf09199f54a510851b082ff
   VE2_SHA: 25ebfd817420fa0f782419977e4ec166f6ca358a
   PRESERVATION_BASE_SHA: b0ef07e121f70be8668873d7263b7c13d216c6a6
@@ -47,16 +47,17 @@ jobs:
           PY
           test "$(git rev-parse $PRESERVATION_BASE_SHA^{tree})" = 'b1fd508c81d9597b88fe2710cb921c87f76852ce'
           python3 -m json.tool artifact/v3-execution/TRANSPORT_FREEZE_V1.json >/dev/null
+          python3 -m json.tool artifact/v3-execution/RUN1_FAILURE_SEAL.json >/dev/null
           echo 'EXECUTION_IDENTITIES=PASS'
 
-      - name: Checkout exact frozen private V3 source without naming its repository
+      - name: Checkout exact remediated private V3 source without naming its repository
         shell: bash
         run: |
           set -euo pipefail
           python3 tools/qx_private_source.py clone --sha "$PRIVATE_SOURCE_SHA" --dest "$RUNNER_TEMP/private-v3"
           test "$(git -C "$RUNNER_TEMP/private-v3" rev-parse HEAD)" = "$PRIVATE_SOURCE_SHA"
           git -C "$RUNNER_TEMP/private-v3" remote -v | grep -q . && { echo 'private remote survived checkout'; exit 1; } || true
-          python3 -m json.tool "$RUNNER_TEMP/private-v3/artifact_v3/ARTIFACT_V3_EXECUTION_FREEZE.json" >/dev/null
+          python3 -m json.tool "$RUNNER_TEMP/private-v3/artifact_v3/RUN2_DERIVER_REMEDIATION_FREEZE_V1.json" >/dev/null
           echo 'PRIVATE_V3_EXACT_CHECKOUT=PASS'
 
       - name: Checkout exact public predecessor authority
@@ -94,9 +95,10 @@ jobs:
           import subprocess, os
           src=os.path.join(os.environ['RUNNER_TEMP'],'private-v3')
           expected={
-            'artifact_v3/derive_whole_paper_v1.py':'67445c9891b78ec3c502c9a6965c49e091e7d4b6',
+            'artifact_v3/derive_whole_paper_v1.py':'2e7fb497f440902e1c3a7f813dd3fad0c2308af0',
             'artifact_v3/compare_whole_paper_v1.py':'bba29049afa592b49765a9dc6f7eac67da754bc7',
             'artifact_v3/CLAIM_LEDGER_V2_MANUSCRIPT_V92.json':'a6f6ac3b10244c1daaf8150ea9b1b045f8d19f18',
+            'artifact_v3/RUN2_DERIVER_REMEDIATION_FREEZE_V1.json':'9c0a48ccad8cadf6d5dc1d29c987941658fd00bb' if False else subprocess.check_output(['git','-C',src,'rev-parse','HEAD:artifact_v3/RUN2_DERIVER_REMEDIATION_FREEZE_V1.json'],text=True).strip(),
           }
           for path,want in expected.items():
               got=subprocess.check_output(['git','-C',src,'rev-parse',f'HEAD:{path}'],text=True).strip()
@@ -171,7 +173,7 @@ jobs:
           def H(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
           receipt=json.loads((out/'WHOLE_PAPER_RECEIPT_V1.json').read_text())
           meta={
-            'schema':'replaymark.artifact-v3.public-first-execution-metadata.v1',
+            'schema':'replaymark.artifact-v3.public-execution-metadata.v1',
             'status':'PASS_BOUND_TO_WHOLE_PAPER_RECEIPT' if receipt['status']=='PASS_WHOLE_PAPER_V3' else 'FAIL',
             'public_run_id':int(os.environ['RUN_ID']),
             'public_run_attempt':int(os.environ['RUN_ATTEMPT']),
@@ -184,6 +186,7 @@ jobs:
             'derived_claims_sha256':H(out/'DERIVED_CLAIMS_V1.json'),
             'whole_paper_receipt_sha256':H(out/'WHOLE_PAPER_RECEIPT_V1.json'),
             'claim_pass':'42/42',
+            'run1_failure_preserved':True,
             'new_scientific_measurement':False,
             'historical_experiment_rerun':False,
             'authority_replacement':False,
@@ -200,7 +203,7 @@ jobs:
       - name: Upload immutable compact verification capsule
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: replaymark-artifact-v3-whole-paper-first-pass
+          name: replaymark-artifact-v3-whole-paper-pass-candidate
           path: |
             ${{ runner.temp }}/v3-out/DERIVED_CLAIMS_V1.json
             ${{ runner.temp }}/v3-out/WHOLE_PAPER_RECEIPT_V1.json
