@@ -1,0 +1,341 @@
+{
+  "artifacts": {
+    "bounded_quotient": {
+      "claim": {
+        "claim_id": "replaymark.ve2.t01.native-service-call.h0.v1",
+        "consequence_endpoint": "home-assistant.native-service-call",
+        "dimensions": [
+          "concrete_target",
+          "operation",
+          "variant"
+        ],
+        "horizon": 0,
+        "schema": "replaymark.claim.v1"
+      },
+      "claim_fingerprint": "8a82e3d78150480aee626a476d57a56c25a3323a62671609c15b8d1d6cf1d975",
+      "continuation_alphabet": [],
+      "current_projected_actions": [
+        {
+          "action": {
+            "concrete_target": "climate.ve2_t01_thermostat",
+            "operation": "climate.set_preset_mode",
+            "variant": "{\"preset_mode\":\"none\"}"
+          },
+          "decision_state": "VE2-T01-S00"
+        },
+        {
+          "action": {
+            "concrete_target": "climate.ve2_t01_thermostat",
+            "operation": "climate.set_preset_mode",
+            "variant": "{\"preset_mode\":\"sleep\"}"
+          },
+          "decision_state": "VE2-T01-S01"
+        }
+      ],
+      "decision_states": [
+        "VE2-T01-S00",
+        "VE2-T01-S01"
+      ],
+      "deterministic_successors": [
+        {
+          "decision_state": "VE2-T01-S00",
+          "successors": []
+        },
+        {
+          "decision_state": "VE2-T01-S01",
+          "successors": []
+        }
+      ],
+      "first_observed_fixed_point": null,
+      "horizon": 0,
+      "layers": [
+        {
+          "blocks": [
+            {
+              "decision_states": [
+                "VE2-T01-S00"
+              ],
+              "id": "q0_0"
+            },
+            {
+              "decision_states": [
+                "VE2-T01-S01"
+              ],
+              "id": "q0_1"
+            }
+          ],
+          "depth": 0
+        }
+      ],
+      "schema": "replaymark.qch.deterministic.v2",
+      "target_provenance": {
+        "compiler_observed_semantic_digest": "2c21e3a662318ee8204e6646e5e568feb0b235bb44342cc3ad6789f8ba27a65e",
+        "component_digests": {
+          "advance": "32b749f8b2f45416da26f9ffc8e3a105f15f0ea5a96334ff42307d31a32b2f08",
+          "current": "e7288b3fe2b1d1866c84d76238af5c6ac15503a4320b4b4c4872e2d229a591fb",
+          "domain": "3a37ddc952248689cbad5dae7a7475949542fd387ad250e7683a5803527453bd"
+        },
+        "provider_fingerprint": "20ffd37b750e86b03b0fa5edbc87d7249a6364aeda5ca45c97836c584b85faff",
+        "snapshot_fingerprint": "15a783e2711e3b8ebbd6d1baef40c1b2cc50c7d255a67524881154b800878497"
+      }
+    },
+    "evidence_image": {
+      "claim_fingerprint": "8a82e3d78150480aee626a476d57a56c25a3323a62671609c15b8d1d6cf1d975",
+      "depth": 0,
+      "evidence_fingerprint": "f2503e6bca191da38d8c7867cbadf0b017918a16e9a59fa0ec0ec1e418142ca8",
+      "evidence_relation_fingerprint": "155526c65ed960b49dc34eb06401a6fdea17c7e36a81c6d7471c183f900d9a74",
+      "evidence_semantics_fingerprint": "66fa8fe836459ec75a58c38b0980f34da97b34733a3f1404518fdf310d363717",
+      "observations": [
+        {
+          "compatible_states": [
+            "VE2-T01-S00"
+          ],
+          "q_blocks": [
+            "q0_0"
+          ],
+          "token": "{\"schedule_state\":\"off\"}"
+        },
+        {
+          "compatible_states": [
+            "VE2-T01-S01"
+          ],
+          "q_blocks": [
+            "q0_1"
+          ],
+          "token": "{\"schedule_state\":\"on\"}"
+        }
+      ],
+      "quotient_fingerprint": "a8f71e9a2078fd1f3f75a76a9a49b91592cd79644a70740ebf259417f3e0eaee",
+      "schema": "replaymark.qch-evidence-image.v2-derived-evidence"
+    },
+    "evidence_semantics": {
+      "decision_states": [
+        "VE2-T01-S00",
+        "VE2-T01-S01"
+      ],
+      "derived_evidence_spec": {
+        "evidence_id": "replaymark.ve2.t01.fixture-evidence.v1",
+        "observations": [
+          {
+            "compatible_states": [
+              "VE2-T01-S00"
+            ],
+            "token": "{\"schedule_state\":\"off\"}"
+          },
+          {
+            "compatible_states": [
+              "VE2-T01-S01"
+            ],
+            "token": "{\"schedule_state\":\"on\"}"
+          }
+        ],
+        "schema": "replaymark.evidence.v1"
+      },
+      "evidence_id": "replaymark.ve2.t01.fixture-evidence.v1",
+      "relation_fingerprint": "155526c65ed960b49dc34eb06401a6fdea17c7e36a81c6d7471c183f900d9a74",
+      "schema": "replaymark.evidence-semantics-closure.v1",
+      "target_domain_fingerprint": "df2756fad5a5bb17bfcc51ecc8b0fb98d6cbcfc20e23ace8b38a4e3d8ddc4fad",
+      "world_observation_supports": [
+        {
+          "decision_state": "VE2-T01-S00",
+          "tokens": [
+            "{\"schedule_state\":\"off\"}"
+          ]
+        },
+        {
+          "decision_state": "VE2-T01-S01",
+          "tokens": [
+            "{\"schedule_state\":\"on\"}"
+          ]
+        }
+      ]
+    },
+    "predictive_witness_index": {
+      "claim_fingerprint": "8a82e3d78150480aee626a476d57a56c25a3323a62671609c15b8d1d6cf1d975",
+      "continuation_alphabet": [],
+      "decision_states": [
+        "VE2-T01-S00",
+        "VE2-T01-S01"
+      ],
+      "depth": 0,
+      "quotient_fingerprint": "a8f71e9a2078fd1f3f75a76a9a49b91592cd79644a70740ebf259417f3e0eaee",
+      "schema": "replaymark.predictive-continuation-witness-index.v1",
+      "witnesses": [
+        {
+          "claim_fingerprint": "8a82e3d78150480aee626a476d57a56c25a3323a62671609c15b8d1d6cf1d975",
+          "compiled_depth": 0,
+          "continuation_word": [],
+          "first_separation_depth": 0,
+          "left_state": "VE2-T01-S00",
+          "left_trace": [
+            {
+              "concrete_target": "climate.ve2_t01_thermostat",
+              "operation": "climate.set_preset_mode",
+              "variant": "{\"preset_mode\":\"none\"}"
+            }
+          ],
+          "quotient_fingerprint": "a8f71e9a2078fd1f3f75a76a9a49b91592cd79644a70740ebf259417f3e0eaee",
+          "right_state": "VE2-T01-S01",
+          "right_trace": [
+            {
+              "concrete_target": "climate.ve2_t01_thermostat",
+              "operation": "climate.set_preset_mode",
+              "variant": "{\"preset_mode\":\"sleep\"}"
+            }
+          ],
+          "schema": "replaymark.predictive-continuation-witness.v1"
+        }
+      ]
+    },
+    "support_envelope": {
+      "block_supports": [
+        {
+          "q_block": "q0_0",
+          "support": [
+            {
+              "concrete_target": "climate.ve2_t01_thermostat",
+              "operation": "climate.set_preset_mode",
+              "variant": "{\"preset_mode\":\"none\"}"
+            }
+          ]
+        },
+        {
+          "q_block": "q0_1",
+          "support": [
+            {
+              "concrete_target": "climate.ve2_t01_thermostat",
+              "operation": "climate.set_preset_mode",
+              "variant": "{\"preset_mode\":\"sleep\"}"
+            }
+          ]
+        }
+      ],
+      "claim_fingerprint": "8a82e3d78150480aee626a476d57a56c25a3323a62671609c15b8d1d6cf1d975",
+      "depth": 0,
+      "evidence_fingerprint": "f2503e6bca191da38d8c7867cbadf0b017918a16e9a59fa0ec0ec1e418142ca8",
+      "evidence_image_fingerprint": "bbc8b9ce85ebd83f85b21be7c8c97e6940c6393921785fcc4d4a3487480b7118",
+      "observations": [
+        {
+          "guaranteed_support": [
+            {
+              "concrete_target": "climate.ve2_t01_thermostat",
+              "operation": "climate.set_preset_mode",
+              "variant": "{\"preset_mode\":\"none\"}"
+            }
+          ],
+          "possible_support": [
+            {
+              "concrete_target": "climate.ve2_t01_thermostat",
+              "operation": "climate.set_preset_mode",
+              "variant": "{\"preset_mode\":\"none\"}"
+            }
+          ],
+          "q_blocks": [
+            "q0_0"
+          ],
+          "token": "{\"schedule_state\":\"off\"}"
+        },
+        {
+          "guaranteed_support": [
+            {
+              "concrete_target": "climate.ve2_t01_thermostat",
+              "operation": "climate.set_preset_mode",
+              "variant": "{\"preset_mode\":\"sleep\"}"
+            }
+          ],
+          "possible_support": [
+            {
+              "concrete_target": "climate.ve2_t01_thermostat",
+              "operation": "climate.set_preset_mode",
+              "variant": "{\"preset_mode\":\"sleep\"}"
+            }
+          ],
+          "q_blocks": [
+            "q0_1"
+          ],
+          "token": "{\"schedule_state\":\"on\"}"
+        }
+      ],
+      "quotient_fingerprint": "a8f71e9a2078fd1f3f75a76a9a49b91592cd79644a70740ebf259417f3e0eaee",
+      "schema": "replaymark.support-envelope.deterministic.v1"
+    },
+    "target_snapshot": {
+      "declared_continuation_order": [],
+      "provider_fingerprint": "20ffd37b750e86b03b0fa5edbc87d7249a6364aeda5ca45c97836c584b85faff",
+      "schema": "replaymark.target-semantics-snapshot.v1",
+      "semantic_snapshot": {
+        "advance": {
+          "advance_laws": [],
+          "schema": "replaymark.target-advance-law.v1"
+        },
+        "component_digests": {
+          "advance": "32b749f8b2f45416da26f9ffc8e3a105f15f0ea5a96334ff42307d31a32b2f08",
+          "current": "e7288b3fe2b1d1866c84d76238af5c6ac15503a4320b4b4c4872e2d229a591fb",
+          "domain": "3a37ddc952248689cbad5dae7a7475949542fd387ad250e7683a5803527453bd",
+          "root": "2c21e3a662318ee8204e6646e5e568feb0b235bb44342cc3ad6789f8ba27a65e"
+        },
+        "current": {
+          "current_laws": [
+            {
+              "branches": [
+                {
+                  "action": {
+                    "concrete_target": "climate.ve2_t01_thermostat",
+                    "operation": "climate.set_preset_mode",
+                    "variant": "{\"preset_mode\":\"none\"}"
+                  },
+                  "mass": {
+                    "denominator": 1,
+                    "numerator": 1
+                  },
+                  "post_state": "VE2-T01-S00"
+                }
+              ],
+              "decision_state": "VE2-T01-S00"
+            },
+            {
+              "branches": [
+                {
+                  "action": {
+                    "concrete_target": "climate.ve2_t01_thermostat",
+                    "operation": "climate.set_preset_mode",
+                    "variant": "{\"preset_mode\":\"sleep\"}"
+                  },
+                  "mass": {
+                    "denominator": 1,
+                    "numerator": 1
+                  },
+                  "post_state": "VE2-T01-S01"
+                }
+              ],
+              "decision_state": "VE2-T01-S01"
+            }
+          ],
+          "schema": "replaymark.target-current-law.v1"
+        },
+        "domain": {
+          "continuation_symbols": [],
+          "decision_states": [
+            "VE2-T01-S00",
+            "VE2-T01-S01"
+          ],
+          "schema": "replaymark.target-semantics-domain.v1"
+        },
+        "schema": "replaymark.target-semantic-root.v1"
+      }
+    }
+  },
+  "compiler_id": "replaymark.reference-packager.explicit.v1",
+  "manifest": {
+    "claim_fingerprint": "8a82e3d78150480aee626a476d57a56c25a3323a62671609c15b8d1d6cf1d975",
+    "evidence_relation_fingerprint": "155526c65ed960b49dc34eb06401a6fdea17c7e36a81c6d7471c183f900d9a74",
+    "evidence_semantics_fingerprint": "66fa8fe836459ec75a58c38b0980f34da97b34733a3f1404518fdf310d363717",
+    "predictive_witness_index_fingerprint": "48a220604dbf51a714dbba47ab8a56614242a1ea03c668e5e2b7579f682a7912",
+    "quotient_fingerprint": "a8f71e9a2078fd1f3f75a76a9a49b91592cd79644a70740ebf259417f3e0eaee",
+    "support_envelope_fingerprint": "841e861ac30683b20a3f182202b30fa1bc3e732a9d38399218f7b15d96584535",
+    "target_provider_fingerprint": "20ffd37b750e86b03b0fa5edbc87d7249a6364aeda5ca45c97836c584b85faff",
+    "target_semantic_digest": "2c21e3a662318ee8204e6646e5e568feb0b235bb44342cc3ad6789f8ba27a65e",
+    "target_snapshot_fingerprint": "15a783e2711e3b8ebbd6d1baef40c1b2cc50c7d255a67524881154b800878497"
+  },
+  "schema": "replaymark.compiled-contract.explicit.v1"
+}

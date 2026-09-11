@@ -1,0 +1,50 @@
+{
+  "contracts": {
+    "T01": {
+      "claim_fingerprint": "8a82e3d78150480aee626a476d57a56c25a3323a62671609c15b8d1d6cf1d975",
+      "contract_file": "VE2_T01_TARGET_ONLY_COMPILED_CONTRACT_V1.json",
+      "contract_fingerprint": "22f621ada3862f85ead9769ea0b13c6b68807b078ee76de25c53b422a3a1cedb",
+      "evidence_relation_fingerprint": "155526c65ed960b49dc34eb06401a6fdea17c7e36a81c6d7471c183f900d9a74",
+      "evidence_semantics_fingerprint": "66fa8fe836459ec75a58c38b0980f34da97b34733a3f1404518fdf310d363717",
+      "export_file_sha256": "c42254e9556da27f0cc760c379b311d002dc775131b79a6cc3ab0af8b2a34b50",
+      "predictive_witness_index_fingerprint": "48a220604dbf51a714dbba47ab8a56614242a1ea03c668e5e2b7579f682a7912",
+      "quotient_fingerprint": "a8f71e9a2078fd1f3f75a76a9a49b91592cd79644a70740ebf259417f3e0eaee",
+      "states": 2,
+      "support_envelope_fingerprint": "841e861ac30683b20a3f182202b30fa1bc3e732a9d38399218f7b15d96584535",
+      "target_provider_fingerprint": "20ffd37b750e86b03b0fa5edbc87d7249a6364aeda5ca45c97836c584b85faff",
+      "target_semantic_digest": "2c21e3a662318ee8204e6646e5e568feb0b235bb44342cc3ad6789f8ba27a65e",
+      "target_snapshot_fingerprint": "15a783e2711e3b8ebbd6d1baef40c1b2cc50c7d255a67524881154b800878497"
+    },
+    "T02": {
+      "claim_fingerprint": "fa7936fd081e22edea850e687ea4369a5b2dc4536604f983dfde001a36bbbfdc",
+      "contract_file": "VE2_T02_TARGET_ONLY_COMPILED_CONTRACT_V1.json",
+      "contract_fingerprint": "a72f240ccbd5d6b4f81868189b962c831dbbce881531d1fca57f4d663d761b2c",
+      "evidence_relation_fingerprint": "8be91cd3981c6cdf2210392bf1e500f470e65476afb4316e145f95331ee5fbc3",
+      "evidence_semantics_fingerprint": "2f4f5c3457fff5d5e49d6a6f0924c3cde34d0a81420f2ad4f5e96b3ece188a2f",
+      "export_file_sha256": "450b2fb1752900eda757a705e590d060aeca30d51dc5d0b05803bb71555ff409",
+      "predictive_witness_index_fingerprint": "e178564f141927ad3541ac85f33d3662be653921ab37e8413706355096555945",
+      "quotient_fingerprint": "fb407f02e6e0c3386e3c0a06ca3cc6e6cbbe6a135030be4c375270889ca00a11",
+      "states": 42,
+      "support_envelope_fingerprint": "06c008258ec571e8ba94f3a06a764e10efdb17fe70c4f6a1da7cae79d4d6e04a",
+      "target_provider_fingerprint": "2a80fa6dbf1f9c677beb86c82219bf4c6805637aa42d1c3eb4e112c112bac2e4",
+      "target_semantic_digest": "d853a179c13da6fbba9a6a5c8c8d7e30a897317a8e858ee272d93da9e12fa33a",
+      "target_snapshot_fingerprint": "1845a5ff609fdf8fd89eb8735515a729f75c35d7a06096659fcfb66ef5de8d90"
+    }
+  },
+  "inputs": {
+    "T01_manifest_sha256": "0507f5c23f42ae4e01d2b390bde1bff8c4f0ad144b9e0f7720951e7eacdb97be",
+    "T02_manifest_sha256": "646828d79ef5a7a719dccaf894b5ba16674c5eab114c012aa11bca50b13f5060",
+    "expected_frontier_files_read": false,
+    "new_direct_results_read": false,
+    "old_semantics_files_read": false,
+    "spec_sha256": "507c39efef92bb3bc2cec9660e3b6ca324ed6884210107fb281d2678d4e06029"
+  },
+  "schema": "replaymark.ve2.target-only-contract-freeze-receipt.v1",
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "home_assistant_cells": 0,
+    "replaymark_cells": 0
+  },
+  "source_constitution": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+  "status": "PASS_PRE_SCIENCE"
+}

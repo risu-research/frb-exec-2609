@@ -1,0 +1,24 @@
+{
+  "e0r": {
+    "artifact_id": 10175341605,
+    "run_id": 34535765216,
+    "zip_sha256": "6e4fe767a3f55b8c6fa37ddbda4413be9e6ff72fc74ea7087fd60195cdcc8e8a"
+  },
+  "mirror_git_blobs": {
+    "freeze_receipt": "da0b624613a4b5f4d3f5e16570893866660f6731",
+    "independent_validation": "c80d274b43e0d4088d6b1bf7b16b9843f66328a8",
+    "t01": "e95f7001095366a66240cb4201fe227729f7b4c2",
+    "t02": "7585079d3c1b65a5fcf8ad50b7b30f6a009d67b6"
+  },
+  "open": "0d9ffd8e9803a4c60617cae75ce57f79b39d2c9a",
+  "predecessor_failure_seal": "4fe589aa0b73a1e2ea89320222e7ec11534ce8e0",
+  "schema": "replaymark.ve2.scientific-contract-exact-mirror-receipt.v2",
+  "scientific_hygiene": {
+    "expected_frontier_read": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "scientific_result_opened": false
+  },
+  "source_freeze": "55b8b7cfef8aabff46d50d09278f28b0de2d465c",
+  "status": "PASS_BYTE_IDENTICAL_MIRROR"
+}

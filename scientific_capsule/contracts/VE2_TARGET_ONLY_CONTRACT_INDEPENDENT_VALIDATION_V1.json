@@ -1,0 +1,24 @@
+{
+  "T01": {
+    "contract_fingerprint": "22f621ada3862f85ead9769ea0b13c6b68807b078ee76de25c53b422a3a1cedb",
+    "expected_frontier_material_absent": true,
+    "fixture_tokens_unique": true,
+    "new_target_law_exact": true,
+    "states": 2,
+    "target_semantic_digest": "2c21e3a662318ee8204e6646e5e568feb0b235bb44342cc3ad6789f8ba27a65e",
+    "transition": "T01"
+  },
+  "T02": {
+    "contract_fingerprint": "a72f240ccbd5d6b4f81868189b962c831dbbce881531d1fca57f4d663d761b2c",
+    "expected_frontier_material_absent": true,
+    "fixture_tokens_unique": true,
+    "new_target_law_exact": true,
+    "states": 42,
+    "target_semantic_digest": "d853a179c13da6fbba9a6a5c8c8d7e30a897317a8e858ee272d93da9e12fa33a",
+    "transition": "T02"
+  },
+  "schema": "replaymark.ve2.target-only-contract-independent-validation.v1",
+  "scientific_cells": 0,
+  "scientific_result_opened": false,
+  "status": "PASS"
+}
