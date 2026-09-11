@@ -1,0 +1,47 @@
+{
+  "schema": "replaymark.artifact-v4.g4-run1-pre-b-derivation-failure-seal.v1",
+  "status": "PRE_B_DERIVATION_WORKFLOW_IDENTITY_CHECK_FAILURE_NOT_CONSUMED",
+  "run": {
+    "run_id": 34637022251,
+    "run_attempt": 1,
+    "public_head": "2694d71a5cfd8f386889ad95a319d84775d9535b",
+    "workflow_conclusion": "failure",
+    "A_job_id": 103387288231,
+    "A_job_conclusion": "success",
+    "B_job_id": 103387288433,
+    "B_job_conclusion": "failure"
+  },
+  "failure": {
+    "stage": "B frozen-source identity preflight",
+    "cause": "The first public workflow template contained the literal placeholder PLACEHOLDER_PREOPEN_BLOB instead of the already-frozen G4 pre-open source-freeze Git blob 37795d08f6ad3743d1f0fe7477c5be707ce775a6.",
+    "classification": "WORKFLOW_PLUMBING_IDENTITY_ASSERTION_FAILURE",
+    "exact_private_source_checkout_completed": true,
+    "B_authority_materialization_started": false,
+    "B_semantic_snapshot_materialization_started": false,
+    "B_pristine_role_set_materialized": false,
+    "B_pristine_claim_derivation_executed": false,
+    "B_claim_vector_exists": false,
+    "A_B_comparison_executed": false,
+    "v92_expected_contract_opened": false,
+    "mutation_executed": false
+  },
+  "A_side_hygiene": {
+    "A_pristine_derivation_job_completed": true,
+    "A_artifact_was_not_downloaded_or_inspected_during_failure_diagnosis": true,
+    "A_claim_values_were_not_exposed_to_B_or_to_B_remediation": true,
+    "A_B_comparison_not_consumed": true
+  },
+  "remediation_boundary": {
+    "allowed": "Replace only the placeholder workflow identity literal with the exact pre-open freeze blob already created before Run1.",
+    "forbidden": [
+      "change Verifier A derivation semantics",
+      "change Verifier B source",
+      "change B role materialization semantics",
+      "read A claim values to guide B",
+      "open v92 expected values",
+      "change authorities or success thresholds"
+    ],
+    "fresh_workflow_run_required": true
+  },
+  "scientific_interpretation": "Run1 reached no B scientific claim derivation and no A-B or v92 comparison. It is an implementation/workflow identity-preflight failure, not a scientific or clean-room semantic result."
+}
