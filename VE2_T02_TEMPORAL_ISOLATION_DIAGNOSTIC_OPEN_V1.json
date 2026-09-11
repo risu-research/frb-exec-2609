@@ -1,0 +1,11 @@
+{
+  "schema": "replaymark.ve2.t02-temporal-isolation-diagnostic-open.v1",
+  "authority": "NON_PROMOTABLE_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_V1",
+  "source_freeze_public_head": "4e8770b41e6fa0ec4c5eff3763765581b908c396",
+  "v5_failure_seal": "c17d2506e465b9bb3ac71cb04cb7c10c0360ba01",
+  "diagnostic_non_promotable": true,
+  "scientific_result_opened": false,
+  "frontier_result_seen": false,
+  "scientific_cells": 0,
+  "same_authority_rerun": false
+}
