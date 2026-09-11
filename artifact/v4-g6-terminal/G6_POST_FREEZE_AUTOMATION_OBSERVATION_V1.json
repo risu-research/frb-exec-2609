@@ -1,0 +1,53 @@
+{
+  "double_entry_anchor": {
+    "public_reverse_anchor_blob": "29ad93ac7462a81f1dcb4ec11110c927ae6945c3",
+    "public_reverse_anchor_commit": "1cdc8fd0a63cbce668a56e48b22be15858cc2d95",
+    "public_reverse_anchor_tree": "dedb8ae466e16934a930a6f82af278659dc38618"
+  },
+  "interpretation": {
+    "classification": "POST_FREEZE_ZERO_STEP_AUTOMATION_FAILURE_NOT_CONSUMED_ROOT_CAUSE_UNRESOLVED",
+    "evidence_supports_Verifier_A_execution": false,
+    "evidence_supports_Verifier_B_execution": false,
+    "evidence_supports_any_scientific_rerun": false,
+    "evidence_supports_challenge_execution": false,
+    "evidence_supports_experiment_execution": false,
+    "evidence_supports_private_closure_verifier_execution": false,
+    "terminal_scientific_verdict_changed": false
+  },
+  "observed_event": {
+    "artifact_count": 0,
+    "decoded_job_log_status": "UNAVAILABLE_BLOB_NOT_FOUND_404",
+    "event": "push",
+    "head_sha": "68e1400eed914c2eeb9b0d75cd83b234b8b88c20",
+    "job_conclusion": "failure",
+    "job_id": 103453288653,
+    "job_name": "final-v4-falsification-closure",
+    "observed_step_count": 0,
+    "repository": "risu-research/replaymark",
+    "retroactive_pass": false,
+    "root_cause": "UNRESOLVED",
+    "run_conclusion": "failure",
+    "run_id": 34657610591,
+    "scientific_result_consumed": false,
+    "workflow_name": "artifact-v4 g6 private final closure",
+    "workflow_path": ".github/workflows/artifact-v4-g6-private-closure.yml"
+  },
+  "preservation_rule": {
+    "failure_remains_failure": true,
+    "future_research_requires_new_prospective_identity": true,
+    "no_private_V4_write_permitted_to_record_this_event": true,
+    "no_retry_required_for_V4": true,
+    "recorded_only_as_external_post_freeze_observer_metadata": true
+  },
+  "schema": "replaymark.artifact-v4.g6-post-freeze-automation-observation.v1",
+  "scope": "Read-only terminal audit observation outside the frozen V4 campaign. This record does not reopen, amend, or reclassify Artifact V4.",
+  "status": "PRESERVED_POST_FREEZE_ZERO_STEP_WORKFLOW_FAILURE_NOT_CONSUMED",
+  "temporal_boundary": {
+    "campaign_failure_ledger_at_freeze": 16,
+    "final_freeze_git_blob": "8352f24b83a08ccbde4bc18243c48b7bea7a6b58",
+    "this_event_is_not_inserted_retroactively_into_frozen_failure_ledger": true,
+    "this_event_occurred_only_after_terminal_commit_push": true,
+    "v4_private_terminal_commit": "68e1400eed914c2eeb9b0d75cd83b234b8b88c20",
+    "v4_private_terminal_tree": "e5c99b47ea594cc05d8ed41645536e808fb06164"
+  }
+}
