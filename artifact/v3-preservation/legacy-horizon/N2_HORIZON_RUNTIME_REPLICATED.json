@@ -1,0 +1,78 @@
+{
+  "cells": {
+    "depth1_motion_off": {
+      "all_producer_pass": true,
+      "cells": 12,
+      "unique_sequences": [
+        "[\"away\", \"home\"]"
+      ]
+    },
+    "depth1_motion_on": {
+      "all_producer_pass": true,
+      "cells": 12,
+      "unique_sequences": [
+        "[\"away\", \"comfort\"]"
+      ]
+    },
+    "depth2_motion_off": {
+      "all_producer_pass": true,
+      "cells": 12,
+      "unique_sequences": [
+        "[\"NO_ACTION\", \"home\"]"
+      ]
+    },
+    "depth2_motion_on": {
+      "all_producer_pass": true,
+      "cells": 12,
+      "unique_sequences": [
+        "[\"NO_ACTION\", \"comfort\"]"
+      ]
+    }
+  },
+  "decision": "PROMOTED",
+  "frozen_shortest_witnesses": {
+    "depth2": {
+      "motion_off_output": "home",
+      "motion_on_output": "comfort",
+      "realized_in_live_ha": true,
+      "shared_step1_output": "NO_ACTION",
+      "suffix": [
+        "presence_toggle",
+        "night_toggle"
+      ]
+    },
+    "n2b_depth1": {
+      "motion_off_output": "home",
+      "motion_on_output": "comfort",
+      "realized_in_live_ha": true,
+      "shared_current_output": "away",
+      "suffix": [
+        "presence_toggle"
+      ]
+    }
+  },
+  "home_assistant_image_ref": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+  "promotion_checks": {
+    "all_rows_producer_pass": true,
+    "depth1_motion_off_12_cells": true,
+    "depth1_motion_on_12_cells": true,
+    "depth1_off_sequence_exact": true,
+    "depth1_on_sequence_exact": true,
+    "depth2_motion_off_12_cells": true,
+    "depth2_motion_on_12_cells": true,
+    "depth2_off_sequence_exact": true,
+    "depth2_on_sequence_exact": true,
+    "external_controller_hash_same": true,
+    "ha_image_digest_exact": true,
+    "ha_version_same_and_exact": true,
+    "independent_validators_pass": true,
+    "ownership_component_tree_same": true,
+    "replica_reports_promoted": true
+  },
+  "replicas": [
+    0,
+    1
+  ],
+  "schema": "replaymark.better_thermostat.horizon_runtime.aggregate.v2",
+  "total_runtime_cells": 48
+}
