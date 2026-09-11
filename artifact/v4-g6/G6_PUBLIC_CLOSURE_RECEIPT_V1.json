@@ -1,0 +1,53 @@
+{
+  "integrity": {
+    "campaign_receipt_sha256": "5a15c41f569f8505f86219594f3c7548fb83833c576a78dc441301074793c827",
+    "case_results_sha256": "84b040774ed5ab1d17da64ed82acb57942c07be6596ac0f934d9952d86baf671",
+    "detection_matrix_sha256": "a7beb1450beeea5579e2ecc8ead7ef14c13b7f95a037769e2ba307cac9aa35d5",
+    "evidence_index_sha256": "b6db5a2c21cbbafd91d5f405fe4249eb52d31d127329e9c157a74da12c2c36fc",
+    "outer_preflight_sha256": "0288ca3e3614f9bd8ad45c0b5338b7400222577785dbab927e1fff489e8cf810",
+    "pristine_B_vector_sha256": "65b2b519b45315589d885d75d17dc716b255db5c88612652b6201dca93b5103c",
+    "recursive_SHA256SUMS_entries_verified": 1792
+  },
+  "method": "EVIDENCE_ONLY_INDEPENDENT_RECONSTRUCTION_NO_CHALLENGE_RERUN",
+  "noninterference": {
+    "Verifier_A_rerun_in_G6": false,
+    "Verifier_B_rerun_in_G6": false,
+    "authority_modified_in_G6": false,
+    "challenge_rerun_in_G6": false,
+    "experiment_rerun_in_G6": false,
+    "manuscript_modified_in_G6": false,
+    "prior_failure_reclassified_in_G6": false,
+    "threshold_changed_in_G6": false
+  },
+  "recomputed_verdict": {
+    "A_B_detection_disagreements": 0,
+    "C14_detected_fail_closed": true,
+    "C49_detected_fail_closed": true,
+    "authority_node_exercise": "19/19",
+    "claim_to_authority_edge_coverage": "56/56",
+    "consequential": "49/49 DETECTED",
+    "dynamic_obligation_coverage": "60/60",
+    "extraction_asymmetry_surface_coverage": "16/16",
+    "false_negatives": 0,
+    "false_positives": 0,
+    "metamorphic": "8/8 STABLE",
+    "static_obligation_coverage": "60/60",
+    "unexplained_extra_kills": 0
+  },
+  "schema": "replaymark.artifact-v4.g6-public-closure-receipt.v1",
+  "scope": {
+    "next_step": "Bind this public evidence closure to the complete private G0-G5 gate chain and preserved failure ledger, then freeze final V4 verdict.",
+    "public_receipt_is_not_yet_the_private_full_V4_failure_lineage_verdict": true
+  },
+  "source": {
+    "g5_artifact_id": 10284868064,
+    "g5_artifact_name": "replaymark-artifact-v4-g5-postmiss-pass-candidate",
+    "g5_artifact_zip_sha256": "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "g5_execution_head": "055c6d13822907fa8692fc83cab303534185dd2b",
+    "g5_independent_audit_git_blob": "ab83e8d9503692524c4e6a308f694d3770d506d9",
+    "g5_public_freeze_git_blob": "14bfc2bf40e3cf1b94dafc38d916ebc4ade03841",
+    "g5_run_id": 34654381011,
+    "repository": "risu-research/frb-exec-2609"
+  },
+  "status": "PASS_G6_PUBLIC_EVIDENCE_CLOSURE"
+}
