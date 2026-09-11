@@ -1,0 +1,99 @@
+{
+  "schema": "replaymark.ve2.science-transport-qualification-contract.v6",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "authority": {
+    "private_preopen_commit": "e8c32489b113724d20fb57b34d4464aeb4626c9d",
+    "private_science_constitution_commit": "f0cca6726b634a35c523b0caab89694bd7fb18e5",
+    "public_e0r_pass_seal": "390280823553b2c9b7c5996953891cfae5648fb1",
+    "v5_failure_seal": "c17d2506e465b9bb3ac71cb04cb7c10c0360ba01",
+    "t02_diagnosis_seal": "5f541f3976946ca21d3a911b49f6f0f69158d369"
+  },
+  "inheritance": {
+    "base_transport_contract_v1_blob": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "unchanged_independent_transport_validator_blob": "5dcf67b9bdb349032670c127bd756e40f0acdc1c",
+    "v3_runtime_blob": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "v4_runtime_blob": "8c33de1d8717983ffecd4a45634de0d2469ac19d",
+    "v5_runtime_blob": "20914078395995116cbd88cdd63063f4fb6907f0",
+    "v4_preflight_validator_blob": "6d45caa8d2ae721cf2dc8fe33ca61b263451e309",
+    "transport_pass_criteria_changed": false,
+    "bootstrap_or_registry_law_changed_from_v5": false,
+    "clock_transport_law_changed_from_v5": false,
+    "double_witness_law_changed_from_v5": false,
+    "neutral_case_population_changed_from_v5": false
+  },
+  "v6_delta": {
+    "runtime_blob": "3c3af5b6dd54bebea7faed905cec6da066e1ee32",
+    "preflight_validator_blob": "c584a2aeaeae3f9be280f35503503c4fb3a92cbc",
+    "repair_id": "replaymark.ve2.t02-homeassistant-started-signal-repair.v1",
+    "semantic_change_count": 1,
+    "old_signal": "homeassistant_start",
+    "new_signal": "homeassistant_started",
+    "new_signal_source_symbol": "homeassistant.const.EVENT_HOMEASSISTANT_STARTED",
+    "affects_only_case": "homeassistant_start_delay_30s",
+    "additional_home_assistant_setup_calls": 0,
+    "trigger_definition_changed": false,
+    "action_definition_changed": false,
+    "delay_duration_changed": false,
+    "clock_driver_changed": false,
+    "wait_timeout_changed": false,
+    "state_case_changed": false,
+    "state_for_case_changed": false,
+    "time_case_changed": false,
+    "result_dependent_fallback": false,
+    "retry_after_failure": false
+  },
+  "runtime_matrix": {
+    "T01_OLD_RUNTIME": {
+      "version": "2022.10.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e",
+      "qualification_cases": ["state"]
+    },
+    "T01_NEW_RUNTIME": {
+      "version": "2026.1.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7",
+      "qualification_cases": ["state"]
+    },
+    "T02_RUNTIME": {
+      "version": "2026.9.0",
+      "image": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+      "qualification_cases": ["state", "state_for_120s", "time", "homeassistant_start_delay_30s"]
+    }
+  },
+  "execution_order_law": {
+    "bootstrap_preflight_before_any_neutral_stimulus": true,
+    "all_three_preflight_capsules_required_before_preflight_adjudication": true,
+    "independent_preflight_pass_required_before_qualification": true,
+    "qualification_roles_may_run_in_parallel_after_preflight_pass": true,
+    "all_three_qualification_capsules_required_before_transport_adjudication": true,
+    "unchanged_v1_transport_validator_is_final_authority": true,
+    "v6_attempt_1_only_promotable": true,
+    "same_authority_rerun": false
+  },
+  "scientific_firewall": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "expected_frontier_files_mounted": false,
+    "scientific_execution_state_manifests_mounted": false,
+    "transition_blueprints_mounted": false,
+    "historical_better_thermostat_actions_mounted": false,
+    "forbidden_runtime_inputs": [
+      "VE2_T01_EXECUTION_STATE_MANIFEST_V1.json",
+      "VE2_T02_EXECUTION_STATE_MANIFEST_V1.json",
+      "VE2_T01_EXPECTED_FRONTIER_V1.json",
+      "VE2_T02_EXPECTED_FRONTIER_V1.json",
+      "VE2_T01_NATIVE_SEMANTICS_V1.json",
+      "VE2_T02_NATIVE_SEMANTICS_V1.json"
+    ]
+  },
+  "promotion_law": {
+    "preflight_must_pass": true,
+    "t01_old_must_pass": true,
+    "t01_new_must_pass": true,
+    "t02_all_four_cases_must_pass": true,
+    "independent_transport_validator_must_pass": true,
+    "raw_role_artifacts_must_be_sealed_before_final_green": true,
+    "diagnostic_evidence_is_never_promotable": true,
+    "scientific_authority_may_not_open_until_public_transport_pass_seal_exists": true
+  }
+}
