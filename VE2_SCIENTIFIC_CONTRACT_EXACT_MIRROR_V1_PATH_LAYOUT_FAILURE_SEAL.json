@@ -1,0 +1,54 @@
+{
+  "schema": "replaymark.ve2.scientific-contract-exact-mirror-v1-path-layout-failure-seal.v1",
+  "status": "SEALED_PRE_MIRROR_INFRASTRUCTURE_FAILURE_NOT_CONSUMED",
+  "authority": {
+    "source_freeze": "d6aa67aed9c6fa936a0800ca21254f6d5816d6c4",
+    "open": "c0f14104241fa6fbcd45febc8bd5a27220217dcb",
+    "workflow_run_id": 34552668970,
+    "workflow_run_number": 2,
+    "workflow_run_attempt": 1,
+    "e0r_artifact_id": 10175341605,
+    "e0r_artifact_zip_sha256": "6e4fe767a3f55b8c6fa37ddbda4413be9e6ff72fc74ea7087fd60195cdcc8e8a"
+  },
+  "observed_execution": {
+    "open_gate": "PASS",
+    "artifact_download": "PASS",
+    "artifact_digest_verification_by_pinned_action": "PASS",
+    "artifact_extraction_root_observed": "e0r/ve2-e0r-v3-first-attempt-evidence/",
+    "configured_lookup_root": "e0r/",
+    "first_failed_operation": "test -f for T01 exact source path",
+    "source_file_sha256_checks_reached": false,
+    "source_git_blob_checks_reached": false,
+    "git_hash_object_write_reached": false,
+    "git_update_index_reached": false,
+    "git_commit_tree_reached": false,
+    "git_push_reached": false,
+    "output_seal_branch_created": false
+  },
+  "root_cause": {
+    "class": "ARTIFACT_EXTRACTION_LAYOUT_MISMATCH",
+    "description": "Pinned actions/download-artifact with one explicit artifact id and merge-multiple=false extracted the artifact under path/<artifact-name>/, while v1 expected files directly under path/.",
+    "scientific_or_content_effect": "none; exact source bytes were downloaded but not read, transformed, hashed into Git objects, committed, or promoted"
+  },
+  "prospective_successor_authorization": {
+    "successor": "VE2_EXACT_SCIENTIFIC_CONTRACT_MIRROR_V2",
+    "authorized_change_count": 1,
+    "authorized_change": "change only the artifact extraction root used for the four source paths from e0r/ to e0r/ve2-e0r-v3-first-attempt-evidence/",
+    "source_artifact_id_change": false,
+    "source_run_change": false,
+    "expected_sha256_change": false,
+    "expected_git_blob_change": false,
+    "byte_processing_change": false,
+    "mirror_destination_change": false,
+    "same_authority_rerun": false
+  },
+  "scientific_hygiene": {
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "expected_frontier_read": false,
+    "execution_state_manifests_used": false,
+    "transition_blueprint_executed": false,
+    "historical_better_thermostat_action_dispatched": false
+  }
+}
