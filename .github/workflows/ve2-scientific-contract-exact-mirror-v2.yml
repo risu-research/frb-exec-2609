@@ -1,0 +1,182 @@
+name: VE2 exact scientific contract mirror v2
+
+on:
+  push:
+    branches:
+      - ve2-scientific-contract-mirror-v2
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  PREDECESSOR_FAILURE_SEAL: 4fe589aa0b73a1e2ea89320222e7ec11534ce8e0
+  E0R_RUN_ID: '34535765216'
+  E0R_ARTIFACT_ID: '10175341605'
+  ARTIFACT_ROOT: e0r/ve2-e0r-v3-first-attempt-evidence
+  OUTPUT_BRANCH: ve2-scientific-contract-mirror-seal-v2
+  T01_SHA256: c42254e9556da27f0cc760c379b311d002dc775131b79a6cc3ab0af8b2a34b50
+  T02_SHA256: 450b2fb1752900eda757a705e590d060aeca30d51dc5d0b05803bb71555ff409
+  FREEZE_SHA256: 42d80c963eabe2627f257dd1aecf0701ad9ac1124420d562dd028ef9677f3a23
+  VALIDATION_SHA256: fd1a25b019e0bf34f4c423c1919d7f4a816e1077e13f80ee4834e8a447895849
+  T01_BLOB: e95f7001095366a66240cb4201fe227729f7b4c2
+  T02_BLOB: 7585079d3c1b65a5fcf8ad50b7b30f6a009d67b6
+  FREEZE_BLOB: da0b624613a4b5f4d3f5e16570893866660f6731
+  VALIDATION_BLOB: c80d274b43e0d4088d6b1bf7b16b9843f66328a8
+
+jobs:
+  mirror:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 250
+
+      - name: Verify exact v2 authority surface
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          source_freeze="$(git rev-parse HEAD^)"
+          git merge-base --is-ancestor "$PREDECESSOR_FAILURE_SEAL" "$source_freeze"
+          mapfile -t open_delta < <(git diff --name-only "$source_freeze..HEAD" | LC_ALL=C sort)
+          test "${#open_delta[@]}" = 1
+          test "${open_delta[0]}" = 'VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_OPEN_V2.json'
+          mapfile -t source_delta < <(git diff --name-only "$PREDECESSOR_FAILURE_SEAL..$source_freeze" | LC_ALL=C sort)
+          expected=(
+            '.github/workflows/ve2-scientific-contract-exact-mirror-v2.yml'
+            'VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_CONTRACT_V2.json'
+          )
+          test "${#source_delta[@]}" = 2
+          for i in "${!expected[@]}"; do test "${source_delta[$i]}" = "${expected[$i]}"; done
+          python - "$source_freeze" <<'PY'
+          import json,sys
+          c=json.load(open('VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_CONTRACT_V2.json'))
+          assert c['schema']=='replaymark.ve2.scientific-contract-exact-mirror-contract.v2'
+          assert c['predecessor_failure_seal']=='4fe589aa0b73a1e2ea89320222e7ec11534ce8e0'
+          assert c['authorized_delta']['change_count']==1
+          assert c['authorized_delta']['old_root']=='e0r/'
+          assert c['authorized_delta']['new_root']=='e0r/ve2-e0r-v3-first-attempt-evidence/'
+          assert c['authorized_delta']['expected_sha256_changed'] is False
+          assert c['authorized_delta']['expected_git_blob_changed'] is False
+          assert c['scientific_firewall']['scientific_cells']==0
+          o=json.load(open('VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_OPEN_V2.json'))
+          assert o=={
+            'schema':'replaymark.ve2.scientific-contract-exact-mirror-open.v2',
+            'authority':'VE2_EXACT_SCIENTIFIC_CONTRACT_MIRROR_V2',
+            'source_freeze_public_head':sys.argv[1],
+            'predecessor_failure_seal':'4fe589aa0b73a1e2ea89320222e7ec11534ce8e0',
+            'e0r_artifact_id':10175341605,
+            'scientific_result_opened':False,
+            'frontier_result_seen':False,
+            'scientific_cells':0,
+            'same_authority_rerun':False,
+          }
+          PY
+          if git ls-remote --exit-code --heads origin "$OUTPUT_BRANCH" >/dev/null 2>&1; then exit 3; fi
+          echo "source_freeze=$source_freeze" >> "$GITHUB_OUTPUT"
+
+      - name: Download exact immutable E0R artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          artifact-ids: '10175341605'
+          path: e0r
+          github-token: ${{ github.token }}
+          repository: risu-research/frb-exec-2609
+          run-id: '34535765216'
+
+      - name: Verify source byte identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          t01="$ARTIFACT_ROOT/contracts/generated/VE2_T01_TARGET_ONLY_COMPILED_CONTRACT_V1.json"
+          t02="$ARTIFACT_ROOT/contracts/generated/VE2_T02_TARGET_ONLY_COMPILED_CONTRACT_V1.json"
+          freeze="$ARTIFACT_ROOT/contracts/generated/VE2_TARGET_ONLY_CONTRACT_FREEZE_RECEIPT_V1.json"
+          validation="$ARTIFACT_ROOT/contracts/generated/VE2_TARGET_ONLY_CONTRACT_INDEPENDENT_VALIDATION_V1.json"
+          for p in "$t01" "$t02" "$freeze" "$validation"; do test -f "$p"; done
+          test "$(wc -c < "$t01" | tr -d ' ')" = 12029
+          test "$(wc -c < "$t02" | tr -d ' ')" = 811037
+          test "$(wc -c < "$freeze" | tr -d ' ')" = 3218
+          test "$(wc -c < "$validation" | tr -d ' ')" = 897
+          test "$(sha256sum "$t01" | awk '{print $1}')" = "$T01_SHA256"
+          test "$(sha256sum "$t02" | awk '{print $1}')" = "$T02_SHA256"
+          test "$(sha256sum "$freeze" | awk '{print $1}')" = "$FREEZE_SHA256"
+          test "$(sha256sum "$validation" | awk '{print $1}')" = "$VALIDATION_SHA256"
+          test "$(git hash-object --no-filters "$t01")" = "$T01_BLOB"
+          test "$(git hash-object --no-filters "$t02")" = "$T02_BLOB"
+          test "$(git hash-object --no-filters "$freeze")" = "$FREEZE_BLOB"
+          test "$(git hash-object --no-filters "$validation")" = "$VALIDATION_BLOB"
+
+      - name: Create exact mirror seal commit
+        id: seal
+        shell: bash
+        env:
+          SOURCE_FREEZE: ${{ steps.gate.outputs.source_freeze }}
+        run: |
+          set -euo pipefail
+          t01="$ARTIFACT_ROOT/contracts/generated/VE2_T01_TARGET_ONLY_COMPILED_CONTRACT_V1.json"
+          t02="$ARTIFACT_ROOT/contracts/generated/VE2_T02_TARGET_ONLY_COMPILED_CONTRACT_V1.json"
+          freeze="$ARTIFACT_ROOT/contracts/generated/VE2_TARGET_ONLY_CONTRACT_FREEZE_RECEIPT_V1.json"
+          validation="$ARTIFACT_ROOT/contracts/generated/VE2_TARGET_ONLY_CONTRACT_INDEPENDENT_VALIDATION_V1.json"
+          test "$(git hash-object -w --no-filters "$t01")" = "$T01_BLOB"
+          test "$(git hash-object -w --no-filters "$t02")" = "$T02_BLOB"
+          test "$(git hash-object -w --no-filters "$freeze")" = "$FREEZE_BLOB"
+          test "$(git hash-object -w --no-filters "$validation")" = "$VALIDATION_BLOB"
+          git read-tree "$GITHUB_SHA"
+          git update-index --add --cacheinfo "100644,$T01_BLOB,scientific_capsule/contracts/VE2_T01_TARGET_ONLY_COMPILED_CONTRACT_V1.json"
+          git update-index --add --cacheinfo "100644,$T02_BLOB,scientific_capsule/contracts/VE2_T02_TARGET_ONLY_COMPILED_CONTRACT_V1.json"
+          git update-index --add --cacheinfo "100644,$FREEZE_BLOB,scientific_capsule/contracts/VE2_TARGET_ONLY_CONTRACT_FREEZE_RECEIPT_V1.json"
+          git update-index --add --cacheinfo "100644,$VALIDATION_BLOB,scientific_capsule/contracts/VE2_TARGET_ONLY_CONTRACT_INDEPENDENT_VALIDATION_V1.json"
+          SOURCE_FREEZE="$SOURCE_FREEZE" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d={
+            'schema':'replaymark.ve2.scientific-contract-exact-mirror-receipt.v2',
+            'status':'PASS_BYTE_IDENTICAL_MIRROR',
+            'source_freeze':os.environ['SOURCE_FREEZE'],
+            'open':os.environ['GITHUB_SHA'],
+            'predecessor_failure_seal':'4fe589aa0b73a1e2ea89320222e7ec11534ce8e0',
+            'e0r':{'run_id':34535765216,'artifact_id':10175341605,'zip_sha256':'6e4fe767a3f55b8c6fa37ddbda4413be9e6ff72fc74ea7087fd60195cdcc8e8a'},
+            'mirror_git_blobs':{
+              't01':'e95f7001095366a66240cb4201fe227729f7b4c2',
+              't02':'7585079d3c1b65a5fcf8ad50b7b30f6a009d67b6',
+              'freeze_receipt':'da0b624613a4b5f4d3f5e16570893866660f6731',
+              'independent_validation':'c80d274b43e0d4088d6b1bf7b16b9843f66328a8'
+            },
+            'scientific_hygiene':{'scientific_result_opened':False,'frontier_result_seen':False,'scientific_cells':0,'expected_frontier_read':False}
+          }
+          Path('VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_RECEIPT_V2.json').write_text(json.dumps(d,sort_keys=True,indent=2)+'\n')
+          PY
+          receipt_blob="$(git hash-object -w --no-filters VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_RECEIPT_V2.json)"
+          git update-index --add --cacheinfo "100644,$receipt_blob,scientific_capsule/VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_RECEIPT_V2.json"
+          tree="$(git write-tree)"
+          export GIT_AUTHOR_NAME='ReplayMark Authority' GIT_AUTHOR_EMAIL='replaymark-authority@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME" GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          commit="$(printf '%s\n' 'Seal byte-identical VE2 scientific contract mirror v2' | git commit-tree "$tree" -p "$GITHUB_SHA")"
+          test "$(git ls-tree "$commit" scientific_capsule/contracts/VE2_T01_TARGET_ONLY_COMPILED_CONTRACT_V1.json | awk '{print $3}')" = "$T01_BLOB"
+          test "$(git ls-tree "$commit" scientific_capsule/contracts/VE2_T02_TARGET_ONLY_COMPILED_CONTRACT_V1.json | awk '{print $3}')" = "$T02_BLOB"
+          test "$(git ls-tree "$commit" scientific_capsule/contracts/VE2_TARGET_ONLY_CONTRACT_FREEZE_RECEIPT_V1.json | awk '{print $3}')" = "$FREEZE_BLOB"
+          test "$(git ls-tree "$commit" scientific_capsule/contracts/VE2_TARGET_ONLY_CONTRACT_INDEPENDENT_VALIDATION_V1.json | awk '{print $3}')" = "$VALIDATION_BLOB"
+          git push origin "$commit:refs/heads/$OUTPUT_BRANCH"
+          test "$(git ls-remote origin "refs/heads/$OUTPUT_BRANCH" | awk '{print $1}')" = "$commit"
+          echo "mirror_commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "mirror_tree=$tree" >> "$GITHUB_OUTPUT"
+          echo "receipt_blob=$receipt_blob" >> "$GITHUB_OUTPUT"
+
+      - name: Assert science remains unopened
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          c=json.load(open('VE2_SCIENTIFIC_CONTRACT_EXACT_MIRROR_CONTRACT_V2.json'))
+          assert c['scientific_firewall']=={
+            'scientific_result_opened':False,
+            'frontier_result_seen':False,
+            'scientific_cells':0,
+            'expected_frontier_read':False,
+            'runtime_scientific_case_executed':False,
+          }
+          PY
