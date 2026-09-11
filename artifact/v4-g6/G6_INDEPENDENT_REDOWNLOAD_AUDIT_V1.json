@@ -1,0 +1,74 @@
+{
+  "schema": "replaymark.artifact-v4.g6-independent-redownload-audit.v1",
+  "status": "PASS_INDEPENDENT_G6_REDOWNLOAD_AND_RECOMPUTATION",
+  "audited_public_run": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "artifact-v4-g6-public-closure",
+    "run_id": 34655689832,
+    "job_id": 103447474323,
+    "execution_head": "e7a4105949659d51571e178ba82a0aab5ca02784",
+    "run_conclusion": "success"
+  },
+  "g6_artifact": {
+    "artifact_id": 10286245032,
+    "artifact_name": "replaymark-artifact-v4-g6-public-closure-candidate",
+    "size_bytes": 4146083,
+    "github_digest": "sha256:9104004824717a927644d485fcc7c9d011bf285fc01c38a94603231a064a488e",
+    "independently_recomputed_zip_sha256": "9104004824717a927644d485fcc7c9d011bf285fc01c38a94603231a064a488e",
+    "github_digest_matches_independent_redownload": true,
+    "expires_at": "2026-12-10T22:50:16Z"
+  },
+  "g6_output_integrity": {
+    "G6_PUBLIC_DETECTION_MATRIX_V1_sha256": "a7beb1450beeea5579e2ecc8ead7ef14c13b7f95a037769e2ba307cac9aa35d5",
+    "G6_PUBLIC_CLOSURE_RECEIPT_V1_sha256": "91830b387a1a34432169cdf581d22f06e0cc8affbcf7de57d008ad2dc18fac75",
+    "SHA256SUMS_G6_PUBLIC_sha256": "50c7cf397df6bab087538747c8c9726b54995f7ff9a49410161e768efdfbe5b4",
+    "G6_PUBLIC_CLOSURE_CONSTITUTION_V1_sha256": "85f64189c61199fe86c25a9dfbaff9efc739a75a6ee90e4201a9f0f6ca89fb41",
+    "G6_STDOUT_sha256": "9b6247d854ce17a91f6825156ed0a78a6d9645549402058e2e34f3e0843f1190",
+    "public_manifest_entries_verified": "2/2",
+    "aux_manifest_entries_verified": "2/2"
+  },
+  "nested_G5_evidence_reverification": {
+    "source_G5_zip_sha256": "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "recursive_SHA256SUMS_sha256": "1f7412c0513fb8428bfa913f7e43fd8df6acb656b80ecd7caa1ddb3745b41a4b",
+    "recursive_entries_reverified_independently": 1792,
+    "recursive_mismatches": 0
+  },
+  "independent_matrix_recomputation": {
+    "consequential_records": 49,
+    "unique_consequential_ids": 49,
+    "all_consequential_DETECTED": true,
+    "metamorphic_records": 8,
+    "unique_metamorphic_ids": 8,
+    "all_metamorphic_STABLE": true,
+    "false_negatives": 0,
+    "false_positives": 0,
+    "A_B_detection_disagreements": 0,
+    "unexplained_extra_kills": 0,
+    "dynamic_obligation_union_count": 60,
+    "C14_detected_fail_closed": true,
+    "C49_detected_fail_closed": true,
+    "two_nonfalsified_ancillary_invariant_occurrences": [
+      {
+        "challenge_id": "C37_VE2_OBSERVED_T02_COMPATIBLE",
+        "obligation": "I_ve2_negative_result_preserved",
+        "interpretation": "This mutant does not falsify that invariant's frozen expression; the invariant is exercised by another preregistered challenge and remains in the exact 60/60 dynamic union."
+      },
+      {
+        "challenge_id": "C47_E39_N2_REPLICA_CARDINALITY",
+        "obligation": "I_s6_scale_accounting",
+        "interpretation": "This mutant changes the RQ2 component while the frozen invariant reads RQ6 scale fields; the invariant is exercised by another preregistered challenge and remains in the exact 60/60 dynamic union."
+      }
+    ]
+  },
+  "audit_independence": {
+    "trusted_G6_status_field_as_sufficient": false,
+    "recomputed_outer_artifact_digest": true,
+    "reverified_recursive_G5_checksums": true,
+    "reparsed_G6_detection_matrix": true,
+    "recomputed_case_counts_and_dynamic_union": true,
+    "reran_Verifier_A": false,
+    "reran_Verifier_B": false,
+    "reran_challenges": false,
+    "reran_experiments": false
+  }
+}
