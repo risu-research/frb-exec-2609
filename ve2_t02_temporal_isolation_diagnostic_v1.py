@@ -3,11 +3,11 @@ from __future__ import annotations
 """Non-promotable T02 temporal isolation diagnostic.
 
 This diagnostic executes exactly one existing v5 neutral transport case in a
-fresh process.  It does not alter the Home Assistant setup, trigger, action,
-clock transport, or witness semantics.  Observation-only wrappers journal the
-boundaries around v5 fresh-HASS materialization, the inherited clock driver,
-and inherited witness collection so a timeout can be localized without
-changing the executed neutral case.
+fresh process. It does not alter Home Assistant setup, trigger, action, clock
+transport, wait timeout, or witness semantics. Observation-only wrappers
+journal v5 fresh-HASS materialization, the inherited clock driver, the exact
+inherited wait primitive, and inherited witness collection so a timeout can be
+localized without changing the executed neutral case.
 """
 
 import argparse
@@ -48,16 +48,30 @@ def _exc(exc: BaseException) -> dict[str, Any]:
     return {"type": type(exc).__name__, "message": str(exc)}
 
 
+def _wait_label(case: str, index: int) -> str:
+    if case == "homeassistant_start_delay_30s":
+        return {
+            1: "pre_clock_automation_invocation",
+            2: "post_clock_automation_invocation_already_present",
+            3: "post_clock_neutral_service",
+        }.get(index, f"unexpected_wait_{index}")
+    return {
+        1: "automation_invocation",
+        2: "neutral_service",
+    }.get(index, f"unexpected_wait_{index}")
+
+
 async def _execute(case: str) -> dict[str, Any]:
     if v3.HA_VERSION != EXPECTED_HA:
         raise AssertionError(("diagnostic-runtime-mismatch", v3.HA_VERSION, EXPECTED_HA))
 
-    # Install the exact v5 evidence-projection layer first.  Everything below
-    # is observation-only and delegates to the already-frozen implementation.
+    # Install exact v5 first. Everything added below is observation-only and
+    # delegates once to the exact inherited function with unchanged arguments.
     v5._install_v5()
 
     journal: list[dict[str, Any]] = []
     seq = 0
+    wait_index = 0
 
     def mark(event: str, **fields: Any) -> None:
         nonlocal seq
@@ -74,6 +88,7 @@ async def _execute(case: str) -> dict[str, Any]:
     original_fresh = v3._fresh_hass
     original_drive = v3._drive_clock
     original_collect = v3._collect_case
+    original_wait = v3._wait_for_count
 
     async def observed_fresh(*args: Any, **kwargs: Any):
         mark("FRESH_HASS_BEGIN")
@@ -99,6 +114,45 @@ async def _execute(case: str) -> dict[str, Any]:
         )
         return result
 
+    async def observed_wait(values: list[Any], count: int, timeout: float = 3.0) -> None:
+        nonlocal wait_index
+        wait_index += 1
+        index = wait_index
+        label = _wait_label(case, index)
+        before = len(values)
+        started = time.perf_counter_ns()
+        mark(
+            "WAIT_BEGIN",
+            wait_index=index,
+            wait_label=label,
+            observed_count_before=before,
+            required_count=count,
+            inherited_timeout_seconds=timeout,
+        )
+        try:
+            await original_wait(values, count, timeout)
+        except Exception as exc:
+            mark(
+                "WAIT_ERROR",
+                wait_index=index,
+                wait_label=label,
+                observed_count_after=len(values),
+                required_count=count,
+                inherited_timeout_seconds=timeout,
+                elapsed_ns=time.perf_counter_ns() - started,
+                failure=_exc(exc),
+            )
+            raise
+        mark(
+            "WAIT_END",
+            wait_index=index,
+            wait_label=label,
+            observed_count_after=len(values),
+            required_count=count,
+            inherited_timeout_seconds=timeout,
+            elapsed_ns=time.perf_counter_ns() - started,
+        )
+
     async def observed_collect(*args: Any, **kwargs: Any):
         mark("WITNESS_COLLECTION_BEGIN")
         try:
@@ -111,6 +165,7 @@ async def _execute(case: str) -> dict[str, Any]:
 
     v3._fresh_hass = observed_fresh
     v3._drive_clock = observed_drive
+    v3._wait_for_count = observed_wait
     v3._collect_case = observed_collect
 
     calls: dict[str, Callable[[], Awaitable[dict[str, Any]]]] = {
@@ -149,7 +204,9 @@ async def _execute(case: str) -> dict[str, Any]:
         "observation_law": {
             "fresh_hass_wrapper_delegates_exactly_once": True,
             "clock_driver_wrapper_delegates_exactly_once_when_called": True,
+            "wait_wrapper_delegates_exactly_once_when_called": True,
             "witness_collection_wrapper_delegates_exactly_once_when_called": True,
+            "wait_labels_derive_only_from_frozen_case_and_call_order": True,
             "trigger_definition_mutated": False,
             "action_definition_mutated": False,
             "clock_target_mutated": False,
