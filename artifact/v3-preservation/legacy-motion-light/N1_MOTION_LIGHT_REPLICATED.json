@@ -1,0 +1,127 @@
+{
+  "decision": "PROMOTED_REPLICATED",
+  "external_controller": {
+    "commit": "0cb25fe4727b5466743285f048eb6aa75fd02bbb",
+    "path": "homeassistant/components/automation/blueprints/motion_light.yaml",
+    "repository": "home-assistant/core",
+    "sha256": "e07ac35fae7270131f118da767b036e7f7776672077691d9fbcd026e5a7e3f9c",
+    "source_edited": false
+  },
+  "home_assistant_image_ref": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+  "independent_validations_passed": 2,
+  "recomputed_across_replicas": {
+    "R0_support_failure_rate": 1.0,
+    "R0_turn_off_mean_ms": 82.9801165,
+    "R1_support_failure_rate": 1.0,
+    "R1_turn_off_mean_ms": 118.19386608333333,
+    "R2_support_failure_rate": 0.0,
+    "R2_turn_off_mean_ms": 201.6152879166667,
+    "runner_R1_minus_R0_mean_ms": [
+      35.24896700000001,
+      35.178532166666656
+    ],
+    "runner_R2_minus_source_mean_ms": [
+      119.99267666666667,
+      119.14601116666667
+    ]
+  },
+  "replicas": [
+    0,
+    1
+  ],
+  "replication_gates": {
+    "R0_support_failure_all": true,
+    "R1_material_each_runner": true,
+    "R1_support_failure_all": true,
+    "R2_material_each_runner": true,
+    "R2_support_preserved_all": true,
+    "two_independent_validators": true
+  },
+  "runner_summaries": [
+    {
+      "producer_aggregate": {
+        "R0_support_failure_rate": 1.0,
+        "R0_turn_off_mean_ms": 82.39997033333333,
+        "R1_minus_R0_mean_ms": 35.24896700000001,
+        "R1_support_failure_rate": 1.0,
+        "R1_turn_off_mean_ms": 117.64893733333334,
+        "R2_minus_source_mean_ms": 119.99267666666667,
+        "R2_support_failure_rate": 0.0,
+        "R2_turn_off_mean_ms": 201.46439066666667,
+        "source_turn_off_issue_ms": 81.471714
+      },
+      "replica": 0,
+      "source_turn_off_issue_ms": 81.471714,
+      "validation_recomputed": {
+        "R0_support_failure_rate": 1.0,
+        "R0_turn_off_mean_ms": 82.39997033333333,
+        "R1_minus_R0_mean_ms": 35.24896700000001,
+        "R1_support_failure_rate": 1.0,
+        "R1_turn_off_mean_ms": 117.64893733333334,
+        "R2_minus_source_mean_ms": 119.99267666666667,
+        "R2_support_failure_rate": 0.0,
+        "R2_turn_off_mean_ms": 201.46439066666667,
+        "source": {
+          "contexts_nonempty": true,
+          "counts": {
+            "turn_off": 1,
+            "turn_on": 1
+          },
+          "motion_state_at_turn_off": "off",
+          "raw_call_times_monotonic": true,
+          "source_probability": 1.0,
+          "support_failure": false,
+          "target_feedback": "NO_MOTION",
+          "target_probability": 1.0,
+          "turn_off_issue_ms": 81.471714,
+          "turn_on_issue_ms": 0.6688
+        }
+      }
+    },
+    {
+      "producer_aggregate": {
+        "R0_support_failure_rate": 1.0,
+        "R0_turn_off_mean_ms": 83.56026266666667,
+        "R1_minus_R0_mean_ms": 35.178532166666656,
+        "R1_support_failure_rate": 1.0,
+        "R1_turn_off_mean_ms": 118.73879483333333,
+        "R2_minus_source_mean_ms": 119.14601116666667,
+        "R2_support_failure_rate": 0.0,
+        "R2_turn_off_mean_ms": 201.76618516666667,
+        "source_turn_off_issue_ms": 82.620174
+      },
+      "replica": 1,
+      "source_turn_off_issue_ms": 82.620174,
+      "validation_recomputed": {
+        "R0_support_failure_rate": 1.0,
+        "R0_turn_off_mean_ms": 83.56026266666667,
+        "R1_minus_R0_mean_ms": 35.178532166666656,
+        "R1_support_failure_rate": 1.0,
+        "R1_turn_off_mean_ms": 118.73879483333333,
+        "R2_minus_source_mean_ms": 119.14601116666667,
+        "R2_support_failure_rate": 0.0,
+        "R2_turn_off_mean_ms": 201.76618516666667,
+        "source": {
+          "contexts_nonempty": true,
+          "counts": {
+            "turn_off": 1,
+            "turn_on": 1
+          },
+          "motion_state_at_turn_off": "off",
+          "raw_call_times_monotonic": true,
+          "source_probability": 1.0,
+          "support_failure": false,
+          "target_feedback": "NO_MOTION",
+          "target_probability": 1.0,
+          "turn_off_issue_ms": 82.620174,
+          "turn_on_issue_ms": 0.812782
+        }
+      }
+    }
+  ],
+  "schema": "agentmark.natural_controller.motion_light.replicated.v1",
+  "trial_counts": {
+    "per_mode_per_replica": 6,
+    "per_mode_total": 12
+  }
+}
