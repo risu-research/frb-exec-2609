@@ -1,0 +1,117 @@
+{
+  "schema": "replaymark.ve2.t02-temporal-isolation-diagnosis-seal.v1",
+  "status": "SEALED_NON_PROMOTABLE_DIAGNOSIS",
+  "authority": {
+    "predecessor_v5_failure_seal": "c17d2506e465b9bb3ac71cb04cb7c10c0360ba01",
+    "diagnostic_open": "8367a94bc6d315a33122a1502f205ecb910de0e5",
+    "diagnostic_run_id": 34547040426,
+    "diagnostic_run_attempt": 1,
+    "diagnostic_conclusion": "success",
+    "diagnostic_id": "NON_PROMOTABLE_T02_TEMPORAL_ISOLATION_DIAGNOSTIC_V1"
+  },
+  "immutable_artifacts": {
+    "aggregate": {
+      "id": 10179419915,
+      "zip_sha256": "de622e6c5dd2990e2620096b1c9eaa816ed918ceb85f72b5a296468995496c57",
+      "adjudication_sha256": "dd748b2adb3063fa5f4e5f614af0da6109c6ecdfe0a9d3c34f558545b16a1acd"
+    },
+    "state": {
+      "id": 10179416178,
+      "zip_sha256": "80f2d8866eea81682db4579fcfb60bc7fc42e5f123bec0ab44f906f6b93a4799",
+      "capsule_sha256": "239a55d21dfc396697f10b5c8f509fe16e7c09aea1a3a6717370242b865cfe98"
+    },
+    "state_for_120s": {
+      "id": 10179413517,
+      "zip_sha256": "396fc7290748524ba81703e318db0e67df69eb3133770f4f556f6b855801936a",
+      "capsule_sha256": "10ea31df8a1f649644a6761037b3a516faefe2ae53ce51b499b2dd7e810ce410"
+    },
+    "time": {
+      "id": 10179414007,
+      "zip_sha256": "de21f5bab4831395163a1d55b60dbe96486c7bce36e9b1712e8f5aea03ea0bb6",
+      "capsule_sha256": "11425e56cb454369c1a6a8fb5e24bd024b4a65d0eb656553344d00d58084bc16"
+    },
+    "homeassistant_start_delay_30s": {
+      "id": 10179415948,
+      "zip_sha256": "9402ff0198a70ab501eacefb2b5be2bf81a0d5a360535ca5265ad02d3c4d134e",
+      "capsule_sha256": "096a5e628e35d27c2b62b6c52f252395eb398a0dd450aadd82644aafb9ad417b"
+    }
+  },
+  "independent_adjudication": {
+    "status": "DIAGNOSED",
+    "case_status": {
+      "state": "PASS",
+      "state_for_120s": "PASS",
+      "time": "PASS",
+      "homeassistant_start_delay_30s": "EXCEPTION"
+    },
+    "failing_cases": [
+      "homeassistant_start_delay_30s"
+    ],
+    "repair_selection_authorized": true,
+    "transport_promotion_authorized": false,
+    "scientific_promotion_authorized": false
+  },
+  "startup_failure_localization": {
+    "failure_type": "TimeoutError",
+    "failure_message": "timed out waiting for neutral transport witness",
+    "fresh_hass_completed": true,
+    "clock_driver_entered": false,
+    "witness_collection_entered": false,
+    "localized_wait": "direct pre-clock wait for first automation invocation in run_startup_delay",
+    "observed_automation_invocations_before_timeout": 0,
+    "inference_basis": "The frozen function waits for observer.automation_events before any delay clock drive; the diagnostic journal ends after FRESH_HASS_END and before CLOCK_DRIVER_BEGIN/WITNESS_COLLECTION_BEGIN."
+  },
+  "source_proven_root_cause": {
+    "frozen_runner": {
+      "blob": "7b31244a3a4505399e5885b017fd81bb06209176",
+      "behavior": "run_startup_delay configures platform=homeassistant,event=start then fires module constant EVENT_HOMEASSISTANT_START whose frozen value is homeassistant_start"
+    },
+    "home_assistant_2026_9_trigger_source": {
+      "repository": "home-assistant/core",
+      "ref": "2026.9.0",
+      "path": "homeassistant/components/homeassistant/triggers/homeassistant.py",
+      "blob": "4f96b25d281e706b8e8adf3f015d15af12960002",
+      "behavior": "event=start attaches a one-shot listener to EVENT_HOMEASSISTANT_STARTED, whose event identity is homeassistant_started"
+    },
+    "root_cause": "START_TRIGGER_STIMULUS_EVENT_IDENTITY_MISMATCH",
+    "wrong_stimulus_in_frozen_runner": "homeassistant_start",
+    "native_required_listener_event": "homeassistant_started",
+    "clock_driver_not_implicated_by_diagnostic": true,
+    "state_transport_not_implicated": true,
+    "state_for_transport_not_implicated": true,
+    "time_transport_not_implicated": true
+  },
+  "prospective_repair_authorization": {
+    "authorized": true,
+    "successor_authority_required": true,
+    "same_v5_authority_rerun_forbidden": true,
+    "same_diagnostic_authority_rerun_forbidden": true,
+    "allowed_semantic_delta": "For the T02 homeassistant start neutral transport case only, emit the exact native EVENT_HOMEASSISTANT_STARTED stimulus required by the frozen HA 2026.9 trigger implementation instead of EVENT_HOMEASSISTANT_START.",
+    "must_remain_unchanged": [
+      "T01 OLD neutral transport case",
+      "T01 NEW neutral transport case",
+      "T02 state case",
+      "T02 state-for 120s case",
+      "T02 time case",
+      "homeassistant start trigger definition platform/event/id",
+      "30 second action delay definition",
+      "31 second clock target",
+      "clock driver implementation",
+      "3 second witness wait timeout",
+      "double-witness pass law",
+      "transport pass criteria",
+      "runtime image pins",
+      "scientific inputs and promotion criteria"
+    ]
+  },
+  "scientific_hygiene": {
+    "diagnosis_promotable": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "expected_frontier_read": false,
+    "execution_state_manifests_used": false,
+    "transition_blueprints_executed": false,
+    "historical_better_thermostat_action_dispatched": false
+  }
+}
