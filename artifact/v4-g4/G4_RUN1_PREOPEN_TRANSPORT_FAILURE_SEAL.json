@@ -1,0 +1,22 @@
+{
+  "schema": "replaymark.artifact-v4.g4-run1-preopen-transport-failure.v1",
+  "status": "PRE_SCIENTIFIC_OPEN_TRANSPORT_FAILURE_NOT_CONSUMED",
+  "run_id": 34638982156,
+  "run_attempt": 1,
+  "job_id": 103393736593,
+  "public_execution_head": "a007a21d0dd2b69d2b7e8250194ccfd4c2d9ade7",
+  "failed_step": "Checkout exact historical authority graph including subauthorities",
+  "classification": "MULTI_REF_FETCH_HEAD_ASSERTION_BUG",
+  "diagnosis": "The workflow fetched four historical commits in one git fetch and then incorrectly assumed FETCH_HEAD resolves to the final command-line ref. The fetch itself completed, but the transport assertion returned exit 1. This is a workflow transport assertion defect, not an authority, verifier, claim, or scientific result failure.",
+  "pre_failure_passes": ["public carrier checkout","Node 24 setup","transport/runtime freeze","exact private source checkout","all frozen G4 program/source identity checks"],
+  "scientific_exposure": {
+    "verifier_A_executed": false,
+    "verifier_A_claim_vector_created": false,
+    "verifier_B_executed": false,
+    "verifier_B_claim_vector_created": false,
+    "A_B_comparison_executed": false,
+    "v92_comparison_executed": false,
+    "challenge_executed": false
+  },
+  "consumption_rule": "Run1 may never be reinterpreted as a G4 baseline result. Repair the transport assertion prospectively and perform a fresh run."
+}
