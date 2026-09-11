@@ -1,0 +1,63 @@
+{
+  "double_entry_terminal_seal": {
+    "completion_condition": "Commit this exact anchor blob as the sole terminal metadata addition on a branch forked from the exact public witness execution head, then perform a read-only hash/object-identity audit and stop.",
+    "direction_1": "private frozen history -> sanitized public witness -> private terminal freeze",
+    "direction_2": "private terminal freeze -> sanitized public reverse anchor",
+    "public_anchor_changes_scientific_verdict": false,
+    "scientific_verdict_already_issued_privately": true
+  },
+  "identity_policy": {
+    "branch_names_are_navigational_not_authoritative": true,
+    "exact_commit_tree_blob_and_content_digests_are_authoritative": true,
+    "this_anchor_does_not_self_reference_its_own_commit": true,
+    "this_anchor_lives_on_separate_branch": "artifact-v4-g6-terminal-anchor",
+    "witness_execution_branch_remains_untouched": true
+  },
+  "noninterference": {
+    "Verifier_A_rerun": false,
+    "Verifier_B_rerun": false,
+    "authority_replacement": false,
+    "challenge_rerun": false,
+    "experiment_rerun": false,
+    "failure_reclassification": false,
+    "metamorphic_rerun": false,
+    "scientific_rerun": false,
+    "threshold_change": false
+  },
+  "private_terminal_anchor": {
+    "archive_portability_observation_git_blob": "0c74cd7156397c583691c92a7acfbcc55dab4cab",
+    "binding_receipt_git_blob": "203de8fff0bbb2d5ecb97989f3f11dc559394b1e",
+    "binding_receipt_path": "artifact_v4/G6_FINAL_PRIVATE_BINDING_RECEIPT_V1.json",
+    "binding_receipt_sha256": "d366ead6e09c2aaf96ea982dc5fbfc30b386733ff06a410bde57d9aa6bae0e16",
+    "final_freeze_git_blob": "8352f24b83a08ccbde4bc18243c48b7bea7a6b58",
+    "final_freeze_path": "artifact_v4/ARTIFACT_V4_G6_FINAL_FREEZE_V1.json",
+    "final_freeze_sha256": "e82d3f1d82bc7a187b2d9a354fece024d74cf40b754f7f8f828ad55d150103d8",
+    "independent_redownload_audit_git_blob": "236f4b0ac0d5265c2185624c717fa65e60ce76e7",
+    "repository": "risu-research/replaymark",
+    "terminal_commit": "68e1400eed914c2eeb9b0d75cd83b234b8b88c20",
+    "terminal_tree": "e5c99b47ea594cc05d8ed41645536e808fb06164",
+    "terminal_verdict": "PASS_ARTIFACT_V4_ADVERSARIAL_N_VERSION_FALSIFICATION_CLOSURE"
+  },
+  "public_witness_origin": {
+    "artifact_id": 10286271688,
+    "artifact_zip_sha256": "796fa307005eb33c82fcdd4cc43999b1e81091ee7948ab6c1b733105b3b8aaf7",
+    "audit_sha256": "8205a4235c9aacf8d64ed7b319e81dcc47ac63f559f46f170fc9798410f4700f",
+    "execution_head": "77ed248fe66a8fd59638fccc3e644ff10a3dd1d0",
+    "execution_tree": "fbb9e0c657145063345f66fa9c42b0b45ee483fb",
+    "job_id": 103450875871,
+    "receipt_sha256": "01438e803026633e6848cba465298ce2b0506a3fae0609dba3fa6369007b52ab",
+    "repository": "risu-research/frb-exec-2609",
+    "run_id": 34656802362,
+    "status": "PASS_ARTIFACT_V4_FINAL_SANITIZED_WITNESS"
+  },
+  "purpose": "Publicly content-address the private terminal V4 freeze after the successful sanitized witness, without exposing private scientific bytes or rerunning any scientific computation.",
+  "sanitization": {
+    "contains_only_content_addresses_and_terminal_status_metadata": true,
+    "contains_private_authority_bytes": false,
+    "contains_private_experimental_payloads": false,
+    "contains_secrets": false,
+    "contains_unpublished_raw_scientific_results": false
+  },
+  "schema": "replaymark.artifact-v4.g6-final-private-freeze-public-anchor.v1",
+  "status": "ANCHOR_ONLY_NO_NEW_SCIENTIFIC_VALIDATION"
+}
