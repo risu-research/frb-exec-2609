@@ -1,0 +1,106 @@
+{
+  "artifact": {
+    "all_SHA256SUMS_entries_verified": true,
+    "artifact_id": 10284868064,
+    "github_reported_zip_sha256": "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "independently_recomputed_zip_sha256": "cbff30ebe4e5004ac37baad7b39e5febb3d58a229dfaa8e3d30b78e4a5522573",
+    "name": "replaymark-artifact-v4-g5-postmiss-pass-candidate",
+    "size_bytes": 4098281,
+    "zip_digest_match": true
+  },
+  "audit_scope": "Post-execution independent download verification in a separate assistant working runtime; no campaign execution, authority mutation, or result repair.",
+  "campaign_gate_rechecked": {
+    "applicable_A_B_normalized_detection_disagreements": 0,
+    "asymmetry_surface_coverage": "16/16",
+    "authority_node_exercise": "19/19",
+    "canonical_authority_modifications": 0,
+    "consequential_challenges_executed": 49,
+    "consequential_mutation_false_negatives": 0,
+    "dynamic_obligation_coverage": "60/60",
+    "dynamic_obligations_extra": [],
+    "dynamic_obligations_missing": [],
+    "edge_coverage": "56/56",
+    "historical_experiment_reruns": 0,
+    "independent_C49_twin_detected": true,
+    "independent_twin_challenges_executed": 1,
+    "metamorphic_challenges_executed": 8,
+    "metamorphic_false_positives": 0,
+    "new_scientific_measurements": 0,
+    "original_C14_detected": true,
+    "original_consequential_challenges_preserved": 48,
+    "post_hoc_reselection": 0,
+    "static_obligation_coverage": "60/60",
+    "unexplained_extra_kills": 0
+  },
+  "independent_recomputation": {
+    "A_B_detection_disagreement_count": 0,
+    "C14_detected": true,
+    "C14_detection_mode": "FAIL_CLOSED",
+    "C49_detected": true,
+    "C49_detection_mode": "FAIL_CLOSED",
+    "all_consequential_status_DETECTED": true,
+    "all_metamorphic_status_STABLE": true,
+    "consequential_records": 49,
+    "consequential_unique_ids": 49,
+    "detected_dynamic_obligation_union_count": 60,
+    "dynamic_union_exact_expected_60": true,
+    "expected_canonical_obligation_count": 60,
+    "metamorphic_false_positive_count": 0,
+    "metamorphic_records": 8,
+    "metamorphic_unique_ids": 8,
+    "pristine_claim_count": 42,
+    "pristine_vector_sha256": "65b2b519b45315589d885d75d17dc716b255db5c88612652b6201dca93b5103c",
+    "undetected_target_occurrences_that_are_detected_elsewhere": [
+      {
+        "challenge_id": "C37_VE2_OBSERVED_T02_COMPATIBLE",
+        "obligation": "I_ve2_negative_result_preserved"
+      },
+      {
+        "challenge_id": "C47_E39_N2_REPLICA_CARDINALITY",
+        "obligation": "I_s6_scale_accounting"
+      }
+    ],
+    "unexplained_extra_kill_count": 0
+  },
+  "internal_file_sha256": {
+    "BV2_MATERIALIZATION_RECEIPT.json": "7768c0cf79cdb961bd6d3e95a9bb204b7c9d9cf72a3ff543674aab84ce839ca1",
+    "G5_POSTMISS_CAMPAIGN_RECEIPT.json": "5a15c41f569f8505f86219594f3c7548fb83833c576a78dc441301074793c827",
+    "G5_POSTMISS_CASE_RESULTS.json": "84b040774ed5ab1d17da64ed82acb57942c07be6596ac0f934d9952d86baf671",
+    "G5_POSTMISS_EVIDENCE_INDEX.json": "b6db5a2c21cbbafd91d5f405fe4249eb52d31d127329e9c157a74da12c2c36fc",
+    "G5_POSTMISS_OUTER_PREFLIGHT_RECEIPT.json": "0288ca3e3614f9bd8ad45c0b5338b7400222577785dbab927e1fff489e8cf810",
+    "G5_POSTMISS_PRISTINE_BASELINE_SEAL.json": "e8eab66f5bce7def9165b43d9a51c5226a88d6f15958a524e2941d8cf9f61f5b",
+    "POSTMISS_MATERIALIZATION_BINDING_RECEIPT.json": "848d97349a4059dc198c3a7033bdc28caaf88d5769c98dd6e17a8788045f2a7a",
+    "PRISTINE_B_TRACE.json": "8da32289a932bf80868a3ef35e1ca3f00c982bec064214912e9d4948abe880cb",
+    "PRISTINE_B_VECTOR.json": "65b2b519b45315589d885d75d17dc716b255db5c88612652b6201dca93b5103c",
+    "SHA256SUMS.txt": "1f7412c0513fb8428bfa913f7e43fd8df6acb656b80ecd7caa1ddb3745b41a4b"
+  },
+  "notes": {
+    "C37_and_C47": "Each contains one ancillary invariant occurrence that remains true for that specific mutant; the same invariants are independently detected by other frozen challenges, and the exact dynamic union remains 60/60. This is consistent with the prospectively frozen post-miss scorer rule.",
+    "no_retroactive_reclassification": true
+  },
+  "outer_preflight_rechecked": {
+    "challenge_results_reused": false,
+    "fresh_output_directory": true,
+    "scientific_authorities_modified": false,
+    "status": "PASS_POSTMISS_OUTER_IDENTITY_AND_FRESHNESS_GATE",
+    "thresholds_modified": false
+  },
+  "public_execution": {
+    "execution_head": "055c6d13822907fa8692fc83cab303534185dd2b",
+    "job_id": 103443473100,
+    "repository": "risu-research/frb-exec-2609",
+    "run_conclusion": "success",
+    "run_id": 34654381011
+  },
+  "schema": "replaymark.artifact-v4.g5-independent-redownload-audit.v1",
+  "scientific_noninterference_rechecked": {
+    "canonical_authority_replacement": false,
+    "historical_experiment_rerun": false,
+    "manuscript_change": false,
+    "new_measurement": false,
+    "verifier_A_change": false,
+    "verifier_B_change_authorized_only_after_preserved_G5_miss": true,
+    "verifier_B_change_from_G4": true
+  },
+  "status": "PASS_INDEPENDENT_REDOWNLOAD_AND_RECOMPUTATION"
+}
