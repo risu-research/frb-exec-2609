@@ -1,0 +1,36 @@
+{
+  "schema": "replaymark.artifact-v4.g3-public-transport-freeze.v1",
+  "status": "FROZEN_BEFORE_G3_QUALIFICATION_WORKFLOW_OPEN",
+  "carrier_base_head": "2269c13acb2cd94ff8f7871769bbf53103ca13b8",
+  "private_source_commit": "9ae5ce98c1df599316961fa96820be6d4631b372",
+  "private_g3_source_freeze_path": "artifact_v4/V4_G3_SOURCE_FREEZE_V1.json",
+  "private_program_blobs": {
+    "artifact_v4/verifier_b.mjs": "809efb0ff3a26ab096af97d2b73b68045cf4d8c8",
+    "artifact_v4/materialize_semantic_snapshots.py": "cf9d4ccc7cfe35f709ff983500b2f5b969be600e",
+    "artifact_v4/g3_synthetic_qualification.mjs": "04246081f6b1b2b49409bb96274545616a3d87c0",
+    "artifact_v4/g3_static_audit.py": "13e0b3d3c02a9b77092f3d9ccec9d4eddde39ac3"
+  },
+  "private_governance_blobs": {
+    "artifact_v4/V4_G2_VALUE_FREE_B_INTERFACE.json": "eb919f0751c323e4c39324e91dbbd698728a366c",
+    "artifact_v4/V4_G2_SEMANTIC_SNAPSHOT_CONTRACT.json": "59c700c97cc873147581f3c096617c85848735b5",
+    "artifact_v4/V4_G2_PREEXECUTION_AMENDMENT_01_FORMAL_SCOPE_GUARD.json": "09ea03b71e01f7ffd96a7ce63b9542e0fcc262fb"
+  },
+  "actions": {
+    "checkout": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+    "setup_node": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+    "upload_artifact": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+  },
+  "runtime_contract": {
+    "runner": "ubuntu-24.04",
+    "python": "3.12",
+    "node": "24",
+    "network_for_verifier_b": false,
+    "package_installation": false
+  },
+  "qualification_boundary": {
+    "verifier_b_pristine_scientific_execution": false,
+    "v3_or_v92_expected_value_comparison": false,
+    "challenge_execution": false,
+    "allowed": ["static isolation audit","fabricated-fixture synthetic qualification","value-free semantic snapshot materialization","snapshot schema/digest audit"]
+  }
+}
