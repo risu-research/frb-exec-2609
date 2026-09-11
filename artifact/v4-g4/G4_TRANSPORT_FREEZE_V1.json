@@ -1,23 +1,43 @@
 {
-  "schema": "replaymark.artifact-v4.g4-public-transport-freeze.v1",
-  "status": "FROZEN_BEFORE_FRESH_G4_BASELINE_OPEN_AFTER_RUN1_TRANSPORT_FAILURE",
-  "private_source_commit": "3f462e84f62d950a50e68fe3f4e257778a0f7ecb",
+  "schema": "replaymark.artifact-v4.g4-public-transport-freeze.v2",
+  "status": "FROZEN_BEFORE_FRESH_RUN4_PRISTINE_DUAL_IMPLEMENTATION_OPEN",
+  "private_source_commit": "5a29aabe717506e9ffd3d22c4424b96ea85c2ce3",
   "historical_predecessor_commit": "d017fde0d9ee5c225cf09199f54a510851b082ff",
   "ve2_pre_result_commit": "25ebfd817420fa0f782419977e4ec166f6ca358a",
   "ve2_pre_result_tree": "88f796f2e8ff361aa07925500c80b2ce0f8532e9",
   "public_preservation_base": "b0ef07e121f70be8668873d7263b7c13d216c6a6",
-  "run1_failure_preserved": {"run_id":34638982156,"job_id":103393736593,"public_failure_seal_commit":"e329ca6c00b665073ff9f1016f0363d43c1c45db","classification":"MULTI_REF_FETCH_HEAD_ASSERTION_BUG","scientific_open":false},
+  "preserved_pre_result_failures": [
+    {"run_id":34638982156,"classification":"MULTI_REF_FETCH_HEAD_ASSERTION_BUG","public_seal_commit":"e329ca6c00b665073ff9f1016f0363d43c1c45db","A_vector":false,"B_vector":false,"A_B_comparison":false},
+    {"run_id":34639207967,"classification":"INCORRECT_EXPECTED_BLOB_FOR_RUN1_FAILURE_SEAL","public_seal_commit":"24adb5345b59995ada0812c8e2edbe287448b144","A_vector":false,"B_vector":false,"A_B_comparison":false},
+    {"run_id":34639363912,"classification":"NODE_STRICT_JSON_REJECTED_PREEXISTING_NONFINITE_AUTHORITY_TOKEN","public_seal_commit":"61b16ac0b64a519cdc1229e6216decc1734b368c","A_vector":true,"B_vector":false,"A_B_comparison":false,"v92_comparison":false}
+  ],
   "private_program_blobs": {
     "g4_constitution": "7d026917bc3c6df5791726c20d0bdc7b9d63161c",
-    "g4_source_freeze": "b8de19de33332f62178dbe52094579f1bd013004",
+    "g4_original_source_freeze": "b8de19de33332f62178dbe52094579f1bd013004",
+    "g4_run4_remediation_freeze": "5453d292d92060533dd7e2f7db32ae5d91567b05",
+    "parser_compatibility_amendment": "2f902c822d903115f055f9ebc3bffd4355a536e7",
+    "python_json_compatibility_adapter": "7a09df06d5e93b8ecd574cef969d22ff700677e7",
     "verifier_A": "2e7fb497f440902e1c3a7f813dd3fad0c2308af0",
-    "verifier_B": "809efb0ff3a26ab096af97d2b73b68045cf4d8c8",
+    "verifier_B_unchanged": "809efb0ff3a26ab096af97d2b73b68045cf4d8c8",
     "semantic_materializer": "cf9d4ccc7cfe35f709ff983500b2f5b969be600e",
     "pristine_B_input_materializer": "7f76e2903d193636c4c12b01ae53a099d2c5b36b",
     "blind_AB_comparator": "51b62eaa50b1aca95df88d066be15d6cd500f574",
     "v92_comparator": "c2bcdfee5f61086a354df109d2a40e552594c09b"
   },
-  "prospective_transport_repair": "Do not assert a particular FETCH_HEAD ordering after a multi-ref fetch. Verify each requested historical commit object directly and checkout the declared historical base by exact SHA.",
-  "execution_order": ["A_DERIVE_SEAL","B_PREPARE_SANITIZE_DERIVE_SEAL","A_B_COMPARE_SEAL","V92_COMPARE_ONLY_IF_A_B_MATCH","FINAL_BASELINE_RECEIPT"],
+  "run4_compatibility_law": {
+    "raw_B_role_files_materialized_and_digest_bound_before_adapter": true,
+    "adapter_preserves_raw_digests_in_receipt": true,
+    "only_bare_python_json_nonfinite_constants_may_be_lexically_normalized": true,
+    "nonfinite_values_become_explicit_nonnumeric_sentinels": true,
+    "unchanged_B_must_fail_closed_if_claim_logic_touches_a_sentinel": true,
+    "finite_authority_semantics_may_not_change": true
+  },
+  "evidence_preservation_strengthening": {
+    "A_and_B_vectors_sealed_before_comparison": true,
+    "blind_A_B_comparison_has_no_expected_values": true,
+    "A_B_divergence_capsule_uploaded_before_final_failure": true,
+    "v92_comparison_forbidden_unless_A_B_exact_match": true
+  },
+  "execution_order": ["A_DERIVE_SEAL","B_RAW_INPUT_MATERIALIZE","PYJSON_COMPAT_ADAPTER","B_SANITIZED_DERIVE_SEAL","A_B_BLIND_COMPARE","V92_ONLY_IF_A_B_MATCH","UPLOAD_OPEN_EVIDENCE","FINAL_VERDICT"],
   "forbidden_in_G4": ["challenge execution","metamorphic execution","new measurement","historical experiment rerun","authority replacement","expected-value tuning"]
 }
