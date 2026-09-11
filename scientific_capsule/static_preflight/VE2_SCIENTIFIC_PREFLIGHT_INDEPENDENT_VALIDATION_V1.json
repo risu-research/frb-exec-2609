@@ -1,0 +1,46 @@
+{
+  "all_four_zero_stimulus": true,
+  "roles": [
+    {
+      "blueprint_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8",
+      "bootstrap_adapter_sha256": "b2ddd39971009654174c2150ff69d519ca000d40fb0675e06f9b5def4996f27c",
+      "file_sha256": "beb1fd12c11e19c315685740e09de8caef933e86e0f940cf6c8c1e42ee99edcc",
+      "home_assistant_version": "2022.10.0",
+      "role": "T01_OLD",
+      "status": "PASS"
+    },
+    {
+      "blueprint_sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363",
+      "bootstrap_adapter_sha256": "d3f1b630fe592a60ea0428f45ae59ab9319baeeb1fcb48ace85dee6f8f02dba5",
+      "file_sha256": "fe801a7626519a3974ef582bd7c17aff901fb557369a008535eb5e3544006260",
+      "home_assistant_version": "2026.1.0",
+      "role": "T01_NEW",
+      "status": "PASS"
+    },
+    {
+      "blueprint_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115",
+      "bootstrap_adapter_sha256": "1a6faa6088876f2402fac4071cdc969db64cd7a8bf15a73a2e753fdc75720b5f",
+      "file_sha256": "4615b068faf5f17cc9daa789b02134ae0ee494e87b97a31ece74172e61bc1428",
+      "home_assistant_version": "2026.9.0",
+      "role": "T02_OLD",
+      "status": "PASS"
+    },
+    {
+      "blueprint_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e",
+      "bootstrap_adapter_sha256": "1a6faa6088876f2402fac4071cdc969db64cd7a8bf15a73a2e753fdc75720b5f",
+      "file_sha256": "c2cb438317d5ea528c34fa3fd659deedb1ec16b2e132403e34991b0e5c59d0d7",
+      "home_assistant_version": "2026.9.0",
+      "role": "T02_NEW",
+      "status": "PASS"
+    }
+  ],
+  "schema": "replaymark.ve2.scientific-blueprint-preflight-independent-validation.v1",
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "scientific_result_opened": false,
+    "trigger_stimulus_emitted": false
+  },
+  "status": "PASS",
+  "validation_sha256": "458a6fbde7b64a72a4a935272e751075191e6857e40edc64a6de79ba7a990184"
+}

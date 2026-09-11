@@ -1,0 +1,24 @@
+{
+  "packaging_repair_sha256": "e3ccb2084afd4d9f8cfe405598aae684f01d1e9480ba1ebc8d6361b81b092b97",
+  "predecessor_failure_seal": "16245ba7500a81ccff18f9380b1be3e5d7a63f23",
+  "preflight_validation_sha256": "ddfb77276cb0243e571782a826262b6f546e24c96e9d4beaeb3012ed40c92187",
+  "result_sha256": "3b5e61d305b0ff3d6f03861bc862bc7d2da618af0d25b730ef01326574dcdee0",
+  "run_attempt": 1,
+  "run_id": 34555795169,
+  "runtime_bundle_receipt_sha256": "7cd81d34aebeb3759f3f97cafaea45a0a2f631ca099beb6228d7cb30f450fc57",
+  "schema": "replaymark.ve2.scientific-static-qualification-result.v2",
+  "science_branch_created": false,
+  "science_open_created": false,
+  "science_workflow_sha256": "52df67631b1959f4a9d4185b0d5672d02d0498461b94d698c3043604959e27aa",
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "scientific_result_opened": false,
+    "trigger_stimulus_emitted": false
+  },
+  "source_freeze": "b6d892f5d30ef6f76c111adb05250fa0f484651d",
+  "static_open_head": "92b7c14ff1486fa280894063dfc9fca349bbd743",
+  "static_source_validation_sha256": "08fdf7dc11848ba4521f0e06f9c1642d365b62af6efa66d79722ffb576103e4e",
+  "status": "PASS_PRE_SCIENCE",
+  "successful_subset_carry_forward": false
+}

@@ -1,0 +1,100 @@
+{
+  "blueprints": [
+    {
+      "byte_identical_copy": true,
+      "byte_size": 1476,
+      "role": "T01_OLD",
+      "runtime_git_blob": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+      "runtime_path": "T01_OLD_NIGHT_MODE.yaml",
+      "runtime_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8",
+      "source_git_blob": "8788f64ee1f6dfd25cdaaa42183b2ee94591e1f0",
+      "source_sha256": "9a2b545288a3cae15f497796cb9001e6a142fc02c6150df6b11975d79f6083d8"
+    },
+    {
+      "byte_identical_copy": true,
+      "byte_size": 1388,
+      "role": "T01_NEW",
+      "runtime_git_blob": "19c99196ed611729338f01bc77ea1b5deda7aa02",
+      "runtime_path": "T01_NEW_NIGHT_MODE.yaml",
+      "runtime_sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363",
+      "source_git_blob": "19c99196ed611729338f01bc77ea1b5deda7aa02",
+      "source_sha256": "9c2a4b03d57a59d6b13a34b0bf4031104c19abafa8331e1b329861f45eeef363"
+    },
+    {
+      "byte_identical_copy": true,
+      "byte_size": 39470,
+      "role": "T02_OLD",
+      "runtime_git_blob": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+      "runtime_path": "T02_OLD_WEEKLY_HEATING_SCHEDULE.yaml",
+      "runtime_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115",
+      "source_git_blob": "2172a1a3ad1955132911aa0fd0f8a546ab6e2b76",
+      "source_sha256": "5593911e8ef5db3cc29f1ab4bb6658538f6e68fecbd010de0527ecc41b5d4115"
+    },
+    {
+      "byte_identical_copy": true,
+      "byte_size": 41493,
+      "role": "T02_NEW",
+      "runtime_git_blob": "3255957740ec44285d866d8be7d78bf905c1257c",
+      "runtime_path": "T02_NEW_WEEKLY_HEATING_SCHEDULE.yaml",
+      "runtime_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e",
+      "source_git_blob": "3255957740ec44285d866d8be7d78bf905c1257c",
+      "source_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e"
+    }
+  ],
+  "manifests": [
+    {
+      "answer_bearing_metadata_removed": true,
+      "original_canonical_sha256": "2efe5f5d6d1ac92eb7fe0138a53a432df9b1feaa81c2c7aa36b69e8e5bd663bb",
+      "original_git_blob": "c1731d24387ec4c2dcb33167a286d89fc45ef254",
+      "runtime_byte_size": 486,
+      "runtime_canonical_sha256": "40d093c14c2ae46cae8a238212e1562e3bcd04156395cb27d3dbf6468f5c0a61",
+      "runtime_git_blob": "8cb8275694ab4c7433e819b977b9f4042179eb00",
+      "runtime_path": "VE2_T01_RUNTIME_MANIFEST_V1.json",
+      "runtime_projection_keys": [
+        "fixed_profile",
+        "schema",
+        "state_count",
+        "states"
+      ],
+      "runtime_raw_sha256": "e49d2da578146c009adfd892a5c1e46d874a456d67db002397cb1a8a9e3acc91",
+      "state_count": 2,
+      "transition": "T01"
+    },
+    {
+      "answer_bearing_metadata_removed": true,
+      "original_canonical_sha256": "a83c40ed76636637e1120e0e25bcbeadc73b16e3abdef9d1cad238f565ffbde0",
+      "original_git_blob": "c9d543be934dd0cc33b67a2f987f0eae9705a83b",
+      "runtime_byte_size": 12043,
+      "runtime_canonical_sha256": "3e7ec0a67a868bf381fa621ce26a0792a3e221f5a76fe8095f012d36713bd42c",
+      "runtime_git_blob": "7146b7f680ab145501d969e362f9cdf8f541d854",
+      "runtime_path": "VE2_T02_RUNTIME_MANIFEST_V1.json",
+      "runtime_projection_keys": [
+        "fixed_profile",
+        "schema",
+        "state_count",
+        "states"
+      ],
+      "runtime_raw_sha256": "32fc4999484d454540ffa3c7b04d57cf6da6847bfe460d1ce83f6178eea375fe",
+      "state_count": 42,
+      "transition": "T02"
+    }
+  ],
+  "receipt_sha256": "ba7cf7230ee92c3cb29f65419297bbe32dbd922e2dfe576fcfc3815c1dbab5fd",
+  "runtime_worker_visibility": {
+    "blueprint_bytes_unparsed_and_unmodified": true,
+    "class_weights_present": false,
+    "compatibility_labels_present": false,
+    "expected_frontier_present": false,
+    "manifest_projection_only": true,
+    "transition_semantics_present": false
+  },
+  "schema": "replaymark.ve2.scientific-runtime-bundle-receipt.v1",
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "scientific_result_opened": false,
+    "trigger_stimulus_emitted": false
+  },
+  "source_freeze": "b6d892f5d30ef6f76c111adb05250fa0f484651d",
+  "status": "PASS_PRE_SCIENCE_RUNTIME_BUNDLE"
+}

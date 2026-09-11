@@ -1,0 +1,481 @@
+{
+  "fixed_profile": {
+    "notifications_enabled": false,
+    "pause_switch": "input_boolean.ve2_pause",
+    "presence_entity": "binary_sensor.ve2_presence",
+    "slot_presets": {
+      "1": "comfort",
+      "2": "eco",
+      "3": "home",
+      "4": "sleep"
+    },
+    "thermostat_target": "climate.ve2_t02_thermostat",
+    "vacation_preset": "away"
+  },
+  "schema": "replaymark.ve2.t02.execution-state-manifest.v1",
+  "state_count": 42,
+  "states": [
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "left_home"
+      },
+      "opaque_state_id": "VE2-T02-S00"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "pause_off"
+      },
+      "opaque_state_id": "VE2-T02-S01"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot1"
+      },
+      "opaque_state_id": "VE2-T02-S02"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S03"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S04"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "left_home"
+      },
+      "opaque_state_id": "VE2-T02-S05"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot1"
+      },
+      "opaque_state_id": "VE2-T02-S06"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S07"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": false,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S08"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "pause_off"
+      },
+      "opaque_state_id": "VE2-T02-S09"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot1"
+      },
+      "opaque_state_id": "VE2-T02-S10"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S11"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": true,
+        "presence_home": false,
+        "trigger_kind": "slot1"
+      },
+      "opaque_state_id": "VE2-T02-S12"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": true,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S13"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "left_home"
+      },
+      "opaque_state_id": "VE2-T02-S14"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "pause_off"
+      },
+      "opaque_state_id": "VE2-T02-S15"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot1"
+      },
+      "opaque_state_id": "VE2-T02-S16"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S17"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S18"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": true,
+        "presence_home": false,
+        "trigger_kind": "left_home"
+      },
+      "opaque_state_id": "VE2-T02-S19"
+    },
+    {
+      "fixture": {
+        "active_slot": 1,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": true,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S20"
+    },
+    {
+      "fixture": {
+        "active_slot": 2,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot2"
+      },
+      "opaque_state_id": "VE2-T02-S21"
+    },
+    {
+      "fixture": {
+        "active_slot": 2,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S22"
+    },
+    {
+      "fixture": {
+        "active_slot": 2,
+        "enable_pause_switch": false,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S23"
+    },
+    {
+      "fixture": {
+        "active_slot": 2,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "pause_off"
+      },
+      "opaque_state_id": "VE2-T02-S24"
+    },
+    {
+      "fixture": {
+        "active_slot": 2,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot2"
+      },
+      "opaque_state_id": "VE2-T02-S25"
+    },
+    {
+      "fixture": {
+        "active_slot": 2,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S26"
+    },
+    {
+      "fixture": {
+        "active_slot": 2,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S27"
+    },
+    {
+      "fixture": {
+        "active_slot": 3,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot3"
+      },
+      "opaque_state_id": "VE2-T02-S28"
+    },
+    {
+      "fixture": {
+        "active_slot": 3,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S29"
+    },
+    {
+      "fixture": {
+        "active_slot": 3,
+        "enable_pause_switch": false,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S30"
+    },
+    {
+      "fixture": {
+        "active_slot": 3,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "pause_off"
+      },
+      "opaque_state_id": "VE2-T02-S31"
+    },
+    {
+      "fixture": {
+        "active_slot": 3,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot3"
+      },
+      "opaque_state_id": "VE2-T02-S32"
+    },
+    {
+      "fixture": {
+        "active_slot": 3,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S33"
+    },
+    {
+      "fixture": {
+        "active_slot": 3,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S34"
+    },
+    {
+      "fixture": {
+        "active_slot": 4,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot4"
+      },
+      "opaque_state_id": "VE2-T02-S35"
+    },
+    {
+      "fixture": {
+        "active_slot": 4,
+        "enable_pause_switch": false,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S36"
+    },
+    {
+      "fixture": {
+        "active_slot": 4,
+        "enable_pause_switch": false,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S37"
+    },
+    {
+      "fixture": {
+        "active_slot": 4,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "pause_off"
+      },
+      "opaque_state_id": "VE2-T02-S38"
+    },
+    {
+      "fixture": {
+        "active_slot": 4,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "slot4"
+      },
+      "opaque_state_id": "VE2-T02-S39"
+    },
+    {
+      "fixture": {
+        "active_slot": 4,
+        "enable_pause_switch": true,
+        "enable_presence_mode": false,
+        "pause_on": false,
+        "presence_home": false,
+        "trigger_kind": "startup"
+      },
+      "opaque_state_id": "VE2-T02-S40"
+    },
+    {
+      "fixture": {
+        "active_slot": 4,
+        "enable_pause_switch": true,
+        "enable_presence_mode": true,
+        "pause_on": false,
+        "presence_home": true,
+        "trigger_kind": "arrived_home"
+      },
+      "opaque_state_id": "VE2-T02-S41"
+    }
+  ]
+}

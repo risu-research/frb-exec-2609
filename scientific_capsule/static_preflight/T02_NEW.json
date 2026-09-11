@@ -1,0 +1,94 @@
+{
+  "blueprint_sha256": "45375bb3a0a09b5ae7db9bdc038a73fcbec80425ec38e858e89633cb1dfdf37e",
+  "bootstrap_adapter": {
+    "adapter_sha256": "1a6faa6088876f2402fac4071cdc969db64cd7a8bf15a73a2e753fdc75720b5f",
+    "automation_module": "/usr/src/homeassistant/homeassistant/components/automation/__init__.py",
+    "config_entries": {
+      "initialized_event_present": true,
+      "initialized_event_set_prospectively": true,
+      "manager_type": "ConfigEntries",
+      "result_dependent_fallback": false,
+      "retry_after_failure": false,
+      "shutdown_hook_registered": true,
+      "strategy": "NATIVE_CONFIG_ENTRIES_HASS_CONFIG"
+    },
+    "constructor": {
+      "result_dependent_fallback": false,
+      "retry_after_failure": false,
+      "signature": {
+        "config_dir": "config_dir: str"
+      },
+      "strategy": "REQUIRED_CONFIG_DIR_POSITIONAL"
+    },
+    "core_state": {
+      "state": "RUNNING",
+      "strategy": "SET_STATE_API_PRESENT"
+    },
+    "helpers": {
+      "condition": {
+        "async_setup_awaitable": true,
+        "async_setup_present": true,
+        "module": "homeassistant.helpers.condition",
+        "result_dependent_fallback": false,
+        "retry_after_failure": false,
+        "strategy": "NATIVE_ASYNC_SETUP_API_PRESENT"
+      },
+      "entity": {
+        "async_setup_awaitable": false,
+        "async_setup_present": true,
+        "module": "homeassistant.helpers.entity",
+        "result_dependent_fallback": false,
+        "retry_after_failure": false,
+        "strategy": "NATIVE_ASYNC_SETUP_API_PRESENT"
+      },
+      "result_dependent_fallback": false,
+      "retry_after_failure": false,
+      "trigger": {
+        "async_setup_awaitable": true,
+        "async_setup_present": true,
+        "module": "homeassistant.helpers.trigger",
+        "result_dependent_fallback": false,
+        "retry_after_failure": false,
+        "strategy": "NATIVE_ASYNC_SETUP_API_PRESENT"
+      }
+    },
+    "loader": {
+      "custom_components_cache_seeded": true,
+      "data_integrations_present_after": true,
+      "data_integrations_present_before": false,
+      "loader_async_setup_api_present": true,
+      "result_dependent_fallback": false,
+      "retry_after_failure": false,
+      "strategy": "EXPLICIT_ASYNC_SETUP_API_PRESENT"
+    },
+    "result_dependent_fallback": false,
+    "retry_after_failure": false,
+    "timezone": {
+      "async_setter_present": true,
+      "result_dependent_fallback": false,
+      "retry_after_failure": false,
+      "strategy": "SOURCE_DEFAULT_UTC_VERIFIED_NO_MUTATION",
+      "sync_setter_present": false,
+      "time_zone_after": "UTC",
+      "time_zone_before": "UTC"
+    },
+    "trace_strategy": "COMPONENT_TRACE_UTIL"
+  },
+  "checks": {
+    "automation_entity_materialized": true,
+    "zero_automation_invocations": true,
+    "zero_consequential_services": true,
+    "zero_native_trace_contexts": true
+  },
+  "home_assistant_version": "2026.9.0",
+  "schema": "replaymark.ve2.scientific-blueprint-preflight.v1",
+  "scientific_hygiene": {
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "scientific_result_opened": false,
+    "trigger_stimulus_emitted": false
+  },
+  "source_role": "NEW",
+  "status": "PASS",
+  "transition": "T02"
+}

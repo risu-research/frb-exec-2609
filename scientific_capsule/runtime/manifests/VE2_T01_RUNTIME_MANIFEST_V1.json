@@ -1,0 +1,23 @@
+{
+  "fixed_profile": {
+    "night_temp_c": 18.0,
+    "night_times_schedule": "schedule.ve2_t01_night",
+    "thermostat_target": "climate.ve2_t01_thermostat"
+  },
+  "schema": "replaymark.ve2.t01.execution-state-manifest.v1",
+  "state_count": 2,
+  "states": [
+    {
+      "fixture": {
+        "schedule_state": "off"
+      },
+      "opaque_state_id": "VE2-T01-S00"
+    },
+    {
+      "fixture": {
+        "schedule_state": "on"
+      },
+      "opaque_state_id": "VE2-T01-S01"
+    }
+  ]
+}

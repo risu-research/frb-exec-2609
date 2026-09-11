@@ -1,0 +1,1074 @@
+blueprint:
+  name: "Better Thermostat: Weekly Heating Schedule"
+  description: >
+    Advanced weekly heating schedule with up to 4 independent time slots and
+    per-day-type preset assignment (Mon–Fri / Saturday / Sunday).
+
+    Features:
+      • 4 configurable daily time slots (e.g. Wake, Day, Evening, Night)
+      • Independent presets for weekdays, Saturdays and Sundays per slot
+      • Presence-based away mode – applies a vacation preset when nobody is home
+      • Schedule pause switch – toggle an input_boolean to suspend the schedule
+      • Home Assistant restart recovery – applies the correct slot after an HA restart
+      • Optional transition notifications before each slot change
+      • Slots must be ordered chronologically (Slot 1 is earliest in the day)
+
+  domain: automation
+  source_url: https://github.com/KartoffelToby/better_thermostat/blob/master/blueprints/weekly_heating_schedule.yaml
+
+  input:
+
+    # ── Target thermostats ────────────────────────────────────────────────
+    thermostat_target:
+      name: Thermostats
+      description: >
+        One or more Better Thermostat devices or climate entities to control.
+      selector:
+        target:
+          device:
+            integration: better_thermostat
+          entity:
+            integration: better_thermostat
+            domain: climate
+
+    # ── Slot 1 ────────────────────────────────────────────────────────────
+    slot1_time_weekday:
+      name: "⏰ Slot 1 – Start time (Mon–Fri)"
+      description: "Earliest slot of the day (e.g. wake-up). Must be before Slot 2."
+      default: "06:30:00"
+      selector:
+        time: {}
+    slot1_time_saturday:
+      name: "⏰ Slot 1 – Start time (Saturday)"
+      default: "08:00:00"
+      selector:
+        time: {}
+    slot1_time_sunday:
+      name: "⏰ Slot 1 – Start time (Sunday)"
+      default: "08:00:00"
+      selector:
+        time: {}
+
+    slot1_preset_weekday:
+      name: "Slot 1 – Preset Mon–Fri"
+      default: comfort
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    slot1_preset_saturday:
+      name: "Slot 1 – Preset Saturday"
+      default: sleep
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    slot1_preset_sunday:
+      name: "Slot 1 – Preset Sunday"
+      default: sleep
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    # ── Slot 2 ────────────────────────────────────────────────────────────
+    slot2_time_weekday:
+      name: "⏰ Slot 2 – Start time (Mon–Fri)"
+      description: "Second slot of the day (e.g. daytime / nobody home). Must be after Slot 1."
+      default: "08:30:00"
+      selector:
+        time: {}
+    slot2_time_saturday:
+      name: "⏰ Slot 2 – Start time (Saturday)"
+      default: "10:00:00"
+      selector:
+        time: {}
+    slot2_time_sunday:
+      name: "⏰ Slot 2 – Start time (Sunday)"
+      default: "10:00:00"
+      selector:
+        time: {}
+
+    slot2_preset_weekday:
+      name: "Slot 2 – Preset Mon–Fri"
+      default: eco
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    slot2_preset_saturday:
+      name: "Slot 2 – Preset Saturday"
+      default: comfort
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    slot2_preset_sunday:
+      name: "Slot 2 – Preset Sunday"
+      default: comfort
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    # ── Slot 3 ────────────────────────────────────────────────────────────
+    slot3_time_weekday:
+      name: "⏰ Slot 3 – Start time (Mon–Fri)"
+      description: "Third slot (e.g. evening / home again). Must be after Slot 2."
+      default: "17:00:00"
+      selector:
+        time: {}
+    slot3_time_saturday:
+      name: "⏰ Slot 3 – Start time (Saturday)"
+      default: "17:00:00"
+      selector:
+        time: {}
+    slot3_time_sunday:
+      name: "⏰ Slot 3 – Start time (Sunday)"
+      default: "17:00:00"
+      selector:
+        time: {}
+
+    slot3_preset_weekday:
+      name: "Slot 3 – Preset Mon–Fri"
+      default: comfort
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    slot3_preset_saturday:
+      name: "Slot 3 – Preset Saturday"
+      default: comfort
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    slot3_preset_sunday:
+      name: "Slot 3 – Preset Sunday"
+      default: comfort
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    # ── Slot 4 ────────────────────────────────────────────────────────────
+    slot4_time_weekday:
+      name: "⏰ Slot 4 – Start time (Mon–Fri)"
+      description: "Last slot of the day (e.g. night / bedtime). Must be after Slot 3."
+      default: "22:30:00"
+      selector:
+        time: {}
+    slot4_time_saturday:
+      name: "⏰ Slot 4 – Start time (Saturday)"
+      default: "23:30:00"
+      selector:
+        time: {}
+    slot4_time_sunday:
+      name: "⏰ Slot 4 – Start time (Sunday)"
+      default: "22:30:00"
+      selector:
+        time: {}
+
+    slot4_preset_weekday:
+      name: "Slot 4 – Preset Mon–Fri"
+      default: sleep
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    slot4_preset_saturday:
+      name: "Slot 4 – Preset Saturday"
+      default: sleep
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    slot4_preset_sunday:
+      name: "Slot 4 – Preset Sunday"
+      default: sleep
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    # ── Presence / vacation ───────────────────────────────────────────────
+    enable_presence_mode:
+      name: "🏠 Enable presence-based away mode"
+      description: >
+        When enabled, the schedule is suspended and the vacation preset is
+        applied whenever the presence entity reports nobody is home.
+        The schedule resumes automatically when someone returns.
+      default: false
+      selector:
+        boolean: {}
+
+    presence_entity:
+      name: "Presence entity"
+      description: >
+        A person.*, device_tracker.*, or binary_sensor.* entity representing
+        occupancy. Only evaluated when presence mode is enabled above.
+        Select one or more entities, or leave empty to disable. The house
+        counts as occupied while at least one of them is home.
+      default: []
+      selector:
+        entity:
+          multiple: true
+          filter:
+            - domain: person
+            - domain: device_tracker
+            - domain: binary_sensor
+
+    vacation_preset:
+      name: "Vacation / Away preset"
+      description: Preset applied while nobody is home (presence mode only).
+      default: away
+      selector:
+        select:
+          options:
+            - label: "None (normal)"
+              value: none
+            - label: Eco
+              value: eco
+            - label: Away
+              value: away
+            - label: Boost
+              value: boost
+            - label: Comfort
+              value: comfort
+            - label: Home
+              value: home
+            - label: Sleep
+              value: sleep
+            - label: Activity
+              value: activity
+
+    # ── Pause switch ──────────────────────────────────────────────────────
+    enable_pause_switch:
+      name: "⏸ Enable schedule pause switch"
+      description: >
+        When enabled, turning on the selected input_boolean suspends the
+        schedule. Turning it off immediately resumes the correct slot.
+      default: false
+      selector:
+        boolean: {}
+
+    pause_switch:
+      name: "Schedule pause switch"
+      description: >
+        An input_boolean helper. Create one under Settings → Helpers → Toggle,
+        then select it here. Only used when the pause switch feature is enabled.
+        Select one or more helpers, or leave empty to disable. The schedule is
+        paused while at least one of them is on.
+      default: []
+      selector:
+        entity:
+          multiple: true
+          domain: input_boolean
+
+    # ── Notifications ──────────────────────────────────────────────────────
+    notify_target:
+      name: "🔔 Notification target (optional)"
+      description: >
+        A notify.* service that receives a message on every slot change.
+        Example: `notify.mobile_app_my_phone`.
+      default: notify.notify
+      selector:
+        text: {}
+
+    enable_notify:
+      name: "Enable notifications"
+      description: Send a message on slot and state transitions.
+      default: false
+      selector:
+        boolean: {}
+
+
+mode: queued
+max_exceeded: silent
+
+
+# ── Variables shared across all action paths ─────────────────────────────────
+variables:
+  # Input references (needed inside templates)
+  slot1_time_weekday: !input slot1_time_weekday
+  slot1_time_saturday: !input slot1_time_saturday
+  slot1_time_sunday: !input slot1_time_sunday
+  slot2_time_weekday: !input slot2_time_weekday
+  slot2_time_saturday: !input slot2_time_saturday
+  slot2_time_sunday: !input slot2_time_sunday
+  slot3_time_weekday: !input slot3_time_weekday
+  slot3_time_saturday: !input slot3_time_saturday
+  slot3_time_sunday: !input slot3_time_sunday
+  slot4_time_weekday: !input slot4_time_weekday
+  slot4_time_saturday: !input slot4_time_saturday
+  slot4_time_sunday: !input slot4_time_sunday
+  slot1_preset_weekday: !input slot1_preset_weekday
+  slot1_preset_saturday: !input slot1_preset_saturday
+  slot1_preset_sunday: !input slot1_preset_sunday
+  slot2_preset_weekday: !input slot2_preset_weekday
+  slot2_preset_saturday: !input slot2_preset_saturday
+  slot2_preset_sunday: !input slot2_preset_sunday
+  slot3_preset_weekday: !input slot3_preset_weekday
+  slot3_preset_saturday: !input slot3_preset_saturday
+  slot3_preset_sunday: !input slot3_preset_sunday
+  slot4_preset_weekday: !input slot4_preset_weekday
+  slot4_preset_saturday: !input slot4_preset_saturday
+  slot4_preset_sunday: !input slot4_preset_sunday
+  enable_presence_mode: !input enable_presence_mode
+  # The selection is a list, or a bare entity_id from older configs.
+  # Normalise both to a list so every entity is evaluated, not just the first.
+  presence_entity_selection: !input presence_entity
+  presence_entities: >
+    {%- set sel = presence_entity_selection -%}
+    {%- if sel is string -%}
+    {{ [sel] if sel else [] }}
+    {%- else -%}
+    {{ sel | default([], true) | select('string') | reject('eq', '') | list }}
+    {%- endif -%}
+  vacation_preset: !input vacation_preset
+  enable_pause_switch: !input enable_pause_switch
+  pause_switch_selection: !input pause_switch
+  pause_switch_entities: >
+    {%- set sel = pause_switch_selection -%}
+    {%- if sel is string -%}
+    {{ [sel] if sel else [] }}
+    {%- else -%}
+    {{ sel | default([], true) | select('string') | reject('eq', '') | list }}
+    {%- endif -%}
+  notify_target: !input notify_target
+  enable_notify: !input enable_notify
+
+  # ── Day-type: weekday | saturday | sunday ───────────────────────────────
+  day_type: >
+    {% set dow = now().isoweekday() %}
+    {% if dow == 6 %}saturday
+    {% elif dow == 7 %}sunday
+    {% else %}weekday
+    {% endif %}
+
+  # ── Computed start times for the current day type ────────────────────────
+  slot1_time: >
+    {% if day_type == 'saturday' %}{{ slot1_time_saturday }}
+    {% elif day_type == 'sunday' %}{{ slot1_time_sunday }}
+    {% else %}{{ slot1_time_weekday }}
+    {% endif %}
+
+  slot2_time: >
+    {% if day_type == 'saturday' %}{{ slot2_time_saturday }}
+    {% elif day_type == 'sunday' %}{{ slot2_time_sunday }}
+    {% else %}{{ slot2_time_weekday }}
+    {% endif %}
+
+  slot3_time: >
+    {% if day_type == 'saturday' %}{{ slot3_time_saturday }}
+    {% elif day_type == 'sunday' %}{{ slot3_time_sunday }}
+    {% else %}{{ slot3_time_weekday }}
+    {% endif %}
+
+  slot4_time: >
+    {% if day_type == 'saturday' %}{{ slot4_time_saturday }}
+    {% elif day_type == 'sunday' %}{{ slot4_time_sunday }}
+    {% else %}{{ slot4_time_weekday }}
+    {% endif %}
+
+  # ── Preset for each slot on the current day type ─────────────────────────
+  preset_slot1: >
+    {% if day_type == 'saturday' %}{{ slot1_preset_saturday }}
+    {% elif day_type == 'sunday' %}{{ slot1_preset_sunday }}
+    {% else %}{{ slot1_preset_weekday }}
+    {% endif %}
+
+  preset_slot2: >
+    {% if day_type == 'saturday' %}{{ slot2_preset_saturday }}
+    {% elif day_type == 'sunday' %}{{ slot2_preset_sunday }}
+    {% else %}{{ slot2_preset_weekday }}
+    {% endif %}
+
+  preset_slot3: >
+    {% if day_type == 'saturday' %}{{ slot3_preset_saturday }}
+    {% elif day_type == 'sunday' %}{{ slot3_preset_sunday }}
+    {% else %}{{ slot3_preset_weekday }}
+    {% endif %}
+
+  preset_slot4: >
+    {% if day_type == 'saturday' %}{{ slot4_preset_saturday }}
+    {% elif day_type == 'sunday' %}{{ slot4_preset_sunday }}
+    {% else %}{{ slot4_preset_weekday }}
+    {% endif %}
+
+  # ── Currently active slot (used on startup / pause resume) ───────────────
+  # Compares HH:MM:SS strings lexicographically – valid since times are zero-padded.
+  # If current time is before slot1, the active slot is slot4 (from previous night).
+  active_slot: >
+    {% set t = now().strftime('%H:%M:%S') %}
+    {% if t >= slot4_time %}4
+    {% elif t >= slot3_time %}3
+    {% elif t >= slot2_time %}2
+    {% elif t >= slot1_time %}1
+    {% else %}4
+    {% endif %}
+
+  # ── Preset that should currently be active (for startup / resume) ─────────
+  # `active_slot` arrives here as an integer: Home Assistant runs `literal_eval`
+  # over a rendered variable, so the bare digit becomes a number.
+  current_schedule_preset: >
+    {% if active_slot | int == 1 %}{{ preset_slot1 }}
+    {% elif active_slot | int == 2 %}{{ preset_slot2 }}
+    {% elif active_slot | int == 3 %}{{ preset_slot3 }}
+    {% else %}{{ preset_slot4 }}
+    {% endif %}
+
+  # ── Anyone home? (only evaluated when presence mode is on) ────────────────
+  # NOTE: the branches render `{{ true }}` / `{{ false }}` rather than bare
+  # `true` / `false`. Home Assistant parses a rendered variable with
+  # `literal_eval`, which rejects the lowercase words and hands back the
+  # *string* -- and a non-empty string is truthy, so `not schedule_paused`
+  # came out False and gated every slot away.
+  anyone_home: >
+    {%- if not enable_presence_mode or presence_entities | count == 0 -%}
+    {{ true }}
+    {%- else -%}
+    {%- set ns = namespace(home=false) -%}
+    {%- for entity in presence_entities -%}
+    {%- if states(entity) in ['home', 'on'] -%}{%- set ns.home = true -%}{%- endif -%}
+    {%- endfor -%}
+    {{ ns.home }}
+    {%- endif -%}
+
+  # ── Is schedule currently paused? ─────────────────────────────────────────
+  schedule_paused: >
+    {%- if not enable_pause_switch or pause_switch_entities | count == 0 -%}
+    {{ false }}
+    {%- else -%}
+    {%- set ns = namespace(paused=false) -%}
+    {%- for entity in pause_switch_entities -%}
+    {%- if is_state(entity, 'on') -%}{%- set ns.paused = true -%}{%- endif -%}
+    {%- endfor -%}
+    {{ ns.paused }}
+    {%- endif -%}
+
+
+# ── Triggers ─────────────────────────────────────────────────────────────────
+trigger:
+  # Time-based slot transitions
+  - platform: time
+    at: !input slot1_time_weekday
+    id: slot1_weekday
+  - platform: time
+    at: !input slot1_time_saturday
+    id: slot1_saturday
+  - platform: time
+    at: !input slot1_time_sunday
+    id: slot1_sunday
+
+  - platform: time
+    at: !input slot2_time_weekday
+    id: slot2_weekday
+  - platform: time
+    at: !input slot2_time_saturday
+    id: slot2_saturday
+  - platform: time
+    at: !input slot2_time_sunday
+    id: slot2_sunday
+
+  - platform: time
+    at: !input slot3_time_weekday
+    id: slot3_weekday
+  - platform: time
+    at: !input slot3_time_saturday
+    id: slot3_saturday
+  - platform: time
+    at: !input slot3_time_sunday
+    id: slot3_sunday
+
+  - platform: time
+    at: !input slot4_time_weekday
+    id: slot4_weekday
+  - platform: time
+    at: !input slot4_time_saturday
+    id: slot4_saturday
+  - platform: time
+    at: !input slot4_time_sunday
+    id: slot4_sunday
+
+  # HA restart recovery – re-apply the correct slot after a restart
+  - platform: homeassistant
+    event: start
+    id: startup
+
+  # Pause switch toggled off → immediately resume schedule
+  - platform: state
+    entity_id: !input pause_switch
+    to: "off"
+    id: pause_off
+
+  # Presence: someone came home → resume schedule
+  - platform: state
+    entity_id: !input presence_entity
+    to:
+      - "home"
+      - "on"
+    id: arrived_home
+
+  # Presence: everyone left → switch to vacation preset
+  - platform: state
+    entity_id: !input presence_entity
+    to:
+      - "not_home"
+      - "away"
+      - "off"
+    for:
+      minutes: 2
+    id: left_home
+
+
+# ── Conditions ────────────────────────────────────────────────────────────────
+condition: []
+
+
+# ── Actions ───────────────────────────────────────────────────────────────────
+action:
+  - choose:
+
+    # ════════════════════════════════════════════════════════════════════════
+    # SLOT 1 fired
+    # ════════════════════════════════════════════════════════════════════════
+    - conditions:
+        - condition: trigger
+          id:
+            - slot1_weekday
+            - slot1_saturday
+            - slot1_sunday
+        - condition: template
+          value_template: "{{ trigger.id.split('_')[1] == day_type }}"
+        - condition: template
+          value_template: "{{ not schedule_paused }}"
+      sequence:
+        - choose:
+            # ── Nobody home → vacation preset ────────────────────────────────
+            - conditions:
+                - condition: template
+                  value_template: "{{ enable_presence_mode and not anyone_home }}"
+              sequence:
+                - service: climate.set_preset_mode
+                  data:
+                    preset_mode: "{{ vacation_preset }}"
+                  target: !input thermostat_target
+                - if:
+                    - condition: template
+                      value_template: "{{ enable_notify and notify_target != '' }}"
+                  then:
+                    - service: "{{ notify_target }}"
+                      data:
+                        title: "BT Schedule – Slot 1 (nobody home)"
+                        message: >
+                          ⏰ {{ now().strftime('%H:%M') }} – Slot 1 skipped:
+                          nobody home. Applied '{{ vacation_preset }}' preset.
+          # ── Normal schedule ───────────────────────────────────────────────
+          default:
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: "{{ preset_slot1 }}"
+              target: !input thermostat_target
+            - if:
+                - condition: template
+                  value_template: "{{ enable_notify and notify_target != '' }}"
+              then:
+                - service: "{{ notify_target }}"
+                  data:
+                    title: "BT Schedule – Slot 1"
+                    message: >
+                      ⏰ {{ now().strftime('%H:%M') }} –
+                      {% if day_type == 'saturday' %}Saturday
+                      {% elif day_type == 'sunday' %}Sunday
+                      {% else %}Weekday{% endif %}
+                      Slot 1: preset '{{ preset_slot1 }}' applied.
+
+    # ════════════════════════════════════════════════════════════════════════
+    # SLOT 2 fired
+    # ════════════════════════════════════════════════════════════════════════
+    - conditions:
+        - condition: trigger
+          id:
+            - slot2_weekday
+            - slot2_saturday
+            - slot2_sunday
+        - condition: template
+          value_template: "{{ trigger.id.split('_')[1] == day_type }}"
+        - condition: template
+          value_template: "{{ not schedule_paused }}"
+      sequence:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ enable_presence_mode and not anyone_home }}"
+              sequence:
+                - service: climate.set_preset_mode
+                  data:
+                    preset_mode: "{{ vacation_preset }}"
+                  target: !input thermostat_target
+                - if:
+                    - condition: template
+                      value_template: "{{ enable_notify and notify_target != '' }}"
+                  then:
+                    - service: "{{ notify_target }}"
+                      data:
+                        title: "BT Schedule – Slot 2 (nobody home)"
+                        message: >
+                          ⏰ {{ now().strftime('%H:%M') }} – Slot 2 skipped:
+                          nobody home. Applied '{{ vacation_preset }}' preset.
+          default:
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: "{{ preset_slot2 }}"
+              target: !input thermostat_target
+            - if:
+                - condition: template
+                  value_template: "{{ enable_notify and notify_target != '' }}"
+              then:
+                - service: "{{ notify_target }}"
+                  data:
+                    title: "BT Schedule – Slot 2"
+                    message: >
+                      ⏰ {{ now().strftime('%H:%M') }} –
+                      {% if day_type == 'saturday' %}Saturday
+                      {% elif day_type == 'sunday' %}Sunday
+                      {% else %}Weekday{% endif %}
+                      Slot 2: preset '{{ preset_slot2 }}' applied.
+
+    # ════════════════════════════════════════════════════════════════════════
+    # SLOT 3 fired
+    # ════════════════════════════════════════════════════════════════════════
+    - conditions:
+        - condition: trigger
+          id:
+            - slot3_weekday
+            - slot3_saturday
+            - slot3_sunday
+        - condition: template
+          value_template: "{{ trigger.id.split('_')[1] == day_type }}"
+        - condition: template
+          value_template: "{{ not schedule_paused }}"
+      sequence:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ enable_presence_mode and not anyone_home }}"
+              sequence:
+                - service: climate.set_preset_mode
+                  data:
+                    preset_mode: "{{ vacation_preset }}"
+                  target: !input thermostat_target
+                - if:
+                    - condition: template
+                      value_template: "{{ enable_notify and notify_target != '' }}"
+                  then:
+                    - service: "{{ notify_target }}"
+                      data:
+                        title: "BT Schedule – Slot 3 (nobody home)"
+                        message: >
+                          ⏰ {{ now().strftime('%H:%M') }} – Slot 3 skipped:
+                          nobody home. Applied '{{ vacation_preset }}' preset.
+          default:
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: "{{ preset_slot3 }}"
+              target: !input thermostat_target
+            - if:
+                - condition: template
+                  value_template: "{{ enable_notify and notify_target != '' }}"
+              then:
+                - service: "{{ notify_target }}"
+                  data:
+                    title: "BT Schedule – Slot 3"
+                    message: >
+                      ⏰ {{ now().strftime('%H:%M') }} –
+                      {% if day_type == 'saturday' %}Saturday
+                      {% elif day_type == 'sunday' %}Sunday
+                      {% else %}Weekday{% endif %}
+                      Slot 3: preset '{{ preset_slot3 }}' applied.
+
+    # ════════════════════════════════════════════════════════════════════════
+    # SLOT 4 fired
+    # ════════════════════════════════════════════════════════════════════════
+    - conditions:
+        - condition: trigger
+          id:
+            - slot4_weekday
+            - slot4_saturday
+            - slot4_sunday
+        - condition: template
+          value_template: "{{ trigger.id.split('_')[1] == day_type }}"
+        - condition: template
+          value_template: "{{ not schedule_paused }}"
+      sequence:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ enable_presence_mode and not anyone_home }}"
+              sequence:
+                - service: climate.set_preset_mode
+                  data:
+                    preset_mode: "{{ vacation_preset }}"
+                  target: !input thermostat_target
+                - if:
+                    - condition: template
+                      value_template: "{{ enable_notify and notify_target != '' }}"
+                  then:
+                    - service: "{{ notify_target }}"
+                      data:
+                        title: "BT Schedule – Slot 4 (nobody home)"
+                        message: >
+                          ⏰ {{ now().strftime('%H:%M') }} – Slot 4 skipped:
+                          nobody home. Applied '{{ vacation_preset }}' preset.
+          default:
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: "{{ preset_slot4 }}"
+              target: !input thermostat_target
+            - if:
+                - condition: template
+                  value_template: "{{ enable_notify and notify_target != '' }}"
+              then:
+                - service: "{{ notify_target }}"
+                  data:
+                    title: "BT Schedule – Slot 4"
+                    message: >
+                      ⏰ {{ now().strftime('%H:%M') }} –
+                      {% if day_type == 'saturday' %}Saturday
+                      {% elif day_type == 'sunday' %}Sunday
+                      {% else %}Weekday{% endif %}
+                      Slot 4: preset '{{ preset_slot4 }}' applied.
+
+    # ════════════════════════════════════════════════════════════════════════
+    # HA STARTUP – apply the currently correct slot
+    # ════════════════════════════════════════════════════════════════════════
+    - conditions:
+        - condition: trigger
+          id: startup
+      sequence:
+        - delay:
+            seconds: 30   # wait for all entities to become available
+        - choose:
+            # Paused → do nothing
+            - conditions:
+                - condition: template
+                  value_template: "{{ schedule_paused }}"
+              sequence: []
+            # Nobody home → vacation preset
+            - conditions:
+                - condition: template
+                  value_template: "{{ enable_presence_mode and not anyone_home }}"
+              sequence:
+                - service: climate.set_preset_mode
+                  data:
+                    preset_mode: "{{ vacation_preset }}"
+                  target: !input thermostat_target
+                - if:
+                    - condition: template
+                      value_template: "{{ enable_notify and notify_target != '' }}"
+                  then:
+                    - service: "{{ notify_target }}"
+                      data:
+                        title: "BT Schedule – Startup recovery (nobody home)"
+                        message: >
+                          🔄 Startup: nobody home – applied '{{ vacation_preset }}' preset.
+          # Normal schedule resume
+          default:
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: "{{ current_schedule_preset }}"
+              target: !input thermostat_target
+            - if:
+                - condition: template
+                  value_template: "{{ enable_notify and notify_target != '' }}"
+              then:
+                - service: "{{ notify_target }}"
+                  data:
+                    title: "BT Schedule – Startup recovery"
+                    message: >
+                      🔄 Startup: resumed Slot {{ active_slot }}
+                      ({{ current_schedule_preset }}) for
+                      {% if day_type == 'saturday' %}Saturday
+                      {% elif day_type == 'sunday' %}Sunday
+                      {% else %}weekday{% endif %}.
+
+    # ════════════════════════════════════════════════════════════════════════
+    # PAUSE SWITCH turned OFF → immediately re-apply current schedule slot
+    # ════════════════════════════════════════════════════════════════════════
+    - conditions:
+        - condition: trigger
+          id: pause_off
+        - condition: template
+          value_template: "{{ enable_pause_switch }}"
+        # The trigger fires when *any* selected switch goes off. Without this,
+        # turning one off would resume the schedule while another still holds
+        # the pause. `schedule_paused` reads every selected entity.
+        - condition: template
+          value_template: "{{ not schedule_paused }}"
+      sequence:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ enable_presence_mode and not anyone_home }}"
+              sequence:
+                - service: climate.set_preset_mode
+                  data:
+                    preset_mode: "{{ vacation_preset }}"
+                  target: !input thermostat_target
+          default:
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: "{{ current_schedule_preset }}"
+              target: !input thermostat_target
+            - if:
+                - condition: template
+                  value_template: "{{ enable_notify and notify_target != '' }}"
+              then:
+                - service: "{{ notify_target }}"
+                  data:
+                    title: "BT Schedule – Resumed"
+                    message: >
+                      ▶️ Schedule resumed – applied Slot {{ active_slot }}
+                      preset '{{ current_schedule_preset }}'.
+
+    # ════════════════════════════════════════════════════════════════════════
+    # PRESENCE: someone arrived home → apply current schedule slot
+    # ════════════════════════════════════════════════════════════════════════
+    - conditions:
+        - condition: trigger
+          id: arrived_home
+        - condition: template
+          value_template: "{{ enable_presence_mode and not schedule_paused }}"
+      sequence:
+        - service: climate.set_preset_mode
+          data:
+            preset_mode: "{{ current_schedule_preset }}"
+          target: !input thermostat_target
+        - if:
+            - condition: template
+              value_template: "{{ enable_notify and notify_target != '' }}"
+          then:
+            - service: "{{ notify_target }}"
+              data:
+                title: "BT Schedule – Welcome home"
+                message: >
+                  👋 Someone arrived – resumed Slot {{ active_slot }}
+                  preset '{{ current_schedule_preset }}'.
+
+    # ════════════════════════════════════════════════════════════════════════
+    # PRESENCE: last person left → apply vacation preset
+    # ════════════════════════════════════════════════════════════════════════
+    - conditions:
+        - condition: trigger
+          id: left_home
+        - condition: template
+          value_template: "{{ enable_presence_mode and not schedule_paused }}"
+        # Double-check presence is truly away (re-evaluated after the 2-min delay).
+        # `anyone_home` reads every selected entity, so one person still home
+        # keeps the vacation preset from being applied.
+        - condition: template
+          value_template: "{{ not anyone_home }}"
+      sequence:
+        - service: climate.set_preset_mode
+          data:
+            preset_mode: "{{ vacation_preset }}"
+          target: !input thermostat_target
+        - if:
+            - condition: template
+              value_template: "{{ enable_notify and notify_target != '' }}"
+          then:
+            - service: "{{ notify_target }}"
+              data:
+                title: "BT Schedule – Nobody home"
+                message: >
+                  🚪 Everyone left – applied '{{ vacation_preset }}' preset
+                  until someone returns.

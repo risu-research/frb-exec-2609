@@ -1,0 +1,128 @@
+{
+  "postrun_selected": {
+    "path": "ve2_scientific_postrun_adjudicate_v3.py",
+    "sha256": "3fa0ed1b487d5a8b6f66b6df3edef5010258c7919a5f81ad57f09ccedbdd63cd"
+  },
+  "result_workers": [
+    {
+      "answer_bearing_exact_literals": 0,
+      "answer_bearing_imports": 0,
+      "imports": [
+        "__future__",
+        "argparse",
+        "asyncio",
+        "copy",
+        "datetime",
+        "hashlib",
+        "homeassistant.const",
+        "homeassistant.core",
+        "json",
+        "pathlib",
+        "shutil",
+        "tempfile",
+        "time",
+        "typing",
+        "unittest.mock",
+        "ve2_e0r_semantic_boundary_v1",
+        "ve2_science_transport_qualify_v3",
+        "ve2_science_transport_qualify_v4",
+        "ve2_science_transport_qualify_v5",
+        "ve2_science_transport_qualify_v6",
+        "ve2_scientific_contract_runtime_v1"
+      ],
+      "path": "ve2_scientific_native_execution_v1.py",
+      "sha256": "d321e656f2cd7193dae929f7f1bd395e23eab80c390a7b959711fcbfd6442f55"
+    },
+    {
+      "answer_bearing_exact_literals": 0,
+      "answer_bearing_imports": 0,
+      "imports": [
+        "__future__",
+        "json",
+        "pathlib",
+        "typing",
+        "ve2_scientific_native_execution_v1"
+      ],
+      "path": "ve2_scientific_native_execution_v2.py",
+      "sha256": "8b4a2960a3e7aadfd791317ddf3cbbfd119d28a996250a4071d0070a2a63bd85"
+    },
+    {
+      "answer_bearing_exact_literals": 0,
+      "answer_bearing_imports": 0,
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "hashlib",
+        "json",
+        "pathlib",
+        "typing"
+      ],
+      "path": "ve2_scientific_contract_runtime_v1.py",
+      "sha256": "3434a0b700d469c28e42752eb3f3435e87b13639f4cb16637a8592eb0962737e"
+    },
+    {
+      "answer_bearing_exact_literals": 0,
+      "answer_bearing_imports": 0,
+      "imports": [
+        "__future__",
+        "argparse",
+        "hashlib",
+        "json",
+        "pathlib",
+        "typing"
+      ],
+      "path": "ve2_scientific_independent_validate_v1.py",
+      "sha256": "4e9f24f6e9aa299dec792793975ca0ca1e2a89dfdc0243430d47fa08238facf2"
+    },
+    {
+      "answer_bearing_exact_literals": 0,
+      "answer_bearing_imports": 0,
+      "imports": [
+        "__future__",
+        "argparse",
+        "hashlib",
+        "json",
+        "pathlib",
+        "typing"
+      ],
+      "path": "ve2_scientific_raw_seal_v1.py",
+      "sha256": "4ea8e30d1a68923fbfad23741c375db6482646cd7e1e838ccafeefdce329fbfa"
+    }
+  ],
+  "schema": "replaymark.ve2.scientific-static-source-validation.v1",
+  "science_workflow": {
+    "job_count": 1,
+    "path": ".github/workflows/ve2-authoritative-first-complete-v1.yml",
+    "replaymark_new_direct_output_mounts": 0,
+    "serial_stage_calls": [
+      "T01_R0_OLD_HISTORY",
+      "T01_R1_OLD_HISTORY",
+      "T01_R0_NEW_DIRECT",
+      "T01_R1_NEW_DIRECT",
+      "T01_R0_REPLAYMARK",
+      "T01_R1_REPLAYMARK",
+      "T01_R0_REPLAY_ALL",
+      "T01_R1_REPLAY_ALL",
+      "T02_R0_OLD_HISTORY",
+      "T02_R1_OLD_HISTORY",
+      "T02_R0_NEW_DIRECT",
+      "T02_R1_NEW_DIRECT",
+      "T02_R0_REPLAYMARK",
+      "T02_R1_REPLAYMARK",
+      "T02_R0_REPLAY_ALL",
+      "T02_R1_REPLAY_ALL"
+    ],
+    "sha256": "52df67631b1959f4a9d4185b0d5672d02d0498461b94d698c3043604959e27aa",
+    "worker_expected_frontier_mounts": 0,
+    "worker_network": "none",
+    "worker_transition_semantics_mounts": 0
+  },
+  "scientific_exposure": {
+    "frontier_result_seen": false,
+    "scientific_cells": 0,
+    "scientific_result_opened": false
+  },
+  "source_freeze": "b6d892f5d30ef6f76c111adb05250fa0f484651d",
+  "status": "PASS",
+  "validation_sha256": "3fd58df4bb7f0eab323426758692566f6b7dd14ebd2e008a6c9c46bb6a6d1e83"
+}
