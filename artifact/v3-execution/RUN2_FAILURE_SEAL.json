@@ -1,0 +1,35 @@
+{
+  "schema": "replaymark.artifact-v3.public-run2-failure-seal.v1",
+  "status": "PRE_CLAIM_COMPARISON_COMPARATOR_SCHEMA_FAILURE_NOT_CONSUMED",
+  "run_id": 34627235686,
+  "job_id": 103355183307,
+  "public_head_commit": "bc1d1d0bc00ff516d1e4111836ac3601961fb68e",
+  "private_source_commit": "33847b6bd9fdaaae126c1d50de441b5d1111afcf",
+  "progress_before_failure": {
+    "exact_source_checkout": "PASS",
+    "frozen_program_identity_preflight": "PASS",
+    "independent_derivation_status": "PASS_DERIVATION",
+    "independent_claim_count": 42,
+    "expected_vs_derived_claim_comparison_reached": false
+  },
+  "failure": {
+    "stage": "comparator architecture self-check",
+    "exception": "KeyError: pass_criteria",
+    "cause": "comparator referenced stale constitution selector names before claim-value comparison",
+    "scientific_mismatch_observed": false,
+    "manuscript_claim_mismatch_observed": false
+  },
+  "prospective_repair_scope": {
+    "comparator_schema_selector_alignment_only": true,
+    "claim_ledger_change": false,
+    "manuscript_change": false,
+    "authority_change": false,
+    "scientific_source_change": false,
+    "new_measurement": false,
+    "protocol_change": false,
+    "threshold_change": false,
+    "estimator_change": false,
+    "result_selection": false
+  },
+  "next_execution": "fresh run3 required; run2 may not be reinterpreted as pass"
+}
