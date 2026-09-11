@@ -1,0 +1,66 @@
+{
+  "schema": "replaymark.ve2.scientific-static-packaging-failure-seal.v1",
+  "status": "IMMUTABLE_PRE_SCIENCE_PACKAGING_FAILURE",
+  "lineage": {
+    "contract_mirror_seal": "f4eb39d66c8c4d384334473c39dfa0af3dd3df3b",
+    "source_freeze": "3f6e8039501d94b5586dce7a4528ac36401714d5",
+    "static_open": "c18d0e462d605186afb3342bd188d0d23444abb2"
+  },
+  "execution": {
+    "repository": "risu-research/frb-exec-2609",
+    "branch": "ve2-scientific-static-qualification-v1",
+    "workflow": ".github/workflows/ve2-scientific-static-qualification-v1.yml",
+    "workflow_run_id": 34555375191,
+    "run_attempt": 1,
+    "job_id": 103126836869,
+    "conclusion": "failure"
+  },
+  "passed_before_failure": {
+    "exact_static_open_and_source_freeze_lineage": true,
+    "static_source_firewall_and_selected_remediation_chain": true,
+    "four_pinned_upstream_blueprint_byte_identities": true,
+    "answer_free_byte_preserving_runtime_bundle": true,
+    "three_exact_home_assistant_image_versions": true,
+    "four_serial_zero_stimulus_blueprint_materialization_preflights": true,
+    "independent_four_preflight_validation": true,
+    "static_qualification_evidence_and_result_checksum_seal": true
+  },
+  "failure": {
+    "step": "Create immutable content-addressed runtime capsule branch",
+    "layer": "GIT_COMMIT_PACKAGING_AFTER_ALL_QUALIFICATION_GATES",
+    "first_failing_command": "git commit-tree <tree> -p $GITHUB_SHA",
+    "error_class": "MISSING_GIT_AUTHOR_IDENTITY",
+    "error_excerpt": "Author identity unknown; fatal: empty ident name",
+    "scientific_or_runtime_semantics_implicated": false,
+    "runtime_bundle_content_implicated": false,
+    "preflight_result_implicated": false,
+    "sealed_output_commit_created": false,
+    "sealed_output_branch_created": false,
+    "push_attempted": false
+  },
+  "artifact": {
+    "artifact_id": 10182410679,
+    "artifact_name": "ve2-scientific-static-qualification-v1-evidence",
+    "size_bytes": 48004,
+    "zip_sha256": "980b822bf5d0586c7099133a6a6093f58bb04de793347280f5e72f5a6f690d11",
+    "expired": false,
+    "files_reported_by_upload": 39
+  },
+  "scientific_exposure": {
+    "scientific_result_opened": false,
+    "scientific_cells": 0,
+    "frontier_result_seen": false,
+    "trigger_stimulus_emitted": false
+  },
+  "branch_absence_verified_after_run": {
+    "ve2-scientific-capsule-sealed-v1": true,
+    "ve2-scientific-authority-v1": true
+  },
+  "successor_rule": {
+    "same_authority_rerun_forbidden": true,
+    "successful_subset_carry_forward": false,
+    "required_successor": "NEW_STATIC_V2_AUTHORITY",
+    "only_permitted_semantic_change": "NONE",
+    "only_permitted_packaging_repair": "Set deterministic repository-local git user.name and user.email before git commit-tree, then rerun the entire static qualification prospectively."
+  }
+}
