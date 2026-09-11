@@ -1,0 +1,64 @@
+{
+  "schema": "replaymark.artifact-v4.g5-run2-source-freeze.v2",
+  "status": "FROZEN_BEFORE_FRESH_RUN2_FIRST_CHALLENGE_EXECUTION",
+  "purpose": "Supersede only the erroneous pre-open executor-byte hash binding in Run2 source-freeze v1 after a non-observational qualification. All G2 challenge semantics, verifiers, authorities, thresholds, and Run1 history remain unchanged.",
+  "lineage": {
+    "g4_private_final_freeze_commit": "d8a50e06fa87f09c5662474babb5a7482947d5db",
+    "run1_failure_seal_blob": "355806527f2a27b117636c74647a4502b5bcaa5c",
+    "run2_source_freeze_v1_commit": "2133f6a05f75cce691d2e532196c7f8b29b9ffa8",
+    "run2_source_freeze_v1_blob": "d83038a66acfbf8c2a1a3f7cbfecb0a0e745542d",
+    "run2_preopen_hash_failure_seal_blob": "6551b093610b8916988f284a5b10ad04ee241221",
+    "repair_hash_qualification_constitution_blob": "876f4e90cd3ad2d735973b855315fe308ccedf70",
+    "repair_hash_qualification_pass_seal_blob": "f28a341fd2eeff7fe55a426a4bb7c6b7c12fe231",
+    "pre_freeze_private_head": "0f1739cbc3a6e258cdb9e7b0c8e3eb2828a4fcf2"
+  },
+  "qualified_executor_repair": {
+    "old_executor_git_blob": "de465001c50cbd349a700d99dbc7fb09d17e2d39",
+    "old_executor_sha256": "e61ab814125e22f6ccc43483ac7d25a3e9734ec2e7e68ee7466210a9c62d7bce",
+    "repair_materializer_v2_blob": "5516d162924bfc9348e8b9982ea6fca706325092",
+    "repaired_runtime_executor_sha256": "481e73b0ed5ff82c89ebce0fe586f0386ec3a2fb9cc03d216add4ea672344145",
+    "repair_count": 3,
+    "repair_scope": "control-flow-only; exact G2 selectors, mutation magnitudes, obligation targets, and expected detection semantics unchanged"
+  },
+  "qualification_evidence": {
+    "run_id": 34651271015,
+    "job_id": 103433748351,
+    "public_head": "bdd961e9d1ad549e20d3082459fa454cbf835f51",
+    "artifact_id": 10283752578,
+    "artifact_zip_sha256": "51a9f56ae2fa090d0b613528881c624c01290307ccf3a865ac55f9ffe0f9b9bc",
+    "independent_redownload_verified": true,
+    "internal_checksums_verified": true,
+    "scientific_outcome_observed": false
+  },
+  "unchanged_programs_and_challenge_basis": {
+    "verifier_B_blob": "809efb0ff3a26ab096af97d2b73b68045cf4d8c8",
+    "language_neutral_comparator_blob": "2368fa2acf53aabd28523698611005621a85d3dc",
+    "v3_invariant_comparator_blob": "c2bcdfee5f61086a354df109d2a40e552594c09b",
+    "pristine_input_materializer_blob": "7f76e2903d193636c4c12b01ae53a099d2c5b36b",
+    "semantic_materializer_blob": "cf9d4ccc7cfe35f709ff983500b2f5b969be600e",
+    "nonfinite_adapter_blob": "b1db25f272987b1797ef0abf8828135e9413ff3d",
+    "G1_graph_blob": "c322cb9f502496621f71e5e7067ddf6b3dd0cb1b",
+    "G2_coverage_blob": "c7ded95c04a59b644be316b9ed81d4b89cacbf46",
+    "C01_12_blob": "4269cb074883647eecf49732dfd43f609918f01c",
+    "C13_24_blob": "87adcdac6974774fa7bbbb33a3111a3a55c5af9a",
+    "C25_36_blob": "9e00ebc54bed285e1f0a38c8875afe774479f136",
+    "C37_48_blob": "262af59a2da47969721e88253138bd3da5c55896",
+    "M01_08_blob": "dac579c55aa0e20f774d4986af7b39a38359dedf",
+    "formal_scope_amendment_blob": "09ea03b71e01f7ffd96a7ce63b9542e0fcc262fb",
+    "order_seed": "3de0d5d7fc2cb9a2e2c91eec5d5c8ca2824b68650258622e76f301276a91d1c1"
+  },
+  "fresh_Run2_open_law": {
+    "restart_from_ordinal_1": true,
+    "reuse_Run1_case_result_as_Run2_result": false,
+    "reuse_preopen_failed_Run2_as_result": false,
+    "execute_all_48_consequential": true,
+    "execute_all_8_metamorphic": true,
+    "fresh_pristine_B_reproduction_required": true,
+    "fresh_case_workspaces_required": true,
+    "no_challenge_catalog_change": true,
+    "no_verifier_change": true,
+    "no_authority_or_manuscript_change": true,
+    "no_threshold_change": true,
+    "no_posthoc_reselection": true
+  }
+}
