@@ -1,0 +1,246 @@
+name: VE2 authoritative scientific first-complete v1
+
+on:
+  push:
+    branches:
+      - ve2-scientific-authority-v1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ve2-scientific-authority-v1
+  cancel-in-progress: false
+
+env:
+  T01_OLD_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:92a8fe2ba3ffa0217776dd44687a2f477dc6342e7135766e9599ad8952e3914e
+  T01_TARGET_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:97d63b3d0028b6b52ad8e5ac7b014c3404e69bf1656b5489eec48b59184e0bc7
+  T02_IMAGE: ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293
+
+jobs:
+  authoritative-first-complete:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 160
+
+      - name: Enforce one-file scientific OPEN and static-pass parent
+        id: open_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = '1'
+          test -f VE2_SCIENTIFIC_AUTHORITY_OPEN_V1.json
+          parent="$(git rev-parse HEAD^)"
+          test -f VE2_SCIENTIFIC_STATIC_PASS_SEAL_V1.json
+          test "$(git rev-parse "$parent:VE2_SCIENTIFIC_STATIC_PASS_SEAL_V1.json")" = "$(git hash-object --no-filters VE2_SCIENTIFIC_STATIC_PASS_SEAL_V1.json)"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          seal=json.loads(Path('VE2_SCIENTIFIC_STATIC_PASS_SEAL_V1.json').read_text())
+          assert seal['schema']=='replaymark.ve2.scientific-static-pass-seal.v1'
+          assert seal['status']=='PASS_SEALED_PRE_SCIENCE'
+          assert seal['science_open_authorized'] is True
+          assert seal['scientific_exposure']=={
+              'frontier_result_seen':False,
+              'scientific_cells':0,
+              'scientific_result_opened':False,
+          }
+          opened=json.loads(Path('VE2_SCIENTIFIC_AUTHORITY_OPEN_V1.json').read_text())
+          assert opened['schema']=='replaymark.ve2.scientific-authority-open.v1'
+          assert opened['status']=='OPEN_FIRST_COMPLETE_ONLY'
+          assert opened['scientific_result_opened'] is True
+          assert opened['result_dependent_rerun_authorized'] is False
+          PY
+          mapfile -t delta < <(git diff --name-only "$parent..HEAD" | LC_ALL=C sort)
+          test "${#delta[@]}" = '1'
+          test "${delta[0]}" = 'VE2_SCIENTIFIC_AUTHORITY_OPEN_V1.json'
+          if git ls-tree -r --name-only "$parent" | grep -Eq '^VE2_SCIENTIFIC_AUTHORITY_OPEN'; then
+            echo 'parent already contains a scientific OPEN' >&2
+            exit 2
+          fi
+          echo "static_pass_parent=$parent" >> "$GITHUB_OUTPUT"
+
+      - name: Verify sealed runtime bundle and immutable execution sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          seal=json.loads(Path('VE2_SCIENTIFIC_STATIC_PASS_SEAL_V1.json').read_text())
+          receipt=Path('scientific_capsule/runtime/VE2_SCIENTIFIC_RUNTIME_BUNDLE_RECEIPT_V1.json')
+          assert receipt.is_file()
+          raw=receipt.read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==seal['runtime_bundle']['receipt_file_sha256']
+          for path,digest in seal['qualified_source_files_sha256'].items():
+              assert hashlib.sha256(Path(path).read_bytes()).hexdigest()==digest,(path,digest)
+          for path,digest in seal['runtime_bundle']['files_sha256'].items():
+              assert hashlib.sha256(Path(path).read_bytes()).hexdigest()==digest,(path,digest)
+          assert seal['runtime_bundle']['worker_expected_frontier_mounts']==0
+          assert seal['runtime_bundle']['worker_transition_semantics_mounts']==0
+          PY
+          python -m py_compile \
+            ve2_scientific_native_execution_v1.py \
+            ve2_scientific_native_execution_v2.py \
+            ve2_scientific_contract_runtime_v1.py \
+            ve2_scientific_independent_validate_v1.py \
+            ve2_scientific_raw_seal_v1.py \
+            ve2_scientific_postrun_adjudicate_v1.py \
+            ve2_scientific_postrun_adjudicate_v3.py
+
+      - name: Run exact serial sixteen-stage first-complete authority
+        id: science
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p raw stage-output adjudication
+          chmod 0777 raw stage-output
+
+          T01_MANIFEST="$PWD/scientific_capsule/runtime/manifests/VE2_T01_RUNTIME_MANIFEST_V1.json"
+          T02_MANIFEST="$PWD/scientific_capsule/runtime/manifests/VE2_T02_RUNTIME_MANIFEST_V1.json"
+          T01_OLD_BP="$PWD/scientific_capsule/runtime/blueprints/T01_OLD_NIGHT_MODE.yaml"
+          T01_NEW_BP="$PWD/scientific_capsule/runtime/blueprints/T01_NEW_NIGHT_MODE.yaml"
+          T02_OLD_BP="$PWD/scientific_capsule/runtime/blueprints/T02_OLD_WEEKLY_HEATING_SCHEDULE.yaml"
+          T02_NEW_BP="$PWD/scientific_capsule/runtime/blueprints/T02_NEW_WEEKLY_HEATING_SCHEDULE.yaml"
+          T01_CONTRACT="$PWD/scientific_capsule/contracts/VE2_T01_TARGET_ONLY_COMPILED_CONTRACT_V1.json"
+          T02_CONTRACT="$PWD/scientific_capsule/contracts/VE2_T02_TARGET_ONLY_COMPILED_CONTRACT_V1.json"
+
+          run_stage() {
+            local key="$1" transition="$2" replica="$3" stage="$4" image="$5" manifest="$6"
+            local blueprint="${7:-}" history="${8:-}" contract="${9:-}"
+            local outdir="$PWD/stage-output/$key"
+            rm -rf "$outdir"
+            mkdir -p "$outdir"
+            chmod 0777 "$outdir"
+            local args=(--transition "$transition" --stage "$stage" --replica "$replica" --manifest /input/manifest.json --out /results/REPORT.json)
+            local mounts=(
+              -v "$PWD/ve2_scientific_native_execution_v1.py:/work/ve2_scientific_native_execution_v1.py:ro"
+              -v "$PWD/ve2_scientific_native_execution_v2.py:/work/runner.py:ro"
+              -v "$PWD/ve2_scientific_contract_runtime_v1.py:/work/ve2_scientific_contract_runtime_v1.py:ro"
+              -v "$PWD/ve2_e0r_semantic_boundary_v1.py:/work/ve2_e0r_semantic_boundary_v1.py:ro"
+              -v "$PWD/ve2_science_transport_qualify_v3.py:/work/ve2_science_transport_qualify_v3.py:ro"
+              -v "$PWD/ve2_science_transport_qualify_v4.py:/work/ve2_science_transport_qualify_v4.py:ro"
+              -v "$PWD/ve2_science_transport_qualify_v5.py:/work/ve2_science_transport_qualify_v5.py:ro"
+              -v "$PWD/ve2_science_transport_qualify_v6.py:/work/ve2_science_transport_qualify_v6.py:ro"
+              -v "$manifest:/input/manifest.json:ro"
+              -v "$outdir:/results"
+            )
+            if test -n "$blueprint"; then
+              mounts+=( -v "$blueprint:/input/blueprint.yaml:ro" )
+              args+=( --blueprint /input/blueprint.yaml )
+            fi
+            if test -n "$history"; then
+              mounts+=( -v "$history:/input/history.json:ro" )
+              args+=( --history /input/history.json )
+            fi
+            if test -n "$contract"; then
+              mounts+=( -v "$contract:/input/contract.json:ro" )
+              args+=( --contract /input/contract.json )
+            fi
+            set +e
+            docker run --rm --network none "${mounts[@]}" --entrypoint python3 "$image" /work/runner.py "${args[@]}" \
+              > "raw/${key}_STDOUT.txt" 2> "raw/${key}_STDERR.txt"
+            local rc=$?
+            set -e
+            printf '%s\n' "$rc" > "raw/${key}_RUNTIME_EXIT.txt"
+            test -f "$outdir/REPORT.json"
+            cp "$outdir/REPORT.json" "raw/${key}_REPORT.json"
+            if test "$rc" != '0'; then
+              echo "scientific stage $key failed closed with rc=$rc" >&2
+              return "$rc"
+            fi
+            local validator=(python ve2_scientific_independent_validate_v1.py \
+              --report "raw/${key}_REPORT.json" --manifest "$manifest" \
+              --transition "$transition" --stage "$stage" --replica "$replica" \
+              --out "raw/${key}_VALIDATION.json")
+            if test -n "$history"; then
+              validator+=( --history "$history" )
+            fi
+            "${validator[@]}" > "raw/${key}_VALIDATOR_STDOUT.txt" 2> "raw/${key}_VALIDATOR_STDERR.txt"
+          }
+
+          # Exact frozen order. No matrix, no background jobs, no parallel replicas.
+          run_stage T01_R0_OLD_HISTORY T01 0 old_history "$T01_OLD_IMAGE" "$T01_MANIFEST" "$T01_OLD_BP"
+          run_stage T01_R1_OLD_HISTORY T01 1 old_history "$T01_OLD_IMAGE" "$T01_MANIFEST" "$T01_OLD_BP"
+          run_stage T01_R0_NEW_DIRECT T01 0 new_direct "$T01_TARGET_IMAGE" "$T01_MANIFEST" "$T01_NEW_BP"
+          run_stage T01_R1_NEW_DIRECT T01 1 new_direct "$T01_TARGET_IMAGE" "$T01_MANIFEST" "$T01_NEW_BP"
+          run_stage T01_R0_REPLAYMARK T01 0 replaymark "$T01_TARGET_IMAGE" "$T01_MANIFEST" "" "$PWD/raw/T01_R0_OLD_HISTORY_REPORT.json" "$T01_CONTRACT"
+          run_stage T01_R1_REPLAYMARK T01 1 replaymark "$T01_TARGET_IMAGE" "$T01_MANIFEST" "" "$PWD/raw/T01_R1_OLD_HISTORY_REPORT.json" "$T01_CONTRACT"
+          run_stage T01_R0_REPLAY_ALL T01 0 replay_all "$T01_TARGET_IMAGE" "$T01_MANIFEST" "" "$PWD/raw/T01_R0_OLD_HISTORY_REPORT.json"
+          run_stage T01_R1_REPLAY_ALL T01 1 replay_all "$T01_TARGET_IMAGE" "$T01_MANIFEST" "" "$PWD/raw/T01_R1_OLD_HISTORY_REPORT.json"
+          run_stage T02_R0_OLD_HISTORY T02 0 old_history "$T02_IMAGE" "$T02_MANIFEST" "$T02_OLD_BP"
+          run_stage T02_R1_OLD_HISTORY T02 1 old_history "$T02_IMAGE" "$T02_MANIFEST" "$T02_OLD_BP"
+          run_stage T02_R0_NEW_DIRECT T02 0 new_direct "$T02_IMAGE" "$T02_MANIFEST" "$T02_NEW_BP"
+          run_stage T02_R1_NEW_DIRECT T02 1 new_direct "$T02_IMAGE" "$T02_MANIFEST" "$T02_NEW_BP"
+          run_stage T02_R0_REPLAYMARK T02 0 replaymark "$T02_IMAGE" "$T02_MANIFEST" "" "$PWD/raw/T02_R0_OLD_HISTORY_REPORT.json" "$T02_CONTRACT"
+          run_stage T02_R1_REPLAYMARK T02 1 replaymark "$T02_IMAGE" "$T02_MANIFEST" "" "$PWD/raw/T02_R1_OLD_HISTORY_REPORT.json" "$T02_CONTRACT"
+          run_stage T02_R0_REPLAY_ALL T02 0 replay_all "$T02_IMAGE" "$T02_MANIFEST" "" "$PWD/raw/T02_R0_OLD_HISTORY_REPORT.json"
+          run_stage T02_R1_REPLAY_ALL T02 1 replay_all "$T02_IMAGE" "$T02_MANIFEST" "" "$PWD/raw/T02_R1_OLD_HISTORY_REPORT.json"
+
+      - name: Seal all raw stage artifacts before frontier access
+        shell: bash
+        run: |
+          set -euo pipefail
+          python ve2_scientific_raw_seal_v1.py \
+            --raw-dir raw \
+            --authority-head "$GITHUB_SHA" \
+            --out raw/VE2_ALL_RAW_STAGE_ARTIFACTS_SEALED_V1.json \
+            > raw/RAW_SEAL_STDOUT.txt 2> raw/RAW_SEAL_STDERR.txt
+          test -f raw/VE2_ALL_RAW_STAGE_ARTIFACTS_SEALED_V1.json
+
+      - name: Independent post-run adjudication after complete raw seal only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python ve2_scientific_postrun_adjudicate_v3.py \
+            --raw-dir raw \
+            --raw-seal raw/VE2_ALL_RAW_STAGE_ARTIFACTS_SEALED_V1.json \
+            --t01-frontier VE2_T01_EXPECTED_FRONTIER_V1.json \
+            --t02-frontier VE2_T02_EXPECTED_FRONTIER_V1.json \
+            --out adjudication/VE2_INDEPENDENT_POSTRUN_ADJUDICATION_V3.json \
+            > adjudication/STDOUT.txt 2> adjudication/STDERR.txt
+
+      - name: Seal authority evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence-seal
+          if test -d raw; then
+            (cd raw && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+          fi
+          if test -d adjudication; then
+            (cd adjudication && find . -type f ! -name CHECKSUMS.sha256 -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+          fi
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          raw_seal=Path('raw/VE2_ALL_RAW_STAGE_ARTIFACTS_SEALED_V1.json')
+          adjud=Path('adjudication/VE2_INDEPENDENT_POSTRUN_ADJUDICATION_V3.json')
+          out={
+              'schema':'replaymark.ve2.scientific-authority-run-provenance.v1',
+              'authority_head':os.environ['GITHUB_SHA'],
+              'run_id':int(os.environ['GITHUB_RUN_ID']),
+              'run_attempt':int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'raw_seal_present':raw_seal.is_file(),
+              'postrun_adjudication_present':adjud.is_file(),
+              'result_dependent_rerun_authorized':False,
+          }
+          Path('evidence-seal/VE2_SCIENTIFIC_AUTHORITY_RUN_PROVENANCE_V1.json').write_text(json.dumps(out,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd evidence-seal && sha256sum VE2_SCIENTIFIC_AUTHORITY_RUN_PROVENANCE_V1.json > CHECKSUMS.sha256 && sha256sum -c CHECKSUMS.sha256)
+
+      - name: Upload immutable first-complete evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ve2-authoritative-first-complete-v1-evidence
+          path: |
+            raw/
+            adjudication/
+            evidence-seal/
+          if-no-files-found: error
+          retention-days: 90
