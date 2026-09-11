@@ -1,0 +1,52 @@
+{
+  "schema": "replaymark.ve3.gate2-public-shallow-ancestry-remediation.v2",
+  "status": "FROZEN_PROSPECTIVE_REMEDIATION_PRE_INPUT",
+  "authority_role": "SUCCESSOR_EXECUTION_REMEDIATION_CONTRACT",
+  "parent_failure_seal_commit": "a11b54c6c4ec9090df84f40fc2c109cacec44b7e",
+  "failed_public_open_commit": "b52056cf206edfd2947a4324aaf6dbaf738de776",
+  "failed_public_run_id": 34561826719,
+  "private_protocol_commit": "6e4721894f24f27b69e4f2f2396defc77a581b60",
+  "diagnosis": {
+    "earliest_failure": "SOURCE_FREEZE_PARENT_ANCESTRY_ASSERTION",
+    "census_execution_started": false,
+    "upstream_history_opened": false,
+    "adjacent_pairs_seen": false,
+    "scientific_cells": 0,
+    "root_cause": "checkout fetch-depth 2 contained OPEN and source-freeze but not source-freeze parent required solely for source-manifest provenance assertion"
+  },
+  "prospective_change": {
+    "only_semantic_change_to_execution_orchestration": "actions/checkout fetch-depth 2 -> 3",
+    "reason": "Make exactly the source-freeze parent locally available for the pre-input provenance assertion.",
+    "runner_label": "ubuntu-latest",
+    "runner_blob_immutable": "80bed2044d191df3d861d9cbcf1c2aba232579ca",
+    "native_validator_blob_immutable": "60b6e77a4bd45e5fab50d12c32e6264a86dc5cdc",
+    "home_assistant_parser_image_immutable": "ghcr.io/home-assistant/home-assistant@sha256:372d991e58882a1d8c68c07e9aa3f3b509276e695355f73ccdb03baa70407293",
+    "host_yaml_parser_immutable": "PyYAML==6.0.2",
+    "checkout_action_immutable": "11d5960a326750d5838078e36cf38b85af677262"
+  },
+  "forbidden_changes": [
+    "repository universe",
+    "frozen upstream HEADs",
+    "delivered-version first-parent adjacency rule",
+    "DAG coverage audit rule",
+    "candidate blueprint lineage rule",
+    "parser qualification semantics",
+    "semantic projection",
+    "consequential endpoint",
+    "state cap or domain-bound formula",
+    "change-family taxonomy or precedence",
+    "include/exclude reason precedence",
+    "classifier implementation bytes",
+    "GO/STOP thresholds",
+    "scientific claims or promotion criteria"
+  ],
+  "successor_rules": {
+    "new_workflow_identity_required": true,
+    "new_source_freeze_required": true,
+    "new_one_shot_open_required": true,
+    "failed_v1_authority_never_rerun": true,
+    "sealed_result_branch_must_be_new_and_nonexistent": true,
+    "same_output_schema": "replaymark.ve3.upstream-census.v1",
+    "scientific_result_opened": false
+  }
+}
