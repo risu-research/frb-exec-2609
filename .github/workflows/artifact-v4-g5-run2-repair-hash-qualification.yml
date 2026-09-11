@@ -13,7 +13,7 @@ permissions:
 
 env:
   PRIVATE_SOURCE_SHA: 089236049bc33d20d2c694636b19032e2f9c158a
-  RUN2_PREOPEN_FAILURE_SEAL_BLOB: 9a0a99e0f7d65c431e6c2d7a67fd145e2cb9203c
+  RUN2_PREOPEN_FAILURE_SEAL_BLOB: 6551b093610b8916988f284a5b10ad04ee241221
 
 jobs:
   qualify:
@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REF_NAME" = 'artifact-v4-g5-run2-repair-hash-qualification'
           test -n "$SOURCE_READ_TOKEN"
-          test "$(git rev-parse HEAD:artifact/v4-g5/G5_RUN2_PREOPEN_HASH_BINDING_FAILURE_SEAL_V1.json)" = '9a0a99e0f7d65c431e6c2d7a67fd145e2cb9203c'
+          test "$(git rev-parse HEAD:artifact/v4-g5/G5_RUN2_PREOPEN_HASH_BINDING_FAILURE_SEAL_V1.json)" = "$RUN2_PREOPEN_FAILURE_SEAL_BLOB"
           echo 'RUN2_REPAIR_HASH_QUALIFICATION_PREOPEN=PASS'
 
       - name: Checkout exact private qualification source
@@ -50,7 +50,7 @@ jobs:
         run: |
           set -euo pipefail
           SRC="$RUNNER_TEMP/private-v4-g5-run2-hashq"
-          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/G5_RUN2_PREOPEN_HASH_BINDING_FAILURE_SEAL_V1.json)" = '9a0a99e0f7d65c431e6c2d7a67fd145e2cb9203c'
+          test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/G5_RUN2_PREOPEN_HASH_BINDING_FAILURE_SEAL_V1.json)" = "$RUN2_PREOPEN_FAILURE_SEAL_BLOB"
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/V4_G5_RUN2_REPAIR_HASH_QUALIFICATION_CONSTITUTION_V1.json)" = '876f4e90cd3ad2d735973b855315fe308ccedf70'
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/g5_run2_repair_hash_qualifier.py)" = 'b258ed8ea3c6887092e3d4651ee7377d52ec364e'
           test "$(git -C "$SRC" rev-parse HEAD:artifact_v4/g5_challenge_executor.py)" = 'de465001c50cbd349a700d99dbc7fb09d17e2d39'
