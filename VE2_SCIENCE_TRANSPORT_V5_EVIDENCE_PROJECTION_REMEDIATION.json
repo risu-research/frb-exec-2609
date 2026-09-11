@@ -1,0 +1,58 @@
+{
+  "schema": "replaymark.ve2.science-transport-v5-evidence-projection-remediation.v1",
+  "status": "FROZEN_PROSPECTIVE_PRE_SCIENCE",
+  "predecessor_failure_seal": "12f239245d1f4053e7da7d16aaeffb8665bb5a43",
+  "predecessor_run_id": 34545314376,
+  "predecessor_open": "74f2dccbb95e526687b9daca3e2ff4e5a6a54884",
+  "predecessor_established_facts": {
+    "all_three_v4_native_preflight_jobs_passed": true,
+    "all_three_v4_exact_image_versions_passed": true,
+    "all_three_v4_automation_entities_materialized": true,
+    "all_three_v4_neutral_trigger_stimulus_emitted": false,
+    "all_three_v4_neutral_automation_invocations": 0,
+    "v4_role_capsules_structurally_valid": true,
+    "v4_independent_validator_failed_closed": true,
+    "neutral_qualification_jobs_started": false,
+    "scientific_cells": 0
+  },
+  "root_cause": "The registry-closed v4 substrate returns substrate['registries'], but frozen v3 _fresh_hass serializes a fixed adapter projection that omits this new proof object. Independent v4 validator therefore correctly rejects absence of registry closure evidence although execution preflights pass.",
+  "repair": {
+    "runtime": "ve2_science_transport_qualify_v5.py",
+    "runtime_blob": "20914078395995116cbd88cdd63063f4fb6907f0",
+    "preflight_validator": "ve2_science_transport_preflight_validate_v5.py",
+    "preflight_validator_blob": "7462e904f190c2f461504bb140053b65c3bcf6a7",
+    "projection_id": "replaymark.ve2.registry-witness-exact-object-projection.v1",
+    "mechanism": "Capture the exact registries proof object returned by frozen v4 substrate under id(HomeAssistant) together with the exact HomeAssistant owner object. In the inherited fresh-HASS projection, consume the matching proof exactly once, require owner is hass, attach it to bootstrap_adapter, preserve the inherited pre-projection adapter digest, and recompute canonical adapter_sha256.",
+    "manual_witness_reconstruction": false,
+    "post_run_registry_query": false,
+    "additional_home_assistant_setup_calls": 0,
+    "native_registry_load_code_changed": false,
+    "neutral_transport_execution_code_changed": false,
+    "clock_driver_changed": false,
+    "scientific_input_surface_changed": false,
+    "result_dependent_fallback": false,
+    "retry_after_failure": false
+  },
+  "frozen_base_blobs": {
+    "v3_runtime": "7b31244a3a4505399e5885b017fd81bb06209176",
+    "v4_runtime": "8c33de1d8717983ffecd4a45634de0d2469ac19d",
+    "v4_preflight_validator": "6d45caa8d2ae721cf2dc8fe33ca61b263451e309",
+    "base_transport_contract": "2b79daab2de89a11890adca7f1d804d42b34e2d1",
+    "transport_validator": "5dcf67b9bdb349032670c127bd756e40f0acdc1c"
+  },
+  "attempt_law": {
+    "v4_never_rerun": true,
+    "v5_is_new_authority": true,
+    "v5_promotable_attempt": 1,
+    "v5_same_authority_rerun": false
+  },
+  "scientific_hygiene": {
+    "transition_blueprint_executed": false,
+    "scientific_fixture_executed": false,
+    "expected_frontier_read": false,
+    "historical_better_thermostat_action_dispatched": false,
+    "scientific_result_opened": false,
+    "frontier_result_seen": false,
+    "scientific_cells": 0
+  }
+}
