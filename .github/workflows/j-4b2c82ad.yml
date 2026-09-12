@@ -5,7 +5,7 @@ on:
 permissions:
   contents: read
 jobs:
-  c:
+  versions:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -14,11 +14,68 @@ jobs:
         run: |
           curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: build
+      - name: dual-version-kernel-build
         shell: bash
         run: |
+          set -euo pipefail
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
+          sha256sum Defs.lean Challenge.lean Solution.lean
+          for V in v4.33.1 v4.34.0-rc2; do
+            echo "leanprover/lean4:${V}" > lean-toolchain
+            elan toolchain install "leanprover/lean4:${V}"
+            rm -rf .lake lake-manifest.json
+            lake build
+            lake env lean Solution.lean
+            cat > /tmp/axioms.lean <<'EOF'
+          import Solution
+          #print axioms P.q0
+          #print axioms P.q1
+          #print axioms P.q2
+          #print axioms P.q3
+          #print axioms P.q4
+          #print axioms P.q5
+          #print axioms P.q6
+          #print axioms P.q7
+          EOF
+            lake env lean /tmp/axioms.lean
+          done
+          echo 'leanprover/lean4:v4.34.0-rc2' > lean-toolchain
+  judge:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: elan
+        shell: bash
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: build-pinned-checkers
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
           elan toolchain install leanprover/lean4:v4.34.0-rc2
-          lake build
-          lake env lean Solution.lean
+          git clone -q https://github.com/leanprover/comparator.git /tmp/comparator
+          git -C /tmp/comparator checkout -q 2312244ac716564a61cc0bf4e107d9abf1757a61
+          (cd /tmp/comparator && lake build lean4export comparator)
+          git clone -q https://github.com/ammkrn/nanoda_lib.git /tmp/nanoda
+          git -C /tmp/nanoda checkout -q 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+          (cd /tmp/nanoda && cargo build --release --bin nanoda_bin)
+          git clone -q https://github.com/Zouuup/landrun.git /tmp/landrun-src
+          git -C /tmp/landrun-src checkout -q 811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
+          (cd /tmp/landrun-src && go build -o /tmp/landrun ./cmd/landrun/main.go)
+          /tmp/landrun --version || true
+          /tmp/nanoda/target/release/nanoda_bin --help >/dev/null || true
+      - name: comparator-plus-independent-kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          cd jobs/j-4b2c82ad
+          echo 'leanprover/lean4:v4.34.0-rc2' > lean-toolchain
+          rm -rf .lake lake-manifest.json
+          COMPARATOR_LANDRUN=/tmp/landrun \
+          COMPARATOR_LEAN4EXPORT=/tmp/comparator/.lake/packages/lean4export/.lake/build/bin/lean4export \
+          COMPARATOR_NANODA=/tmp/nanoda/target/release/nanoda_bin \
+          lake env /tmp/comparator/.lake/build/bin/comparator comparator.json
