@@ -20,7 +20,24 @@ jobs:
           set -euo pipefail
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
-          sed -i 's/^import Std.Tactic.Omega$/import Lean.Elab.Tactic.Omega/' Concrete.lean
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('Concrete.lean')
+          s = p.read_text()
+          s = s.replace('import Std.Tactic.Omega', 'import Lean.Elab.Tactic.Omega')
+          repl = {
+            'structure C0 where r : Int; a : Bool; o : Int': 'structure C0 where\n  r : Int\n  a : Bool\n  o : Int',
+            'structure C1 where x : Int; l : Int; a : Bool': 'structure C1 where\n  x : Int\n  l : Int\n  a : Bool',
+            'structure C2 where a : Bool; w : Bool; y : Bool': 'structure C2 where\n  a : Bool\n  w : Bool\n  y : Bool',
+            'structure C3 where s : Int; o : Int': 'structure C3 where\n  s : Int\n  o : Int',
+            'structure C4 where x : Int; y : Int; ox : Int; oy : Int': 'structure C4 where\n  x : Int\n  y : Int\n  ox : Int\n  oy : Int',
+            'structure C5 where n : Int; o : Int': 'structure C5 where\n  n : Int\n  o : Int',
+          }
+          for a,b in repl.items():
+              assert a in s, a
+              s = s.replace(a,b)
+          p.write_text(s)
+          PY
           sha256sum Defs.lean Challenge.lean Solution.lean Concrete.lean
           for V in v4.33.1 v4.34.0-rc2; do
             echo "leanprover/lean4:${V}" > lean-toolchain
