@@ -4,4 +4,4 @@ defaultTargets = ["P"]
 
 [[lean_lib]]
 name = "P"
-roots = ["Defs", "Challenge", "Solution"]
+roots = ["Defs", "Challenge", "Solution", "Std.Tactic.Omega"]
