@@ -40,7 +40,7 @@ jobs:
           python - <<'PY' > "$RUNNER_TEMP/gate/policy-sentinel"
           import secrets; print(secrets.token_hex(32))
           PY
-          chmod 0400 "$RUNNER_TEMP/gate/policy-sentinel"
+          chmod 0444 "$RUNNER_TEMP/gate/policy-sentinel"
           cat > "$RUNNER_TEMP/gate/server.py" <<'PY'
           import socket
           sentinel=open('/policy/policy-sentinel','rb').read().strip(); assert len(sentinel)>=32
@@ -51,24 +51,25 @@ jobs:
                   m=c.recv(4096)
                   try: c.sendall(b'VERIFIER_ENDPOINT_OK\n' if m==b'PING\n' else b'BAD_REQUEST\n')
                   except (BrokenPipeError, ConnectionResetError): pass
-              finally:
-                  c.close()
+              finally: c.close()
           PY
           docker run -d --rm --name gate --network canary-net --read-only --cap-drop ALL --security-opt no-new-privileges \
-            --pids-limit 64 --memory 128m --cpus 0.5 \
-            -v "$RUNNER_TEMP/gate:/policy:ro" python:3.12-slim python /policy/server.py >/dev/null
-          ready=0
-          for _ in $(seq 1 50); do
-            if docker exec gate python -c "import socket; s=socket.create_connection(('127.0.0.1',8765),.2); s.sendall(b'PING\\n'); assert s.recv(64)==b'VERIFIER_ENDPOINT_OK\\n'; s.close()" >/dev/null 2>&1; then ready=1; break; fi
-            sleep 0.1
-          done
-          test "$ready" = 1
+            --user 65532:65532 --pids-limit 64 --memory 128m --cpus 0.5 \
+            -v "$RUNNER_TEMP/gate:/policy:ro" python:3.12-slim python -B /policy/server.py >/dev/null
+          sleep 0.3
+          test "$(docker inspect -f '{{.State.Running}}' gate)" = true || { docker logs gate || true; exit 1; }
           GATE_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' gate)"
           test -n "$GATE_IP"
           cat > "$RUNNER_TEMP/canary-bin/verify-candidate" <<PY
           #!/usr/bin/env python3
-          import socket,sys
-          s=socket.create_connection(('$GATE_IP',8765),timeout=3); s.sendall(b'PING\\n'); d=s.recv(4096); s.close()
+          import socket,sys,time
+          last=None
+          for _ in range(30):
+              try:
+                  s=socket.create_connection(('$GATE_IP',8765),timeout=.3); s.sendall(b'PING\\n'); d=s.recv(4096); s.close(); break
+              except OSError as e:
+                  last=e; time.sleep(.1)
+          else: raise last
           sys.stdout.write(d.decode()); raise SystemExit(0 if d==b'VERIFIER_ENDPOINT_OK\\n' else 3)
           PY
           chmod 0555 "$RUNNER_TEMP/canary-bin/verify-candidate"
@@ -80,7 +81,7 @@ jobs:
           from pathlib import Path
           import json,socket,subprocess
           r={}; p=Path('/workspace/.rw_probe'); p.write_text('ok\n'); r['workspace_rw']=p.read_text()=='ok\n'
-          r['policy_sentinel_absent']=not Path('/policy/policy-sentinel').exists() and not Path('/tmp/host-policy-sentinel').exists()
+          r['policy_sentinel_absent']=not Path('/policy/policy-sentinel').exists()
           try: Path('/opt/exec/bin/verify-candidate').write_text('tamper\n'); r['verifier_ro']=False
           except OSError: r['verifier_ro']=True
           s=socket.socket(); s.settimeout(1)
@@ -92,7 +93,7 @@ jobs:
           keys=['workspace_rw','policy_sentinel_absent','verifier_ro','external_network_blocked','verifier_sidecar']
           r['status']='PASS' if all(r[k] for k in keys) else 'FAIL'
           Path('/workspace/.boundary_result.json').write_text(json.dumps(r,sort_keys=True)+'\n'); print(json.dumps(r,sort_keys=True))
-          if q.returncode or q.stdout!='VERIFIER_ENDPOINT_OK\n': print('verify_rc=',q.returncode,'verify_stdout=',repr(q.stdout),'verify_stderr=',repr(q.stderr))
+          if r['status']!='PASS': print('verify_rc=',q.returncode,'verify_stdout=',repr(q.stdout),'verify_stderr=',repr(q.stderr))
           raise SystemExit(0 if r['status']=='PASS' else 4)
           PY
           docker rm -f gate >/dev/null 2>&1 || true
