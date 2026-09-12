@@ -27,6 +27,8 @@ jobs:
             rm -rf .lake lake-manifest.json
             lake build
             lake env lean Solution.lean
+            mkdir -p .lake/build/lib/lean/Std/Tactic
+            lake env lean -o .lake/build/lib/lean/Std/Tactic/Omega.olean Std/Tactic/Omega.lean
             lake env lean Concrete.lean
             cat > /tmp/axioms.lean <<'EOF'
           import Solution
