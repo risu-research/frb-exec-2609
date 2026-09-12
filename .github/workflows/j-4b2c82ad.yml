@@ -20,6 +20,7 @@ jobs:
           set -euo pipefail
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
+          sed -i 's/^import Std.Tactic.Omega$/import Lean.Elab.Tactic.Omega/' Concrete.lean
           sha256sum Defs.lean Challenge.lean Solution.lean Concrete.lean
           for V in v4.33.1 v4.34.0-rc2; do
             echo "leanprover/lean4:${V}" > lean-toolchain
@@ -27,8 +28,6 @@ jobs:
             rm -rf .lake lake-manifest.json
             lake build
             lake env lean Solution.lean
-            mkdir -p .lake/build/lib/lean/Std/Tactic
-            lake env lean -o .lake/build/lib/lean/Std/Tactic/Omega.olean Std/Tactic/Omega.lean
             lake env lean Concrete.lean
             cat > /tmp/axioms.lean <<'EOF'
           import Solution
