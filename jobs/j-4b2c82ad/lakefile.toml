@@ -1,11 +1,7 @@
 name = "j4b2c82ad"
 version = "0.1.0"
+defaultTargets = ["P"]
 
 [[lean_lib]]
-name = "Defs"
-
-[[lean_lib]]
-name = "Challenge"
-
-[[lean_lib]]
-name = "Solution"
+name = "P"
+roots = ["Defs", "Challenge", "Solution"]
