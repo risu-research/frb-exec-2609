@@ -20,34 +20,16 @@ jobs:
           set -euo pipefail
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('Concrete.lean')
-          s = p.read_text()
-          s = s.replace('import Std.Tactic.Omega', 'import Lean.Elab.Tactic.Omega')
-          repl = {
-            'structure C0 where r : Int; a : Bool; o : Int': 'structure C0 where\n  r : Int\n  a : Bool\n  o : Int',
-            'structure C1 where x : Int; l : Int; a : Bool': 'structure C1 where\n  x : Int\n  l : Int\n  a : Bool',
-            'structure C2 where a : Bool; w : Bool; y : Bool': 'structure C2 where\n  a : Bool\n  w : Bool\n  y : Bool',
-            'structure C3 where s : Int; o : Int': 'structure C3 where\n  s : Int\n  o : Int',
-            'structure C4 where x : Int; y : Int; ox : Int; oy : Int': 'structure C4 where\n  x : Int\n  y : Int\n  ox : Int\n  oy : Int',
-            'structure C5 where n : Int; o : Int': 'structure C5 where\n  n : Int\n  o : Int',
-            'cases a <;> simp [i0,s0] at hi ⊢ <;> omega': 'cases a <;> simp [d0,i0,s0] at hd hi ⊢ <;> omega',
-            'simp [b5,s5] at hb ⊢\n    omega': 'simp [d5,b5,s5] at hd hb ⊢\n    omega',
-          }
-          for a,b in repl.items():
-              assert a in s, a
-              s = s.replace(a,b)
-          p.write_text(s)
-          PY
-          sha256sum Defs.lean Challenge.lean Solution.lean Concrete.lean
+          python concrete_gate.py
+          sha256sum Concrete.lean ConcreteNormalized.lean ConcreteDefs.lean ConcreteChallenge.lean ConcreteSolution.lean comparator_concrete.json concrete_gate_manifest.json
           for V in v4.33.1 v4.34.0-rc2; do
             echo "leanprover/lean4:${V}" > lean-toolchain
             elan toolchain install "leanprover/lean4:${V}"
             rm -rf .lake lake-manifest.json
             lake build
             lake env lean Solution.lean
-            lake env lean Concrete.lean
+            lake env lean ConcreteNormalized.lean
+            lake env lean ConcreteSolution.lean
             cat > /tmp/axioms.lean <<'EOF'
           import Solution
           #print axioms P.q0
@@ -86,15 +68,24 @@ jobs:
           git clone -q https://github.com/Zouuup/landrun.git /tmp/landrun-src
           git -C /tmp/landrun-src checkout -q 811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
           (cd /tmp/landrun-src && go build -o /tmp/landrun ./cmd/landrun/main.go)
-      - name: comparator-plus-independent-kernel
+          echo "COMPARATOR_COMMIT=$(git -C /tmp/comparator rev-parse HEAD)"
+          echo "NANODA_COMMIT=$(git -C /tmp/nanoda rev-parse HEAD)"
+          echo "LANDRUN_COMMIT=$(git -C /tmp/landrun-src rev-parse HEAD)"
+      - name: abstract-and-concrete-comparator-plus-independent-kernel
         shell: bash
         run: |
           set -euo pipefail
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
+          python concrete_gate.py
           echo 'leanprover/lean4:v4.34.0-rc2' > lean-toolchain
           rm -rf .lake lake-manifest.json
-          COMPARATOR_LANDRUN=/tmp/landrun \
-          COMPARATOR_LEAN4EXPORT=/tmp/comparator/.lake/packages/lean4export/.lake/build/bin/lean4export \
-          COMPARATOR_NANODA=/tmp/nanoda/target/release/nanoda_bin \
+          sha256sum Defs.lean Challenge.lean Solution.lean Concrete.lean ConcreteNormalized.lean ConcreteDefs.lean ConcreteChallenge.lean ConcreteSolution.lean comparator.json comparator_concrete.json concrete_gate_manifest.json concrete_gate.py
+          export COMPARATOR_LANDRUN=/tmp/landrun
+          export COMPARATOR_LEAN4EXPORT=/tmp/comparator/.lake/packages/lean4export/.lake/build/bin/lean4export
+          export COMPARATOR_NANODA=/tmp/nanoda/target/release/nanoda_bin
+          echo '=== ABSTRACT STATEMENT-LOCK GATE ==='
           lake env /tmp/comparator/.lake/build/bin/comparator comparator.json
+          rm -rf .lake lake-manifest.json
+          echo '=== CONCRETE 36-THEOREM STATEMENT-LOCK GATE ==='
+          lake env /tmp/comparator/.lake/build/bin/comparator comparator_concrete.json
