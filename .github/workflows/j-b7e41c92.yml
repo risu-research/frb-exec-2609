@@ -1,0 +1,192 @@
+name: j-b7e41c92
+
+on:
+  push:
+    branches:
+      - exec/j-b7e41c92
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  JOB_ID: j-b7e41c92
+  EXPECTED_TASK_SHA256: 3688bd830f77e86094152cc76dc1c9203f46f6611a30be8b0fd5dbac307ee4a8
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify frozen task blob
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, tarfile
+
+          src = Path('jobs/j-b7e41c92/task')
+          out = Path('/tmp/task_blob.tar')
+          with tarfile.open(out, 'w') as tf:
+              for p in sorted(x for x in src.rglob('*') if x.is_file()):
+                  arc = p.relative_to(src).as_posix()
+                  info = tf.gettarinfo(str(p), arcname=arc)
+                  info.mtime = 0
+                  info.uid = 0
+                  info.gid = 0
+                  info.uname = ''
+                  info.gname = ''
+                  with p.open('rb') as fh:
+                      tf.addfile(info, fh)
+          got = hashlib.sha256(out.read_bytes()).hexdigest()
+          expected = '3688bd830f77e86094152cc76dc1c9203f46f6611a30be8b0fd5dbac307ee4a8'
+          print('task_blob_sha256=' + got)
+          if got != expected:
+              raise SystemExit('frozen task blob mismatch')
+          PY
+
+      - name: Prepare host-only verifier boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/canary-socket "$RUNNER_TEMP/canary-bin"
+          chmod 700 /tmp/canary-socket
+          python - <<'PY' > /tmp/host-policy-sentinel
+          import secrets
+          print(secrets.token_hex(32))
+          PY
+          chmod 600 /tmp/host-policy-sentinel
+
+          cat > "$RUNNER_TEMP/canary-bin/verify-candidate" <<'PY'
+          #!/usr/bin/env python3
+          import socket, sys
+          s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+          s.connect('/opt/exec/host/verify.sock')
+          s.sendall(b'PING\n')
+          data = s.recv(4096)
+          sys.stdout.write(data.decode())
+          raise SystemExit(0 if data == b'VERIFIER_ENDPOINT_OK\n' else 3)
+          PY
+          chmod 0555 "$RUNNER_TEMP/canary-bin/verify-candidate"
+
+          cat > "$RUNNER_TEMP/host_server.py" <<'PY'
+          import os, socket
+          sock_path = '/tmp/canary-socket/verify.sock'
+          try:
+              os.unlink(sock_path)
+          except FileNotFoundError:
+              pass
+          # Host-only read proves the service can access material never mounted into the sandbox.
+          sentinel = open('/tmp/host-policy-sentinel', 'rb').read().strip()
+          assert len(sentinel) >= 32
+          srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+          srv.bind(sock_path)
+          os.chmod(sock_path, 0o666)
+          srv.listen(1)
+          conn, _ = srv.accept()
+          msg = conn.recv(4096)
+          if msg == b'PING\n':
+              conn.sendall(b'VERIFIER_ENDPOINT_OK\n')
+          else:
+              conn.sendall(b'BAD_REQUEST\n')
+          conn.close()
+          srv.close()
+          PY
+          python "$RUNNER_TEMP/host_server.py" &
+          echo $! > /tmp/host-server.pid
+          for _ in $(seq 1 50); do
+            test -S /tmp/canary-socket/verify.sock && break
+            sleep 0.1
+          done
+          test -S /tmp/canary-socket/verify.sock
+
+      - name: Run isolated scripted client
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker pull python:3.12-slim >/dev/null
+          docker run --rm \
+            --network none \
+            --cap-drop ALL \
+            --security-opt no-new-privileges \
+            -v "$GITHUB_WORKSPACE/jobs/j-b7e41c92/task:/workspace:rw" \
+            -v "$RUNNER_TEMP/canary-bin/verify-candidate:/opt/exec/bin/verify-candidate:ro" \
+            -v "/tmp/canary-socket:/opt/exec/host:rw" \
+            -w /workspace \
+            python:3.12-slim python - <<'PY'
+          from pathlib import Path
+          import json, socket, subprocess
+
+          result = {}
+
+          # Workspace must be writable.
+          p = Path('/workspace/.rw_probe')
+          p.write_text('ok\n')
+          result['workspace_rw'] = p.read_text() == 'ok\n'
+
+          # Host-only policy material must not exist in the sandbox namespace.
+          result['host_sentinel_absent'] = not Path('/tmp/host-policy-sentinel').exists()
+
+          # Verifier client must be immutable even to container root.
+          try:
+              Path('/opt/exec/bin/verify-candidate').write_text('tamper\n')
+              result['verifier_ro'] = False
+          except OSError:
+              result['verifier_ro'] = True
+
+          # No external network path.
+          s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+          s.settimeout(1.0)
+          try:
+              s.connect(('1.1.1.1', 53))
+              result['network_none'] = False
+          except OSError:
+              result['network_none'] = True
+          finally:
+              s.close()
+
+          # Stable client reaches a verifier service outside the sandbox process namespace.
+          proc = subprocess.run(['python', 'verify.py'], text=True, capture_output=True)
+          result['verifier_socket'] = proc.returncode == 0 and proc.stdout == 'VERIFIER_ENDPOINT_OK\n'
+
+          required = ['workspace_rw', 'host_sentinel_absent', 'verifier_ro', 'network_none', 'verifier_socket']
+          result['status'] = 'PASS' if all(result[k] for k in required) else 'FAIL'
+          Path('/workspace/.boundary_result.json').write_text(json.dumps(result, sort_keys=True) + '\n')
+          print(json.dumps(result, sort_keys=True))
+          raise SystemExit(0 if result['status'] == 'PASS' else 4)
+          PY
+
+      - name: Seal result manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          wait "$(cat /tmp/host-server.pid)"
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os
+          result = json.loads(Path('jobs/j-b7e41c92/task/.boundary_result.json').read_text())
+          if result.get('status') != 'PASS':
+              raise SystemExit('boundary canary failed')
+          program = Path('jobs/j-b7e41c92/task/src/program.py').read_bytes()
+          sealed = {
+              'job_id': 'j-b7e41c92',
+              'task_blob_sha256': '3688bd830f77e86094152cc76dc1c9203f46f6611a30be8b0fd5dbac307ee4a8',
+              'runner_commit': os.environ['GITHUB_SHA'],
+              'candidate_program_sha256': hashlib.sha256(program).hexdigest(),
+              'boundary': result,
+          }
+          out = Path('/tmp/j-b7e41c92-result.json')
+          out.write_text(json.dumps(sealed, sort_keys=True, separators=(',', ':')) + '\n')
+          print('result_sha256=' + hashlib.sha256(out.read_bytes()).hexdigest())
+          PY
+
+      - name: Upload minimal result
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-b7e41c92-result
+          path: /tmp/j-b7e41c92-result.json
+          retention-days: 1
+          if-no-files-found: error
