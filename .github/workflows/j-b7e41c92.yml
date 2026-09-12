@@ -49,17 +49,19 @@ jobs:
               c,_=s.accept(); m=c.recv(4096)
               c.sendall(b'VERIFIER_ENDPOINT_OK\n' if m==b'PING\n' else b'BAD_REQUEST\n'); c.close()
           PY
-          cat > "$RUNNER_TEMP/canary-bin/verify-candidate" <<'PY'
-          #!/usr/bin/env python3
-          import socket,sys
-          s=socket.create_connection(('gate',8765),timeout=3); s.sendall(b'PING\n'); d=s.recv(4096); s.close()
-          sys.stdout.write(d.decode()); raise SystemExit(0 if d==b'VERIFIER_ENDPOINT_OK\n' else 3)
-          PY
-          chmod 0555 "$RUNNER_TEMP/canary-bin/verify-candidate"
           docker run -d --rm --name gate --network canary-net --read-only --cap-drop ALL --security-opt no-new-privileges \
             --pids-limit 64 --memory 128m --cpus 0.5 \
             -v "$RUNNER_TEMP/gate:/policy:ro" python:3.12-slim python /policy/server.py >/dev/null
           for _ in $(seq 1 50); do docker exec gate python -c "import socket; s=socket.create_connection(('127.0.0.1',8765),.2); s.close()" >/dev/null 2>&1 && break; sleep 0.1; done
+          GATE_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' gate)"
+          test -n "$GATE_IP"
+          cat > "$RUNNER_TEMP/canary-bin/verify-candidate" <<PY
+          #!/usr/bin/env python3
+          import socket,sys
+          s=socket.create_connection(('$GATE_IP',8765),timeout=3); s.sendall(b'PING\\n'); d=s.recv(4096); s.close()
+          sys.stdout.write(d.decode()); raise SystemExit(0 if d==b'VERIFIER_ENDPOINT_OK\\n' else 3)
+          PY
+          chmod 0555 "$RUNNER_TEMP/canary-bin/verify-candidate"
           docker run --rm -i --network canary-net --read-only --cap-drop ALL --security-opt no-new-privileges \
             --user 65532:65532 --pids-limit 128 --memory 512m --cpus 1 --tmpfs /tmp:rw,noexec,nosuid,size=16m \
             -v "/tmp/canary-workspace:/workspace:rw" \
