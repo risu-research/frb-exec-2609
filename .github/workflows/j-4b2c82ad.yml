@@ -32,6 +32,8 @@ jobs:
             'structure C3 where s : Int; o : Int': 'structure C3 where\n  s : Int\n  o : Int',
             'structure C4 where x : Int; y : Int; ox : Int; oy : Int': 'structure C4 where\n  x : Int\n  y : Int\n  ox : Int\n  oy : Int',
             'structure C5 where n : Int; o : Int': 'structure C5 where\n  n : Int\n  o : Int',
+            'cases a <;> simp [i0,s0] at hi ⊢ <;> omega': 'cases a <;> simp [d0,i0,s0] at hd hi ⊢ <;> omega',
+            'simp [b5,s5] at hb ⊢\n    omega': 'simp [d5,b5,s5] at hd hb ⊢\n    omega',
           }
           for a,b in repl.items():
               assert a in s, a
