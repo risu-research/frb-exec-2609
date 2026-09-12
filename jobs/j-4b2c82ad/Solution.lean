@@ -11,8 +11,7 @@ universe u
     rcases hbad with ⟨z, hD, hS, hNI⟩
     exact hNI (hsub z hD hS)
   · intro hno z hD hS
-    by_contra hNI
-    exact hno ⟨z, hD, hS, hNI⟩
+    exact Classical.byContradiction (fun hNI => hno ⟨z, hD, hS, hNI⟩)
 
  theorem q1 {α : Type u} (D I S : α → Prop) :
     SubsetOn D I S ↔ ¬ NewlyRejected D I S := by
@@ -21,8 +20,7 @@ universe u
     rcases hbad with ⟨z, hD, hI, hNS⟩
     exact hNS (hsub z hD hI)
   · intro hno z hD hI
-    by_contra hNS
-    exact hno ⟨z, hD, hI, hNS⟩
+    exact Classical.byContradiction (fun hNS => hno ⟨z, hD, hI, hNS⟩)
 
  theorem q2 {α : Type u} (D I K : α → Prop)
     (hs : Safe D I K) (hc : Covers D I K) :
@@ -74,9 +72,8 @@ universe u
     GuardAccepts D K S ↔ SubsetOn D S I := by
   constructor
   · intro hguard z hD hS
-    by_contra hNI
-    exact (hguard z hD hS) (hc z hD hNI)
-  · intro hsub z hD hS
-    exact hs z hD (hsub z hD hS)
+    exact Classical.byContradiction (fun hNI => (hguard z hD hS) (hc z hD hNI))
+  · intro hsub z hD hS hK
+    exact (hs z hD (hsub z hD hS)) hK
 
 end P
