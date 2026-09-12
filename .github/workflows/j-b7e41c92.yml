@@ -29,7 +29,7 @@ jobs:
           rm -rf /tmp/canary-workspace
           cp -a jobs/j-b7e41c92/task /tmp/canary-workspace
           chmod -R a+rwX /tmp/canary-workspace
-      - name: Prepare host-only verifier boundary
+      - name: Run host verifier and isolated scripted client
         shell: bash
         run: |
           set -euo pipefail
@@ -55,34 +55,37 @@ jobs:
           s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.bind(p); os.chmod(p,0o666); s.listen(1)
           c,_=s.accept(); m=c.recv(4096); c.sendall(b'VERIFIER_ENDPOINT_OK\n' if m==b'PING\n' else b'BAD_REQUEST\n'); c.close(); s.close()
           PY
-          python "$RUNNER_TEMP/host_server.py" &
+          python "$RUNNER_TEMP/host_server.py" & server_pid=$!
+          trap 'kill $server_pid 2>/dev/null || true' EXIT
           for _ in $(seq 1 50); do test -S /tmp/canary-socket/verify.sock && break; sleep 0.1; done
           test -S /tmp/canary-socket/verify.sock
-      - name: Run isolated scripted client
-        shell: bash
-        run: |
-          set -euo pipefail
           docker pull python:3.12-slim >/dev/null
           docker run --rm -i --network none --cap-drop ALL --security-opt no-new-privileges \
+            --pids-limit 128 --memory 512m --cpus 1 \
             -v "/tmp/canary-workspace:/workspace:rw" \
             -v "$RUNNER_TEMP/canary-bin/verify-candidate:/opt/exec/bin/verify-candidate:ro" \
-            -v "/tmp/canary-socket:/opt/exec/host:rw" -w /workspace python:3.12-slim python - <<'PY'
+            -v "/tmp/canary-socket:/opt/exec/host:ro" -w /workspace python:3.12-slim python - <<'PY'
           from pathlib import Path
           import json,socket,subprocess
           r={}; p=Path('/workspace/.rw_probe'); p.write_text('ok\n'); r['workspace_rw']=p.read_text()=='ok\n'
           r['host_sentinel_absent']=not Path('/tmp/host-policy-sentinel').exists()
           try: Path('/opt/exec/bin/verify-candidate').write_text('tamper\n'); r['verifier_ro']=False
           except OSError: r['verifier_ro']=True
+          try: Path('/opt/exec/host/verify.sock').unlink(); r['socket_mount_ro']=False
+          except OSError: r['socket_mount_ro']=True
           s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.settimeout(1)
           try: s.connect(('1.1.1.1',53)); r['network_none']=False
           except OSError: r['network_none']=True
           finally: s.close()
           q=subprocess.run(['python','verify.py'],text=True,capture_output=True)
           r['verifier_socket']=q.returncode==0 and q.stdout=='VERIFIER_ENDPOINT_OK\n'
-          r['status']='PASS' if all(r[k] for k in ['workspace_rw','host_sentinel_absent','verifier_ro','network_none','verifier_socket']) else 'FAIL'
+          keys=['workspace_rw','host_sentinel_absent','verifier_ro','socket_mount_ro','network_none','verifier_socket']
+          r['status']='PASS' if all(r[k] for k in keys) else 'FAIL'
           Path('/workspace/.boundary_result.json').write_text(json.dumps(r,sort_keys=True)+'\n'); print(json.dumps(r,sort_keys=True))
           raise SystemExit(0 if r['status']=='PASS' else 4)
           PY
+          wait "$server_pid"
+          trap - EXIT
       - name: Seal result manifest
         shell: bash
         run: |
