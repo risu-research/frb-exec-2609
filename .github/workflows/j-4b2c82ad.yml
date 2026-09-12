@@ -20,13 +20,14 @@ jobs:
           set -euo pipefail
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
-          sha256sum Defs.lean Challenge.lean Solution.lean
+          sha256sum Defs.lean Challenge.lean Solution.lean Concrete.lean
           for V in v4.33.1 v4.34.0-rc2; do
             echo "leanprover/lean4:${V}" > lean-toolchain
             elan toolchain install "leanprover/lean4:${V}"
             rm -rf .lake lake-manifest.json
             lake build
             lake env lean Solution.lean
+            lake env lean Concrete.lean
             cat > /tmp/axioms.lean <<'EOF'
           import Solution
           #print axioms P.q0
@@ -65,8 +66,6 @@ jobs:
           git clone -q https://github.com/Zouuup/landrun.git /tmp/landrun-src
           git -C /tmp/landrun-src checkout -q 811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
           (cd /tmp/landrun-src && go build -o /tmp/landrun ./cmd/landrun/main.go)
-          /tmp/landrun --version || true
-          /tmp/nanoda/target/release/nanoda_bin --help >/dev/null || true
       - name: comparator-plus-independent-kernel
         shell: bash
         run: |
