@@ -1,0 +1,24 @@
+name: j-4b2c82ad
+on:
+  push:
+    branches: ["exec/j-4b2c82ad"]
+permissions:
+  contents: read
+jobs:
+  c:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: elan
+        shell: bash
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: build
+        shell: bash
+        run: |
+          export PATH="$HOME/.elan/bin:$PATH"
+          cd jobs/j-4b2c82ad
+          elan toolchain install leanprover/lean4:v4.34.0-rc2
+          lake build
+          lake env lean Solution.lean
