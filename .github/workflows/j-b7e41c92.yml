@@ -27,7 +27,6 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import hashlib, tarfile
-
           src = Path('jobs/j-b7e41c92/task')
           out = Path('/tmp/task_blob.tar')
           with tarfile.open(out, 'w') as tf:
@@ -59,7 +58,6 @@ jobs:
           print(secrets.token_hex(32))
           PY
           chmod 600 /tmp/host-policy-sentinel
-
           cat > "$RUNNER_TEMP/canary-bin/verify-candidate" <<'PY'
           #!/usr/bin/env python3
           import socket, sys
@@ -71,7 +69,6 @@ jobs:
           raise SystemExit(0 if data == b'VERIFIER_ENDPOINT_OK\n' else 3)
           PY
           chmod 0555 "$RUNNER_TEMP/canary-bin/verify-candidate"
-
           cat > "$RUNNER_TEMP/host_server.py" <<'PY'
           import os, socket
           sock_path = '/tmp/canary-socket/verify.sock'
@@ -79,7 +76,6 @@ jobs:
               os.unlink(sock_path)
           except FileNotFoundError:
               pass
-          # Host-only read proves the service can access material never mounted into the sandbox.
           sentinel = open('/tmp/host-policy-sentinel', 'rb').read().strip()
           assert len(sentinel) >= 32
           srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -96,7 +92,6 @@ jobs:
           srv.close()
           PY
           python "$RUNNER_TEMP/host_server.py" &
-          echo $! > /tmp/host-server.pid
           for _ in $(seq 1 50); do
             test -S /tmp/canary-socket/verify.sock && break
             sleep 0.1
@@ -119,25 +114,16 @@ jobs:
             python:3.12-slim python - <<'PY'
           from pathlib import Path
           import json, socket, subprocess
-
           result = {}
-
-          # Workspace must be writable.
           p = Path('/workspace/.rw_probe')
           p.write_text('ok\n')
           result['workspace_rw'] = p.read_text() == 'ok\n'
-
-          # Host-only policy material must not exist in the sandbox namespace.
           result['host_sentinel_absent'] = not Path('/tmp/host-policy-sentinel').exists()
-
-          # Verifier client must be immutable even to container root.
           try:
               Path('/opt/exec/bin/verify-candidate').write_text('tamper\n')
               result['verifier_ro'] = False
           except OSError:
               result['verifier_ro'] = True
-
-          # No external network path.
           s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
           s.settimeout(1.0)
           try:
@@ -147,11 +133,8 @@ jobs:
               result['network_none'] = True
           finally:
               s.close()
-
-          # Stable client reaches a verifier service outside the sandbox process namespace.
           proc = subprocess.run(['python', 'verify.py'], text=True, capture_output=True)
           result['verifier_socket'] = proc.returncode == 0 and proc.stdout == 'VERIFIER_ENDPOINT_OK\n'
-
           required = ['workspace_rw', 'host_sentinel_absent', 'verifier_ro', 'network_none', 'verifier_socket']
           result['status'] = 'PASS' if all(result[k] for k in required) else 'FAIL'
           Path('/workspace/.boundary_result.json').write_text(json.dumps(result, sort_keys=True) + '\n')
@@ -163,7 +146,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          wait "$(cat /tmp/host-server.pid)"
           python - <<'PY'
           from pathlib import Path
           import hashlib, json, os
