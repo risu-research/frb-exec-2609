@@ -29,62 +29,62 @@ jobs:
           rm -rf /tmp/canary-workspace
           cp -a jobs/j-b7e41c92/task /tmp/canary-workspace
           chmod -R a+rwX /tmp/canary-workspace
-      - name: Run host verifier and isolated scripted client
+      - name: Run verifier sidecar and isolated scripted client
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/canary-socket "$RUNNER_TEMP/canary-bin"
-          chmod 700 /tmp/canary-socket
-          python - <<'PY' > /tmp/host-policy-sentinel
+          docker pull python:3.12-slim >/dev/null
+          docker network create --internal canary-net >/dev/null
+          trap 'docker rm -f gate >/dev/null 2>&1 || true; docker network rm canary-net >/dev/null 2>&1 || true' EXIT
+          mkdir -p "$RUNNER_TEMP/canary-bin" "$RUNNER_TEMP/gate"
+          python - <<'PY' > "$RUNNER_TEMP/gate/policy-sentinel"
           import secrets; print(secrets.token_hex(32))
           PY
-          chmod 600 /tmp/host-policy-sentinel
+          chmod 0400 "$RUNNER_TEMP/gate/policy-sentinel"
+          cat > "$RUNNER_TEMP/gate/server.py" <<'PY'
+          import socket
+          sentinel=open('/policy/policy-sentinel','rb').read().strip(); assert len(sentinel)>=32
+          s=socket.socket(); s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1); s.bind(('0.0.0.0',8765)); s.listen(8)
+          while True:
+              c,_=s.accept(); m=c.recv(4096)
+              c.sendall(b'VERIFIER_ENDPOINT_OK\n' if m==b'PING\n' else b'BAD_REQUEST\n'); c.close()
+          PY
           cat > "$RUNNER_TEMP/canary-bin/verify-candidate" <<'PY'
           #!/usr/bin/env python3
           import socket,sys
-          s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.connect('/opt/exec/host/verify.sock'); s.sendall(b'PING\n')
-          d=s.recv(4096); sys.stdout.write(d.decode()); raise SystemExit(0 if d==b'VERIFIER_ENDPOINT_OK\n' else 3)
+          s=socket.create_connection(('gate',8765),timeout=3); s.sendall(b'PING\n'); d=s.recv(4096); s.close()
+          sys.stdout.write(d.decode()); raise SystemExit(0 if d==b'VERIFIER_ENDPOINT_OK\n' else 3)
           PY
           chmod 0555 "$RUNNER_TEMP/canary-bin/verify-candidate"
-          cat > "$RUNNER_TEMP/host_server.py" <<'PY'
-          import os,socket
-          p='/tmp/canary-socket/verify.sock'
-          try: os.unlink(p)
-          except FileNotFoundError: pass
-          assert len(open('/tmp/host-policy-sentinel','rb').read().strip())>=32
-          s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.bind(p); os.chmod(p,0o666); s.listen(1)
-          c,_=s.accept(); m=c.recv(4096); c.sendall(b'VERIFIER_ENDPOINT_OK\n' if m==b'PING\n' else b'BAD_REQUEST\n'); c.close(); s.close()
-          PY
-          python "$RUNNER_TEMP/host_server.py" & server_pid=$!
-          trap 'kill $server_pid 2>/dev/null || true' EXIT
-          for _ in $(seq 1 50); do test -S /tmp/canary-socket/verify.sock && break; sleep 0.1; done
-          test -S /tmp/canary-socket/verify.sock
-          docker pull python:3.12-slim >/dev/null
-          docker run --rm -i --network none --cap-drop ALL --security-opt no-new-privileges \
-            --pids-limit 128 --memory 512m --cpus 1 \
+          docker run -d --rm --name gate --network canary-net --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --pids-limit 64 --memory 128m --cpus 0.5 \
+            -v "$RUNNER_TEMP/gate:/policy:ro" python:3.12-slim python /policy/server.py >/dev/null
+          for _ in $(seq 1 50); do docker exec gate python -c "import socket; s=socket.create_connection(('127.0.0.1',8765),.2); s.close()" >/dev/null 2>&1 && break; sleep 0.1; done
+          docker run --rm -i --network canary-net --read-only --cap-drop ALL --security-opt no-new-privileges \
+            --user 65532:65532 --pids-limit 128 --memory 512m --cpus 1 --tmpfs /tmp:rw,noexec,nosuid,size=16m \
             -v "/tmp/canary-workspace:/workspace:rw" \
             -v "$RUNNER_TEMP/canary-bin/verify-candidate:/opt/exec/bin/verify-candidate:ro" \
-            -v "/tmp/canary-socket:/opt/exec/host:ro" -w /workspace python:3.12-slim python - <<'PY'
+            -w /workspace python:3.12-slim python - <<'PY'
           from pathlib import Path
           import json,socket,subprocess
           r={}; p=Path('/workspace/.rw_probe'); p.write_text('ok\n'); r['workspace_rw']=p.read_text()=='ok\n'
-          r['host_sentinel_absent']=not Path('/tmp/host-policy-sentinel').exists()
+          r['policy_sentinel_absent']=not Path('/policy/policy-sentinel').exists() and not Path('/tmp/host-policy-sentinel').exists()
           try: Path('/opt/exec/bin/verify-candidate').write_text('tamper\n'); r['verifier_ro']=False
           except OSError: r['verifier_ro']=True
-          try: Path('/opt/exec/host/verify.sock').unlink(); r['socket_mount_ro']=False
-          except OSError: r['socket_mount_ro']=True
-          s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.settimeout(1)
-          try: s.connect(('1.1.1.1',53)); r['network_none']=False
-          except OSError: r['network_none']=True
+          s=socket.socket(); s.settimeout(1)
+          try: s.connect(('1.1.1.1',53)); r['external_network_blocked']=False
+          except OSError: r['external_network_blocked']=True
           finally: s.close()
           q=subprocess.run(['python','verify.py'],text=True,capture_output=True)
-          r['verifier_socket']=q.returncode==0 and q.stdout=='VERIFIER_ENDPOINT_OK\n'
-          keys=['workspace_rw','host_sentinel_absent','verifier_ro','socket_mount_ro','network_none','verifier_socket']
+          r['verifier_sidecar']=q.returncode==0 and q.stdout=='VERIFIER_ENDPOINT_OK\n'
+          keys=['workspace_rw','policy_sentinel_absent','verifier_ro','external_network_blocked','verifier_sidecar']
           r['status']='PASS' if all(r[k] for k in keys) else 'FAIL'
           Path('/workspace/.boundary_result.json').write_text(json.dumps(r,sort_keys=True)+'\n'); print(json.dumps(r,sort_keys=True))
+          if q.returncode or q.stdout!='VERIFIER_ENDPOINT_OK\n': print('verify_rc=',q.returncode,'verify_stdout=',repr(q.stdout),'verify_stderr=',repr(q.stderr))
           raise SystemExit(0 if r['status']=='PASS' else 4)
           PY
-          wait "$server_pid"
+          docker rm -f gate >/dev/null 2>&1 || true
+          docker network rm canary-net >/dev/null 2>&1 || true
           trap - EXIT
       - name: Seal result manifest
         shell: bash
