@@ -1,1 +1,1 @@
-public import Lean.Elab.Tactic.Omega
+import Lean.Elab.Tactic.Omega
