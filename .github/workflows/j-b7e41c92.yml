@@ -1,25 +1,18 @@
 name: j-b7e41c92
-
 on:
   push:
-    branches:
-      - exec/j-b7e41c92
+    branches: [exec/j-b7e41c92]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 env:
-  JOB_ID: j-b7e41c92
   EXPECTED_TASK_SHA256: 3688bd830f77e86094152cc76dc1c9203f46f6611a30be8b0fd5dbac307ee4a8
-
 jobs:
   canary:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - name: Verify frozen task blob
         shell: bash
         run: |
@@ -27,26 +20,16 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import hashlib, tarfile
-          src = Path('jobs/j-b7e41c92/task')
-          out = Path('/tmp/task_blob.tar')
-          with tarfile.open(out, 'w') as tf:
+          src=Path('jobs/j-b7e41c92/task'); out=Path('/tmp/task_blob.tar')
+          with tarfile.open(out,'w') as tf:
               for p in sorted(x for x in src.rglob('*') if x.is_file()):
-                  arc = p.relative_to(src).as_posix()
-                  info = tf.gettarinfo(str(p), arcname=arc)
-                  info.mtime = 0
-                  info.uid = 0
-                  info.gid = 0
-                  info.uname = ''
-                  info.gname = ''
-                  with p.open('rb') as fh:
-                      tf.addfile(info, fh)
-          got = hashlib.sha256(out.read_bytes()).hexdigest()
-          expected = '3688bd830f77e86094152cc76dc1c9203f46f6611a30be8b0fd5dbac307ee4a8'
-          print('task_blob_sha256=' + got)
-          if got != expected:
-              raise SystemExit('frozen task blob mismatch')
+                  i=tf.gettarinfo(str(p),arcname=p.relative_to(src).as_posix())
+                  i.mtime=i.uid=i.gid=0; i.uname=i.gname=''
+                  with p.open('rb') as f: tf.addfile(i,f)
+          got=hashlib.sha256(out.read_bytes()).hexdigest()
+          print('task_blob_sha256='+got)
+          assert got=='3688bd830f77e86094152cc76dc1c9203f46f6611a30be8b0fd5dbac307ee4a8'
           PY
-
       - name: Prepare host-only verifier boundary
         shell: bash
         run: |
@@ -54,117 +37,64 @@ jobs:
           mkdir -p /tmp/canary-socket "$RUNNER_TEMP/canary-bin"
           chmod 700 /tmp/canary-socket
           python - <<'PY' > /tmp/host-policy-sentinel
-          import secrets
-          print(secrets.token_hex(32))
+          import secrets; print(secrets.token_hex(32))
           PY
           chmod 600 /tmp/host-policy-sentinel
           cat > "$RUNNER_TEMP/canary-bin/verify-candidate" <<'PY'
           #!/usr/bin/env python3
-          import socket, sys
-          s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-          s.connect('/opt/exec/host/verify.sock')
-          s.sendall(b'PING\n')
-          data = s.recv(4096)
-          sys.stdout.write(data.decode())
-          raise SystemExit(0 if data == b'VERIFIER_ENDPOINT_OK\n' else 3)
+          import socket,sys
+          s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.connect('/opt/exec/host/verify.sock'); s.sendall(b'PING\n')
+          d=s.recv(4096); sys.stdout.write(d.decode()); raise SystemExit(0 if d==b'VERIFIER_ENDPOINT_OK\n' else 3)
           PY
           chmod 0555 "$RUNNER_TEMP/canary-bin/verify-candidate"
           cat > "$RUNNER_TEMP/host_server.py" <<'PY'
-          import os, socket
-          sock_path = '/tmp/canary-socket/verify.sock'
-          try:
-              os.unlink(sock_path)
-          except FileNotFoundError:
-              pass
-          sentinel = open('/tmp/host-policy-sentinel', 'rb').read().strip()
-          assert len(sentinel) >= 32
-          srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-          srv.bind(sock_path)
-          os.chmod(sock_path, 0o666)
-          srv.listen(1)
-          conn, _ = srv.accept()
-          msg = conn.recv(4096)
-          if msg == b'PING\n':
-              conn.sendall(b'VERIFIER_ENDPOINT_OK\n')
-          else:
-              conn.sendall(b'BAD_REQUEST\n')
-          conn.close()
-          srv.close()
+          import os,socket
+          p='/tmp/canary-socket/verify.sock'
+          try: os.unlink(p)
+          except FileNotFoundError: pass
+          assert len(open('/tmp/host-policy-sentinel','rb').read().strip())>=32
+          s=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM); s.bind(p); os.chmod(p,0o666); s.listen(1)
+          c,_=s.accept(); m=c.recv(4096); c.sendall(b'VERIFIER_ENDPOINT_OK\n' if m==b'PING\n' else b'BAD_REQUEST\n'); c.close(); s.close()
           PY
           python "$RUNNER_TEMP/host_server.py" &
-          for _ in $(seq 1 50); do
-            test -S /tmp/canary-socket/verify.sock && break
-            sleep 0.1
-          done
+          for _ in $(seq 1 50); do test -S /tmp/canary-socket/verify.sock && break; sleep 0.1; done
           test -S /tmp/canary-socket/verify.sock
-
       - name: Run isolated scripted client
         shell: bash
         run: |
           set -euo pipefail
           docker pull python:3.12-slim >/dev/null
-          docker run --rm \
-            --network none \
-            --cap-drop ALL \
-            --security-opt no-new-privileges \
+          docker run --rm -i --network none --cap-drop ALL --security-opt no-new-privileges \
             -v "$GITHUB_WORKSPACE/jobs/j-b7e41c92/task:/workspace:rw" \
             -v "$RUNNER_TEMP/canary-bin/verify-candidate:/opt/exec/bin/verify-candidate:ro" \
-            -v "/tmp/canary-socket:/opt/exec/host:rw" \
-            -w /workspace \
-            python:3.12-slim python - <<'PY'
+            -v "/tmp/canary-socket:/opt/exec/host:rw" -w /workspace python:3.12-slim python - <<'PY'
           from pathlib import Path
-          import json, socket, subprocess
-          result = {}
-          p = Path('/workspace/.rw_probe')
-          p.write_text('ok\n')
-          result['workspace_rw'] = p.read_text() == 'ok\n'
-          result['host_sentinel_absent'] = not Path('/tmp/host-policy-sentinel').exists()
-          try:
-              Path('/opt/exec/bin/verify-candidate').write_text('tamper\n')
-              result['verifier_ro'] = False
-          except OSError:
-              result['verifier_ro'] = True
-          s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-          s.settimeout(1.0)
-          try:
-              s.connect(('1.1.1.1', 53))
-              result['network_none'] = False
-          except OSError:
-              result['network_none'] = True
-          finally:
-              s.close()
-          proc = subprocess.run(['python', 'verify.py'], text=True, capture_output=True)
-          result['verifier_socket'] = proc.returncode == 0 and proc.stdout == 'VERIFIER_ENDPOINT_OK\n'
-          required = ['workspace_rw', 'host_sentinel_absent', 'verifier_ro', 'network_none', 'verifier_socket']
-          result['status'] = 'PASS' if all(result[k] for k in required) else 'FAIL'
-          Path('/workspace/.boundary_result.json').write_text(json.dumps(result, sort_keys=True) + '\n')
-          print(json.dumps(result, sort_keys=True))
-          raise SystemExit(0 if result['status'] == 'PASS' else 4)
+          import json,socket,subprocess
+          r={}; p=Path('/workspace/.rw_probe'); p.write_text('ok\n'); r['workspace_rw']=p.read_text()=='ok\n'
+          r['host_sentinel_absent']=not Path('/tmp/host-policy-sentinel').exists()
+          try: Path('/opt/exec/bin/verify-candidate').write_text('tamper\n'); r['verifier_ro']=False
+          except OSError: r['verifier_ro']=True
+          s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.settimeout(1)
+          try: s.connect(('1.1.1.1',53)); r['network_none']=False
+          except OSError: r['network_none']=True
+          finally: s.close()
+          q=subprocess.run(['python','verify.py'],text=True,capture_output=True)
+          r['verifier_socket']=q.returncode==0 and q.stdout=='VERIFIER_ENDPOINT_OK\n'
+          r['status']='PASS' if all(r[k] for k in ['workspace_rw','host_sentinel_absent','verifier_ro','network_none','verifier_socket']) else 'FAIL'
+          Path('/workspace/.boundary_result.json').write_text(json.dumps(r,sort_keys=True)+'\n'); print(json.dumps(r,sort_keys=True))
+          raise SystemExit(0 if r['status']=='PASS' else 4)
           PY
-
       - name: Seal result manifest
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import hashlib, json, os
-          result = json.loads(Path('jobs/j-b7e41c92/task/.boundary_result.json').read_text())
-          if result.get('status') != 'PASS':
-              raise SystemExit('boundary canary failed')
-          program = Path('jobs/j-b7e41c92/task/src/program.py').read_bytes()
-          sealed = {
-              'job_id': 'j-b7e41c92',
-              'task_blob_sha256': '3688bd830f77e86094152cc76dc1c9203f46f6611a30be8b0fd5dbac307ee4a8',
-              'runner_commit': os.environ['GITHUB_SHA'],
-              'candidate_program_sha256': hashlib.sha256(program).hexdigest(),
-              'boundary': result,
-          }
-          out = Path('/tmp/j-b7e41c92-result.json')
-          out.write_text(json.dumps(sealed, sort_keys=True, separators=(',', ':')) + '\n')
-          print('result_sha256=' + hashlib.sha256(out.read_bytes()).hexdigest())
+          import hashlib,json,os
+          r=json.loads(Path('jobs/j-b7e41c92/task/.boundary_result.json').read_text()); assert r['status']=='PASS'
+          sealed={'job_id':'j-b7e41c92','task_blob_sha256':'3688bd830f77e86094152cc76dc1c9203f46f6611a30be8b0fd5dbac307ee4a8','runner_commit':os.environ['GITHUB_SHA'],'candidate_program_sha256':hashlib.sha256(Path('jobs/j-b7e41c92/task/src/program.py').read_bytes()).hexdigest(),'boundary':r}
+          out=Path('/tmp/j-b7e41c92-result.json'); out.write_text(json.dumps(sealed,sort_keys=True,separators=(',',':'))+'\n'); print('result_sha256='+hashlib.sha256(out.read_bytes()).hexdigest())
           PY
-
       - name: Upload minimal result
         uses: actions/upload-artifact@v4
         with:
