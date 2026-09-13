@@ -16,7 +16,7 @@ mutual
           simp [evalR, evalI, h, hc, evalR_eq_evalI t e]
         · have hc : evalB c e = false := by
             cases hbc : evalB c e with
-            | false => exact hbc
+            | false => simpa using hbc
             | true =>
                 exfalso
                 exact h ((sat_iff_evalB_true c e).mpr hbc)
@@ -32,7 +32,23 @@ mutual
     | .or a b, e => by
         simp [Sat, evalB, sat_iff_evalB_true a e, sat_iff_evalB_true b e]
     | .imp a b, e => by
-        simp [Sat, evalB, sat_iff_evalB_true a e, sat_iff_evalB_true b e]
+        constructor
+        · intro hab
+          by_cases ha : evalB a e = true
+          · have sa : Sat a e := (sat_iff_evalB_true a e).mpr ha
+            have sb : Sat b e := hab sa
+            have hb : evalB b e = true := (sat_iff_evalB_true b e).mp sb
+            simp [evalB, ha, hb]
+          · have haf : evalB a e = false := by
+              cases hval : evalB a e with
+              | false => simpa using hval
+              | true => exact False.elim (ha hval)
+            simp [evalB, haf]
+        · intro hbool sa
+          have ha : evalB a e = true := (sat_iff_evalB_true a e).mp sa
+          have hb : evalB b e = true := by
+            simpa [evalB, ha] using hbool
+          exact (sat_iff_evalB_true b e).mpr hb
     | .iff a b, e => by
         simp [Sat, evalB, sat_iff_evalB_true a e, sat_iff_evalB_true b e]
     | .eqi a b, e => by
@@ -57,7 +73,7 @@ mutual
           simp [Sat, evalB, h, hc, sat_iff_evalB_true t e]
         · have hc : evalB c e = false := by
             cases hbc : evalB c e with
-            | false => exact hbc
+            | false => simpa using hbc
             | true =>
                 exfalso
                 exact h ((sat_iff_evalB_true c e).mpr hbc)
