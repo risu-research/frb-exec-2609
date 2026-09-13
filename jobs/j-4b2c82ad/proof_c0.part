@@ -14,14 +14,14 @@
  theorem c0_qa : Safe (H c0d) (H c0a) (H c0q0) ∧ ¬ Covers (H c0d) (H c0a) (H c0q0) := by
   constructor
   · intro e hd hi hq
-    cases h : e.bv 0 <;> simp [H, Holds, c0a, c0q0, evalB, evalI, h] at hi hq
+    cases h : e.bv 0 <;> simp [H, Holds, c0a, c0q0, evalB, evalI, h] at hi hq <;> omega
   · intro hc
     have h := hc (mkEnv [1,0] [true]) (by simp [H, Holds, mkEnv, c0d, evalB, evalI]) (by simp [H, Holds, mkEnv, c0a, evalB, evalI])
     simpa [H, Holds, mkEnv, c0q0, evalB, evalI] using h
  theorem c0_qb : Safe (H c0d) (H c0a) (H c0q1) ∧ ¬ Covers (H c0d) (H c0a) (H c0q1) := by
   constructor
   · intro e hd hi hq
-    cases h : e.bv 0 <;> simp [H, Holds, c0a, c0q1, evalB, evalI, h] at hi hq
+    cases h : e.bv 0 <;> simp [H, Holds, c0a, c0q1, evalB, evalI, h] at hi hq <;> omega
   · intro hc
     have h := hc (mkEnv [0,0] [false]) (by simp [H, Holds, mkEnv, c0d, evalB, evalI]) (by simp [H, Holds, mkEnv, c0a, evalB, evalI])
     simpa [H, Holds, mkEnv, c0q1, evalB, evalI] using h
