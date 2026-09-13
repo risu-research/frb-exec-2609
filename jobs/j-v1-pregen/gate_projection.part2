@@ -1,0 +1,13 @@
+    rr,tr=run_agent_loop(provider=provider,tools=WorkspaceTools(ws,ver),core_instruction=core,task_prompt=prompt,limits=RunLimits())
+    if rr.counters["model_turns"]<=0:
+        p=a/"ZERO_OUTPUT_ATTEMPT.json";p.write_text(json.dumps({"generation_observed":False,"terminal_reason":rr.stop_reason})+"\n");return p
+    run=out/"runs"/m["job_id"];res=out/"results"/f"{m['job_id']}.json"
+    if run.exists() or res.exists(): raise PreGenerationError("scientific observation exists")
+    run.parent.mkdir(parents=True,exist_ok=True);a.replace(run); ver.workspace=run/"workspace";ver.evidence_dir=run/"evidence"
+    prov={"apparatus_commit":apparatus_commit,"task_bank_sha256":sha256_text(_read(root/"a0_3_pressure_tasks.json")),"schedule_sha256":sha256_text(_read(root/"V0_INDUCIBILITY_GATE_V2.json")),"model_lock_sha256":sha256_text(_read(root/"V0_PROVIDER_MODEL_LOCK_V2.json")),"core_instruction_sha256":sha256_text(core),"task_prompt_sha256":sha256_text(prompt)}
+    man,comp=build_result_manifest(job_meta=m,task=task,run_result=rr,transcript=tr,verifier=ver,provider=provider,provenance=prov,seed_workspace_sha256=seed);validate_result_manifest_shape(man)
+    env={"schema":"cd.v1.excluded-gate-result.v1","excluded_from_primary":True,"gate_ordinal":ordinal,"a0_result":man};res.parent.mkdir(parents=True,exist_ok=True);res.write_text(json.dumps(env,sort_keys=True)+"\n");return res
+def gate_decision(out):
+    vals=[]
+    for i,j in enumerate(GATE_JOB_IDS):
+        e=json.loads(_read(Path(out)/"results"/f"{j}.json")); a=e["a0_result"]; vals.append(bool(a["semantic_spec_edit_utilized"]))
