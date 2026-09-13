@@ -11,12 +11,17 @@ for d in (ROOT/'pyout',ROOT/'jsout'):
     if d.exists(): shutil.rmtree(d)
 # Proof bodies are deliberately stored as six small immutable fragments.
 # They are not semantic authority; theorem statements are generated over the JSON-derived bank.
+# Generic Bool/Prop decision bridges are injected uniformly into simp calls; no contract-specific
+# formula or theorem statement is changed by this normalization.
 prefix='import GeneratedBank\nimport Solution\nimport Lean.Elab.Tactic.Omega\n\nnamespace GV\nopen P IR G\n\nabbrev H (x : BExpr) : Env → Prop := IR.Holds x\n\n'
 parts=[]
 for i in range(6):
     q=ROOT/f'proof_c{i}.part'
     if not q.exists(): raise SystemExit(f'MISSING_PROOF_FRAGMENT:{i}')
-    parts.append(q.read_text())
+    s=q.read_text()
+    s=s.replace('simp [','simp [IR.decide_true_bridge, IR.decide_false_bridge, ')
+    s=s.replace('simpa [','simpa [IR.decide_true_bridge, IR.decide_false_bridge, ')
+    parts.append(s)
 (ROOT/'GeneratedProofs.lean').write_text(prefix+''.join(parts)+'\nend GV\n')
 run([sys.executable,'compile_py.py',SRC.name,'pyout'])
 run(['node','compile_js.mjs',SRC.name,'jsout'])
@@ -48,12 +53,12 @@ for b in blocks:
     nm=mm.group(1); st=mm.group(2); names.append('GV.'+nm)
     challenge.append(f'theorem {nm} : {st} := by\n  sorry\n')
 if names!=EXPECTED: raise SystemExit('GENERATED_THEOREM_SET_OR_ORDER_MISMATCH:'+json.dumps(names))
-(ROOT/'GeneratedChallenge.lean').write_text('import GeneratedBank\nimport Solution\n\nnamespace GV\nopen P IR G\n\nabbrev H (x : BExpr) : Env → Prop := IR.Holds x\n\n'+'\n'.join(challenge)+'\nend GV\n')
+(ROOT/'GeneratedChallenge.lean').write_text('import GeneratedBank\nimport Solution\n\nnamespace GV\nopen P IR G\nabbrev H (x : BExpr) : Env → Prop := IR.Holds x\n\n'+'\n'.join(challenge)+'\nend GV\n')
 (ROOT/'GeneratedSolution.lean').write_text(text)
 config={"challenge_module":"GeneratedChallenge","solution_module":"GeneratedSolution","theorem_names":EXPECTED,"permitted_axioms":["propext","Quot.sound","Classical.choice"],"enable_nanoda":True}
 (ROOT/'comparator_generated.json').write_text(json.dumps(config,indent=2)+'\n')
 (ROOT/'lakefile.toml').write_text('name = "j4b2c82ad"\nversion = "0.1.0"\ndefaultTargets = ["P"]\n\n[[lean_lib]]\nname = "P"\nroots = ["Defs", "Challenge", "Solution", "IRSemantics", "GeneratedBank", "GeneratedChallenge", "GeneratedSolution"]\n')
 man=json.loads((ROOT/'compiler_manifest.json').read_text())
-receipt={'schema':'pc.translation-validation.v1','source_sha256':sha(SRC),'typed_ir_sha256':sha(ROOT/'typed_ir.json'),'generated_bank_sha256':sha(ROOT/'GeneratedBank.lean'),'python_compiler_sha256':sha(ROOT/'compile_py.py'),'javascript_compiler_sha256':sha(ROOT/'compile_js.mjs'),'ir_semantics_sha256':sha(ROOT/'IRSemantics.lean'),'generated_proofs_sha256':sha(ROOT/'GeneratedProofs.lean'),'challenge_sha256':sha(ROOT/'GeneratedChallenge.lean'),'solution_sha256':sha(ROOT/'GeneratedSolution.lean'),'comparator_config_sha256':sha(ROOT/'comparator_generated.json'),'compiler_manifest':man,'theorem_count':len(EXPECTED),'theorem_names':EXPECTED,'dual_compiler_byte_identity':True}
+receipt={'schema':'pc.translation-validation.v1','source_sha256':sha(SRC),'typed_ir_sha256':sha(ROOT/'typed_ir.json'),'generated_bank_sha256':sha(ROOT/'GeneratedBank.lean'),'python_compiler_sha256':sha(ROOT/'compile_py.py'),'javascript_compiler_sha256':sha(ROOT/'compile_js.mjs'),'ir_semantics_sha256':sha(ROOT/'IRSemantics.lean'),'generated_proofs_sha256':sha(ROOT/'GeneratedProofs.lean'),'challenge_sha256':sha(ROOT/'GeneratedChallenge.lean'),'solution_sha256':sha(ROOT/'GeneratedSolution.lean'),'comparator_config_sha256':sha(ROOT/'comparator_generated.json'),'compiler_manifest':man,'theorem_count':len(EXPECTED),'theorem_names':EXPECTED,'dual_compiler_byte_identity':True,'proof_normalization':'explicit-generic-decision-bridges'}
 (ROOT/'translation_manifest.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
 print(json.dumps(receipt,sort_keys=True))
