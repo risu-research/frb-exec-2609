@@ -1,0 +1,166 @@
+name: j-v2-science
+on:
+  push:
+    branches: ["exec/j-v2-science"]
+permissions:
+  contents: read
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      V2_PRIVATE_COMMIT: c2a91a29e07ccb9758be928fe6f8401a2cc074f5
+    steps:
+      - name: checkout execution substrate
+        uses: actions/checkout@v4
+
+      - name: checkout sealed V2 scientific authority
+        uses: actions/checkout@v4
+        with:
+          repository: risu-research/consequence-drift
+          ref: c2a91a29e07ccb9758be928fe6f8401a2cc074f5
+          token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
+          path: scientific
+          persist-credentials: false
+
+      - name: verify exact authority and synthetic qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C scientific rev-parse HEAD)" = "$V2_PRIVATE_COMMIT"
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          mkdir -p v2-qualification
+          python - <<'PY'
+          from pathlib import Path
+          import v2_inducibility_executor as gate
+          pre = gate.preflight_static(Path('scientific'))
+          assert pre['status'] == 'PASS'
+          assert pre['generation_calls'] == 0
+          print('PASS_V2_STATIC_PREFLIGHT')
+          PY
+          python scientific/scripts/test_v2_apparatus.py > v2-qualification/synthetic-tests.log
+          cmp v2-qualification/synthetic-tests.log scientific/qualification/synthetic-tests.log
+          python scientific/scripts/qualify_v2_contract.py \
+            scientific/qualification/v2_contract_fixtures.json \
+            v2-qualification/python-report.json
+          node scientific/qualification/v2_contract_validator.mjs \
+            scientific/qualification/v2_contract_fixtures.json \
+            v2-qualification/node-report.json
+          python scientific/scripts/compare_v2_validators.py \
+            v2-qualification/python-report.json \
+            v2-qualification/node-report.json \
+            scientific/qualification/v2_contract_fixtures.json \
+            v2-qualification/cross-validator-report.json
+          cmp v2-qualification/cross-validator-report.json scientific/qualification/cross-validator-report.json
+
+      - name: metadata-only prelive check
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          mkdir -p v2-prelive
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from gemini_interactions_provider import probe_model_visibility
+          meta = probe_model_visibility(api_key=os.environ['GEMINI_API_KEY'])
+          assert meta['metadata_name'] == 'models/gemini-3.8-flash'
+          receipt = {
+              'schema': 'cd.v2.prelive-metadata.v1',
+              'status': 'PASS_PRELIVE',
+              'generation_calls': 0,
+              'metadata_name': meta['metadata_name'],
+              'private_authority_commit': os.environ['V2_PRIVATE_COMMIT'],
+          }
+          Path('v2-prelive/receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(receipt, sort_keys=True, separators=(',', ':')))
+          PY
+
+      - name: exact neutral live canary
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python scientific/runner/v2_live_canary.py v2-live-canary-evidence
+
+      - name: execute sealed V2 excluded gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          import v2_inducibility_executor as gate
+
+          root = Path('scientific').resolve()
+          out = Path('v2-gate-output').resolve()
+          out.mkdir(parents=True, exist_ok=True)
+          for ordinal in (0, 1, 2):
+              provider = gate.make_live_provider()
+              p = gate.execute_gate_job_with_provider(
+                  repo_root=root,
+                  output_root=out,
+                  ordinal=ordinal,
+                  provider=provider,
+                  apparatus_commit=os.environ['V2_PRIVATE_COMMIT'],
+              )
+              if p.name == 'ZERO_OUTPUT_ATTEMPT.json':
+                  receipt = {
+                      'schema': 'cd.v2.live-gate-run.v1',
+                      'status': 'ZERO_OUTPUT_RETRY_REQUIRED',
+                      'ordinal': ordinal,
+                      'generation_observed': False,
+                  }
+                  (out / 'LIVE_GATE_RECEIPT.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+                  print(json.dumps(receipt, sort_keys=True, separators=(',', ':')))
+                  raise SystemExit(75)
+              print(json.dumps({'ordinal': ordinal, 'canonical_result': str(p.relative_to(out))}, sort_keys=True, separators=(',', ':')))
+
+          decision = gate.gate_decision(out)
+          (out / 'decision.json').write_text(json.dumps(decision, indent=2, sort_keys=True) + '\n')
+          receipt = {
+              'schema': 'cd.v2.live-gate-run.v1',
+              'status': 'COMPLETE',
+              'generation_observed': True,
+              'ordinals_completed': [0, 1, 2],
+              'decision': decision['decision'],
+          }
+          (out / 'LIVE_GATE_RECEIPT.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(receipt, sort_keys=True, separators=(',', ':')))
+          PY
+
+      - name: artifact integrity receipt
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          roots = [Path('v2-qualification'), Path('v2-prelive'), Path('v2-live-canary-evidence'), Path('v2-gate-output')]
+          files = {}
+          for root in roots:
+              if not root.exists():
+                  continue
+              for p in sorted(x for x in root.rglob('*') if x.is_file()):
+                  files[p.as_posix()] = hashlib.sha256(p.read_bytes()).hexdigest()
+          receipt = {
+              'schema': 'neutral.v2-science-artifact-index.v1',
+              'head_sha': os.environ['GITHUB_SHA'],
+              'scientific_authority_commit': os.environ['V2_PRIVATE_COMMIT'],
+              'files': files,
+          }
+          Path('v2-science-artifact-index.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          PY
+
+      - name: upload immutable V2 science evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-v2-science-evidence
+          path: |
+            v2-qualification
+            v2-prelive
+            v2-live-canary-evidence
+            v2-gate-output
+            v2-science-artifact-index.json
