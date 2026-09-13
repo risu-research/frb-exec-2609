@@ -21,6 +21,7 @@ jobs:
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
           test "$(sha256sum source_a05.json | awk '{print $1}')" = "ab3b7afc2634bdd6f2939355e7d47e355ae2bd06a99bae84b00bf3b8a3746736"
+          python qualify_emitters.py
           cp source_a05.json /tmp/mutated-a05.json
           printf ' ' >> /tmp/mutated-a05.json
           if python compile_py.py /tmp/mutated-a05.json /tmp/mutated-out; then
@@ -34,7 +35,7 @@ jobs:
           cmp pyout/typed_ir.json jsout/typed_ir.json
           cmp pyout/GeneratedBank.lean jsout/GeneratedBank.lean
           cmp pyout/manifest.json jsout/manifest.json
-          sha256sum source_a05.json typed_ir.json GeneratedBank.lean IRSemantics.lean GeneratedProofs.lean GeneratedChallenge.lean GeneratedSolution.lean compiler_manifest.json translation_manifest.json compile_py.py compile_js.mjs roundtrip_check.py translation_gate.py proof_c0.part proof_c1.part proof_c2.part proof_c3.part proof_c4.part proof_c5.part
+          sha256sum source_a05.json typed_ir.json GeneratedBank.lean IRSemantics.lean GeneratedProofs.lean GeneratedChallenge.lean GeneratedSolution.lean compiler_manifest.json translation_manifest.json compile_py.py compile_js.mjs qualify_emitters.py roundtrip_check.py translation_gate.py proof_c0.part proof_c1.part proof_c2.part proof_c3.part proof_c4.part proof_c5.part
           for V in v4.33.1 v4.34.0-rc2; do
             echo "leanprover/lean4:${V}" > lean-toolchain
             elan toolchain install "leanprover/lean4:${V}"
@@ -77,6 +78,7 @@ jobs:
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
           test "$(sha256sum source_a05.json | awk '{print $1}')" = "ab3b7afc2634bdd6f2939355e7d47e355ae2bd06a99bae84b00bf3b8a3746736"
+          python qualify_emitters.py
           python translation_gate.py
           python roundtrip_check.py source_a05.json typed_ir.json
           echo 'leanprover/lean4:v4.34.0-rc2' > lean-toolchain
