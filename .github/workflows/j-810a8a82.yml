@@ -1,0 +1,88 @@
+name: j-810a8a82
+on:
+  push:
+    branches: ["exec/j-810a8a82"]
+permissions:
+  contents: read
+jobs:
+  versions:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: elan
+        shell: bash
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: translation-and-dual-version-gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          cd jobs/j-4b2c82ad
+          test "$(sha256sum source_a05.json | awk '{print $1}')" = "ab3b7afc2634bdd6f2939355e7d47e355ae2bd06a99bae84b00bf3b8a3746736"
+          cp source_a05.json /tmp/mutated-a05.json
+          printf ' ' >> /tmp/mutated-a05.json
+          if python compile_py.py /tmp/mutated-a05.json /tmp/mutated-out; then
+            echo 'DIGEST_NEGATIVE_CONTROL_FAILED'
+            exit 1
+          else
+            echo 'DIGEST_NEGATIVE_CONTROL_PASS'
+          fi
+          python translation_gate.py
+          python roundtrip_check.py source_a05.json typed_ir.json
+          cmp pyout/typed_ir.json jsout/typed_ir.json
+          cmp pyout/GeneratedBank.lean jsout/GeneratedBank.lean
+          cmp pyout/manifest.json jsout/manifest.json
+          sha256sum source_a05.json typed_ir.json GeneratedBank.lean IRSemantics.lean GeneratedProofs.lean GeneratedChallenge.lean GeneratedSolution.lean compiler_manifest.json translation_manifest.json compile_py.py compile_js.mjs roundtrip_check.py translation_gate.py proof_c0.part proof_c1.part proof_c2.part proof_c3.part proof_c4.part proof_c5.part
+          for V in v4.33.1 v4.34.0-rc2; do
+            echo "leanprover/lean4:${V}" > lean-toolchain
+            elan toolchain install "leanprover/lean4:${V}"
+            rm -rf .lake lake-manifest.json
+            lake build
+            lake env lean GeneratedSolution.lean
+          done
+          echo 'leanprover/lean4:v4.34.0-rc2' > lean-toolchain
+  judge:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: elan
+        shell: bash
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: build-pinned-checkers
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          elan toolchain install leanprover/lean4:v4.34.0-rc2
+          git clone -q https://github.com/leanprover/comparator.git /tmp/comparator
+          git -C /tmp/comparator checkout -q 2312244ac716564a61cc0bf4e107d9abf1757a61
+          (cd /tmp/comparator && lake build lean4export comparator)
+          git clone -q https://github.com/ammkrn/nanoda_lib.git /tmp/nanoda
+          git -C /tmp/nanoda checkout -q 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+          (cd /tmp/nanoda && cargo build --release --bin nanoda_bin)
+          git clone -q https://github.com/Zouuup/landrun.git /tmp/landrun-src
+          git -C /tmp/landrun-src checkout -q 811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
+          (cd /tmp/landrun-src && go build -o /tmp/landrun ./cmd/landrun/main.go)
+          echo "COMPARATOR_COMMIT=$(git -C /tmp/comparator rev-parse HEAD)"
+          echo "NANODA_COMMIT=$(git -C /tmp/nanoda rev-parse HEAD)"
+          echo "LANDRUN_COMMIT=$(git -C /tmp/landrun-src rev-parse HEAD)"
+      - name: generated-semantics-statement-lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          cd jobs/j-4b2c82ad
+          test "$(sha256sum source_a05.json | awk '{print $1}')" = "ab3b7afc2634bdd6f2939355e7d47e355ae2bd06a99bae84b00bf3b8a3746736"
+          python translation_gate.py
+          python roundtrip_check.py source_a05.json typed_ir.json
+          echo 'leanprover/lean4:v4.34.0-rc2' > lean-toolchain
+          rm -rf .lake lake-manifest.json
+          export COMPARATOR_LANDRUN=/tmp/landrun
+          export COMPARATOR_LEAN4EXPORT=/tmp/comparator/.lake/packages/lean4export/.lake/build/bin/lean4export
+          export COMPARATOR_NANODA=/tmp/nanoda/target/release/nanoda_bin
+          echo '=== GENERATED-SEMANTICS 36-THEOREM STATEMENT-LOCK GATE ==='
+          lake env /tmp/comparator/.lake/build/bin/comparator comparator_generated.json

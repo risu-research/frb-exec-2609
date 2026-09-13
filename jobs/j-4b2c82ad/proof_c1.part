@@ -1,0 +1,35 @@
+-- c1
+ theorem c1_weaker : SubsetOn (H c1d) (H c1a) (H c1s) ∧ NewlyAdmitted (H c1d) (H c1a) (H c1s) := by
+  constructor
+  · intro e _ hi
+    cases h : e.bv 0 <;> simp [H, Holds, c1a, c1s, evalB, evalI, h] at hi ⊢ <;> omega
+  · refine ⟨mkEnv [0,0] [true], ?_⟩
+    simp [H, Holds, mkEnv, c1d, c1a, c1s, evalB, evalI]
+ theorem c1_channel : AcceptsBehavior (H c1d) (H c1b) (H c1s) ∧ ViolatesIntent (H c1d) (H c1a) (H c1b) := by
+  constructor
+  · intro e _ hb
+    cases h : e.bv 0 <;> simp [H, Holds, c1b, c1s, evalB, evalI, h] at hb ⊢ <;> omega
+  · refine ⟨mkEnv [0,0] [true], ?_⟩
+    simp [H, Holds, mkEnv, c1d, c1a, c1b, evalB, evalI]
+ theorem c1_qa : Safe (H c1d) (H c1a) (H c1q0) ∧ ¬ Covers (H c1d) (H c1a) (H c1q0) := by
+  constructor
+  · intro e _ hi hq
+    cases h : e.bv 0 <;> simp [H, Holds, c1a, c1q0, evalB, evalI, h] at hi hq <;> omega
+  · intro hc
+    have h := hc (mkEnv [0,1] [false]) (by simp [H, Holds, mkEnv, c1d, evalB, evalI]) (by simp [H, Holds, mkEnv, c1a, evalB, evalI])
+    simpa [H, Holds, mkEnv, c1q0, evalB, evalI] using h
+ theorem c1_qb : Safe (H c1d) (H c1a) (H c1q1) ∧ ¬ Covers (H c1d) (H c1a) (H c1q1) := by
+  constructor
+  · intro e _ hi hq
+    cases h : e.bv 0 <;> simp [H, Holds, c1a, c1q1, evalB, evalI, h] at hi hq <;> omega
+  · intro hc
+    have h := hc (mkEnv [0,0] [true]) (by simp [H, Holds, mkEnv, c1d, evalB, evalI]) (by simp [H, Holds, mkEnv, c1a, evalB, evalI])
+    simpa [H, Holds, mkEnv, c1q1, evalB, evalI] using h
+ theorem c1_full : Safe (H c1d) (H c1a) (H c1all) ∧ Covers (H c1d) (H c1a) (H c1all) := by
+  constructor
+  · intro e _ hi hk
+    cases h : e.bv 0 <;> simp [H, Holds, c1a, c1all, c1q0, c1q1, evalB, evalI, h] at hi hk <;> omega
+  · intro e _ hni
+    cases h : e.bv 0 <;> simp [H, Holds, c1a, c1all, c1q0, c1q1, evalB, evalI, h] at hni ⊢ <;> omega
+ theorem c1_exact : GuardAccepts (H c1d) (H c1all) (H c1s) ↔ SubsetOn (H c1d) (H c1s) (H c1a) :=
+  q7 (H c1d) (H c1a) (H c1all) (H c1s) c1_full.1 c1_full.2

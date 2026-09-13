@@ -1,0 +1,41 @@
+-- c5
+ theorem c5_weaker : SubsetOn (H c5d) (H c5a) (H c5s) ∧ NewlyAdmitted (H c5d) (H c5a) (H c5s) := by
+  constructor
+  · intro e hd hi
+    simp [H, Holds, c5d, c5a, c5s, evalB, evalI] at hd hi ⊢
+    omega
+  · refine ⟨mkEnv [2,2] [], ?_⟩
+    simp [H, Holds, mkEnv, c5d, c5a, c5s, evalB, evalI]
+ theorem c5_channel : AcceptsBehavior (H c5d) (H c5b) (H c5s) ∧ ViolatesIntent (H c5d) (H c5a) (H c5b) := by
+  constructor
+  · intro e hd hb
+    simp [H, Holds, c5d, c5b, c5s, evalB, evalI] at hd hb ⊢
+    omega
+  · refine ⟨mkEnv [2,2] [], ?_⟩
+    simp [H, Holds, mkEnv, c5d, c5a, c5b, evalB, evalI]
+ theorem c5_qa : Safe (H c5d) (H c5a) (H c5q0) ∧ ¬ Covers (H c5d) (H c5a) (H c5q0) := by
+  constructor
+  · intro e hd hi hq
+    simp [H, Holds, c5a, c5q0, evalB, evalI] at hi hq
+    omega
+  · intro hc
+    have h := hc (mkEnv [2,2] []) (by simp [H, Holds, mkEnv, c5d, evalB, evalI]) (by simp [H, Holds, mkEnv, c5a, evalB, evalI])
+    simpa [H, Holds, mkEnv, c5q0, evalB, evalI] using h
+ theorem c5_qb : Safe (H c5d) (H c5a) (H c5q1) ∧ ¬ Covers (H c5d) (H c5a) (H c5q1) := by
+  constructor
+  · intro e hd hi hq
+    simp [H, Holds, c5a, c5q1, evalB, evalI] at hi hq
+    omega
+  · intro hc
+    have h := hc (mkEnv [0,1] []) (by simp [H, Holds, mkEnv, c5d, evalB, evalI]) (by simp [H, Holds, mkEnv, c5a, evalB, evalI])
+    simpa [H, Holds, mkEnv, c5q1, evalB, evalI] using h
+ theorem c5_full : Safe (H c5d) (H c5a) (H c5all) ∧ Covers (H c5d) (H c5a) (H c5all) := by
+  constructor
+  · intro e hd hi hk
+    simp [H, Holds, c5a, c5all, c5q0, c5q1, evalB, evalI] at hi hk
+    omega
+  · intro e hd hni
+    simp [H, Holds, c5a, c5all, c5q0, c5q1, evalB, evalI] at hni ⊢
+    omega
+ theorem c5_exact : GuardAccepts (H c5d) (H c5all) (H c5s) ↔ SubsetOn (H c5d) (H c5s) (H c5a) :=
+  q7 (H c5d) (H c5a) (H c5all) (H c5s) c5_full.1 c5_full.2

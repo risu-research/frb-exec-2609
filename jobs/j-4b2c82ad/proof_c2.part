@@ -1,0 +1,35 @@
+-- c2
+ theorem c2_weaker : SubsetOn (H c2d) (H c2a) (H c2s) ∧ NewlyAdmitted (H c2d) (H c2a) (H c2s) := by
+  constructor
+  · intro e _ hi
+    cases h0 : e.bv 0 <;> cases h1 : e.bv 1 <;> cases h2 : e.bv 2 <;> simp [H, Holds, c2a, c2s, evalB, evalI, h0, h1, h2] at hi ⊢
+  · refine ⟨mkEnv [] [true,false,true], ?_⟩
+    simp [H, Holds, mkEnv, c2d, c2a, c2s, evalB, evalI]
+ theorem c2_channel : AcceptsBehavior (H c2d) (H c2b) (H c2s) ∧ ViolatesIntent (H c2d) (H c2a) (H c2b) := by
+  constructor
+  · intro e _ hb
+    cases h0 : e.bv 0 <;> cases h1 : e.bv 1 <;> cases h2 : e.bv 2 <;> simp [H, Holds, c2b, c2s, evalB, evalI, h0, h1, h2] at hb ⊢
+  · refine ⟨mkEnv [] [true,false,true], ?_⟩
+    simp [H, Holds, mkEnv, c2d, c2a, c2b, evalB, evalI]
+ theorem c2_qa : Safe (H c2d) (H c2a) (H c2q0) ∧ ¬ Covers (H c2d) (H c2a) (H c2q0) := by
+  constructor
+  · intro e _ hi hq
+    cases h0 : e.bv 0 <;> cases h1 : e.bv 1 <;> cases h2 : e.bv 2 <;> simp [H, Holds, c2a, c2q0, evalB, evalI, h0, h1, h2] at hi hq
+  · intro hc
+    have h := hc (mkEnv [] [true,true,false]) (by simp [H, Holds, mkEnv, c2d, evalB, evalI]) (by simp [H, Holds, mkEnv, c2a, evalB, evalI])
+    simpa [H, Holds, mkEnv, c2q0, evalB, evalI] using h
+ theorem c2_qb : Safe (H c2d) (H c2a) (H c2q1) ∧ ¬ Covers (H c2d) (H c2a) (H c2q1) := by
+  constructor
+  · intro e _ hi hq
+    cases h0 : e.bv 0 <;> cases h1 : e.bv 1 <;> cases h2 : e.bv 2 <;> simp [H, Holds, c2a, c2q1, evalB, evalI, h0, h1, h2] at hi hq
+  · intro hc
+    have h := hc (mkEnv [] [true,false,true]) (by simp [H, Holds, mkEnv, c2d, evalB, evalI]) (by simp [H, Holds, mkEnv, c2a, evalB, evalI])
+    simpa [H, Holds, mkEnv, c2q1, evalB, evalI] using h
+ theorem c2_full : Safe (H c2d) (H c2a) (H c2all) ∧ Covers (H c2d) (H c2a) (H c2all) := by
+  constructor
+  · intro e _ hi hk
+    cases h0 : e.bv 0 <;> cases h1 : e.bv 1 <;> cases h2 : e.bv 2 <;> simp [H, Holds, c2a, c2all, c2q0, c2q1, evalB, evalI, h0, h1, h2] at hi hk
+  · intro e _ hni
+    cases h0 : e.bv 0 <;> cases h1 : e.bv 1 <;> cases h2 : e.bv 2 <;> simp [H, Holds, c2a, c2all, c2q0, c2q1, evalB, evalI, h0, h1, h2] at hni ⊢
+ theorem c2_exact : GuardAccepts (H c2d) (H c2all) (H c2s) ↔ SubsetOn (H c2d) (H c2s) (H c2a) :=
+  q7 (H c2d) (H c2a) (H c2all) (H c2s) c2_full.1 c2_full.2
