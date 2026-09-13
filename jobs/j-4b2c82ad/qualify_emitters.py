@@ -16,7 +16,7 @@ PATCHES = {
         ("if tag in ('eqb','neb'): return f'(.{tag} {emit_b(x[1])} {emit_b(x[2])})'", "if tag in ('eqb','neb'): return f'(BExpr.{tag} {emit_b(x[1])} {emit_b(x[2])})'"),
         ("if tag=='iteb': return f'(.ite {emit_b(x[1])} {emit_b(x[2])} {emit_b(x[3])})'", "if tag=='iteb': return f'(BExpr.ite {emit_b(x[1])} {emit_b(x[2])} {emit_b(x[3])})'"),
         ("s=f'(.or {n} {s})'", "s=f'(BExpr.or {n} {s})'"),
-        ("else: L.append(f'def {p}guard : BExpr := (.lit false)')", "else: L.append(f'def {p}guard : BExpr := (BExpr.lit false)')"),
+        ("L.append(f'def {p}guard : BExpr := {or_all(gnames) if gnames else \"(.lit false)\"}')", "L.append(f'def {p}guard : BExpr := {or_all(gnames) if gnames else \"(BExpr.lit false)\"}')"),
     ],
     'compile_js.mjs': [
         ("if(t==='int')return `(.lit ${x[1]})`", "if(t==='int')return `(ITerm.lit ${x[1]})`"),
