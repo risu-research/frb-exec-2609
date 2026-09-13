@@ -1,0 +1,62 @@
+name: j-v2r2-q
+on:
+  push:
+    branches: ["exec/j-v2r2-q"]
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    env:
+      V2R2_CANDIDATE_COMMIT: e68065a75a6d03e7d6c7b6b09349357c6ec7ae1f
+    steps:
+      - name: checkout execution substrate
+        uses: actions/checkout@v4
+      - name: checkout V2R2 candidate
+        uses: actions/checkout@v4
+        with:
+          repository: risu-research/consequence-drift
+          ref: e68065a75a6d03e7d6c7b6b09349357c6ec7ae1f
+          token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
+          path: scientific
+          persist-credentials: false
+      - name: zero-call qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "${GEMINI_API_KEY:-}"
+          test "$(git -C scientific rev-parse HEAD)" = "$V2R2_CANDIDATE_COMMIT"
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python scientific/scripts/test_v2_apparatus.py > inherited-v2.log
+          cmp inherited-v2.log scientific/qualification/synthetic-tests.log
+          python scientific/scripts/test_v2r2_429_transport.py > v2r2.log
+          grep -qx 'PASS_V2R2_TRANSPORT_TESTS 4/4' v2r2.log
+          python - <<'PY'
+          from pathlib import Path
+          from v2r2_gate import load_policy
+          p=load_policy(Path('scientific'))
+          assert p['outcome_direction_consulted'] is False
+          assert p['behavior_facing_changes'] is False
+          print('PASS_V2R2_POLICY')
+          PY
+      - name: qualification receipt
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          files={}
+          for rel in ['inherited-v2.log','v2r2.log']:
+              p=Path(rel); files[rel]=hashlib.sha256(p.read_bytes()).hexdigest()
+          obj={'schema':'cd.v2r2.qualification.v1','status':'PASS','candidate_commit':os.environ['V2R2_CANDIDATE_COMMIT'],'model_credential_present':False,'live_generation_calls':0,'files':files}
+          Path('v2r2-q-receipt.json').write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(obj,sort_keys=True,separators=(',',':')))
+          PY
+      - name: upload qualification
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-v2r2-q-evidence
+          path: |
+            inherited-v2.log
+            v2r2.log
+            v2r2-q-receipt.json
