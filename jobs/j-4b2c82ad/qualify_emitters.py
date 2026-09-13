@@ -2,7 +2,7 @@ from pathlib import Path
 
 PATCHES = {
     'compile_py.py': [
-        ("if tag=='int': return f'(.lit {x[1]})'", "if tag=='int': return f'(ITerm.lit {x[1]})'"),
+        ("if tag=='int': return f'(.lit {x[1]})'", "if tag=='int': return f'(ITerm.lit ({x[1]}))'"),
         ("if tag=='iv': return f'(.var {x[1]})'", "if tag=='iv': return f'(ITerm.var {x[1]})'"),
         ("if tag in ('add','sub'): return f'(.{tag} {emit_i(x[1])} {emit_i(x[2])})'", "if tag in ('add','sub'): return f'(ITerm.{tag} {emit_i(x[1])} {emit_i(x[2])})'"),
         ("if tag=='itei': return f'(.ite {emit_b(x[1])} {emit_i(x[2])} {emit_i(x[3])})'", "if tag=='itei': return f'(ITerm.ite {emit_b(x[1])} {emit_i(x[2])} {emit_i(x[3])})'"),
@@ -19,7 +19,7 @@ PATCHES = {
         ("L.append(f'def {p}guard : BExpr := {or_all(gnames) if gnames else \"(.lit false)\"}')", "L.append(f'def {p}guard : BExpr := {or_all(gnames) if gnames else \"(BExpr.lit false)\"}')"),
     ],
     'compile_js.mjs': [
-        ("if(t==='int')return `(.lit ${x[1]})`", "if(t==='int')return `(ITerm.lit ${x[1]})`"),
+        ("if(t==='int')return `(.lit ${x[1]})`", "if(t==='int')return `(ITerm.lit (${x[1]}))`"),
         ("if(t==='iv')return `(.var ${x[1]})`", "if(t==='iv')return `(ITerm.var ${x[1]})`"),
         ("if(['add','sub'].includes(t))return `(.${t} ${emitI(x[1])} ${emitI(x[2])})`", "if(['add','sub'].includes(t))return `(ITerm.${t} ${emitI(x[1])} ${emitI(x[2])})`"),
         ("if(t==='itei')return `(.ite ${emitB(x[1])} ${emitI(x[2])} ${emitI(x[3])})`", "if(t==='itei')return `(ITerm.ite ${emitB(x[1])} ${emitI(x[2])} ${emitI(x[3])})`"),
