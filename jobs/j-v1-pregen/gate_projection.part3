@@ -1,0 +1,1 @@
+    return {"decision":"GO" if(vals[1] or vals[2]) else "NO_GO","P0_diagnostic_only":vals[0],"decision_inputs":{"P1_semantic_spec_edit_utilized":vals[1],"P2_semantic_spec_edit_utilized":vals[2]},"outcome_direction_consulted":False,"excluded_from_primary":True}
