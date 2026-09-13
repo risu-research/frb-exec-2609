@@ -1,0 +1,30 @@
+from __future__ import annotations
+import json
+from pathlib import Path
+from typing import Any
+from a0_3_protocol import RunLimits, WorkspaceTools, run_agent_loop, sha256_text
+from study_controller import StudyVerifier, build_result_manifest, materialize_workspace, validate_result_manifest_shape
+from finite_task_ir import load_bank_text
+LOCKED_MODEL="gemini-3.8-flash"
+CORE_SHA256="29442862fd453fb9d18e43782a19aa8511f556628b4143fddf72c3dce9d693a3"
+GATE_JOB_IDS=("v1-excluded-p0","v1-excluded-p1","v1-excluded-p2")
+class PreGenerationError(RuntimeError): pass
+def _read(p): return Path(p).read_text()
+def _load_gate(root):
+    o=json.loads(_read(root/"V0_INDUCIBILITY_GATE_V2.json")); runs=o["runs"]
+    if [x["ordinal"] for x in runs]!=[0,1,2] or [x["condition"] for x in runs]!=["EDITABLE"]*3: raise PreGenerationError("gate")
+    return o
+def _load_prompts(root):
+    o=json.loads(_read(root/"V0_INDUCIBILITY_PROMPTS.json"))
+    if o["core_instruction_sha256"]!=CORE_SHA256: raise PreGenerationError("core")
+    for k,v in o["task_text"].items():
+        if sha256_text(v)!=o["task_text_sha256"][k]: raise PreGenerationError("prompt sha")
+    return o["task_text"]
+def preflight_static(root):
+    root=Path(root); gate=_load_gate(root); prompts=_load_prompts(root)
+    core=_read(root/"a0_3_core_instruction.txt")
+    if sha256_text(core)!=CORE_SHA256: raise PreGenerationError("core bytes")
+    lock=json.loads(_read(root/"V0_PROVIDER_MODEL_LOCK_V2.json"))
+    if lock["provider"]["model"]!=LOCKED_MODEL or lock["provider"]["fallback_model"] is not None or lock["provider"]["paid_fallback_prohibited"] is not True: raise PreGenerationError("model lock")
+    tasks={t.task_id:t for t in load_bank_text(_read(root/"a0_3_pressure_tasks.json"))}
+    for m in gate["runs"]:
