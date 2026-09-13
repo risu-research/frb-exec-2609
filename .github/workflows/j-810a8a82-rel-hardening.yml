@@ -1,0 +1,81 @@
+name: j-810a8a82-rel-hardening
+on:
+  push:
+    branches: ["exec/j-810a8a82"]
+permissions:
+  contents: read
+jobs:
+  mutations:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: reject-semantic-kernel-mutations
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          cd jobs/j-4b2c82ad
+          python qualify_emitters.py
+          python translation_gate.py
+          python relational_adapter.py
+          echo leanprover/lean4:v4.34.0-rc2 > lean-toolchain
+          elan toolchain install leanprover/lean4:v4.34.0-rc2
+          rm -rf .lake lake-manifest.json
+          lake build RelSemantics
+          lake env lean RelBridge.lean
+          cp RelSemantics.lean /tmp/RelSemantics.good
+          for M in lt_to_le and_to_or imp_reverse; do
+            cp /tmp/RelSemantics.good RelSemantics.lean
+            python semantic_mutation_gate.py "$M"
+            rm -rf .lake lake-manifest.json
+            lake build RelSemantics
+            if lake env lean RelBridge.lean > "/tmp/${M}.log" 2>&1; then
+              echo "SEMANTIC_MUTATION_NOT_REJECTED:${M}"
+              exit 1
+            fi
+            if grep -Eiq 'unknown module|unexpected token|invalid syntax' "/tmp/${M}.log"; then
+              cat "/tmp/${M}.log"
+              echo "MUTATION_CONTROL_INVALID_FAILURE_MODE:${M}"
+              exit 1
+            fi
+            echo "SEMANTIC_MUTATION_REJECT_PASS:${M}"
+          done
+          cp /tmp/RelSemantics.good RelSemantics.lean
+          rm -rf .lake lake-manifest.json
+          lake build RelSemantics
+          lake env lean RelBridge.lean
+          echo CLEAN_BRIDGE_RESTORE_PASS
+  bridge-judge:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: comparator-nanoda-bridge-lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          export PATH="$HOME/.elan/bin:$PATH"
+          elan toolchain install leanprover/lean4:v4.34.0-rc2
+          git clone -q https://github.com/leanprover/comparator.git /tmp/comparator
+          git -C /tmp/comparator checkout -q 2312244ac716564a61cc0bf4e107d9abf1757a61
+          (cd /tmp/comparator && lake build lean4export comparator)
+          git clone -q https://github.com/ammkrn/nanoda_lib.git /tmp/nanoda
+          git -C /tmp/nanoda checkout -q 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+          (cd /tmp/nanoda && cargo build --release --bin nanoda_bin)
+          git clone -q https://github.com/Zouuup/landrun.git /tmp/landrun-src
+          git -C /tmp/landrun-src checkout -q 811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
+          (cd /tmp/landrun-src && go build -o /tmp/landrun ./cmd/landrun/main.go)
+          cd jobs/j-4b2c82ad
+          python qualify_emitters.py
+          python translation_gate.py
+          python relational_adapter.py
+          python bridge_judge_prep.py
+          echo leanprover/lean4:v4.34.0-rc2 > lean-toolchain
+          rm -rf .lake lake-manifest.json
+          lake build RelBridgeSolution
+          export COMPARATOR_LANDRUN=/tmp/landrun
+          export COMPARATOR_LEAN4EXPORT=/tmp/comparator/.lake/packages/lean4export/.lake/build/bin/lean4export
+          export COMPARATOR_NANODA=/tmp/nanoda/target/release/nanoda_bin
+          lake env /tmp/comparator/.lake/build/bin/comparator comparator_bridge.json
+          echo BRIDGE_COMPARATOR_NANODA_PASS
