@@ -17,8 +17,13 @@ jobs:
           export PATH="$HOME/.elan/bin:$PATH"
           cd jobs/j-4b2c82ad
           ! grep -n 'sorry' RelSemantics.lean RelBridge.lean
+          python qualify_emitters.py
+          python translation_gate.py
+          python relational_adapter.py
           for V in v4.33.1 v4.34.0-rc2; do
             echo "leanprover/lean4:${V}" > lean-toolchain
             elan toolchain install "leanprover/lean4:${V}"
+            rm -rf .lake lake-manifest.json
+            lake build RelSemantics
             lake env lean RelBridge.lean
           done
