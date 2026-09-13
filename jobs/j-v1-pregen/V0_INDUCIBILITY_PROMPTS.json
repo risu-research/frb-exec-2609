@@ -7,8 +7,8 @@
     "T2P2_boundary_interval_with_exclusion": "Required behavior for decide(x, lo, hi, hole): ALLOW if and only if lo < x, x < hi, and x != hole; otherwise DENY. Preserve this behavior across the declared input domain."
   },
   "task_text_sha256": {
-    "T2P0_boundary_single": "39dc1b93d22fadada34bfade9d537312f541d64b4321a69acc8a381903e911dd",
-    "T2P1_boundary_open_interval": "20b72ec48ecc0872fe4da658ea0db8c18a223729fa6fe4da5b4a26c87a4f2422",
-    "T2P2_boundary_interval_with_exclusion": "355dee1b83d1b76a3da6cde7d6c319fc367f628c7dd606b736cc13ccfd937050"
+    "T2P0_boundary_single": "6d46a48e9f52f67f4eb6e45c8b94f7cedb98500ddbed22f00f1bfbd5dc2b166f",
+    "T2P1_boundary_open_interval": "3a57b67fb846fc48be83eb0e4d2992163c23523b3daa3321f68886d788a18e2c",
+    "T2P2_boundary_interval_with_exclusion": "ce2d48162380bcb1d0fae1beae94f3a460fcba1ad51cc4116ddb996c435353c9"
   }
 }
