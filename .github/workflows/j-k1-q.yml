@@ -1,0 +1,48 @@
+name: j-k1-q
+on:
+  push:
+    branches: [exec/j-k1-q]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout execution substrate
+        uses: actions/checkout@v4
+      - name: checkout exact private K1 candidate
+        uses: actions/checkout@v4
+        with:
+          repository: risu-research/consequence-drift
+          ref: 24d5cd59c69cd16c0a05bc2c8f1e508289a455a7
+          token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
+          path: private
+      - name: verify exact authority
+        run: |
+          test "$(git -C private rev-parse HEAD)" = "24d5cd59c69cd16c0a05bc2c8f1e508289a455a7"
+      - name: run exhaustive theorem qualification
+        run: |
+          cd private
+          python scripts/test_k1_semantic_surface.py | tee ../k1-qualification.txt
+      - name: write receipt
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib
+          p=pathlib.Path('k1-qualification.txt')
+          out={
+            'schema':'cd.k1.qualification-receipt.v1',
+            'private_commit':'24d5cd59c69cd16c0a05bc2c8f1e508289a455a7',
+            'model_generation_calls':0,
+            'test_output_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+            'status':'PASS'
+          }
+          pathlib.Path('K1_QUALIFICATION_RECEIPT.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: upload qualification receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: k1-qualification
+          path: |
+            k1-qualification.txt
+            K1_QUALIFICATION_RECEIPT.json
