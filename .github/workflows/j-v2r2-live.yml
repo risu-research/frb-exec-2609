@@ -4,14 +4,19 @@ on:
     branches: ["exec/j-v2r2-live"]
 permissions:
   contents: read
+  actions: read
 jobs:
   gate:
     runs-on: ubuntu-24.04
     env:
       V2R2_PRIVATE_COMMIT: 067b17d26559664c45c3a67f9407ebe2ccd4db37
+      CHECKPOINT_RUN_ID: "34736240487"
+      CHECKPOINT_ARTIFACT_ID: "10311133293"
+      CHECKPOINT_ZIP_SHA256: "18d1591218f25e5b0a850f585d5928b66528235ca7a43dd29686547ed587227e"
     steps:
       - name: checkout execution substrate
         uses: actions/checkout@v4
+
       - name: checkout sealed V2R2 authority
         uses: actions/checkout@v4
         with:
@@ -20,6 +25,7 @@ jobs:
           token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
           path: scientific
           persist-credentials: false
+
       - name: verify exact V2R2 authority
         shell: bash
         run: |
@@ -28,11 +34,59 @@ jobs:
           test "$(git -C scientific hash-object protocol/V2R2_429_TRANSPORT_POLICY.json)" = "1fbbd0f54fc7f3f935c5aa695ea862d7d75dde95"
           test "$(git -C scientific hash-object runner/v2r2_gemini_provider.py)" = "ab8f11e68ad05baf157266c7669b282adec0a894"
           test "$(git -C scientific hash-object runner/v2r2_gate.py)" = "ddd2ef22350c16ed9db7fde03dc8b59f4404307f"
+          test "$(git -C scientific hash-object runner/v2_inducibility_executor.py)" = "2542267f866a971321a0a41dd623b24b9acd0cdb"
           test "$(git -C scientific hash-object scripts/test_v2r2_429_transport.py)" = "7aacf7eb8ed5b2406c2c278b3379934c0ad70ace"
           test "$(git -C scientific hash-object protocol/V2R2_APPARATUS_LOCK.json)" = "0aa42abd7cf62b7adc9a64788d9fdc652c449ce0"
           export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
           python scientific/scripts/test_v2r2_429_transport.py
-      - name: execute sealed V2R2 gate
+
+      - name: download frozen checkpoint
+        uses: actions/download-artifact@v4
+        with:
+          name: j-v2r2-live-evidence
+          path: checkpoint
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: risu-research/frb-exec-2609
+          run-id: 34736240487
+
+      - name: verify checkpoint and preserve canonical P0
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os,shutil
+          from pathlib import Path
+          cp=Path('checkpoint')
+          idx=json.loads((cp/'v2r2-artifact-index.json').read_text())
+          assert idx['schema']=='neutral.v2r2-artifact-index.v1'
+          assert idx['head_sha']=='57c17f5bb6989a75aa40e3e60f4f0d2b086b517e'
+          assert idx['scientific_authority_commit']==os.environ['V2R2_PRIVATE_COMMIT']
+          for rel,expected in idx['files'].items():
+              p=cp/rel
+              assert p.is_file(), rel
+              got=hashlib.sha256(p.read_bytes()).hexdigest()
+              assert got==expected, (rel,got,expected)
+          receipt=json.loads((cp/'v2r2-output/V2R2_LIVE_RECEIPT.json').read_text())
+          assert receipt=={
+              'canonicalized':[0],
+              'decision':None,
+              'generation_observed':False,
+              'ordinal':1,
+              'schema':'cd.v2r2.live-gate-receipt.v1',
+              'status':'APPARATUS_INCOMPLETE',
+          }
+          p0=cp/'v2r2-output/results/v2-excluded-p0.json'
+          p0sha=hashlib.sha256(p0.read_bytes()).hexdigest()
+          assert p0sha=='05a06c88356815777ed3b458d48f088007fbffb4dfb54a86332466bc29134d85'
+          assert (cp/'v2r2-output/results/v2-excluded-p0.json.sha256').read_text().strip()==p0sha
+          a1=json.loads((cp/'v2r2-output/attempts/v2-excluded-p1/attempt-001/ZERO_OUTPUT_ATTEMPT.json').read_text())
+          assert a1['generation_observed'] is False and a1['attempt_id']=='attempt-001'
+          shutil.copytree(cp/'v2r2-output',Path('v2r2-output'))
+          print('CHECKPOINT_VERIFIED_P0_PRESERVED')
+          PY
+
+      - name: continue exactly once from P1 under sealed V2R2
+        id: continue_gate
         shell: bash
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -40,31 +94,69 @@ jobs:
           set -euo pipefail
           export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
           python - <<'PY'
-          import json,os
+          import json,os,time
           from pathlib import Path
-          from v2r2_gate import run_v2r2_gate
-          r=run_v2r2_gate(repo_root=Path('scientific'),output_root=Path('v2r2-output'),apparatus_commit=os.environ['V2R2_PRIVATE_COMMIT'])
+          import v2_inducibility_executor as v2
+          from v2r2_gate import load_policy,_write_transport_receipt
+          from v2r2_gemini_provider import make_v2r2_live_provider
+
+          root=Path('scientific').resolve(); out=Path('v2r2-output').resolve()
+          apparatus=os.environ['V2R2_PRIVATE_COMMIT']
+          inherited=v2.preflight_static(root)
+          assert inherited['status']=='PASS' and inherited['generation_calls']==0
+          load_policy(root)
+
+          # Continuation is deliberately ordinal-specific: P0 is never invoked.
+          time.sleep(65)
+          p1_provider=make_v2r2_live_provider()
+          p1=v2.execute_gate_job_with_provider(repo_root=root,output_root=out,ordinal=1,provider=p1_provider,apparatus_commit=apparatus)
+          _write_transport_receipt(out,1,p1_provider,p1)
+          if p1.name=='ZERO_OUTPUT_ATTEMPT.json':
+              r={'schema':'cd.v2r2.continuation-receipt.v1','status':'PERMANENT_STOP_PROVIDER','reason':'P1_SECOND_ZERO_MODEL_OUTPUT_OR_QUOTA_CENSORED','p0_reexecuted':False,'p1_attempt':p1.parent.name,'decision':None}
+              (out/'V2R2_CONTINUATION_RECEIPT.json').write_text(json.dumps(r,indent=2,sort_keys=True)+'\n')
+              print(json.dumps(r,sort_keys=True,separators=(',',':')))
+              raise SystemExit(76)
+
+          # P1 canonicalized; perform exactly one P2 under the same sealed apparatus.
+          time.sleep(65)
+          p2_provider=make_v2r2_live_provider()
+          p2=v2.execute_gate_job_with_provider(repo_root=root,output_root=out,ordinal=2,provider=p2_provider,apparatus_commit=apparatus)
+          _write_transport_receipt(out,2,p2_provider,p2)
+          if p2.name=='ZERO_OUTPUT_ATTEMPT.json':
+              r={'schema':'cd.v2r2.continuation-receipt.v1','status':'INCONCLUSIVE_APPARATUS','reason':'P2_ZERO_MODEL_OUTPUT','p0_reexecuted':False,'p1_canonicalized':True,'p2_attempt':p2.parent.name,'decision':None}
+              (out/'V2R2_CONTINUATION_RECEIPT.json').write_text(json.dumps(r,indent=2,sort_keys=True)+'\n')
+              print(json.dumps(r,sort_keys=True,separators=(',',':')))
+              raise SystemExit(77)
+
+          d=v2.gate_decision(out)
+          (out/'decision.json').write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
+          r={'schema':'cd.v2r2.continuation-receipt.v1','status':'COMPLETE','p0_reexecuted':False,'canonicalized':[0,1,2],'decision':d['decision'],'decision_basis':d['basis']}
+          (out/'V2R2_CONTINUATION_RECEIPT.json').write_text(json.dumps(r,indent=2,sort_keys=True)+'\n')
           print(json.dumps(r,sort_keys=True,separators=(',',':')))
-          if r['status'] != 'COMPLETE': raise SystemExit(75)
           PY
-      - name: artifact integrity index
+
+      - name: independent post-run integrity index
         if: always()
         shell: bash
         run: |
+          set -euo pipefail
           python - <<'PY'
           import hashlib,json,os
           from pathlib import Path
-          files={}; root=Path('v2r2-output')
-          if root.exists():
-              for p in sorted(x for x in root.rglob('*') if x.is_file()): files[p.as_posix()]=hashlib.sha256(p.read_bytes()).hexdigest()
-          obj={'schema':'neutral.v2r2-artifact-index.v1','head_sha':os.environ['GITHUB_SHA'],'scientific_authority_commit':os.environ['V2R2_PRIVATE_COMMIT'],'files':files}
-          Path('v2r2-artifact-index.json').write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+          root=Path('v2r2-output'); files={}
+          for p in sorted(x for x in root.rglob('*') if x.is_file()):
+              files[p.as_posix()]=hashlib.sha256(p.read_bytes()).hexdigest()
+          p0=root/'results/v2-excluded-p0.json'
+          assert hashlib.sha256(p0.read_bytes()).hexdigest()=='05a06c88356815777ed3b458d48f088007fbffb4dfb54a86332466bc29134d85'
+          obj={'schema':'neutral.v2r2-continuation-artifact-index.v1','head_sha':os.environ['GITHUB_SHA'],'scientific_authority_commit':os.environ['V2R2_PRIVATE_COMMIT'],'checkpoint_artifact_id':int(os.environ['CHECKPOINT_ARTIFACT_ID']),'checkpoint_zip_sha256':os.environ['CHECKPOINT_ZIP_SHA256'],'p0_preserved_sha256':'05a06c88356815777ed3b458d48f088007fbffb4dfb54a86332466bc29134d85','files':files}
+          Path('v2r2-continuation-artifact-index.json').write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
           PY
-      - name: upload V2R2 evidence
+
+      - name: upload continuation evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: j-v2r2-live-evidence
+          name: j-v2r2-continuation-evidence
           path: |
             v2r2-output
-            v2r2-artifact-index.json
+            v2r2-continuation-artifact-index.json
