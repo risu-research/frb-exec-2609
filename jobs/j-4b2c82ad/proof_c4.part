@@ -37,11 +37,12 @@
     · exact hk hi.1
     · exact hk hi.2
   · intro e _ hni
-    simp [H, Holds, c4a, c4all, c4q0, c4q1, evalB, evalI] at hni ⊢
     by_cases h0 : e.iv 2 = e.iv 0 + 1
-    · right
-      intro h1
-      exact hni ⟨h0,h1⟩
-    · exact Or.inl h0
+    · by_cases h1 : e.iv 3 = e.iv 1
+      · exfalso
+        apply hni
+        simpa [H, Holds, c4a, evalB, evalI] using And.intro h0 h1
+      · simp [H, Holds, c4all, c4q0, c4q1, evalB, evalI, h1]
+    · simp [H, Holds, c4all, c4q0, c4q1, evalB, evalI, h0]
  theorem c4_exact : GuardAccepts (H c4d) (H c4all) (H c4s) ↔ SubsetOn (H c4d) (H c4s) (H c4a) :=
   q7 (H c4d) (H c4a) (H c4all) (H c4s) c4_full.1 c4_full.2
