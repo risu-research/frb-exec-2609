@@ -2,19 +2,22 @@
  theorem c4_weaker : SubsetOn (H c4d) (H c4a) (H c4s) ∧ NewlyAdmitted (H c4d) (H c4a) (H c4s) := by
   constructor
   · intro e _ hi
-    simpa [H, Holds, c4a, c4s, evalB, evalI] using hi
+    simp [H, Holds, c4a, c4s, evalB, evalI] at hi ⊢
+    exact hi.1
   · refine ⟨mkEnv [0,0,1,1] [], ?_⟩
     simp [H, Holds, mkEnv, c4d, c4a, c4s, evalB, evalI]
  theorem c4_channel : AcceptsBehavior (H c4d) (H c4b) (H c4s) ∧ ViolatesIntent (H c4d) (H c4a) (H c4b) := by
   constructor
   · intro e _ hb
-    simpa [H, Holds, c4b, c4s, evalB, evalI] using hb
+    simp [H, Holds, c4b, c4s, evalB, evalI] at hb ⊢
+    exact hb.1
   · refine ⟨mkEnv [0,0,1,1] [], ?_⟩
     simp [H, Holds, mkEnv, c4d, c4a, c4b, evalB, evalI]
  theorem c4_qa : Safe (H c4d) (H c4a) (H c4q0) ∧ ¬ Covers (H c4d) (H c4a) (H c4q0) := by
   constructor
   · intro e _ hi hq
     simp [H, Holds, c4a, c4q0, evalB, evalI] at hi hq
+    exact hq hi.1
   · intro hc
     have h := hc (mkEnv [0,0,1,1] []) (by simp [H, Holds, mkEnv, c4d, evalB, evalI]) (by simp [H, Holds, mkEnv, c4a, evalB, evalI])
     simpa [H, Holds, mkEnv, c4q0, evalB, evalI] using h
@@ -22,6 +25,7 @@
   constructor
   · intro e _ hi hq
     simp [H, Holds, c4a, c4q1, evalB, evalI] at hi hq
+    exact hq hi.2
   · intro hc
     have h := hc (mkEnv [0,0,0,0] []) (by simp [H, Holds, mkEnv, c4d, evalB, evalI]) (by simp [H, Holds, mkEnv, c4a, evalB, evalI])
     simpa [H, Holds, mkEnv, c4q1, evalB, evalI] using h
@@ -29,8 +33,15 @@
   constructor
   · intro e _ hi hk
     simp [H, Holds, c4a, c4all, c4q0, c4q1, evalB, evalI] at hi hk
+    rcases hk with hk | hk
+    · exact hk hi.1
+    · exact hk hi.2
   · intro e _ hni
     simp [H, Holds, c4a, c4all, c4q0, c4q1, evalB, evalI] at hni ⊢
-    omega
+    by_cases h0 : e.iv 2 = e.iv 0 + 1
+    · right
+      intro h1
+      exact hni ⟨h0,h1⟩
+    · exact Or.inl h0
  theorem c4_exact : GuardAccepts (H c4d) (H c4all) (H c4s) ↔ SubsetOn (H c4d) (H c4s) (H c4a) :=
   q7 (H c4d) (H c4a) (H c4all) (H c4s) c4_full.1 c4_full.2
