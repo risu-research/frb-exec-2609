@@ -1,0 +1,45 @@
+name: j-primary-q
+on:
+  push:
+    branches: [exec/j-primary-q]
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout execution substrate
+        uses: actions/checkout@v4
+      - name: checkout exact private candidate
+        uses: actions/checkout@v4
+        with:
+          repository: risu-research/consequence-drift
+          ref: 1e8541f7ed8866d6341c2d6392396a86cc1c6f81
+          token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
+          path: scientific
+          persist-credentials: false
+      - name: run zero-generation qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python scientific/scripts/test_v2_primary_executor.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          obj={
+            "schema":"cd.v2.primary-launcher-qualification.v1",
+            "status":"PASS",
+            "private_candidate_commit":"1e8541f7ed8866d6341c2d6392396a86cc1c6f81",
+            "live_generation_calls":0,
+            "model_credential_present":False,
+            "synthetic_scientific_jobs":1,
+            "expected_real_primary_jobs":72
+          }
+          Path("primary-q-receipt.json").write_text(json.dumps(obj,indent=2,sort_keys=True)+"\n")
+          PY
+      - name: upload qualification receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-primary-q-receipt
+          path: primary-q-receipt.json
