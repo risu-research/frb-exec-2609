@@ -1,0 +1,49 @@
+name: j-f5533d3b
+on:
+  push:
+    branches: ["exec/j-f5533d3b"]
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: qualify-no-network-generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd jobs/j-f5533d3b
+          python --version
+          node --version
+          python -m py_compile gemini_interactions_provider.py protocol_projection.py qualify.py
+          python qualify.py | tee qualification-report.json
+          python - <<'PY'
+          import json
+          r=json.load(open('qualification-report.json'))
+          assert r['status']=='PASS'
+          assert r['fixture_cases']==35 and r['accepted']==3 and r['rejected']==32
+          assert r['python_node_differential_identity'] is True
+          assert r['request_surface_exact'] is True and r['stateless_exact_replay'] is True
+          assert r['multiple_calls_preserved_then_controller_rejected'] is True
+          assert r['thought_tokens_in_controller_output_budget'] is True
+          assert r['metadata_identity_strict'] is True and r['no_network_generation'] is True
+          PY
+          sha256sum gemini_interactions_provider.py protocol_projection.py qualify.py qualification-report.json | tee SHA256SUMS
+          python - <<'PY'
+          import json,hashlib,platform,subprocess,os
+          def sha(p): return hashlib.sha256(open(p,'rb').read()).hexdigest()
+          r=json.load(open('qualification-report.json'))
+          out={'schema':'neutral.adapter-public-receipt.v1','status':'PASS','commit':os.environ['GITHUB_SHA'],'python':platform.python_version(),'node':subprocess.check_output(['node','--version'],text=True).strip(),'adapter_sha256':sha('gemini_interactions_provider.py'),'projection_sha256':sha('protocol_projection.py'),'qualifier_sha256':sha('qualify.py'),'report_sha256':sha('qualification-report.json'),'fixture_sha256':r['fixture_sha256'],'generation_calls':0}
+          open('receipt.json','w').write(json.dumps(out,sort_keys=True,separators=(',',':'))+'\n')
+          print(open('receipt.json').read(),end='')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: j-f5533d3b-receipt
+          path: |
+            jobs/j-f5533d3b/qualification-report.json
+            jobs/j-f5533d3b/receipt.json
+            jobs/j-f5533d3b/SHA256SUMS
+          if-no-files-found: error
