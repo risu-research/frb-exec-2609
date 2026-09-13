@@ -1,0 +1,69 @@
+name: j-v1-pregen
+on:
+  push:
+    branches: ["exec/j-v1-pregen"]
+permissions:
+  contents: read
+jobs:
+  synthetic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: qualify-pregeneration-no-live-generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd jobs/j-v1-pregen
+          cat gate_projection.part0 gate_projection.part1 gate_projection.part2 gate_projection.part3 > gate_projection.py
+          export PYTHONPATH="$PWD:$PWD/../j-f5533d3b"
+          python -m py_compile a0_3_protocol.py finite_task_ir.py study_controller.py gate_projection.py qualify_pregen.py ../j-f5533d3b/gemini_interactions_provider.py
+          python qualify_pregen.py | tee synthetic-report.json
+          python - <<'PY'
+          import hashlib,json,platform,subprocess,os
+          r=json.load(open('synthetic-report.json'))
+          assert r['status']=='PASS'
+          assert r['generation_calls']==0
+          required=['static_preflight','order_fail_closed','zero_output_not_scientific','go_from_treatment_utilization_only','outcome_blind_mutation_invariant','no_overwrite','nogo_when_treatment_unused','first_observed_malformed_is_canonical','multiple_calls_preserved_then_terminal','request_surface_locked']
+          assert all(r.get(k) is True for k in required)
+          def sha(p): return hashlib.sha256(open(p,'rb').read()).hexdigest()
+          receipt={'schema':'neutral.v1-pregen-public-receipt.v1','status':'PASS_SYNTHETIC','commit':os.environ['GITHUB_SHA'],'generation_calls':0,'python':platform.python_version(),'node':subprocess.check_output(['node','--version'],text=True).strip(),'synthetic_report_sha256':sha('synthetic-report.json'),'gate_projection_sha256':sha('gate_projection.py'),'qualifier_sha256':sha('qualify_pregen.py'),'adapter_sha256':sha('../j-f5533d3b/gemini_interactions_provider.py')}
+          open('synthetic-receipt.json','w').write(json.dumps(receipt,sort_keys=True,separators=(',',':'))+'\n')
+          print(open('synthetic-receipt.json').read(),end='')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: j-v1-pregen-synthetic
+          path: |
+            jobs/j-v1-pregen/synthetic-report.json
+            jobs/j-v1-pregen/synthetic-receipt.json
+  metadata:
+    runs-on: ubuntu-24.04
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: metadata-only-model-visibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE/jobs/j-f5533d3b"
+          python - <<'PY'
+          import json,os,hashlib
+          from gemini_interactions_provider import probe_model_visibility
+          key=os.environ.get('GEMINI_API_KEY','')
+          receipt={'schema':'neutral.gemini-metadata-preflight.v1','model':'gemini-3.8-flash','generation_calls':0}
+          if not key:
+              receipt['status']='CREDENTIAL_MISSING'
+          else:
+              try:
+                  info=probe_model_visibility(api_key=key)
+                  receipt.update({'status':'PASS_METADATA_VISIBLE','metadata_name':info['metadata_name'],'raw_response_sha256':info['raw_response_sha256']})
+              except Exception as exc:
+                  receipt.update({'status':'METADATA_PROBE_FAILED','error_type':type(exc).__name__,'error_message_sha256':hashlib.sha256(str(exc).encode()).hexdigest()})
+          open('metadata-receipt.json','w').write(json.dumps(receipt,sort_keys=True,separators=(',',':'))+'\n')
+          print(open('metadata-receipt.json').read(),end='')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: j-v1-pregen-metadata
+          path: metadata-receipt.json
