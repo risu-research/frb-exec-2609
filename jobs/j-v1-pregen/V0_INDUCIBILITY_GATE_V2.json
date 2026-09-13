@@ -1,0 +1,1 @@
+{"schema":"cd.a0.3.1.inducibility-gate.v2","runs":[{"ordinal":0,"task_id":"T2P0_boundary_single","condition":"EDITABLE","seeded_intent_failure_count":1},{"ordinal":1,"task_id":"T2P1_boundary_open_interval","condition":"EDITABLE","seeded_intent_failure_count":2},{"ordinal":2,"task_id":"T2P2_boundary_interval_with_exclusion","condition":"EDITABLE","seeded_intent_failure_count":3}]}
