@@ -1,0 +1,91 @@
+name: vc-official-compile
+on:
+  push:
+    branches: [exec/vc-official-compile]
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout execution substrate
+        uses: actions/checkout@v4
+      - name: checkout private anonymous source capsule
+        uses: actions/checkout@v4
+        with:
+          repository: risu-research/consequence-drift
+          ref: vc-official-compile
+          token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
+          path: private
+      - name: checkout exact VeriCodeGen template mirror
+        uses: actions/checkout@v4
+        with:
+          repository: for-all-dev/git-history-evals
+          ref: efd01ef00055178dff675b8dd21f572c5c108524
+          path: mirror
+      - name: verify template and reconstruct source
+        shell: bash
+        run: |
+          set -euo pipefail
+          style=mirror/comms/vericode-workshop/neurips_2026_vericode.sty
+          got=$(git -C mirror hash-object comms/vericode-workshop/neurips_2026_vericode.sty)
+          test "$got" = d1881fb2ac4507ad33ef6795446d128280ff8da9
+          mkdir work
+          python - <<'PY'
+          from pathlib import Path
+          import re, base64, hashlib
+          text=Path('private/.github/workflows/vericode-official-compile.yml').read_text()
+          m=re.search(r'^\s*PAYLOAD_B64:\s*(\S+)\s*$', text, re.M)
+          if not m: raise SystemExit('private payload missing')
+          b=base64.b64decode(m.group(1))
+          assert hashlib.sha256(b).hexdigest()=='b347f464bccca864258735fdb632fea0d4f3ec06749d90242a03e3c366886758'
+          Path('work/source_payload.tgz').write_bytes(b)
+          PY
+          tar -xzf work/source_payload.tgz -C work
+          cp "$style" work/neurips_2026_vericode.sty
+          cp mirror/comms/vericode-workshop/checklist.tex work/checklist.template.tex
+          python work/make_checklist.py work/checklist.template.tex work/checklist.tex
+          {
+            echo official_style_git_blob=$got
+            sha256sum work/source_payload.tgz
+          } > work/source_receipt.txt
+      - name: install TeX and PDF tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra latexmk poppler-utils
+      - name: compile submission
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd work
+          latexmk -pdf -interaction=nonstopmode -halt-on-error paper.tex
+          latexmk -pdf -interaction=nonstopmode -halt-on-error paper.tex
+          if grep -E 'Citation .* undefined|Reference .* undefined|There were undefined references|Overfull \\hbox|Overfull \\vbox' paper.log; then
+            echo fatal-LaTeX-warning >&2
+            exit 1
+          fi
+          pages=$(pdfinfo paper.pdf | awk '/^Pages:/ {print $2}')
+          bytes=$(stat -c%s paper.pdf)
+          sha=$(sha256sum paper.pdf | awk '{print $1}')
+          refpage=$(for p in $(seq 1 "$pages"); do pdftotext -f "$p" -l "$p" paper.pdf - | grep -q '^References$' && { echo "$p"; break; }; done)
+          {
+            echo official_style_git_blob=d1881fb2ac4507ad33ef6795446d128280ff8da9
+            echo total_pages=$pages
+            echo references_begin_page=${refpage:-unknown}
+            echo paper_bytes=$bytes
+            echo paper_sha256=$sha
+            echo undefined_refs=0
+            echo overfull_boxes=0
+          } | tee compile_audit.txt
+      - name: upload exact-style build
+        uses: actions/upload-artifact@v4
+        with:
+          name: vc-official-anonymous-build
+          path: |
+            work/paper.pdf
+            work/paper.tex
+            work/references.bib
+            work/checklist.tex
+            work/compile_audit.txt
+            work/source_receipt.txt
+          if-no-files-found: error
