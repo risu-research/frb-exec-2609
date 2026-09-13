@@ -1,0 +1,90 @@
+name: j-v1-live
+on:
+  push:
+    branches: ["exec/j-v1-live"]
+permissions:
+  contents: read
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - name: checkout execution substrate
+        uses: actions/checkout@v4
+      - name: checkout frozen scientific authority
+        uses: actions/checkout@v4
+        with:
+          repository: risu-research/consequence-drift
+          ref: 9479a7cf435ac692baa69326be12f9eb7b4e8c4b
+          token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
+          path: scientific
+          persist-credentials: false
+      - name: verify exact authority and metadata visibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C scientific rev-parse HEAD)" = "9479a7cf435ac692baa69326be12f9eb7b4e8c4b"
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          import v1_pregeneration_launcher as gate
+          from gemini_interactions_provider import probe_model_visibility
+          root=Path('scientific')
+          pre=gate.preflight_static(root)
+          assert pre['status']=='PASS' and pre['generation_calls']==0
+          att=json.loads((root/'protocol/V1_FREE_TIER_ATTESTATION.json').read_text())
+          assert att['status']=='PASS_USER_ATTESTED_FREE_TIER' and att['gemini_generation_calls']==0
+          meta=probe_model_visibility(api_key=os.environ['GEMINI_API_KEY'])
+          assert meta['metadata_name']=='models/gemini-3.8-flash'
+          print(json.dumps({'status':'PASS_PRELIVE','generation_calls':0,'metadata_name':meta['metadata_name']},sort_keys=True,separators=(',',':')))
+          PY
+      - name: execute frozen excluded gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import v1_pregeneration_launcher as gate
+          root=Path('scientific').resolve(); out=Path('v1-gate-output').resolve(); out.mkdir(parents=True,exist_ok=True)
+          for ordinal in (0,1,2):
+              provider=gate.make_live_provider()
+              p=gate.execute_gate_job_with_provider(repo_root=root,output_root=out,ordinal=ordinal,provider=provider,apparatus_commit='9479a7cf435ac692baa69326be12f9eb7b4e8c4b')
+              if p.name=='ZERO_OUTPUT_ATTEMPT.json':
+                  receipt={'schema':'cd.v1.live-gate-run.v1','status':'ZERO_OUTPUT_RETRY_REQUIRED','ordinal':ordinal,'generation_observed':False}
+                  (out/'LIVE_GATE_RECEIPT.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+                  print(json.dumps(receipt,sort_keys=True,separators=(',',':')))
+                  raise SystemExit(75)
+              print(json.dumps({'ordinal':ordinal,'canonical_result':str(p.relative_to(out))},sort_keys=True,separators=(',',':')))
+          decision=gate.gate_decision(out)
+          (out/'decision.json').write_text(json.dumps(decision,indent=2,sort_keys=True)+'\n')
+          receipt={'schema':'cd.v1.live-gate-run.v1','status':'COMPLETE','generation_observed':True,'ordinals_completed':[0,1,2],'decision':decision['decision']}
+          (out/'LIVE_GATE_RECEIPT.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,sort_keys=True,separators=(',',':')))
+          PY
+      - name: artifact integrity receipt
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('v1-gate-output')
+          files={}
+          if root.exists():
+              for p in sorted(x for x in root.rglob('*') if x.is_file()):
+                  files[p.relative_to(root).as_posix()]=hashlib.sha256(p.read_bytes()).hexdigest()
+          receipt={'schema':'neutral.v1-live-artifact-index.v1','head_sha':os.environ['GITHUB_SHA'],'scientific_authority_commit':'9479a7cf435ac692baa69326be12f9eb7b4e8c4b','files':files}
+          Path('v1-live-artifact-index.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: upload immutable gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-v1-live-evidence
+          path: |
+            v1-gate-output
+            v1-live-artifact-index.json
