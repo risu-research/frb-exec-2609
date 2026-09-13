@@ -1,0 +1,70 @@
+name: j-v2r2-live
+on:
+  push:
+    branches: ["exec/j-v2r2-live"]
+permissions:
+  contents: read
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    env:
+      V2R2_PRIVATE_COMMIT: 067b17d26559664c45c3a67f9407ebe2ccd4db37
+    steps:
+      - name: checkout execution substrate
+        uses: actions/checkout@v4
+      - name: checkout sealed V2R2 authority
+        uses: actions/checkout@v4
+        with:
+          repository: risu-research/consequence-drift
+          ref: 067b17d26559664c45c3a67f9407ebe2ccd4db37
+          token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
+          path: scientific
+          persist-credentials: false
+      - name: verify exact V2R2 authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C scientific rev-parse HEAD)" = "$V2R2_PRIVATE_COMMIT"
+          test "$(git -C scientific hash-object protocol/V2R2_429_TRANSPORT_POLICY.json)" = "1fbbd0f54fc7f3f935c5aa695ea862d7d75dde95"
+          test "$(git -C scientific hash-object runner/v2r2_gemini_provider.py)" = "ab8f11e68ad05baf157266c7669b282adec0a894"
+          test "$(git -C scientific hash-object runner/v2r2_gate.py)" = "ddd2ef22350c16ed9db7fde03dc8b59f4404307f"
+          test "$(git -C scientific hash-object scripts/test_v2r2_429_transport.py)" = "7aacf7eb8ed5b2406c2c278b3379934c0ad70ace"
+          test "$(git -C scientific hash-object protocol/V2R2_APPARATUS_LOCK.json)" = "0aa42abd7cf62b7adc9a64788d9fdc652c449ce0"
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python scientific/scripts/test_v2r2_429_transport.py
+      - name: execute sealed V2R2 gate
+        shell: bash
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from v2r2_gate import run_v2r2_gate
+          r=run_v2r2_gate(repo_root=Path('scientific'),output_root=Path('v2r2-output'),apparatus_commit=os.environ['V2R2_PRIVATE_COMMIT'])
+          print(json.dumps(r,sort_keys=True,separators=(',',':')))
+          if r['status'] != 'COMPLETE': raise SystemExit(75)
+          PY
+      - name: artifact integrity index
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          files={}; root=Path('v2r2-output')
+          if root.exists():
+              for p in sorted(x for x in root.rglob('*') if x.is_file()): files[p.as_posix()]=hashlib.sha256(p.read_bytes()).hexdigest()
+          obj={'schema':'neutral.v2r2-artifact-index.v1','head_sha':os.environ['GITHUB_SHA'],'scientific_authority_commit':os.environ['V2R2_PRIVATE_COMMIT'],'files':files}
+          Path('v2r2-artifact-index.json').write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: upload V2R2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-v2r2-live-evidence
+          path: |
+            v2r2-output
+            v2r2-artifact-index.json
