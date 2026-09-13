@@ -1,0 +1,71 @@
+name: j-v2r1-q
+on:
+  push:
+    branches: ["exec/j-v2r1-q"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    env:
+      V2R1_PRIVATE_COMMIT: 62178b903cde255eac70a7731eb6d911edca0a9b
+    steps:
+      - name: checkout execution substrate
+        uses: actions/checkout@v4
+      - name: checkout sealed V2R1 authority
+        uses: actions/checkout@v4
+        with:
+          repository: risu-research/consequence-drift
+          ref: 62178b903cde255eac70a7731eb6d911edca0a9b
+          token: ${{ secrets.RISU_PRIVATE_READ_TOKEN }}
+          path: scientific
+          persist-credentials: false
+      - name: verify exact V2R1 authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C scientific rev-parse HEAD)" = "$V2R1_PRIVATE_COMMIT"
+          test "$(git -C scientific hash-object protocol/V2R1_RESUME_SEED.json)" = "6ddfb6c81f978e377cba54a484138c1c9d9714e0"
+          test "$(git -C scientific hash-object runner/v2_resume_verify.py)" = "e21fc310d254914673b34cca9c711f3a58488b15"
+          test "$(git -C scientific hash-object runner/v2_resume_driver.py)" = "225b9763e73096e75cbfcd0293a8190dee536501"
+          test "$(git -C scientific hash-object protocol/V2R1_RESUME_LOCK.json)" = "5be44506cbeee9445288a548e7c5fd3a6852dc9b"
+      - name: recover exact prior checkpoint
+        uses: actions/download-artifact@v4
+        with:
+          name: j-v2-science-evidence
+          path: source
+          github-token: ${{ github.token }}
+          repository: risu-research/frb-exec-2609
+          run-id: 34735214661
+      - name: verify and import with no model credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "${GEMINI_API_KEY:-}"
+          export PYTHONPATH="$GITHUB_WORKSPACE/scientific/runner:$GITHUB_WORKSPACE/scientific/evaluator"
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          from v2_resume_verify import verify_source
+          from v2_resume_driver import import_checkpoint
+          root=Path('scientific'); source=Path('source'); out=Path('v2r1-q-output')
+          v=verify_source(root,source)
+          p=import_checkpoint(repo_root=root,source_root=source,output_root=out)
+          assert v['status']=='PASS'
+          assert v['pre_resume_live_generation_calls']==0
+          assert (out/'results/v2-excluded-p0.json').is_file()
+          assert not (out/'results/v2-excluded-p1.json').exists()
+          assert not (out/'results/v2-excluded-p2.json').exists()
+          assert {x.name for x in (out/'attempts/v2-excluded-p1').iterdir() if x.is_dir()}=={'attempt-001'}
+          receipt={'schema':'cd.v2r1.qualification.v1','status':'PASS','private_commit':'62178b903cde255eac70a7731eb6d911edca0a9b','source_run_id':34735214661,'source_artifact_id':10310308939,'model_credential_present':False,'live_generation_calls':0,'canonical_p0_sha256':hashlib.sha256((out/'results/v2-excluded-p0.json').read_bytes()).hexdigest(),'next_ordinal':1,'next_attempt':'attempt-002'}
+          Path('v2r1-q-receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,sort_keys=True,separators=(',',':')))
+          PY
+      - name: upload V2R1 qualification
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-v2r1-q-evidence
+          path: |
+            v2r1-q-output/RESUME_IMPORT_RECEIPT.json
+            v2r1-q-receipt.json
