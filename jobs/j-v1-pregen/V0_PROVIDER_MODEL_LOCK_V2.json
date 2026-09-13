@@ -1,0 +1,5 @@
+{
+  "schema": "cd.v0.provider-model-lock.v2",
+  "provider": {"model": "gemini-3.8-flash", "fallback_model": null, "paid_fallback_prohibited": true},
+  "generation_config": {"thinking_level":"high","thinking_summaries":"none","max_output_tokens_per_turn":12000,"store":false,"background":false,"stream":false,"seed":"OMITTED","temperature":"OMITTED","top_p":"OMITTED","top_k":"OMITTED","tool_choice":"auto"}
+}
