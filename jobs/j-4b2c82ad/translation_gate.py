@@ -3,7 +3,7 @@ import hashlib, json, re, shutil, subprocess, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
 SRC=ROOT/'source_a05.json'
-EXPECTED=[*(f'GV.c{i}_{s}' for i in range(6) for s in ('weaker','channel','qa','qb','full')),*(f'GV.c{i}_exact' for i in range(6))]
+EXPECTED=[f'GV.c{i}_{s}' for i in range(6) for s in ('weaker','channel','qa','qb','full','exact')]
 
 def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def run(cmd): subprocess.run(cmd,cwd=ROOT,check=True)
@@ -28,7 +28,6 @@ shutil.copy2(ROOT/'pyout'/'typed_ir.json',ROOT/'typed_ir.json')
 shutil.copy2(ROOT/'pyout'/'manifest.json',ROOT/'compiler_manifest.json')
 for p in (ROOT/'IRSemantics.lean',ROOT/'GeneratedBank.lean',ROOT/'GeneratedProofs.lean'):
     if 'sorry' in p.read_text(): raise SystemExit('UNTRUSTED_SORRY:'+p.name)
-
 text=(ROOT/'GeneratedProofs.lean').read_text()
 m=re.search(r'namespace GV\nopen P IR G\n(?P<body>.*)\nend GV\s*$',text,re.S)
 if not m: raise SystemExit('PROOF_NAMESPACE_SHAPE')
@@ -41,7 +40,6 @@ blocks=[]
 for a,b in zip(starts,starts[1:]):
     block=''.join(lines[a:b]).strip()+'\n'
     if block.startswith('theorem ') or block.startswith(' theorem '): blocks.append(block.lstrip())
-# theorem starts only; ignore abbreviation prelude
 names=[]; challenge=[]
 for b in blocks:
     first=b.splitlines()[0]
@@ -51,28 +49,11 @@ for b in blocks:
     challenge.append(f'theorem {nm} : {st} := by\n  sorry\n')
 if names!=EXPECTED: raise SystemExit('GENERATED_THEOREM_SET_OR_ORDER_MISMATCH:'+json.dumps(names))
 (ROOT/'GeneratedChallenge.lean').write_text('import GeneratedBank\nimport Solution\n\nnamespace GV\nopen P IR G\n\nabbrev H (x : BExpr) : Env → Prop := IR.Holds x\n\n'+'\n'.join(challenge)+'\nend GV\n')
-(ROOT/'GeneratedSolution.lean').write_text(text.replace('import GeneratedBank\nimport Solution\nimport Lean.Elab.Tactic.Omega','import GeneratedBank\nimport Solution\nimport Lean.Elab.Tactic.Omega'))
+(ROOT/'GeneratedSolution.lean').write_text(text)
 config={"challenge_module":"GeneratedChallenge","solution_module":"GeneratedSolution","theorem_names":EXPECTED,"permitted_axioms":["propext","Quot.sound","Classical.choice"],"enable_nanoda":True}
 (ROOT/'comparator_generated.json').write_text(json.dumps(config,indent=2)+'\n')
-# roots: keep old modules plus generated validation modules
 (ROOT/'lakefile.toml').write_text('name = "j4b2c82ad"\nversion = "0.1.0"\ndefaultTargets = ["P"]\n\n[[lean_lib]]\nname = "P"\nroots = ["Defs", "Challenge", "Solution", "IRSemantics", "GeneratedBank", "GeneratedChallenge", "GeneratedSolution"]\n')
 man=json.loads((ROOT/'compiler_manifest.json').read_text())
-receipt={
- 'schema':'pc.translation-validation.v1',
- 'source_sha256':sha(SRC),
- 'typed_ir_sha256':sha(ROOT/'typed_ir.json'),
- 'generated_bank_sha256':sha(ROOT/'GeneratedBank.lean'),
- 'python_compiler_sha256':sha(ROOT/'compile_py.py'),
- 'javascript_compiler_sha256':sha(ROOT/'compile_js.mjs'),
- 'ir_semantics_sha256':sha(ROOT/'IRSemantics.lean'),
- 'generated_proofs_sha256':sha(ROOT/'GeneratedProofs.lean'),
- 'challenge_sha256':sha(ROOT/'GeneratedChallenge.lean'),
- 'solution_sha256':sha(ROOT/'GeneratedSolution.lean'),
- 'comparator_config_sha256':sha(ROOT/'comparator_generated.json'),
- 'compiler_manifest':man,
- 'theorem_count':len(EXPECTED),
- 'theorem_names':EXPECTED,
- 'dual_compiler_byte_identity':True,
-}
+receipt={'schema':'pc.translation-validation.v1','source_sha256':sha(SRC),'typed_ir_sha256':sha(ROOT/'typed_ir.json'),'generated_bank_sha256':sha(ROOT/'GeneratedBank.lean'),'python_compiler_sha256':sha(ROOT/'compile_py.py'),'javascript_compiler_sha256':sha(ROOT/'compile_js.mjs'),'ir_semantics_sha256':sha(ROOT/'IRSemantics.lean'),'generated_proofs_sha256':sha(ROOT/'GeneratedProofs.lean'),'challenge_sha256':sha(ROOT/'GeneratedChallenge.lean'),'solution_sha256':sha(ROOT/'GeneratedSolution.lean'),'comparator_config_sha256':sha(ROOT/'comparator_generated.json'),'compiler_manifest':man,'theorem_count':len(EXPECTED),'theorem_names':EXPECTED,'dual_compiler_byte_identity':True}
 (ROOT/'translation_manifest.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
 print(json.dumps(receipt,sort_keys=True))
