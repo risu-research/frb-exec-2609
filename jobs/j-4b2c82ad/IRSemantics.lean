@@ -62,6 +62,14 @@ mutual
     | .ite c t f, e => if evalB c e then evalB t e else evalB f e
 end
 
+-- Generic bridge from executable Bool atoms to relational Prop reasoning.
+-- These are contract-independent and kernel checked; they do not alter evalB.
+@[simp] theorem decide_true_bridge (p : Prop) [Decidable p] : decide p = true ↔ p := by
+  by_cases h : p <;> simp [h]
+
+@[simp] theorem decide_false_bridge (p : Prop) [Decidable p] : decide p = false ↔ ¬ p := by
+  by_cases h : p <;> simp [h]
+
 def Holds (x : BExpr) : Env → Prop := fun e => evalB x e = true
 
 structure Contract where
