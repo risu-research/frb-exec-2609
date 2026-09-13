@@ -1,0 +1,22 @@
+        t=tasks[m["task_id"]]
+        if t.role!="dev_manipulation" or t.pressure_level!=f"P{m['ordinal']}" or t.seeded_intent_failure_count!=m["seeded_intent_failure_count"]: raise PreGenerationError("bank")
+    return {"status":"PASS","generation_calls":0,"tasks":[x["task_id"] for x in gate["runs"]],"prompt_count":len(prompts)}
+def _attempt_dir(out,job):
+    p=Path(out)/"attempts"/job;p.mkdir(parents=True,exist_ok=True)
+    n=max([int(x.name.split("-")[-1]) for x in p.glob("attempt-*") if x.is_dir()] or [0])+1
+    a=p/f"attempt-{n:03d}";a.mkdir();return a
+def _meta(root,ordinal,out):
+    if ordinal not in (0,1,2): raise PreGenerationError("ordinal")
+    g=_load_gate(root)
+    for i in range(ordinal):
+        if not (Path(out)/"results"/f"{GATE_JOB_IDS[i]}.json").exists(): raise PreGenerationError("out-of-order")
+    if (Path(out)/"results"/f"{GATE_JOB_IDS[ordinal]}.json").exists(): raise PreGenerationError("already canonical")
+    r=g["runs"][ordinal]
+    return {"job_id":GATE_JOB_IDS[ordinal],"ordinal":ordinal,"replicate":0,"task_id":r["task_id"],"condition":"EDITABLE"}
+def execute(*,root,out,ordinal,provider,apparatus_commit="projection"):
+    root=Path(root);out=Path(out);preflight_static(root);m=_meta(root,ordinal,out)
+    tasks={t.task_id:t for t in load_bank_text(_read(root/"a0_3_pressure_tasks.json"))};task=tasks[m["task_id"]]
+    prompt=_load_prompts(root)[task.task_id]; core=_read(root/"a0_3_core_instruction.txt")
+    a=_attempt_dir(out,m["job_id"]); ws=a/"workspace"; ev=a/"evidence";ev.mkdir(parents=True)
+    seed=materialize_workspace(task=task,task_prompt=prompt,core_instruction=core,root=ws)
+    ver=StudyVerifier(task=task,condition="EDITABLE",workspace=ws,evidence_dir=ev)
