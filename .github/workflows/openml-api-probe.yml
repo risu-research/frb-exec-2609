@@ -31,3 +31,5 @@ jobs:
           name: openml-api-probe
           path: probe/
           retention-days: 30
+
+# second commit intentionally triggers branch-local workflow registration
