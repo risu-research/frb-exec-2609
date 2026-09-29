@@ -1,0 +1,54 @@
+name: benchmark-population-transport
+
+on:
+  push:
+    branches: [benchmark-population-transport]
+    paths:
+      - 'experiments/benchmark_population_transport/**'
+      - '.github/workflows/benchmark-population-transport.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  freeze-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install analysis dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install openml pandas numpy scipy requests scikit-learn
+      - name: Freeze environment
+        run: |
+          mkdir -p out
+          python -m pip freeze > out/python_environment_freeze.txt
+          python --version > out/python_version.txt
+      - name: Execute population audit and public-outcome matrix
+        env:
+          OUT_DIR: out
+          BOOT_REPS: '5000'
+        run: python experiments/benchmark_population_transport/run_study.py
+      - name: Inventory outputs
+        if: always()
+        run: |
+          echo '=== output inventory ==='
+          find out -maxdepth 1 -type f -printf '%f\t%s bytes\n' | sort || true
+          echo '=== population summary ==='
+          cat out/population_summary.json || true
+          echo '=== gate decision ==='
+          cat out/gate_decision.json || true
+      - name: Upload research bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-population-transport-results
+          path: out/
+          if-no-files-found: warn
+          retention-days: 90
