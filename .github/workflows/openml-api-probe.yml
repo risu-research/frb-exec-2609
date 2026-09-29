@@ -1,0 +1,33 @@
+name: openml-api-probe
+
+on:
+  push:
+    branches: [benchmark-population-transport]
+    paths: ['.github/workflows/openml-api-probe.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe OpenML public REST endpoints
+        run: |
+          set -euxo pipefail
+          mkdir -p probe
+          curl --retry 3 --retry-delay 2 -fsSL 'https://www.openml.org/api/v1/json/task/list/type/1/limit/10000' -o probe/tasks_type1.json
+          curl --retry 3 --retry-delay 2 -fsSL 'https://www.openml.org/api/v1/json/study/99' -o probe/study99.json
+          curl --retry 3 --retry-delay 2 -fsSL 'https://www.openml.org/api/v1/json/study/379' -o probe/study379.json
+          echo "task_count=$(jq '.tasks.task | length' probe/tasks_type1.json)"
+          echo "task_top_keys=$(jq -c '.tasks.task[0] | keys' probe/tasks_type1.json)"
+          echo "study99_top=$(jq -c 'keys' probe/study99.json)"
+          echo "study379_top=$(jq -c 'keys' probe/study379.json)"
+          wc -c probe/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openml-api-probe
+          path: probe/
+          retention-days: 30
