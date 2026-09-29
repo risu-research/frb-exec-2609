@@ -1,0 +1,54 @@
+name: fresh-matrix-canary
+
+on:
+  push:
+    branches: [benchmark-population-transport]
+    paths: ['.github/workflows/fresh-matrix-canary.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    strategy:
+      fail-fast: false
+      matrix:
+        sample_order: [1, 335, 350]
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install execution stack
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install openml pandas numpy scipy scikit-learn requests xgboost lightgbm catboost
+      - name: Reconstruct and verify frozen probability sample
+        run: |
+          python experiments/benchmark_population_transport/make_fresh_sample.py --out fresh_prep
+      - name: Run extreme-cell canary
+        env:
+          MODEL_TIMEOUT_SECONDS: '90'
+        run: |
+          python experiments/benchmark_population_transport/run_fresh_matrix.py \
+            --manifest fresh_prep/fresh_probability_sample_manifest.csv \
+            --out canary_${{ matrix.sample_order }} \
+            --task-orders '${{ matrix.sample_order }}' \
+            --require-success-fraction 0.70
+      - name: Show canary summary
+        if: always()
+        run: |
+          cat canary_${{ matrix.sample_order }}/run_summary_shard_0.json || true
+          cat canary_${{ matrix.sample_order }}/task_status_shard_0.csv || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fresh-canary-${{ matrix.sample_order }}
+          path: |
+            fresh_prep/fresh_sampling_design.json
+            fresh_prep/fresh_probability_sample_manifest.csv
+            canary_${{ matrix.sample_order }}/
+          retention-days: 90
