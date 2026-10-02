@@ -1,0 +1,32 @@
+name: j-7c4d
+on:
+  push:
+    branches: [x-2602-b1]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  j:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: deps
+        run: python -m pip install --upgrade pip requests pybgpkit-parser
+      - name: run
+        run: python jobs/j-7c4d.py
+      - name: hashes
+        if: always()
+        run: |
+          if [ -d out ]; then sha256sum out/* | tee out/SHA256SUMS.txt; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: j-7c4d-out
+          path: out/
+          if-no-files-found: warn
+          retention-days: 7
