@@ -14,7 +14,7 @@ FILES={
  '20260915':'2026/09/routeviews-rv2-20260915-1200.pfx2as.gz',
 }
 TARGET_N=100
-UA='risu-research-rpki-fast-pilot/1.0'
+UA='risu-research-rpki-fast-pilot/1.1'
 
 def fetch(url,dest,retries=4):
     dest=Path(dest)
@@ -44,7 +44,7 @@ def load_pfx2as(date):
             p=line.rstrip('\n').split('\t')
             if len(p)<3: continue
             addr,plen_s,asn=p[0],p[1],p[2].strip()
-            if ':' in addr or not asn.isdigit(): continue  # exclude MOAS/AS-set snapshots
+            if ':' in addr or not asn.isdigit(): continue
             try:
                 plen=int(plen_s); net=ipaddress.ip_network(f'{addr}/{plen}',strict=False)
             except Exception: continue
@@ -110,34 +110,49 @@ def main():
     x0,x1,x2=[load_pfx2as(d) for d in DATES]
     changes=[p for p,a in x0.items() if p in x1 and x1[p]!=a]
     persistent=[p for p in changes if p in x2 and x2[p]==x1[p]]
-    sample=sorted(persistent,key=lambda p:hashlib.sha256(p.encode()).hexdigest())[:TARGET_N]
-    print('changes',len(changes),'persistent',len(persistent),'sample',len(sample),flush=True)
-    if len(sample)<50: raise RuntimeError('fewer than 50 persistent transitions')
+
+    # Avoid counting a bulk migration of many prefixes between the same origins as
+    # dozens of independent handoffs. One deterministic representative per A->B pair.
+    cohorts=defaultdict(list)
+    for p in persistent:
+        cohorts[(x0[p],x1[p])].append(p)
+    reps=[]
+    for (A,B), ps in cohorts.items():
+        p=min(ps,key=lambda x:hashlib.sha256(x.encode()).hexdigest())
+        reps.append((A,B,p,len(ps)))
+    sample=sorted(reps,key=lambda z:hashlib.sha256((z[0]+'>'+z[1]).encode()).hexdigest())[:TARGET_N]
+    prefixes=[z[2] for z in sample]
+    print('changes',len(changes),'persistent_prefixes',len(persistent),'distinct_origin_pairs',len(cohorts),'sample_pairs',len(sample),flush=True)
+    if len(sample)<50: raise RuntimeError('fewer than 50 distinct persistent origin-pair transitions')
+
     als=anchors(); cov={}; meta={}
-    for d in DATES: cov[d],meta[d]=load_cover(d,sample,als)
+    for d in DATES: cov[d],meta[d]=load_cover(d,prefixes,als)
     rows=[]
-    for p in sample:
-        A=x0[p];B=x1[p]
-        r={'prefix':p,'old_origin_A':A,'new_origin_B':B,
+    for A,B,p,cohort_n in sample:
+        r={'prefix':p,'old_origin_A':A,'new_origin_B':B,'pair_prefix_count':cohort_n,
            'A_d0':status(p,A,cov[d0]),'B_d0':status(p,B,cov[d0]),
            'A_d1':status(p,A,cov[d1]),'B_d1':status(p,B,cov[d1]),
            'A_d2':status(p,A,cov[d2]),'B_d2':status(p,B,cov[d2])}
         r['B_preauthorized_d0']=r['B_d0']=='valid'
         r['B_invalid_d1']=r['B_d1']=='invalid'
-        r['B_notvalid_d1']=r['B_d1']!='valid'
+        r['B_notfound_d1']=r['B_d1']=='notfound'
+        r['B_valid_d1']=r['B_d1']=='valid'
         r['A_lingering_valid_d1']=r['A_d1']=='valid'
         r['A_lingering_valid_d2']=r['A_d2']=='valid'
         r['dual_valid_d1']=r['A_d1']=='valid' and r['B_d1']=='valid'
         rows.append(r)
     with open(OUT/'events.csv','w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
-    keys=['B_preauthorized_d0','B_invalid_d1','B_notvalid_d1','A_lingering_valid_d1','A_lingering_valid_d2','dual_valid_d1']
-    counts={k:sum(bool(r[k]) for r in rows) for k in keys};n=len(rows)
-    summary={'design':{'source':'CAIDA RouteViews pfx2as daily snapshots','dates':DATES,'files':FILES,'filter':'exact prefix, single-origin snapshot at all retained dates; A at d0, B at d1 and d2; deterministic sha256 sample','sample_n':n,'raw_changes':len(changes),'persistent_changes':len(persistent),'guardrail':'Snapshot pilot only. A_lingering_valid means authorization persisted after observed routing replacement; it does not establish that authorization is unnecessary, stale, malicious, or misconfigured.'},'rpki_anchors_used':meta,'counts':counts,'rates':{k:v/n for k,v in counts.items()}}
+    keys=['B_preauthorized_d0','B_invalid_d1','B_notfound_d1','B_valid_d1','A_lingering_valid_d1','A_lingering_valid_d2','dual_valid_d1']
+    counts={k:sum(bool(r[k]) for r in rows) for k in keys}; n=len(rows)
+    covered_d1=counts['B_valid_d1']+counts['B_invalid_d1']
+    summary={'design':{'source':'CAIDA RouteViews pfx2as daily snapshots','dates':DATES,'files':FILES,'filter':'exact prefix, single-origin; A at d0, B at d1 and d2; collapse persistent prefixes by A->B origin pair; one deterministic representative per pair; deterministic sha256 pair sample','sample_n':n,'raw_changes':len(changes),'persistent_prefixes':len(persistent),'distinct_origin_pairs':len(cohorts),'guardrail':'Daily-snapshot feasibility pilot. A_lingering_valid means authorization persisted after observed routing replacement; it does not establish that authorization is unnecessary, stale, malicious, or misconfigured.'},'rpki_anchors_used':meta,'counts':counts,'rates':{k:v/n for k,v in counts.items()},'conditional':{'rpki_covered_at_d1_n':covered_d1,'new_origin_invalid_among_rpki_covered_d1':(counts['B_invalid_d1']/covered_d1 if covered_d1 else None)}}
     (OUT/'summary.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
-    md=['# Fast RPKI handoff kill/keep pilot','',f'- Raw single-origin changes: {len(changes)}',f'- Persistent A→B replacements: {len(persistent)}',f'- Deterministic sample: {n}','','## Coarse results','']
+    md=['# RPKI handoff kill/keep pilot — origin-pair deduplicated','',f'- Raw single-origin changed prefixes: {len(changes)}',f'- Persistent changed prefixes: {len(persistent)}',f'- Distinct persistent A→B origin pairs: {len(cohorts)}',f'- Deterministic distinct-pair sample: {n}','','## Coarse results','']
     md += [f'- {k}: **{counts[k]}/{n} ({counts[k]/n:.1%})**' for k in keys]
-    md += ['','## Guardrail','','This is a daily-snapshot feasibility pilot, not an exact timing study. `A_lingering_valid` is not automatically stale authorization because failover, same-organization migration, or intentional multi-origin policy may justify retaining A. The full study must add stronger persistence/intent filters and update-level timing.']
+    if covered_d1:
+        md += [f'- new-origin Invalid conditional on RPKI coverage at d1: **{counts["B_invalid_d1"]}/{covered_d1} ({counts["B_invalid_d1"]/covered_d1:.1%})**']
+    md += ['','## Guardrail','','This is a daily-snapshot feasibility pilot, not an exact timing or intent study. `A_lingering_valid` is not automatically stale authorization: failover, same-organization migration, or intentional multi-origin policy can justify retaining A. A full study must add multi-collector persistence, organization/transfer/failover stratification, and update-level timing.']
     (OUT/'README.md').write_text('\n'.join(md),encoding='utf-8')
     print(json.dumps(summary,indent=2),flush=True)
 if __name__=='__main__':main()
