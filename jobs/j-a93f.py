@@ -59,7 +59,10 @@ def history(c):
     return {'prefix':p,'old_asn':a,'new_asn':b,'routing':{'new_start':ns.isoformat(),'old_end':oe.isoformat(),'time_granularity':j.get('time_granularity'),'old_segments':len(g[a]),'new_segments':len(g[b])}}
 
 def sups(p):
-    n=ipaddress.ip_network(p);return [str(n)]+[str(x) for x in n.supernets()]
+    n=ipaddress.ip_network(p);out=[str(n)]
+    while n.prefixlen>0:
+        n=n.supernet();out.append(str(n))
+    return out
 
 def parse_roa(blob,wanted):
     rd=csv.DictReader(io.StringIO(lzma.decompress(blob).decode('utf8','replace')));o=defaultdict(list)
@@ -97,7 +100,6 @@ def main():
     cand.sort(key=lambda x:hashlib.sha256('|'.join(map(str,x)).encode()).hexdigest())
     print('persistent candidates',len(cand),flush=True)
     val=[]
-    # RIS min_peers=10 is the independent second source; no endpoint-state calls in pilot.
     with ThreadPoolExecutor(max_workers=12) as ex:
         fs={ex.submit(history,c):c for c in cand[:180]}
         for f in as_completed(fs):
