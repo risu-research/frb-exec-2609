@@ -4,7 +4,7 @@ on:
   push:
     branches: [rpki-pilot-20261002]
     paths:
-      - rpki_pilot.py
+      - rpkispool_day_probe_v2.py
       - .github/workflows/rpki-pilot.yml
   workflow_dispatch:
 
@@ -14,26 +14,21 @@ permissions:
 jobs:
   pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           ref: rpki-pilot-20261002
-      - name: Install parser
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y bgpdump xz-utils
-      - name: Run deterministic pilot
-        run: python3 rpki_pilot.py
-      - name: Commit result bundle to execution branch
+      - name: Probe high-frequency RPKISPOOL day directories
+        run: python3 rpkispool_day_probe_v2.py
+      - name: Commit result bundle
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add results/rpki_handoff_pilot_20261002
-          git commit -m "add RPKI handoff pilot results [skip ci]" || exit 0
+          git add results/rpkispool_day_probe_v2_20261002
+          git commit -m "add RPKISPOOL day probe results [skip ci]" || exit 0
           git push origin HEAD:rpki-pilot-20261002
-      - name: Upload result artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: rpki-handoff-pilot-20261002
-          path: results/rpki_handoff_pilot_20261002
+          name: rpkispool-day-probe-v2-20261002
+          path: results/rpkispool_day_probe_v2_20261002
