@@ -1,7 +1,5 @@
 name: j-7c4d
 on:
-  push:
-    branches: [x-2602-b1]
   workflow_dispatch:
 permissions:
   contents: read
