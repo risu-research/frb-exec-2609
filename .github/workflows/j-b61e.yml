@@ -1,0 +1,31 @@
+name: j-b61e
+on:
+  push:
+    branches: [x-2602-b1]
+    paths:
+      - 'jobs/j-b61e.py'
+      - '.github/workflows/j-b61e.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  j:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests
+      - run: python jobs/j-b61e.py
+      - if: always()
+        run: |
+          if compgen -G 'out3/*' > /dev/null; then sha256sum out3/* | tee out3/SHA256SUMS.txt; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: j-b61e-out
+          path: out3/
+          if-no-files-found: warn
+          retention-days: 7
