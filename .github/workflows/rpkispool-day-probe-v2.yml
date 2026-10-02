@@ -1,0 +1,31 @@
+name: rpkispool-day-probe-v2
+on:
+  workflow_dispatch:
+  push:
+    branches: [rpki-pilot-20261002]
+    paths:
+      - rpkispool_day_probe_v2.py
+      - .github/workflows/rpkispool-day-probe-v2.yml
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: rpki-pilot-20261002
+      - name: Probe high-frequency RPKISPOOL day directories
+        run: python3 rpkispool_day_probe_v2.py
+      - name: Commit evidence
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add results/rpkispool_day_probe_v2_20261002
+          git commit -m "add RPKISPOOL day probe results [skip ci]" || exit 0
+          git push origin HEAD:rpki-pilot-20261002
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpkispool-day-probe-v2-20261002
+          path: results/rpkispool_day_probe_v2_20261002
