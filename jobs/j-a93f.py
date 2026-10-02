@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# frozen pilot v1
 import csv, gzip, hashlib, io, ipaddress, json, lzma, os, re, statistics, time
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
@@ -18,7 +19,8 @@ N_TARGET=80
 def get(url, **kw):
     for i in range(4):
         try:
-            r=S.get(url, timeout=kw.pop('timeout',90), **kw)
+            timeout=kw.pop('timeout',90)
+            r=S.get(url, timeout=timeout, **kw)
             r.raise_for_status(); return r
         except Exception:
             if i==3: raise
@@ -148,7 +150,6 @@ def main():
     print('four-snapshot persistent candidates',len(candidates),flush=True)
 
     validated=[]
-    # Query enough candidates to retain up to N_TARGET after cross-source checks.
     for i,(p,a,b) in enumerate(candidates[:240],1):
         try:
             h=route_history(p,a,b)
