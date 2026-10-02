@@ -4,7 +4,7 @@ on:
   push:
     branches: [rpki-pilot-20261002]
     paths:
-      - rpkispool_day_probe_v2.py
+      - rpkispool_tar_probe.sh
       - .github/workflows/rpki-pilot.yml
   workflow_dispatch:
 
@@ -14,21 +14,23 @@ permissions:
 jobs:
   pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
           ref: rpki-pilot-20261002
-      - name: Probe high-frequency RPKISPOOL day directories
-        run: python3 rpkispool_day_probe_v2.py
+      - name: Install zstd
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq zstd
+      - name: Stream archive member structure
+        run: bash rpkispool_tar_probe.sh
       - name: Commit result bundle
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add results/rpkispool_day_probe_v2_20261002
-          git commit -m "add RPKISPOOL day probe results [skip ci]" || exit 0
+          git add results/rpkispool_tar_members_20261002
+          git commit -m "add RPKISPOOL tar member probe [skip ci]" || exit 0
           git push origin HEAD:rpki-pilot-20261002
       - uses: actions/upload-artifact@v4
         with:
-          name: rpkispool-day-probe-v2-20261002
-          path: results/rpkispool_day_probe_v2_20261002
+          name: rpkispool-tar-members-20261002
+          path: results/rpkispool_tar_members_20261002
