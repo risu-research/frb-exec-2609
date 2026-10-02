@@ -1,0 +1,238 @@
+{
+  "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/": {
+    "01": {
+      "n_links": 2,
+      "names": [
+        "20260901-initstate.tar.zst",
+        "20260901-rpkispool.tar.zst"
+      ],
+      "head_sample": [
+        {
+          "name": "20260901-initstate.tar.zst",
+          "url": "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/2026/09/01/20260901-initstate.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "676900408",
+            "type": "application/octet-stream",
+            "modified": "Tue, 01 Sep 2026 00:00:00 GMT"
+          }
+        },
+        {
+          "name": "20260901-rpkispool.tar.zst",
+          "url": "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/2026/09/01/20260901-rpkispool.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "1481469187",
+            "type": "application/octet-stream",
+            "modified": "Tue, 01 Sep 2026 23:59:47 GMT"
+          }
+        }
+      ]
+    },
+    "03": {
+      "n_links": 2,
+      "names": [
+        "20260903-initstate.tar.zst",
+        "20260903-rpkispool.tar.zst"
+      ],
+      "head_sample": [
+        {
+          "name": "20260903-initstate.tar.zst",
+          "url": "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/2026/09/03/20260903-initstate.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "676355967",
+            "type": "application/octet-stream",
+            "modified": "Thu, 03 Sep 2026 00:00:00 GMT"
+          }
+        },
+        {
+          "name": "20260903-rpkispool.tar.zst",
+          "url": "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/2026/09/03/20260903-rpkispool.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "1467632738",
+            "type": "application/octet-stream",
+            "modified": "Thu, 03 Sep 2026 23:59:12 GMT"
+          }
+        }
+      ]
+    },
+    "04": {
+      "n_links": 2,
+      "names": [
+        "20260904-initstate.tar.zst",
+        "20260904-rpkispool.tar.zst"
+      ],
+      "head_sample": [
+        {
+          "name": "20260904-initstate.tar.zst",
+          "url": "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/2026/09/04/20260904-initstate.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "671925218",
+            "type": "application/octet-stream",
+            "modified": "Fri, 04 Sep 2026 00:00:00 GMT"
+          }
+        },
+        {
+          "name": "20260904-rpkispool.tar.zst",
+          "url": "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/2026/09/04/20260904-rpkispool.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "1484558926",
+            "type": "application/octet-stream",
+            "modified": "Fri, 04 Sep 2026 23:59:36 GMT"
+          }
+        }
+      ]
+    },
+    "05": {
+      "n_links": 2,
+      "names": [
+        "20260905-initstate.tar.zst",
+        "20260905-rpkispool.tar.zst"
+      ],
+      "head_sample": [
+        {
+          "name": "20260905-initstate.tar.zst",
+          "url": "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/2026/09/05/20260905-initstate.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "679771552",
+            "type": "application/octet-stream",
+            "modified": "Sat, 05 Sep 2026 00:00:00 GMT"
+          }
+        },
+        {
+          "name": "20260905-rpkispool.tar.zst",
+          "url": "https://rpkiviews.kerfuffle.net/rpkidata/rpkispools/2026/09/05/20260905-rpkispool.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "1420944403",
+            "type": "application/octet-stream",
+            "modified": "Sat, 05 Sep 2026 23:59:55 GMT"
+          }
+        }
+      ]
+    }
+  },
+  "https://josephine.sobornost.net/rpkidata/rpkispools/": {
+    "01": {
+      "n_links": 2,
+      "names": [
+        "20260901-initstate.tar.zst",
+        "20260901-rpkispool.tar.zst"
+      ],
+      "head_sample": [
+        {
+          "name": "20260901-initstate.tar.zst",
+          "url": "https://josephine.sobornost.net/rpkidata/rpkispools/2026/09/01/20260901-initstate.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "676900408",
+            "type": "application/octet-stream",
+            "modified": "Tue, 01 Sep 2026 00:00:00 GMT"
+          }
+        },
+        {
+          "name": "20260901-rpkispool.tar.zst",
+          "url": "https://josephine.sobornost.net/rpkidata/rpkispools/2026/09/01/20260901-rpkispool.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "1481469187",
+            "type": "application/octet-stream",
+            "modified": "Tue, 01 Sep 2026 23:59:47 GMT"
+          }
+        }
+      ]
+    },
+    "03": {
+      "n_links": 2,
+      "names": [
+        "20260903-initstate.tar.zst",
+        "20260903-rpkispool.tar.zst"
+      ],
+      "head_sample": [
+        {
+          "name": "20260903-initstate.tar.zst",
+          "url": "https://josephine.sobornost.net/rpkidata/rpkispools/2026/09/03/20260903-initstate.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "676355967",
+            "type": "application/octet-stream",
+            "modified": "Thu, 03 Sep 2026 00:00:00 GMT"
+          }
+        },
+        {
+          "name": "20260903-rpkispool.tar.zst",
+          "url": "https://josephine.sobornost.net/rpkidata/rpkispools/2026/09/03/20260903-rpkispool.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "1467632738",
+            "type": "application/octet-stream",
+            "modified": "Thu, 03 Sep 2026 23:59:12 GMT"
+          }
+        }
+      ]
+    },
+    "04": {
+      "n_links": 2,
+      "names": [
+        "20260904-initstate.tar.zst",
+        "20260904-rpkispool.tar.zst"
+      ],
+      "head_sample": [
+        {
+          "name": "20260904-initstate.tar.zst",
+          "url": "https://josephine.sobornost.net/rpkidata/rpkispools/2026/09/04/20260904-initstate.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "671925218",
+            "type": "application/octet-stream",
+            "modified": "Fri, 04 Sep 2026 00:00:00 GMT"
+          }
+        },
+        {
+          "name": "20260904-rpkispool.tar.zst",
+          "url": "https://josephine.sobornost.net/rpkidata/rpkispools/2026/09/04/20260904-rpkispool.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "1484558926",
+            "type": "application/octet-stream",
+            "modified": "Fri, 04 Sep 2026 23:59:36 GMT"
+          }
+        }
+      ]
+    },
+    "05": {
+      "n_links": 2,
+      "names": [
+        "20260905-initstate.tar.zst",
+        "20260905-rpkispool.tar.zst"
+      ],
+      "head_sample": [
+        {
+          "name": "20260905-initstate.tar.zst",
+          "url": "https://josephine.sobornost.net/rpkidata/rpkispools/2026/09/05/20260905-initstate.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "679771552",
+            "type": "application/octet-stream",
+            "modified": "Sat, 05 Sep 2026 00:00:00 GMT"
+          }
+        },
+        {
+          "name": "20260905-rpkispool.tar.zst",
+          "url": "https://josephine.sobornost.net/rpkidata/rpkispools/2026/09/05/20260905-rpkispool.tar.zst",
+          "head": {
+            "status": 200,
+            "length": "1420944403",
+            "type": "application/octet-stream",
+            "modified": "Sat, 05 Sep 2026 23:59:55 GMT"
+          }
+        }
+      ]
+    }
+  }
+}
