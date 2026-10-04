@@ -1,0 +1,49 @@
+name: j-4c9e
+
+on:
+  push:
+    branches:
+      - run/j-4c9e
+    paths:
+      - 'runs/j-4c9e/**'
+      - '.github/workflows/j-4c9e.yml'
+
+permissions:
+  contents: read
+
+env:
+  HF_HUB_DISABLE_TELEMETRY: '1'
+  DATASETS_DISABLE_PROGRESS_BARS: '1'
+  TARGET_N: '900'
+  MIN_N: '500'
+  MAX_DEMOS: '60'
+  MAX_PER_DEMO: '22'
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned core dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install 'weblinx==0.3.2' 'datasets>=3.0,<5' 'huggingface_hub>=0.28,<1' 'pandas>=2,<3' 'pillow>=10,<13' 'ImageHash>=4.3,<5' 'lxml>=5,<7' 'numpy>=1.26,<3'
+          python - <<'PY'
+          import sys, weblinx, datasets, huggingface_hub, pandas, PIL, imagehash, lxml, numpy
+          print('PYTHON', sys.version)
+          print('VERSIONS', {'weblinx':getattr(weblinx,'__version__','?'),'datasets':datasets.__version__,'huggingface_hub':huggingface_hub.__version__,'pandas':pandas.__version__,'PIL':PIL.__version__,'imagehash':getattr(imagehash,'__version__','?'),'lxml':lxml.__version__,'numpy':numpy.__version__})
+          PY
+      - name: Run neutral pilot
+        run: python runs/j-4c9e/pilot.py
+      - name: Upload aggregate outputs only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-4c9e-aggregate
+          path: out/
+          if-no-files-found: warn
+          retention-days: 7
