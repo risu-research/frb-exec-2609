@@ -1,0 +1,38 @@
+name: j-4c9e-vp
+on:
+  push:
+    branches:
+      - run/j-4c9e
+    paths:
+      - "jobs/j-4c9e-vp/**"
+      - ".github/workflows/j-4c9e-vp.yml"
+permissions:
+  contents: read
+env:
+  HF_HUB_DISABLE_TELEMETRY: "1"
+  DATASETS_DISABLE_PROGRESS_BARS: "1"
+jobs:
+  visual-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "datasets>=3,<5" "huggingface_hub>=0.28,<1" pillow ImageHash requests
+      - name: run
+        env:
+          TARGET_N: "600"
+          MIN_N: "500"
+          MAX_PER_DEMO: "14"
+          WORKERS: "6"
+          PHASH_T: "4"
+        run: python jobs/j-4c9e-vp/visual_pilot.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: j-4c9e-vp
+          path: out_vp/
+          if-no-files-found: warn
+          retention-days: 7
