@@ -234,5 +234,8 @@ summary={
  },
  "universe_sensitivity":universe,
 }
-(OUT/"universe_summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True))
-print("UNIVERSE_SUMMARY",json.dumps(summary,sort_keys=True))
+def json_default(o):
+    if hasattr(o,"item"): return o.item()
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+(OUT/"universe_summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True,default=json_default))
+print("UNIVERSE_SUMMARY",json.dumps(summary,sort_keys=True,default=json_default))
