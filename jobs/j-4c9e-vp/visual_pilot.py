@@ -135,7 +135,9 @@ for d in sorted(set(r["demo"] for r in sel)):
 
 for r in sel:r["screenshot"]=state_screenshot(replays[r["demo"]],r["turn"])
 sel=[r for r in sel if r["screenshot"]]
+print("SELECTED_WITH_SCREENSHOT",len(sel),"SAMPLE",[(r["demo"],r["turn"],r["screenshot"]) for r in sel[:5]])
 paths=sorted(set(f'demonstrations/{r["demo"]}/screenshots/{r["screenshot"]}' for r in sel))
+print("UNIQUE_SCREENSHOT_PATHS",len(paths),"SAMPLE",paths[:5])
 fail=Counter()
 with ThreadPoolExecutor(max_workers=WORKERS) as ex:
     fut={ex.submit(raw_get,p,raw_sha):p for p in paths}
@@ -144,11 +146,13 @@ with ThreadPoolExecutor(max_workers=WORKERS) as ex:
         except Exception as e:fail[type(e).__name__]+=1
         if i%100==0:print("SCREENSHOTS",i,"OF",len(paths))
 
+print("FETCH_FAILURES",dict(fail),"EXISTING_SCREENSHOTS",sum((RAW/p).exists() for p in paths))
 rows=[]
+skips=Counter()
 for r in sel:
     if len(rows)>=TARGET:break
     sp=RAW/f'demonstrations/{r["demo"]}/screenshots/{r["screenshot"]}'
-    if not sp.exists():continue
+    if not sp.exists():skips["missing_file"]+=1;continue
     try:
         with Image.open(sp) as im:
             im=im.convert("RGB")
@@ -156,10 +160,12 @@ for r in sel:
             for c in r["cs"]:
                 h,nbytes=crop_hash(im,c["bbox"]) if c["bbox"] is not None else (None,None)
                 enriched.append({**c,"phash":h,"crop_bytes":nbytes})
-    except Exception:
+    except Exception as e:
+        skips["image_"+type(e).__name__]+=1
         continue
     target=next((c for c in enriched if c["uid"]==r["uid"]),None)
-    if target is None or target["phash"] is None:continue
+    if target is None:skips["target_missing"]+=1;continue
+    if target["phash"] is None:skips["target_no_hash"]+=1;continue
     text_n=sum(c["text"]==target["text"] for c in enriched)
     dom_n=sum((c["tag"],c["sem"])==(target["tag"],target["sem"]) for c in enriched)
     visual_n=sum(c["phash"] is not None and (c["phash"]-target["phash"])<=PHASH_T for c in enriched)
@@ -170,6 +176,7 @@ for r in sel:
                  "text_n":text_n,"dom_n":dom_n,"visual_n":visual_n,"joint_n":joint_n,"coord_n":coord_n,
                  "blank":int(target["text"]==""),"crop_bytes":target["crop_bytes"] or 0})
 
+print("ROWCOUNT",len(rows),"SKIPS",dict(skips))
 if len(rows)<MIN_N:raise SystemExit(f"below minimum {len(rows)}")
 summary={
  "dataset_pins":{"preprocessed":pre_sha,"raw":raw_sha},
