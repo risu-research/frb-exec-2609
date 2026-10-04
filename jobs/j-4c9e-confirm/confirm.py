@@ -102,12 +102,16 @@ api=HfApi();raw_sha=api.dataset_info("McGill-NLP/WebLINX-full").sha
 cand_path=hf_hub_download("McGill-NLP/WebLINX-full","candidates/test_iid.jsonl",repo_type="dataset",revision=raw_sha)
 
 # Pass 1: official target-turn population, with no top-K conditioning.
-targets=[];group_sizes=Counter()
+# Freeze only groups with exactly one positive target; ambiguous/multi-positive groups
+# are excluded before sampling rather than becoming post-hoc compute skips.
+target_lists=defaultdict(list);group_sizes=Counter()
 with open(cand_path,encoding="utf-8") as h:
     for line in h:
         z=json.loads(line);key=(str(z["demo_name"]),int(z["turn_index"]));group_sizes[key]+=1
         if int(z.get("label",0))==1:
-            targets.append({"demo":key[0],"turn":key[1],"uid":str(z["uid"]),"rank":int(z["rank"])})
+            target_lists[key].append({"demo":key[0],"turn":key[1],"uid":str(z["uid"]),"rank":int(z["rank"])})
+targets=[vs[0] for key,vs in target_lists.items() if len(vs)==1]
+ambiguous_target_groups=sum(len(vs)!=1 for vs in target_lists.values())
 
 by=defaultdict(list)
 for r in targets:by[r["demo"]].append(r)
@@ -186,7 +190,7 @@ sizes=[r["candidate_n"] for r in rows]
 rankpop=[r["rank"] for r in targets]
 summary={
  "raw_sha":raw_sha,
- "population":{"target_turns":len(targets),"demo_n":len(by),
+ "population":{"target_turns":len(targets),"ambiguous_target_groups_excluded":ambiguous_target_groups,"demo_n":len(by),
    "target_rank_coverage":{str(k):sum(x<=k for x in rankpop)/len(rankpop) for k in KS}},
  "sampling":{"oversampled":len(chosen),"mapped":len(mapped),"requested":TARGET,"analyzed":len(rows),
    "demo_n":len(set(r["demo"] for r in rows)),"map_skips":dict(map_skips),"compute_skips":dict(skips),"fetch_failures":dict(fail),
