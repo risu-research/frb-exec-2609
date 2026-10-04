@@ -20,12 +20,12 @@ jobs:
       - name: Run
         run: python runs/j-7f2a/runner.py
       - name: Targeted cross-layer exposure audit
-        run: python runs/j-7f2a/exposure.py
+        run: python runs/j-7f2a/aligned_exposure.py
       - name: Show compact report
         if: always()
         run: |
           if [ -f runs/j-7f2a/out/report.md ]; then cat runs/j-7f2a/out/report.md; fi
-          if [ -f runs/j-7f2a/out/exposure_report.md ]; then cat runs/j-7f2a/out/exposure_report.md; fi
+          if [ -f runs/j-7f2a/out/aligned_exposure_report.md ]; then cat runs/j-7f2a/out/exposure_report.md; fi
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
