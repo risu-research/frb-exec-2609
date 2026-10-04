@@ -12,8 +12,8 @@ env:
   DATASETS_DISABLE_PROGRESS_BARS: '1'
   TARGET_N: '600'
   MIN_N: '500'
-  MAX_DEMOS: '32'
-  MAX_PER_DEMO: '24'
+  MAX_DEMOS: '99'
+  MAX_PER_DEMO: '12'
 jobs:
   compute:
     runs-on: ubuntu-latest
