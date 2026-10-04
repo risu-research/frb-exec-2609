@@ -190,3 +190,5 @@ summary={
 }
 (OUT/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True))
 print("VISUAL_PILOT_SUMMARY",json.dumps(summary,sort_keys=True))
+
+# trigger-v1
