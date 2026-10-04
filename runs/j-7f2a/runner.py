@@ -73,7 +73,13 @@ def read_csv_from_zip(zf, member):
             break
         except UnicodeDecodeError:
             continue
-    rdr = csv.DictReader(io.StringIO(txt))
+    sample = txt[:8192]
+    try:
+        dialect = csv.Sniffer().sniff(sample, delimiters=",;\\t|")
+        delim = dialect.delimiter
+    except Exception:
+        delim = ";" if sample.count(";") > sample.count(",") else ","
+    rdr = csv.DictReader(io.StringIO(txt), delimiter=delim)
     rows = list(rdr)
     return rdr.fieldnames or [], rows
 
