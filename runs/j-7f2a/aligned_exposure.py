@@ -15,7 +15,7 @@ def v(x):
 def sk(x):
  y=v(x); return (0,float(y)) if isinstance(y,(int,float)) else (1,str(y))
 def bn(s):
- m=re.search(r"batch\\s*0*([0-9]+)",s,re.I); return int(m.group(1)) if m else None
+ m=re.search(r"batch\s*0*([0-9]+)",s,re.I); return int(m.group(1)) if m else None
 def pts(x):
  if not x or not str(x).strip(): return None
  s=str(x).strip().replace("Z","+00:00")
@@ -46,8 +46,8 @@ def packets(path):
   while True:
    h=f.read(12)
    if len(h)<12: break
-   if h[:4]==b"\\x0a\\x0d\\x0d\\x0a":
-    e="<" if h[8:12]==b"\\x4d\\x3c\\x2b\\x1a" else ">"
+   if h[:4]==b"\x0a\x0d\x0d\x0a":
+    e="<" if h[8:12]==b"\x4d\x3c\x2b\x1a" else ">"
     L=struct.unpack(e+"I",h[4:8])[0]; f.read(L-12); res=[]; sec=True; continue
    if not sec: raise RuntimeError("bad pcapng")
    typ=struct.unpack(e+"I",h[:4])[0]; L=struct.unpack(e+"I",h[4:8])[0]; b0=h[8:12]; rest=f.read(L-12); body=b0+rest[:-4]
