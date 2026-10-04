@@ -1,0 +1,30 @@
+name: j-4c9e-vp-smoke
+on:
+  push:
+    branches:
+      - run/j-4c9e
+    paths:
+      - ".github/workflows/j-4c9e-vp-smoke.yml"
+permissions:
+  contents: read
+env:
+  HF_HUB_DISABLE_TELEMETRY: "1"
+  DATASETS_DISABLE_PROGRESS_BARS: "1"
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "weblinx==0.3.2" "datasets>=3,<5" "huggingface_hub>=0.28,<1" pillow ImageHash requests
+      - name: run
+        env:
+          TARGET_N: "40"
+          MIN_N: "25"
+          MAX_PER_DEMO: "5"
+          WORKERS: "4"
+          PHASH_T: "4"
+        run: python jobs/j-4c9e-vp/visual_pilot.py
