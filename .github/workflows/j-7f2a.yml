@@ -19,10 +19,17 @@ jobs:
           python-version: "3.12"
       - name: Run
         run: python runs/j-7f2a/runner.py
+      - name: Install packet analyzer
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y tshark >/dev/null
+      - name: Analyze control invariant and PCAP
+        run: python runs/j-7f2a/pcap_analysis.py
       - name: Show compact report
         if: always()
         run: |
           if [ -f runs/j-7f2a/out/report.md ]; then cat runs/j-7f2a/out/report.md; fi
+          if [ -f runs/j-7f2a/out/pcap_report.md ]; then cat runs/j-7f2a/out/pcap_report.md; fi
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
