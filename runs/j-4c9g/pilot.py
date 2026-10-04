@@ -125,6 +125,11 @@ def count(records,t,mode,vt=MAIN_VIS_T,collapse=True):
         if mode=="text": ok=r["text"]==t["text"]
         elif mode=="dom": ok=r["dom"]==t["dom"]
         elif mode=="text_dom": ok=r["text"]==t["text"] and r["dom"]==t["dom"]
+        elif mode in ("text_visual","dom_visual"):
+            if t["phash"] is not None and r["phash"] is not None:
+                ar1=max(t["w"]/max(t["h"],1e-6),1e-6); ar2=max(r["w"]/max(r["h"],1e-6),1e-6)
+                vok=abs(math.log2(ar1/ar2))<=math.log2(1.6) and pdist(r["phash"],t["phash"])<=vt
+                ok=(vok and r["text"]==t["text"]) if mode=="text_visual" else (vok and r["dom"]==t["dom"])
         elif mode in ("visual","joint"):
             if t["phash"] is not None and r["phash"] is not None:
                 ar1=max(t["w"]/max(t["h"],1e-6),1e-6); ar2=max(r["w"]/max(r["h"],1e-6),1e-6)
@@ -240,7 +245,7 @@ def main():
         if target is None: skips["target_missing"]+=1; continue
         if target["phash"] is None: skips["target_uncroppable"]+=1; continue
         z={"intent":str(r["intent"]),"candidate_n":len(recs),"text_blank":int(target["text"]=="")}
-        for m in ["text","dom","visual","text_dom","joint"]:
+        for m in ["text","dom","visual","text_dom","text_visual","dom_visual","joint"]:
             z[m]=count(recs,target,m,collapse=True)
             z[m+"_strict"]=count(recs,target,m,collapse=False)
         for vt in VIS_THRESHOLDS:
@@ -252,7 +257,7 @@ def main():
     print("ANALYZED",len(res),"DEMOS_ANALYZED",len(demo_counts),"SKIPS",dict(skips))
     if len(res)<MIN_N: raise RuntimeError(f"only {len(res)} analyzable rows")
 
-    modes=["text","dom","visual","text_dom","joint"]
+    modes=["text","dom","visual","text_dom","text_visual","dom_visual","joint"]
     mx=pd.DataFrame([{"representation":m,**summ(res,m)} for m in modes])
     mx.to_csv(OUT/"matrix.csv",index=False)
     bi=[]
@@ -278,7 +283,7 @@ def main():
     summary={"seed":SEED,"analyzed_n":int(len(res)),"demo_n":int(len(demo_counts)),
       "dataset_pins":{"WebLINX":pre_sha,"WebLINX-full":raw_sha},
       "universe":"official WebLINX preprocessed candidate panel; conservative lower bound on full-page collision",
-      "representations":{"text":"normalized candidate visible text","dom":"tag + selected semantic/accessibility attrs + child tags; excludes uid/id/class/style/xpath/text","visual":"pHash of candidate bbox crop, Hamming<=4, aspect ratio <=1.6x","joint":"intersection of text+dom+visual"},
+      "representations":{"text":"normalized candidate visible text","dom":"tag + selected semantic/accessibility attrs + child tags; excludes uid/id/class/style/xpath/text","visual":"pHash of candidate bbox crop, Hamming<=4, aspect ratio <=1.6x","text_visual":"intersection of text+visual","dom_visual":"intersection of dom+visual","joint":"intersection of text+dom+visual"},
       "metrics":{m:summ(res,m) for m in modes},"rescue":rescue,
       "intent_counts":{str(k):int(v) for k,v in res.intent.value_counts().items()},
       "strict_metrics":{m:summ(res,m+"_strict") for m in modes},
