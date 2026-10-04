@@ -25,7 +25,12 @@ def ts(v):
  if not v or not str(v).strip(): return None
  s=str(v).strip().replace("Z","+00:00")
  try: d=datetime.fromisoformat(s)
- except: return None
+ except:
+  d=None
+  for fmt in ("%d/%m/%Y %H:%M:%S,%f","%d/%m/%Y %H:%M:%S","%Y-%m-%d %H:%M:%S.%f","%Y-%m-%d %H:%M:%S"):
+   try: d=datetime.strptime(s,fmt); break
+   except: pass
+  if d is None: return None
  if d.tzinfo is None: d=d.replace(tzinfo=timezone.utc)
  return d.timestamp()
 def state(r,cs): return tuple(n(r.get(c)) for c in cs)
