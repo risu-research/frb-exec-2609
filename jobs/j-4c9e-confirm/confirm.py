@@ -33,9 +33,8 @@ def parse_doc(doc,uid):
     f={}
     for fm in FIELD.finditer(str(doc or "")): f[fm.group(1).lower()]=norm(fm.group(2),2000)
     attrs={k.lower():norm(v,160) for k,_,v in KV.findall(f.get("attributes",""))}
-    sem=tuple((k,attrs.get(k,"")) for k in ("role","type","name","aria-label","title","placeholder","alt","href","value","for") if attrs.get(k))
-    sem_nofor=tuple((k,attrs.get(k,"")) for k in ("role","type","name","aria-label","title","placeholder","alt","href","value") if attrs.get(k))
-    return {"uid":str(uid),"tag":norm(f.get("tag",""),40),"text":norm(f.get("text",""),240),"sem":sem,"sem_nofor":sem_nofor,"bbox":parse_bbox(f.get("bbox",""))}
+    sem=tuple((k,attrs.get(k,"")) for k in ("role","type","name","aria-label","title","placeholder","alt","href","value") if attrs.get(k))
+    return {"uid":str(uid),"tag":norm(f.get("tag",""),40),"text":norm(f.get("text",""),240),"sem":sem,"bbox":parse_bbox(f.get("bbox",""))}
 def raw_get(repo_path,sha,optional=False):
     dest=RAW/repo_path
     if dest.exists() and dest.stat().st_size>0:return dest
@@ -176,22 +175,19 @@ for i,r in enumerate(sample,1):
     row["text_n"]=sum(c["text"]==t["text"] for c in cs)
     row["dom_n"]=sum((c["tag"],c["sem"])==(t["tag"],t["sem"]) for c in cs)
     row["textdom_n"]=sum(c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) for c in cs)
-    row["textdom_nofor_n"]=sum(c["text"]==t["text"] and (c["tag"],c["sem_nofor"])==(t["tag"],t["sem_nofor"]) for c in cs)
-    row["visual_n"]=sum(c["phash"] is not None and (c["phash"]-t["phash"])<=PHASH_T for c in cs)
-    row["joint_n"]=sum(c["phash"] is not None and c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"]-t["phash"])<=PHASH_T for c in cs)
-    row["joint_nofor_n"]=sum(c["phash"] is not None and c["text"]==t["text"] and (c["tag"],c["sem_nofor"])==(t["tag"],t["sem_nofor"]) and (c["phash"]-t["phash"])<=PHASH_T for c in cs)
+    row["visual_n"]=sum(c["phash"] is None or (c["phash"]-t["phash"])<=PHASH_T for c in cs)
+    row["joint_n"]=sum(c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"] is None or (c["phash"]-t["phash"])<=PHASH_T) for c in cs)
     row["candidate_visual_valid_n"]=sum(c["phash"] is not None for c in cs)
     row["textdom_missing_visual_n"]=sum(c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and c["phash"] is None for c in cs)
-    row["joint_conservative_missing_unknown_n"]=sum(c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"] is None or (c["phash"]-t["phash"])<=PHASH_T) for c in cs)
     for pt in PHASH_TS:
-        row[f"visual_t{pt}_n"]=sum(c["phash"] is not None and (c["phash"]-t["phash"])<=pt for c in cs)
-        row[f"joint_t{pt}_n"]=sum(c["phash"] is not None and c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"]-t["phash"])<=pt for c in cs)
+        row[f"visual_t{pt}_n"]=sum(c["phash"] is None or (c["phash"]-t["phash"])<=pt for c in cs)
+        row[f"joint_t{pt}_n"]=sum(c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"] is None or (c["phash"]-t["phash"])<=pt) for c in cs)
     for k in KS:
         sub=[c for c in cs if c["rank"]<=k]
         present=r["rank"]<=k
         row[f"k{k}_present"]=int(present)
         if present:
-            row[f"k{k}_joint_n"]=sum(c["phash"] is not None and c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"]-t["phash"])<=PHASH_T for c in sub)
+            row[f"k{k}_joint_n"]=sum(c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"] is None or (c["phash"]-t["phash"])<=PHASH_T) for c in sub)
     rows.append(row)
     if i%100==0:print("CONFIRM_PROCESSED",i)
 
@@ -247,10 +243,7 @@ summary={
    "candidate_visual_valid_total":sum(r["candidate_visual_valid_n"] for r in rows),
    "candidate_visual_valid_rate":sum(r["candidate_visual_valid_n"] for r in rows)/sum(r["candidate_n"] for r in rows),
    "actions_with_any_missing_candidate_visual":sum(r["candidate_visual_valid_n"]<r["candidate_n"] for r in rows),
-   "actions_with_semantic_match_missing_visual":sum(r["textdom_missing_visual_n"]>0 for r in rows),
-   "joint_conservative_missing_unknown":metric(rows,"joint_conservative_missing_unknown_n"),
-   "textdom_without_for":metric(rows,"textdom_nofor_n"),
-   "joint_without_for":metric(rows,"joint_nofor_n")
+   "actions_with_semantic_match_missing_visual":sum(r["textdom_missing_visual_n"]>0 for r in rows)
  },
  "strata":{
    "blank":{"n":len(blank),"text":metric(blank,"text_n"),"visual":metric(blank,"visual_n"),"joint":metric(blank,"joint_n"),"textdom":metric(blank,"textdom_n")},
