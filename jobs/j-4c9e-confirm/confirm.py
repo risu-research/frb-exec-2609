@@ -14,6 +14,7 @@ TARGET=600
 OVERSAMPLE=750
 MAX_PER_DEMO=14
 PHASH_T=4
+PHASH_TS=(0,4,8,12)
 WORKERS=6
 KS=(10,20,50)
 RAW=Path("wl_confirm"); OUT=Path("out_confirm"); OUT.mkdir(exist_ok=True)
@@ -176,6 +177,9 @@ for i,r in enumerate(sample,1):
     row["textdom_n"]=sum(c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) for c in cs)
     row["visual_n"]=sum(c["phash"] is not None and (c["phash"]-t["phash"])<=PHASH_T for c in cs)
     row["joint_n"]=sum(c["phash"] is not None and c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"]-t["phash"])<=PHASH_T for c in cs)
+    for pt in PHASH_TS:
+        row[f"visual_t{pt}_n"]=sum(c["phash"] is not None and (c["phash"]-t["phash"])<=pt for c in cs)
+        row[f"joint_t{pt}_n"]=sum(c["phash"] is not None and c["text"]==t["text"] and (c["tag"],c["sem"])==(t["tag"],t["sem"]) and (c["phash"]-t["phash"])<=pt for c in cs)
     for k in KS:
         sub=[c for c in cs if c["rank"]<=k]
         present=r["rank"]<=k
@@ -188,6 +192,40 @@ for i,r in enumerate(sample,1):
 blank=[r for r in rows if r["blank"]];nonblank=[r for r in rows if not r["blank"]]
 sizes=[r["candidate_n"] for r in rows]
 rankpop=[r["rank"] for r in targets]
+def bootstrap_phash(rows,reps=5000):
+    by=defaultdict(list)
+    for r in rows: by[r["demo"]].append(r)
+    demos=sorted(by); rng=random.Random(2026100405)
+    vals={str(pt):{"visual":[],"joint":[]} for pt in PHASH_TS}
+    for _ in range(reps):
+        rs=[r for __ in demos for r in by[rng.choice(demos)]]
+        for pt in PHASH_TS:
+            vals[str(pt)]["visual"].append(rate(rs,lambda r,pt=pt:r[f"visual_t{pt}_n"]==1))
+            vals[str(pt)]["joint"].append(rate(rs,lambda r,pt=pt:r[f"joint_t{pt}_n"]==1))
+    out={}
+    for pt in PHASH_TS:
+        p=str(pt); out[p]={}
+        for name in ("visual","joint"):
+            a=sorted(vals[p][name])
+            est=rate(rows,lambda r,pt=pt,name=name:r[f"{name}_t{pt}_n"]==1)
+            out[p][name]={"estimate":est,"ci95":[a[math.floor(.025*(len(a)-1))],a[math.ceil(.975*(len(a)-1))]]}
+    return {"unit":"demo","reps":reps,"demo_n":len(demos),"metrics":out}
+
+phash_sensitivity={}
+for pt in PHASH_TS:
+    phash_sensitivity[str(pt)]={
+      "overall":{
+        "visual":metric(rows,f"visual_t{pt}_n"),
+        "joint":metric(rows,f"joint_t{pt}_n")},
+      "blank":{
+        "visual":metric(blank,f"visual_t{pt}_n"),
+        "joint":metric(blank,f"joint_t{pt}_n")},
+      "nonblank":{
+        "visual":metric(nonblank,f"visual_t{pt}_n"),
+        "joint":metric(nonblank,f"joint_t{pt}_n")}
+    }
+phash_bootstrap=bootstrap_phash(rows)
+
 summary={
  "raw_sha":raw_sha,
  "population":{"target_turns":len(targets),"ambiguous_target_groups_excluded":ambiguous_target_groups,"demo_n":len(by),
@@ -202,6 +240,9 @@ summary={
    "blank":{"n":len(blank),"text":metric(blank,"text_n"),"visual":metric(blank,"visual_n"),"joint":metric(blank,"joint_n"),"textdom":metric(blank,"textdom_n")},
    "nonblank":{"n":len(nonblank),"text":metric(nonblank,"text_n"),"visual":metric(nonblank,"visual_n"),"joint":metric(nonblank,"joint_n"),"textdom":metric(nonblank,"textdom_n")}},
  "bootstrap":bootstrap(rows),
+ "phash_threshold":PHASH_T,
+ "phash_sensitivity":phash_sensitivity,
+ "phash_sensitivity_bootstrap":phash_bootstrap,
  "topk_unconditional":{str(k):{
     "target_present_rate":rate(rows,lambda r,k=k:r["target_rank"]<=k),
     "joint_unique_over_all_actions":sum((r["target_rank"]<=k and r.get(f"k{k}_joint_n")==1) for r in rows)/len(rows),
