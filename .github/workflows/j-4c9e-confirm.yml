@@ -1,0 +1,30 @@
+name: j-4c9e-confirm
+on:
+  push:
+    branches: [ "run/j-4c9e" ]
+    paths:
+      - "jobs/j-4c9e-confirm/confirm.py"
+      - ".github/workflows/j-4c9e-confirm.yml"
+permissions:
+  contents: read
+env:
+  HF_HUB_DISABLE_TELEMETRY: "1"
+  DATASETS_DISABLE_PROGRESS_BARS: "1"
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "weblinx==0.3.2" "huggingface_hub>=0.28,<1" pillow ImageHash requests
+      - run: python jobs/j-4c9e-confirm/confirm.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: j-4c9e-confirm
+          path: out_confirm/
+          if-no-files-found: warn
+          retention-days: 7
