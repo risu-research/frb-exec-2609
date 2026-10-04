@@ -36,7 +36,7 @@ def parse_doc(doc,uid=None):
     f={}
     for fm in FIELD.finditer(str(doc or "")): f[fm.group(1).lower()]=norm(fm.group(2),2000)
     attrs={k.lower():norm(v,160) for k,_,v in KV.findall(f.get("attributes",""))}
-    sem=tuple((k,attrs.get(k,"")) for k in ("role","type","name","aria-label","title","placeholder","alt","href","value","for") if attrs.get(k))
+    sem=tuple((k,attrs.get(k,"")) for k in ("role","type","name","aria-label","title","placeholder","alt","href","value") if attrs.get(k))
     return {"uid":str(uid or attrs.get("data-webtasks-id","")),"tag":norm(f.get("tag",""),40),
             "text":norm(f.get("text",""),240),"sem":sem,"bbox":parse_bbox(f.get("bbox",""))}
 def parse_preprocessed(s):
@@ -198,8 +198,8 @@ for i,r in enumerate(mapped,1):
         text_n=sum(c["text"]==target["text"] for c in subset)
         dom_n=sum((c["tag"],c["sem"])==(target["tag"],target["sem"]) for c in subset)
         textdom_n=sum(c["text"]==target["text"] and (c["tag"],c["sem"])==(target["tag"],target["sem"]) for c in subset)
-        visual_n=sum(c["phash"] is not None and (c["phash"]-target["phash"])<=PHASH_T for c in subset)
-        joint_n=sum(c["phash"] is not None and c["text"]==target["text"] and (c["tag"],c["sem"])==(target["tag"],target["sem"]) and (c["phash"]-target["phash"])<=PHASH_T for c in subset)
+        visual_n=sum(c["phash"] is None or (c["phash"]-target["phash"])<=PHASH_T for c in subset)
+        joint_n=sum(c["text"]==target["text"] and (c["tag"],c["sem"])==(target["tag"],target["sem"]) and (c["phash"] is None or (c["phash"]-target["phash"])<=PHASH_T) for c in subset)
         rows_by_k[str(kval)].append({"demo":r["demo"],"target_present":1,"text_n":text_n,"dom_n":dom_n,"textdom_n":textdom_n,"visual_n":visual_n,"joint_n":joint_n})
     if i%100==0: print("PROCESSED",i)
 
