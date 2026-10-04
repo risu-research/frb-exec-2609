@@ -217,7 +217,7 @@ with zipfile.ZipFile(ZIP_PATH) as zf:
         w.writeheader(); w.writerows(population_rows)
 
     # Pilot: baseline, first sensor, first valve.
-    selected = [b for b in (1, 2, 8) if b in cache]
+    selected = sorted(cache.keys())
     pilot_summary = {
         "job": JOB,
         "selected_batches": selected,
