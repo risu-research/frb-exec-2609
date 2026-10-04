@@ -195,7 +195,7 @@ def main():
     selected=[]; rows_idx=[]
     for d in demos:
         inds=list(groups[d].index); RNG.shuffle(inds); inds=inds[:MAX_PER_DEMO]
-        if len(inds)<3: continue
+        if len(inds)<2: continue
         selected.append(str(d)); rows_idx+=inds
         if len(rows_idx)>=TARGET_N*1.25 or len(selected)>=MAX_DEMOS: break
     RNG.shuffle(rows_idx)
