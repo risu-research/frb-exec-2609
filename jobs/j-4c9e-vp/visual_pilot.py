@@ -185,16 +185,24 @@ for r in sel:
     dom_n=sum((c["tag"],c["sem"])==(target["tag"],target["sem"]) for c in enriched)
     thresholds=(0,4,8,12)
     visual_by_t={t:sum(c["phash"] is not None and (c["phash"]-target["phash"])<=t for c in enriched) for t in thresholds}
+    textdom_n=sum(c["text"]==target["text"] and (c["tag"],c["sem"])==(target["tag"],target["sem"]) for c in enriched)
     joint_by_t={t:sum(c["phash"] is not None and c["text"]==target["text"] and (c["tag"],c["sem"])==(target["tag"],target["sem"]) and (c["phash"]-target["phash"])<=t for c in enriched) for t in thresholds}
     visual_n=visual_by_t[PHASH_T]
     joint_n=joint_by_t[PHASH_T]
     x,y,w,h=target["bbox"]; px=x+w/2;py=y+h/2
     coord_n=sum(contains(c["bbox"],px,py) for c in enriched)
+    text_bytes=len(target["text"].encode("utf-8"))
+    dom_repr=json.dumps([target["tag"], target["sem"]],separators=(",",":"),ensure_ascii=False)
+    dom_bytes=len(dom_repr.encode("utf-8"))
+    textdom_repr=json.dumps([target["text"],target["tag"],target["sem"]],separators=(",",":"),ensure_ascii=False)
+    textdom_bytes=len(textdom_repr.encode("utf-8"))
+    screen_bytes=sp.stat().st_size
     rows.append({"demo":r["demo"],"turn":r["turn"],"candidates":len(enriched),
-                 "text_n":text_n,"dom_n":dom_n,"visual_n":visual_n,"joint_n":joint_n,"coord_n":coord_n,
+                 "text_n":text_n,"dom_n":dom_n,"textdom_n":textdom_n,"visual_n":visual_n,"joint_n":joint_n,"coord_n":coord_n,
                  **{f"visual_t{t}_n":visual_by_t[t] for t in thresholds},
                  **{f"joint_t{t}_n":joint_by_t[t] for t in thresholds},
-                 "blank":int(target["text"]==""),"crop_bytes":target["crop_bytes"] or 0,"candidate_n":len(enriched)})
+                 "blank":int(target["text"]==""),"crop_bytes":target["crop_bytes"] or 0,"screen_bytes":screen_bytes,
+                 "text_bytes":text_bytes,"dom_bytes":dom_bytes,"textdom_bytes":textdom_bytes,"candidate_n":len(enriched)})
 
 print("ROWCOUNT",len(rows),"SKIPS",dict(skips))
 if len(rows)<MIN_N:raise SystemExit(f"below minimum {len(rows)}")
@@ -203,7 +211,7 @@ summary={
  "n":len(rows),"demo_n":len(set(r["demo"] for r in rows)),"screenshots_n":len(paths),"fetch_failures":dict(fail),
  "universe":"WebLINX preprocessed top-candidate lists; target bbox crop from frozen raw screenshot",
  "phash_threshold":PHASH_T,
- "metrics":{k:summarize(rows,k+"_n") for k in ("text","dom","visual","joint","coord")},
+ "metrics":{k:summarize(rows,k+"_n") for k in ("text","dom","textdom","visual","joint","coord")},
  "phash_sensitivity":{str(t):{
      "visual":summarize(rows,f"visual_t{t}_n"),
      "joint":summarize(rows,f"joint_t{t}_n")
@@ -217,6 +225,38 @@ summary={
                        "min":min(r["candidate_n"] for r in rows),"max":max(r["candidate_n"] for r in rows)},
  "blank_target_text_rate":sum(r["blank"] for r in rows)/len(rows),
  "median_target_crop_png_bytes":statistics.median(r["crop_bytes"] for r in rows),
+ "storage_baselines":{
+   "mean_text_bytes":sum(r["text_bytes"] for r in rows)/len(rows),
+   "mean_dom_bytes":sum(r["dom_bytes"] for r in rows)/len(rows),
+   "mean_textdom_bytes":sum(r["textdom_bytes"] for r in rows)/len(rows),
+   "mean_crop_bytes":sum(r["crop_bytes"] for r in rows)/len(rows),
+   "mean_full_screenshot_bytes":sum(r["screen_bytes"] for r in rows)/len(rows)
+ },
+ "adaptive_policies":{
+   "semantic_collision_gate":{
+      "rule":"store text if text unique; else text+semantic-DOM if unique; else add visual target-region evidence",
+      "visual_retention_rate":sum(r["textdom_n"]>1 for r in rows)/len(rows),
+      "audit_unique_rate":sum((r["text_n"]==1) or (r["text_n"]>1 and r["textdom_n"]==1) or (r["textdom_n"]>1 and r["joint_n"]==1) for r in rows)/len(rows),
+      "mean_incremental_bytes_crop":sum(
+          r["text_bytes"] if r["text_n"]==1 else
+          r["textdom_bytes"] if r["textdom_n"]==1 else
+          r["textdom_bytes"]+r["crop_bytes"] for r in rows)/len(rows),
+      "mean_incremental_bytes_fullscreen":sum(
+          r["text_bytes"] if r["text_n"]==1 else
+          r["textdom_bytes"] if r["textdom_n"]==1 else
+          r["textdom_bytes"]+r["screen_bytes"] for r in rows)/len(rows)
+   },
+   "blank_gate":{
+      "rule":"nonblank -> text only; blank -> joint",
+      "visual_retention_rate":sum(r["blank"]==1 for r in rows)/len(rows),
+      "audit_unique_rate":sum((r["blank"]==0 and r["text_n"]==1) or (r["blank"]==1 and r["joint_n"]==1) for r in rows)/len(rows)
+   },
+   "text_collision_gate":{
+      "rule":"text if unique; otherwise retain joint",
+      "visual_retention_rate":sum(r["text_n"]>1 for r in rows)/len(rows),
+      "audit_unique_rate":sum((r["text_n"]==1) or (r["text_n"]>1 and r["joint_n"]==1) for r in rows)/len(rows)
+   }
+ },
  "rescue":{
    "text_amb_dom_unique":sum(r["text_n"]>1 and r["dom_n"]==1 for r in rows),
    "text_amb_visual_unique":sum(r["text_n"]>1 and r["visual_n"]==1 for r in rows),
