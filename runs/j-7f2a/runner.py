@@ -243,13 +243,20 @@ with zipfile.ZipFile(ZIP_PATH) as zf:
         gemma = choose_col(cols, ["gemma"])
 
         desired = ["gemma","a0","a1","b0","b1","c0","c1","B_1","B_2","YA_p","YA_m","YB_p","YB_m","YC_p","YC_m"]
-        # exact-normalized lookup while retaining all distinct names
-        lut = {norm(c): c for c in cols}
+        # Prefer exact case-sensitive names because b1 and B_1 are distinct variables.
+        lut = {}
+        for col in cols:
+            lut.setdefault(norm(col), []).append(col)
         state_cols = []
         for d in desired:
-            c = lut.get(norm(d))
-            if c and c not in state_cols:
-                state_cols.append(c)
+            exact = next((col for col in cols if col == d), None)
+            if exact is not None:
+                chosen = exact
+            else:
+                candidates = lut.get(norm(d), [])
+                chosen = candidates[0] if len(candidates) == 1 else None
+            if chosen and chosen not in state_cols:
+                state_cols.append(chosen)
         if len(state_cols) < 8:
             # fallback: actuator/internal state-looking fields only
             candidates = []
@@ -283,11 +290,32 @@ with zipfile.ZipFile(ZIP_PATH) as zf:
         final_divergent = 0
         overlapping_delta_pairs = 0
         pair_both_nonempty = 0
+        meaningful_bad_part = 0
         opposed_command_conflicts = 0
+        swapped_faultstate_actuator_on_pairs = 0
         vulnerable_scans = set()
         all_eligible_scans = set()
 
         idx = {c:i for i,c in enumerate(state_cols)}
+        actuator_cols = [c for c in state_cols if re.fullmatch(r"Y[ABC]_[pm]", c)]
+        gemma_state_col = next((c for c in state_cols if c == "gemma"), None)
+
+        def faultstate_actuator_on(state):
+            if not gemma_state_col or state[idx[gemma_state_col]] != 7:
+                return False
+            return any(state[idx[c]] == 1 for c in actuator_cols)
+
+        canonical_gemma7_rows = 0
+        canonical_gemma7_actuator_on_rows = 0
+        if gemma_state_col:
+            for _p, _rr in by_part.items():
+                for _r in _rr:
+                    _s = tuple_state(_r, state_cols)
+                    if _s[idx[gemma_state_col]] == 7:
+                        canonical_gemma7_rows += 1
+                        if faultstate_actuator_on(_s):
+                            canonical_gemma7_actuator_on_rows += 1
+
         # identify opposed command pairs if present
         opp_pairs = []
         for prefix in ("YA","YB","YC"):
@@ -338,8 +366,12 @@ with zipfile.ZipFile(ZIP_PATH) as zf:
                 if p1 or p2:
                     any_part_bad += 1
                     vulnerable_scans.add(skey)
+                    if A and B:
+                        meaningful_bad_part += 1
                 if b1 or b2: any_batch_bad += 1
                 if s2 != canon[i+1]: final_divergent += 1
+                if faultstate_actuator_on(s1) or faultstate_actuator_on(s2):
+                    swapped_faultstate_actuator_on_pairs += 1
 
                 conflict = False
                 for cp, cm in opp_pairs:
@@ -380,6 +412,8 @@ with zipfile.ZipFile(ZIP_PATH) as zf:
             "state_change_field_count_distribution": dict(sorted(change_hist.items())),
             "eligible_within_scan_adjacent_pairs": eligible_pairs,
             "pairs_with_both_nonempty_deltas": pair_both_nonempty,
+            "meaningful_pairs_any_trace_inconsistent_part": meaningful_bad_part,
+            "meaningful_pair_vulnerability_rate_part": rate(meaningful_bad_part, pair_both_nonempty),
             "pairs_with_overlapping_delta_fields": overlapping_delta_pairs,
             "trace_inconsistent_after_first_swapped_message_part": s1_part_bad,
             "trace_inconsistent_after_second_swapped_message_part": s2_part_bad,
@@ -395,6 +429,9 @@ with zipfile.ZipFile(ZIP_PATH) as zf:
             "vulnerable_scans_part_reference": len(vulnerable_scans),
             "vulnerable_scan_rate_part_reference": rate(len(vulnerable_scans), len(all_eligible_scans)),
             "opposed_solenoid_command_conflict_pairs": opposed_command_conflicts,
+            "canonical_gemma7_rows": canonical_gemma7_rows,
+            "canonical_gemma7_with_any_actuator_on_rows": canonical_gemma7_actuator_on_rows,
+            "swapped_pairs_materializing_gemma7_with_any_actuator_on": swapped_faultstate_actuator_on_pairs,
         }
 
     (OUT / "pilot_summary.json").write_text(json.dumps(pilot_summary, indent=2), encoding="utf-8")
