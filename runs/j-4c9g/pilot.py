@@ -79,7 +79,7 @@ def parse_candidates(s):
                 sem.append((k,v))
         # excludes uid/id/class/style/xpath/text by construction
         dom=(tag,tuple(sem),children)
-        out.append({"uid":uid,"tag":tag,"text":text,"dom":dom,"x":x,"y":y,"w":w,"h":h})
+        out.append({"uid":uid,"tag":tag,"xpath":xpath,"text":text,"dom":dom,"x":x,"y":y,"w":w,"h":h})
     return out
 
 def crop_hash(img,r):
@@ -96,8 +96,30 @@ def pdist(a,b):
     if a is None or b is None: return 999
     return (int(a)^int(b)).bit_count()
 
-def count(records,t,mode,vt=MAIN_VIS_T):
-    n=0
+def xpath_related(a,b):
+    a=(a or "").rstrip("/"); b=(b or "").rstrip("/")
+    if not a or not b: return False
+    return a==b or a.startswith(b+"/") or b.startswith(a+"/")
+
+def collapse_branches(matches):
+    n=len(matches)
+    if n<=1: return n
+    parent=list(range(n))
+    def find(x):
+        while parent[x]!=x:
+            parent[x]=parent[parent[x]]; x=parent[x]
+        return x
+    def union(a,b):
+        a=find(a); b=find(b)
+        if a!=b: parent[b]=a
+    for i in range(n):
+        for j in range(i):
+            if xpath_related(matches[i].get("xpath"),matches[j].get("xpath")):
+                union(i,j)
+    return len({find(i) for i in range(n)})
+
+def count(records,t,mode,vt=MAIN_VIS_T,collapse=True):
+    matches=[]
     for r in records:
         ok=False
         if mode=="text": ok=r["text"]==t["text"]
@@ -108,8 +130,8 @@ def count(records,t,mode,vt=MAIN_VIS_T):
                 ar1=max(t["w"]/max(t["h"],1e-6),1e-6); ar2=max(r["w"]/max(r["h"],1e-6),1e-6)
                 vok=abs(math.log2(ar1/ar2))<=math.log2(1.6) and pdist(r["phash"],t["phash"])<=vt
                 ok=vok if mode=="visual" else (vok and r["text"]==t["text"] and r["dom"]==t["dom"])
-        n+=int(ok)
-    return n
+        if ok: matches.append(r)
+    return collapse_branches(matches) if collapse else len(matches)
 
 def summ(df,col):
     s=df[col].dropna().astype(float)
@@ -218,7 +240,9 @@ def main():
         if target is None: skips["target_missing"]+=1; continue
         if target["phash"] is None: skips["target_uncroppable"]+=1; continue
         z={"intent":str(r["intent"]),"candidate_n":len(recs),"text_blank":int(target["text"]=="")}
-        for m in ["text","dom","visual","text_dom","joint"]: z[m]=count(recs,target,m)
+        for m in ["text","dom","visual","text_dom","joint"]:
+            z[m]=count(recs,target,m,collapse=True)
+            z[m+"_strict"]=count(recs,target,m,collapse=False)
         for vt in VIS_THRESHOLDS:
             z[f"visual_t{vt}"]=count(recs,target,"visual",vt)
             z[f"joint_t{vt}"]=count(recs,target,"joint",vt)
@@ -257,6 +281,7 @@ def main():
       "representations":{"text":"normalized candidate visible text","dom":"tag + selected semantic/accessibility attrs + child tags; excludes uid/id/class/style/xpath/text","visual":"pHash of candidate bbox crop, Hamming<=4, aspect ratio <=1.6x","joint":"intersection of text+dom+visual"},
       "metrics":{m:summ(res,m) for m in modes},"rescue":rescue,
       "intent_counts":{str(k):int(v) for k,v in res.intent.value_counts().items()},
+      "strict_metrics":{m:summ(res,m+"_strict") for m in modes},
       "download_failures":dict(failures),"skips":dict(skips)}
     (OUT/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True))
     print("PRIMARY_MATRIX\n"+mx.to_string(index=False))
