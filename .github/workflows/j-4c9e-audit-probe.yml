@@ -1,0 +1,17 @@
+name: j-4c9e-audit-probe
+on:
+  push:
+    branches: [ "run/j-4c9e" ]
+    paths:
+      - "jobs/j-4c9e-audit/probe.py"
+      - ".github/workflows/j-4c9e-audit-probe.yml"
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "datasets>=3,<5" "huggingface_hub>=0.28,<1"
+      - run: python jobs/j-4c9e-audit/probe.py
