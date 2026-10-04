@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install "datasets>=3,<5" "huggingface_hub>=0.28,<1" pillow ImageHash requests
+      - run: pip install "weblinx==0.3.2" "datasets>=3,<5" "huggingface_hub>=0.28,<1" pillow ImageHash requests
       - name: run
         env:
           TARGET_N: "600"
