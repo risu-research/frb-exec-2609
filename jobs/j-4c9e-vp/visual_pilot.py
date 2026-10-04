@@ -272,5 +272,65 @@ def json_default(o):
     raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
 (OUT/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True,default=json_default))
 print("VISUAL_PILOT_SUMMARY",json.dumps(summary,sort_keys=True,default=json_default))
+# Demonstration-cluster bootstrap: resample whole demonstrations with replacement.
+def cluster_bootstrap(rows, reps=5000, seed=2026100402):
+    by_demo=defaultdict(list)
+    for r in rows: by_demo[r["demo"]].append(r)
+    demos=sorted(by_demo)
+    rng=random.Random(seed)
+    def rate(rs, pred):
+        return sum(1 for r in rs if pred(r))/len(rs) if rs else float("nan")
+    stats=defaultdict(list)
+    for _ in range(reps):
+        draw=[rng.choice(demos) for __ in demos]
+        rs=[r for d in draw for r in by_demo[d]]
+        blank=[r for r in rs if r["blank"]==1]
+        nonblank=[r for r in rs if r["blank"]==0]
+        vals={
+          "text_unique":rate(rs,lambda r:r["text_n"]==1),
+          "visual_unique":rate(rs,lambda r:r["visual_n"]==1),
+          "joint_unique":rate(rs,lambda r:r["joint_n"]==1),
+          "semantic_unique":rate(rs,lambda r:r["textdom_n"]==1),
+          "visual_escalation":rate(rs,lambda r:r["textdom_n"]>1),
+          "blank_text_unique":rate(blank,lambda r:r["text_n"]==1),
+          "nonblank_text_unique":rate(nonblank,lambda r:r["text_n"]==1),
+          "blank_visual_unique":rate(blank,lambda r:r["visual_n"]==1),
+          "nonblank_visual_unique":rate(nonblank,lambda r:r["visual_n"]==1),
+          "blank_joint_unique":rate(blank,lambda r:r["joint_n"]==1),
+          "nonblank_joint_unique":rate(nonblank,lambda r:r["joint_n"]==1),
+        }
+        vals["text_inversion_gap"]=vals["nonblank_text_unique"]-vals["blank_text_unique"]
+        for k,v in vals.items():
+            if not math.isnan(v): stats[k].append(v)
+    out={}
+    for k,vs in stats.items():
+        vs=sorted(vs)
+        lo=vs[max(0,math.floor(.025*(len(vs)-1)))]
+        hi=vs[min(len(vs)-1,math.ceil(.975*(len(vs)-1)))]
+        out[k]={"estimate":None,"ci95":[lo,hi]}
+    point={
+      "text_unique":rate(rows,lambda r:r["text_n"]==1),
+      "visual_unique":rate(rows,lambda r:r["visual_n"]==1),
+      "joint_unique":rate(rows,lambda r:r["joint_n"]==1),
+      "semantic_unique":rate(rows,lambda r:r["textdom_n"]==1),
+      "visual_escalation":rate(rows,lambda r:r["textdom_n"]>1),
+    }
+    blank=[r for r in rows if r["blank"]==1]; nonblank=[r for r in rows if r["blank"]==0]
+    point.update({
+      "blank_text_unique":rate(blank,lambda r:r["text_n"]==1),
+      "nonblank_text_unique":rate(nonblank,lambda r:r["text_n"]==1),
+      "blank_visual_unique":rate(blank,lambda r:r["visual_n"]==1),
+      "nonblank_visual_unique":rate(nonblank,lambda r:r["visual_n"]==1),
+      "blank_joint_unique":rate(blank,lambda r:r["joint_n"]==1),
+      "nonblank_joint_unique":rate(nonblank,lambda r:r["joint_n"]==1),
+    })
+    point["text_inversion_gap"]=point["nonblank_text_unique"]-point["blank_text_unique"]
+    for k,v in point.items(): out[k]["estimate"]=v
+    return {"unit":"demonstration","reps":reps,"seed":seed,"demo_n":len(demos),"metrics":out}
+
+boot=cluster_bootstrap(rows)
+(OUT/"cluster_bootstrap.json").write_text(json.dumps(boot,indent=2,sort_keys=True,default=json_default))
+print("CLUSTER_BOOTSTRAP",json.dumps(boot,sort_keys=True,default=json_default))
+
 
 # trigger-v1
