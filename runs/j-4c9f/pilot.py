@@ -1,4 +1,4 @@
-import json, math, os, random, re
+import json, math, os, random, re, time
 from collections import Counter
 from pathlib import Path
 
@@ -8,7 +8,7 @@ from PIL import Image
 import imagehash
 from lxml import html as lxml_html
 from datasets import load_dataset
-from huggingface_hub import HfApi, snapshot_download
+from huggingface_hub import HfApi, hf_hub_download
 import weblinx as wl
 
 SEED = 20261004
@@ -272,18 +272,57 @@ def main():
         raise RuntimeError("No demos selected")
     print("SELECTED_DEMOS",len(selected),"APPROX_ROWS",approx)
 
-    patterns=[]
-    for d in selected:
-        base=f"demonstrations/{d}"
-        patterns += [f"{base}/replay.json",f"{base}/metadata.json",f"{base}/form.json",f"{base}/screenshots/*",f"{base}/pages/*",f"{base}/bboxes/*"]
-    snapshot_download("McGill-NLP/WebLINX-full",repo_type="dataset",revision=raw_sha,local_dir=str(RAW_DIR),allow_patterns=patterns)
-
     chosen_rows=[]
     for d in selected:
         inds=list(groups[d].index)
         RNG.shuffle(inds)
         chosen_rows.extend(inds[:MAX_PER_DEMO])
     RNG.shuffle(chosen_rows)
+
+    def exact_download(relpath):
+        last=None
+        for attempt in range(6):
+            try:
+                return hf_hub_download(
+                    "McGill-NLP/WebLINX-full",
+                    filename=relpath,
+                    repo_type="dataset",
+                    revision=raw_sha,
+                    local_dir=str(RAW_DIR),
+                )
+            except Exception as e:
+                last=e
+                if attempt < 5:
+                    time.sleep(min(2 ** attempt, 16))
+        raise last
+
+    replay_cache={}
+    def get_replay(d):
+        if d in replay_cache:
+            return replay_cache[d]
+        exact_download(f"demonstrations/{d}/replay.json")
+        demo=wl.Demonstration(d,base_dir=RAW_DIR/"demonstrations")
+        replay=wl.Replay.from_demonstration(demo)
+        replay_cache[d]=replay
+        return replay
+
+    def ensure_turn_files(d, turn):
+        if not turn.has_screenshot():
+            get_replay(d).assign_screenshot_to_turn(turn)
+        if not turn.has_html():
+            get_replay(d).assign_html_path_to_turn(turn)
+        state=turn.get("state") or {}
+        sf=state.get("screenshot")
+        pf=state.get("page")
+        if sf:
+            exact_download(f"demonstrations/{d}/screenshots/{sf}")
+        if pf:
+            exact_download(f"demonstrations/{d}/pages/{pf}")
+            try:
+                page_index,_ = wl.utils.get_nums_from_path(pf)
+                exact_download(f"demonstrations/{d}/bboxes/bboxes-{page_index}.json")
+            except Exception:
+                pass
 
     cache={}
     rows=[]
@@ -297,13 +336,9 @@ def main():
         if per_demo[d] >= MAX_PER_DEMO:
             continue
         try:
-            demo=wl.Demonstration(d,base_dir=RAW_DIR/"demonstrations")
-            replay=wl.Replay.from_demonstration(demo)
+            replay=get_replay(d)
             turn=replay[t]
-            if not turn.has_screenshot():
-                replay.assign_screenshot_to_turn(turn)
-            if not turn.has_html():
-                replay.assign_html_path_to_turn(turn)
+            ensure_turn_files(d,turn)
             key=(turn.get_screenshot_path(throw_error=False),turn.get_html_path(throw_error=False),turn.get_bboxes_path(throw_error=False))
             if key not in cache:
                 cache[key]=page_records(turn)
