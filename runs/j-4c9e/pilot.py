@@ -1,6 +1,7 @@
-import json, math, os, random, re
+import json, math, os, random, re, time
 from collections import Counter
 from pathlib import Path
+from urllib.parse import quote
 
 import numpy as np
 import pandas as pd
@@ -8,7 +9,8 @@ from PIL import Image
 import imagehash
 from lxml import html as lxml_html
 from datasets import load_dataset
-from huggingface_hub import HfApi, snapshot_download
+from huggingface_hub import HfApi
+import requests
 import weblinx as wl
 
 SEED = 20261004
@@ -244,6 +246,44 @@ def summarize(df, col):
         "mean_ambiguity_bits":float(np.log2(s.clip(lower=1)).mean()),
     }
 
+def raw_get(filename, revision, optional=False, session=None):
+    """Fetch one exact frozen raw file without enumerating the full repository tree."""
+    dest = RAW_DIR / filename
+    if dest.exists() and dest.stat().st_size > 0:
+        return dest
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    sess = session or requests.Session()
+    enc = quote(filename, safe="/")
+    url = f"https://huggingface.co/datasets/McGill-NLP/WebLINX-full/resolve/{revision}/{enc}?download=true"
+    last = None
+    for attempt in range(9):
+        try:
+            with sess.get(url, stream=True, timeout=(30, 240), allow_redirects=True) as r:
+                if r.status_code == 404 and optional:
+                    return None
+                if r.status_code == 429:
+                    wait = min(75, 3 * (attempt + 1) ** 2)
+                    print("RAW_429", filename, "WAIT", wait)
+                    time.sleep(wait)
+                    continue
+                r.raise_for_status()
+                tmp = dest.with_suffix(dest.suffix + ".part")
+                with open(tmp, "wb") as h:
+                    for chunk in r.iter_content(chunk_size=1024 * 1024):
+                        if chunk:
+                            h.write(chunk)
+                tmp.replace(dest)
+                return dest
+        except Exception as e:
+            last = e
+            wait = min(60, 2 ** attempt)
+            print("RAW_RETRY", attempt + 1, filename, type(e).__name__, "WAIT", wait)
+            time.sleep(wait)
+    if optional:
+        print("RAW_OPTIONAL_MISS", filename, repr(last))
+        return None
+    raise RuntimeError(f"Failed exact raw fetch: {filename}: {last}")
+
 def main():
     api=HfApi()
     pre_sha=api.dataset_info("McGill-NLP/WebLINX").sha
@@ -272,12 +312,6 @@ def main():
         raise RuntimeError("No demos selected")
     print("SELECTED_DEMOS",len(selected),"APPROX_ROWS",approx)
 
-    patterns=[]
-    for d in selected:
-        base=f"demonstrations/{d}"
-        patterns += [f"{base}/replay.json",f"{base}/metadata.json",f"{base}/form.json",f"{base}/screenshots/*",f"{base}/pages/*",f"{base}/bboxes/*"]
-    snapshot_download("McGill-NLP/WebLINX-full",repo_type="dataset",revision=raw_sha,local_dir=str(RAW_DIR),allow_patterns=patterns)
-
     chosen_rows=[]
     for d in selected:
         inds=list(groups[d].index)
@@ -285,10 +319,49 @@ def main():
         chosen_rows.extend(inds[:MAX_PER_DEMO])
     RNG.shuffle(chosen_rows)
 
+    sess=requests.Session()
+    for d in selected:
+        base=f"demonstrations/{d}"
+        raw_get(f"{base}/replay.json",raw_sha,session=sess)
+        raw_get(f"{base}/metadata.json",raw_sha,optional=True,session=sess)
+        raw_get(f"{base}/form.json",raw_sha,optional=True,session=sess)
+
+    exact=set()
+    pre_skips=Counter()
+    for idx in chosen_rows:
+        r=eligible.loc[idx]
+        d=str(r["demo"]); t=int(r["turn"])
+        try:
+            demo=wl.Demonstration(d,base_dir=RAW_DIR/"demonstrations")
+            replay=wl.Replay.from_demonstration(demo)
+            turn=replay[t]
+            if not turn.has_screenshot():
+                replay.assign_screenshot_to_turn(turn)
+            if not turn.has_html():
+                replay.assign_html_path_to_turn(turn)
+            st=turn.get("state") or {}
+            page=st.get("page"); shot=st.get("screenshot")
+            if not page or not shot:
+                pre_skips["missing_state_asset_name"] += 1
+                continue
+            n1,_ = wl.utils.get_nums_from_path(page)
+            base=f"demonstrations/{d}"
+            exact.add(f"{base}/pages/{page}")
+            exact.add(f"{base}/screenshots/{shot}")
+            exact.add(f"{base}/bboxes/bboxes-{n1}.json")
+        except Exception as e:
+            pre_skips["derive_"+type(e).__name__] += 1
+    print("EXACT_PAYLOAD_FILES",len(exact),"PRE_SKIPS",dict(pre_skips))
+    for j,fn in enumerate(sorted(exact),1):
+        raw_get(fn,raw_sha,session=sess)
+        if j % 100 == 0:
+            print("RAW_FETCHED",j,"OF",len(exact))
+
     cache={}
     rows=[]
     per_demo=Counter()
     skip_types=Counter()
+    domains=Counter()
     for idx in chosen_rows:
         if len(rows)>=TARGET_N:
             break
@@ -329,12 +402,18 @@ def main():
                 outrow[f"joint_t{vt}"]=count_matches(recs,target,"joint",vt,collapse_related=True)
             rows.append(outrow)
             per_demo[d]+=1
+            try:
+                from urllib.parse import urlparse
+                host=urlparse(turn.url or "").netloc.lower()
+                if host: domains[host]+=1
+            except Exception:
+                pass
         except Exception as e:
             skip_types[type(e).__name__] += 1
             continue
 
     res=pd.DataFrame(rows)
-    print("ANALYZED",len(res),"DEMOS_ANALYZED",len(per_demo),"INTENTS",dict(res["intent"].value_counts()) if len(res) else {})
+    print("ANALYZED",len(res),"DEMOS_ANALYZED",len(per_demo),"DOMAINS",len(domains),"INTENTS",dict(res["intent"].value_counts()) if len(res) else {})
     print("SKIPS", dict(skip_types))
     if len(res) < MIN_N:
         raise RuntimeError(f"Insufficient analyzable rows: {len(res)} < {MIN_N}")
@@ -378,7 +457,9 @@ def main():
         "target_n":TARGET_N,
         "analyzed_n":int(len(res)),
         "demo_n":int(len(per_demo)),
+        "domain_n":int(len(domains)),
         "dataset_pins":{"McGill-NLP/WebLINX":pre_sha,"McGill-NLP/WebLINX-full":raw_sha},
+        "download_strategy":"exact frozen resolve URLs only; no raw-repository tree enumeration",
         "primary_universe":"visible data-webtasks-id elements; ancestor/descendant target-family collapsed to one operational branch",
         "representations":{
             "text":"normalized visible element text",
@@ -391,6 +472,7 @@ def main():
         "intent_counts":{str(k):int(v) for k,v in res["intent"].value_counts().items()},
         "strict_element_metrics":{m:summarize(res,m+"_strict") for m in modes},
         "interactive_heuristic_metrics":{m:summarize(res,m+"_i") for m in modes},
+        "pre_skip_types":dict(pre_skips),
         "skip_types":dict(skip_types),
     }
     (OUT/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True))
