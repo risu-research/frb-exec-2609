@@ -183,13 +183,18 @@ for r in sel:
     if target["phash"] is None:skips["target_no_hash"]+=1;continue
     text_n=sum(c["text"]==target["text"] for c in enriched)
     dom_n=sum((c["tag"],c["sem"])==(target["tag"],target["sem"]) for c in enriched)
-    visual_n=sum(c["phash"] is not None and (c["phash"]-target["phash"])<=PHASH_T for c in enriched)
-    joint_n=sum(c["phash"] is not None and c["text"]==target["text"] and (c["tag"],c["sem"])==(target["tag"],target["sem"]) and (c["phash"]-target["phash"])<=PHASH_T for c in enriched)
+    thresholds=(0,4,8,12)
+    visual_by_t={t:sum(c["phash"] is not None and (c["phash"]-target["phash"])<=t for c in enriched) for t in thresholds}
+    joint_by_t={t:sum(c["phash"] is not None and c["text"]==target["text"] and (c["tag"],c["sem"])==(target["tag"],target["sem"]) and (c["phash"]-target["phash"])<=t for c in enriched) for t in thresholds}
+    visual_n=visual_by_t[PHASH_T]
+    joint_n=joint_by_t[PHASH_T]
     x,y,w,h=target["bbox"]; px=x+w/2;py=y+h/2
     coord_n=sum(contains(c["bbox"],px,py) for c in enriched)
     rows.append({"demo":r["demo"],"turn":r["turn"],"candidates":len(enriched),
                  "text_n":text_n,"dom_n":dom_n,"visual_n":visual_n,"joint_n":joint_n,"coord_n":coord_n,
-                 "blank":int(target["text"]==""),"crop_bytes":target["crop_bytes"] or 0})
+                 **{f"visual_t{t}_n":visual_by_t[t] for t in thresholds},
+                 **{f"joint_t{t}_n":joint_by_t[t] for t in thresholds},
+                 "blank":int(target["text"]==""),"crop_bytes":target["crop_bytes"] or 0,"candidate_n":len(enriched)})
 
 print("ROWCOUNT",len(rows),"SKIPS",dict(skips))
 if len(rows)<MIN_N:raise SystemExit(f"below minimum {len(rows)}")
@@ -199,6 +204,17 @@ summary={
  "universe":"WebLINX preprocessed top-candidate lists; target bbox crop from frozen raw screenshot",
  "phash_threshold":PHASH_T,
  "metrics":{k:summarize(rows,k+"_n") for k in ("text","dom","visual","joint","coord")},
+ "phash_sensitivity":{str(t):{
+     "visual":summarize(rows,f"visual_t{t}_n"),
+     "joint":summarize(rows,f"joint_t{t}_n")
+   } for t in (0,4,8,12)},
+ "metrics_by_text_presence":{
+   "blank":{k:summarize([r for r in rows if r["blank"]==1],k+"_n") for k in ("text","dom","visual","joint")},
+   "nonblank":{k:summarize([r for r in rows if r["blank"]==0],k+"_n") for k in ("text","dom","visual","joint")}
+ },
+ "candidate_universe":{"median":statistics.median(r["candidate_n"] for r in rows),
+                       "p90":sorted(r["candidate_n"] for r in rows)[max(0,math.ceil(.9*len(rows))-1)],
+                       "min":min(r["candidate_n"] for r in rows),"max":max(r["candidate_n"] for r in rows)},
  "blank_target_text_rate":sum(r["blank"] for r in rows)/len(rows),
  "median_target_crop_png_bytes":statistics.median(r["crop_bytes"] for r in rows),
  "rescue":{
