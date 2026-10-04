@@ -1,0 +1,33 @@
+name: j-7f2a
+on:
+  push:
+    branches:
+      - run/j-7f2a
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run
+        run: python runs/j-7f2a/runner.py
+      - name: Show compact report
+        if: always()
+        run: |
+          if [ -f runs/j-7f2a/out/report.md ]; then cat runs/j-7f2a/out/report.md; fi
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: j-7f2a-out
+          path: runs/j-7f2a/out
+          if-no-files-found: warn
+          retention-days: 3
