@@ -8,6 +8,7 @@ from PIL import Image
 import imagehash
 from datasets import load_dataset
 from huggingface_hub import HfApi
+import weblinx as wl
 
 SEED=20261004
 TARGET=int(os.environ.get("TARGET_N","600"))
@@ -126,14 +127,28 @@ for d in demos:
     if len(sel)>=int(TARGET*1.25):break
 sel=sel[:int(TARGET*1.25)]
 
-# Headers
-for d in sorted(set(r["demo"] for r in sel)):
+# Headers; use the official WebLINX replay abstraction for turn/state alignment.
+demo_names=sorted(set(r["demo"] for r in sel))
+for d in demo_names:
     raw_get(f"demonstrations/{d}/replay.json",raw_sha)
+    raw_get(f"demonstrations/{d}/metadata.json",raw_sha,optional=True)
+    raw_get(f"demonstrations/{d}/form.json",raw_sha,optional=True)
 replays={}
-for d in sorted(set(r["demo"] for r in sel)):
-    replays[d]=json.loads((RAW/f"demonstrations/{d}/replay.json").read_text())
+for d in demo_names:
+    demo=wl.Demonstration(d,base_dir=RAW/"demonstrations")
+    replays[d]=wl.Replay.from_demonstration(demo)
 
-for r in sel:r["screenshot"]=state_screenshot(replays[r["demo"]],r["turn"])
+map_skips=Counter()
+for r in sel:
+    try:
+        turn=replays[r["demo"]][r["turn"]]
+        if not turn.has_screenshot():
+            replays[r["demo"]].assign_screenshot_to_turn(turn)
+        r["screenshot"]=(turn.get("state") or {}).get("screenshot")
+    except Exception as e:
+        map_skips[type(e).__name__]+=1
+        r["screenshot"]=None
+print("MAP_SKIPS",dict(map_skips))
 sel=[r for r in sel if r["screenshot"]]
 print("SELECTED_WITH_SCREENSHOT",len(sel),"SAMPLE",[(r["demo"],r["turn"],r["screenshot"]) for r in sel[:5]])
 paths=sorted(set(f'demonstrations/{r["demo"]}/screenshots/{r["screenshot"]}' for r in sel))
