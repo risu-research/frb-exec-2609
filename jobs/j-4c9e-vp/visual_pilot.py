@@ -210,7 +210,11 @@ summary={
    "all_single_amb_joint_unique":sum(r["text_n"]>1 and r["dom_n"]>1 and r["visual_n"]>1 and r["joint_n"]==1 for r in rows)
  }
 }
-(OUT/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True))
-print("VISUAL_PILOT_SUMMARY",json.dumps(summary,sort_keys=True))
+def json_default(o):
+    if hasattr(o, "item"):
+        return o.item()
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+(OUT/"summary.json").write_text(json.dumps(summary,indent=2,sort_keys=True,default=json_default))
+print("VISUAL_PILOT_SUMMARY",json.dumps(summary,sort_keys=True,default=json_default))
 
 # trigger-v1
