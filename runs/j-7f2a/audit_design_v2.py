@@ -32,9 +32,15 @@ def tsv(x):
  s=str(x).strip().replace("Z","+00:00")
  try:
   d=datetime.fromisoformat(s)
-  if d.tzinfo is None:d=d.replace(tzinfo=timezone.utc)
-  return d.timestamp()
- except:return None
+ except:
+  d=None
+  for fmt in ("%d/%m/%Y %H:%M:%S,%f","%d/%m/%Y %H:%M:%S"):
+   try:
+    d=datetime.strptime(s,fmt);break
+   except:pass
+  if d is None:return None
+ if d.tzinfo is None:d=d.replace(tzinfo=timezone.utc)
+ return d.timestamp()
 def bn(s):
  m=re.search(r"batch\s*0*([0-9]+)",s,re.I);return int(m.group(1)) if m else None
 def rcsv(z,m):
