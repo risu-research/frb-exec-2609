@@ -20,12 +20,12 @@ jobs:
       - name: Run
         run: python runs/j-7f2a/runner.py
       - name: Structural audit and exhaustive scan design test
-        run: python runs/j-7f2a/audit_design.py
+        run: python runs/j-7f2a/audit_design_v2.py
       - name: Show compact report
         if: always()
         run: |
           if [ -f runs/j-7f2a/out/report.md ]; then cat runs/j-7f2a/out/report.md; fi
-          if [ -f runs/j-7f2a/out/audit_design_report.md ]; then cat runs/j-7f2a/out/audit_design_report.md; fi
+          if [ -f runs/j-7f2a/out/audit_design_v2_report.md ]; then cat runs/j-7f2a/out/audit_design_report.md; fi
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
