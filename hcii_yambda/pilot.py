@@ -89,6 +89,44 @@ def main():
       FROM (SELECT uid,count(*) AS pair_count,avg(low25_org-low25_rec) AS pair_delta
             FROM both_contexts GROUP BY uid)""").fetchone()
     print("USER_STATS",user_stats,flush=True)
+    # Rigor gate: within matched pairs, compare event-weighted vs pair-weighted,
+    # one-organic/one-recommendation pairs, order and song-duration strata.
+    eventweighted=con.execute("""SELECT count(*) pairs,
+      sum(low25_org*n_org)/sum(n_org) AS org_low25,
+      sum(low25_rec*n_rec)/sum(n_rec) AS rec_low25,
+      sum(full90_org*n_org)/sum(n_org) AS org_full90,
+      sum(full90_rec*n_rec)/sum(n_rec) AS rec_full90 FROM both_contexts""").fetchone()
+    once=con.execute("""SELECT count(*) pairs,count(DISTINCT uid) users,
+      avg(low25_org-low25_rec) AS low25_delta,
+      avg(full90_org-full90_rec) AS full90_delta,
+      avg(ratio_org-ratio_rec) AS played_pct_delta
+      FROM both_contexts WHERE n_org=1 AND n_rec=1""").fetchone()
+    balance=con.execute("""SELECT
+      CASE WHEN n_org=1 AND n_rec=1 THEN '1x1'
+           WHEN n_org>=2 AND n_rec>=2 THEN 'both_repeated'
+           ELSE 'imbalanced' END AS stratum,
+      count(*) pairs,avg(low25_org-low25_rec) AS delta_low25,
+      avg(full90_org-full90_rec) AS delta_full90
+      FROM both_contexts GROUP BY 1 ORDER BY 1""").fetchall()
+    duration=con.execute("""SELECT
+      CASE WHEN length_sec<120 THEN 'short_under120'
+           WHEN length_sec<240 THEN 'medium_120_239' ELSE 'long_ge240' END AS stratum,
+      count(*) pairs,avg(low25_org-low25_rec) AS delta_low25,
+      avg(full90_org-full90_rec) AS delta_full90
+      FROM both_contexts GROUP BY 1 ORDER BY 1""").fetchall()
+    first_by_user=con.execute("""SELECT
+      count(*) users,
+      avg(CAST(user_diff<0 AS DOUBLE)) users_org_lower_low25,
+      avg(CAST(user_diff>0 AS DOUBLE)) users_org_higher_low25,
+      min(user_diff) min_user_diff,max(user_diff) max_user_diff
+      FROM (SELECT uid,avg(low25_org-low25_rec) AS user_diff
+      FROM both_contexts GROUP BY uid)""").fetchone()
+    print("ROBUST_EVENT_WEIGHTED",eventweighted,flush=True)
+    print("ROBUST_SINGLE_PAIR",once,flush=True)
+    print("ROBUST_BALANCE",balance,flush=True)
+    print("ROBUST_DURATION",duration,flush=True)
+    print("ROBUST_USER_SIGN",first_by_user,flush=True)
+
     results={"dataset":"yandex/yambda flat/50m/listens.parquet",
       "dataset_sha256":EXPECTED_SHA256,"n_rows":int(sum(x[1] for x in overall)),
       "source_summary":[dict(zip(["organic","n","users","mean_ratio","low25","low50","full90","over100","avg_length"],row)) for row in overall],
@@ -96,6 +134,11 @@ def main():
       "repeated_both_summary":dict(zip(["pairs","users","low25_delta","full90_delta"],repeated)),
       "order_strata":[dict(zip(["first_source","pairs","delta_low25","delta_full90"],row)) for row in order],
       "user_stats":dict(zip(["users","users_ge10","mean_user_delta","sd_user_delta"],user_stats)),
+      "robust_event_weighted":dict(zip(["pairs","org_low25","rec_low25","org_full90","rec_full90"],eventweighted)),
+      "robust_once":dict(zip(["pairs","users","low25_delta","full90_delta","played_pct_delta"],once)),
+      "robust_balance":[dict(zip(["stratum","pairs","delta_low25","delta_full90"],r)) for r in balance],
+      "robust_duration":[dict(zip(["stratum","pairs","delta_low25","delta_full90"],r)) for r in duration],
+      "robust_user_sign":dict(zip(["users","fraction_org_lower_low25","fraction_org_higher_low25","min","max"],first_by_user)),
       "no_causal_claim":True,
       "notes":["Low played ratio is a proxy, not verified user skip","Source is pathway, not randomized assignment","Same user+track controls their identities but not mood, position, prior exposure or novelty","No local-time-of-day inference from binned timestamps"] }
     if matched[0] is None or matched[0]<10000: results["decision"]="FAIL matched sample below 10k"
