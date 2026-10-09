@@ -5,13 +5,15 @@ Randomized feed replacement vs standard policy is different treatment distributi
 import hashlib,json,tarfile,os,time
 from pathlib import Path
 import requests,duckdb
-URL="https://zenodo.org/records/10439422/files/KuaiRand-Pure.tar.gz"
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # Official-documented alternative host; MD5 verified
+URL="https://chongming.myds.me:61364/data/KuaiRand-Pure.tar.gz"
 MD5="0820331067a3784d9691136f772b35a7"
 TAR=Path("/tmp/KuaiRand-Pure.tar.gz");ROOT=Path("/tmp/kuairand-unpack")
 OUTPUT=Path("hcii_kuairand/results");OUTPUT.mkdir(parents=True,exist_ok=True)
 def get_data():
  h=hashlib.md5()
- with requests.get(URL+"?download=1",stream=True,timeout=(20,75)) as r:
+ with requests.get(URL,stream=True,timeout=(10,30),verify=False) as r:
   print("DOWNLOAD",r.status_code,r.headers.get("content-length"),flush=True)
   r.raise_for_status()
   with TAR.open("wb") as f:
