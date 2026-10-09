@@ -1,0 +1,31 @@
+name: HCII Yambda Stage8 historical opportunity and user adjustment
+on:
+  push:
+    branches:
+      - run/hcii-yambda-matched-20261009
+    paths:
+      - hcii_yambda/stage8_activity_opportunity.py
+      - .github/workflows/hcii-yambda-stage8-20261009.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  adjusted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install duckdb==1.4.0 requests==2.32.3
+      - name: Run predecision-activity opportunity audit
+        run: python hcii_yambda/stage8_activity_opportunity.py
+      - name: Archive aggregate results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hcii-yambda-stage8-activity-opportunity
+          path: hcii_yambda/results_stage8/
+          retention-days: 10
