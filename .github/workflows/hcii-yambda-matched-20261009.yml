@@ -1,0 +1,31 @@
+name: HCII Yambda matched-source pilot
+on:
+  push:
+    branches:
+      - run/hcii-yambda-matched-20261009
+    paths:
+      - hcii_yambda/pilot.py
+      - .github/workflows/hcii-yambda-matched-20261009.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  matched:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install minimal analysis dependencies
+        run: python -m pip install requests==2.32.3 duckdb==1.4.0
+      - name: Download official dataset and run matched source feasibility
+        run: python hcii_yambda/pilot.py
+      - name: Upload reproducible aggregate summary only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yambda-matched-summary
+          path: hcii_yambda/results/
+          retention-days: 10
