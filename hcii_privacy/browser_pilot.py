@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from playwright.sync_api import sync_playwright
 
-SITES=["adobe.com","bbc.com","nytimes.com","gitlab.com","theguardian.com"]
+SITES=["coursera.org","npr.org","stackoverflow.blog","etsy.com","orange.fr"]
 TRACKERS=("doubleclick.net","google-analytics.com","googlesyndication.com",
 "facebook.net","criteo.com","taboola.com","outbrain.com","hotjar.com",
 "scorecardresearch.com","quantserve.com","mixpanel.com","amplitude.com",
@@ -82,6 +82,7 @@ def measure(browser,site,arm,out):
         result["initial_status"]=status(page)
         initial_buttons=[label for _,label in buttons(page)]
         result["initial_buttons"]=initial_buttons[:35]
+        print("BUTTONS",site,arm,initial_buttons[:35],flush=True)
         result["banner_visible"]=bool(result["initial_status"]["banner_dom"] or any(ismatch(z,REJECT+SETTINGS) or "cookie" in z.lower() for z in initial_buttons))
         result["tcf_initial"]=tcf(page)
         result["cookies_initial"]=[{"name":c["name"],"domain":c["domain"]} for c in ctx.cookies()]
@@ -96,6 +97,7 @@ def measure(browser,site,arm,out):
                     ok,how,matches=click_unique(page,REJECT)
                     result["nested_reject"]={"clicked":ok,"label":how,"candidates":matches}
             result["reject_clicked"]=ok
+            print("CLICK_DIAGNOSTIC",site,ok,how,"settings",result.get("settings_click"),flush=True)
             if ok:page.wait_for_timeout(1600)
             result["post_action_status"]=status(page)
         stage[0]="reload"
