@@ -1,0 +1,31 @@
+name: HCII KuaiRand Pure first real pilot
+on:
+  push:
+    branches:
+      - run/hcii-kuairand-random-20261009
+    paths:
+      - hcii_kuairand/pilot.py
+      - .github/workflows/hcii-kuairand-pure-20261009.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kuairand:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install DuckDB and Requests
+        run: python -m pip install duckdb==1.4.0 requests==2.32.3
+      - name: Verify and analyze KuaiRand-Pure
+        run: python hcii_kuairand/pilot.py
+      - name: Archive summary evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kuairand-pure-real-pilot
+          path: hcii_kuairand/results/
+          retention-days: 10
