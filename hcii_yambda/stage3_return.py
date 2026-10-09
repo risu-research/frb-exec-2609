@@ -27,18 +27,20 @@ def main():
     fetch(LIK,Path("/tmp/yambda_likes.parquet"),LIK_SHA)
     c=duckdb.connect()
     c.execute("SET threads=4");c.execute("SET memory_limit='5GB'");c.execute("SET temp_directory='/tmp/yambda_tmp'")
-    # 5-second timestamp bins, according to data card
+    # Timestamp stored as seconds, quantized to 5-second precision; NOT five-second unit indices.
     c.execute("CREATE VIEW l AS SELECT * FROM read_parquet('/tmp/yambda_listens.parquet')")
     c.execute("CREATE VIEW likes AS SELECT * FROM read_parquet('/tmp/yambda_likes.parquet')")
     stats=c.execute("SELECT min(timestamp),max(timestamp),max(timestamp)-min(timestamp),count(DISTINCT uid) FROM l").fetchone()
-    print("TIME_RANGE_BINS",stats,flush=True)
+    print("TIME_RANGE_SECONDS",stats, "DAYS",(stats[1]-stats[0])/86400,flush=True)
+    print("UID_MOD5",c.execute("SELECT uid%5, count(DISTINCT uid),count(*) FROM l GROUP BY 1 ORDER BY 1").fetchall(),flush=True)
+    print("TS_MOD5",c.execute("SELECT timestamp%5, count(*) FROM l GROUP BY 1 ORDER BY 1").fetchall(),flush=True)
     print("LIKES_SCHEMA",c.execute("DESCRIBE SELECT * FROM likes").fetchall(),flush=True)
-    # Initial pilot: deterministic 20% users, no event-level random selection.
-    c.execute("CREATE TEMP TABLE ls AS SELECT uid,item_id,timestamp,is_organic,played_ratio_pct,track_length_seconds FROM l WHERE uid%5=0")
+    # Full 50M listen data. The uid values are not uniformly distributed mod 5.
+    c.execute("CREATE TEMP TABLE ls AS SELECT uid,item_id,timestamp,is_organic,played_ratio_pct,track_length_seconds FROM l")
     c.execute("""CREATE TEMP TABLE firsts AS SELECT uid,item_id,timestamp AS first_ts,
     is_organic AS first_org,played_ratio_pct AS first_ratio,track_length_seconds AS duration
     FROM (SELECT *, row_number() OVER(PARTITION BY uid,item_id ORDER BY timestamp,is_organic DESC,played_ratio_pct DESC) n
-          FROM ls) WHERE n=1 AND timestamp<=?""",[int(stats[1]-30*86400/5)])
+          FROM ls) WHERE n=1 AND timestamp<=?""",[int(stats[1]-30*86400)])
     # Drop first-events with same-time conflicting route / play percentages, ambiguity from 5s binning.
     c.execute("""DELETE FROM firsts WHERE EXISTS(
       SELECT 1 FROM ls WHERE ls.uid=firsts.uid AND ls.item_id=firsts.item_id
@@ -79,7 +81,7 @@ def main():
        count(*) FILTER (WHERE next_any90>first_ts AND next_any90-first_ts<=? ) AS any90_30d,
        count(*) FILTER (WHERE next_like>first_ts AND next_like-first_ts<=? ) AS like_30d
      FROM with_like GROUP BY 1,2 ORDER BY 1,2""",[
-       86400//5,7*86400//5,30*86400//5,7*86400//5,30*86400//5,30*86400//5,30*86400//5]).fetchall()
+       86400,7*86400,30*86400,7*86400,30*86400,30*86400,30*86400]).fetchall()
     print("FOLLOWUP_ROWS",rows,flush=True)
     cols=["source","depth","exposures","org_1d","org_7d","org_30d","org90_7d","org90_30d","any90_30d","like_30d"]
     data=[dict(zip(cols,row)) for row in rows]
@@ -87,7 +89,7 @@ def main():
     users=c.execute("""SELECT first_org,case when first_ratio<25 then 'short' when first_ratio>=90 then 'full' else 'mid' end as depth,
       count(DISTINCT uid) AS users,
       count(*) FILTER(WHERE next_org90>first_ts AND next_org90-first_ts<=?) n_later_org90
-      FROM with_like GROUP BY 1,2 ORDER BY 1,2""",[30*86400//5]).fetchall()
+      FROM with_like GROUP BY 1,2 ORDER BY 1,2""",[30*86400]).fetchall()
     print("GROUP_USERS",users,flush=True)
     # Positive signal definition: later organic high-play or explicit like. Union rather than sum.
     pos=c.execute("""SELECT first_org,
@@ -96,10 +98,10 @@ def main():
     count(*) n,
     count(*) FILTER(WHERE (next_org90>first_ts AND next_org90-first_ts<=?) OR
       (next_like>first_ts AND next_like-first_ts<=?)) positive_30d
-    FROM with_like GROUP BY 1,2 ORDER BY 1,2""",[30*86400//5,30*86400//5]).fetchall()
+    FROM with_like GROUP BY 1,2 ORDER BY 1,2""",[30*86400,30*86400]).fetchall()
     print("FUTURE_POSITIVE",pos,flush=True)
-    result={"source":"Yambda-50M listens+likes","sample":"uid%5=0 (deterministic 20% users)",
-            "cutoff":"30 days observed follow-up at dataset end, 5-second time bins",
+    result={"source":"Yambda-50M listens+likes","sample":"entire available Yambda-50M listens dataset",
+            "cutoff":"30 days observed follow-up at dataset end; timestamp seconds quantized to 5 seconds",
             "stats":stats,"firsts":first_info,"rows":data,
             "users":users,"future_positive":pos,
             "limitations":["observational exposures not skip button events","recommendation exposure not randomized",
