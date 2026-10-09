@@ -1,0 +1,33 @@
+name: HCII privacy consent five-site evidence
+on:
+  push:
+    branches:
+      - run/hcii-privacy-browser-20261009
+    paths:
+      - hcii_privacy/browser_pilot.py
+      - .github/workflows/hcii-privacy-browser-20261009.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Observe five public sites (no logins)
+        run: python hcii_privacy/browser_pilot.py
+      - name: Archive evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hcii-privacy-browser-evidence
+          path: hcii_privacy/results/
+          retention-days: 7
