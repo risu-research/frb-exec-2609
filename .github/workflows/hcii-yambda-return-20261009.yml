@@ -1,0 +1,31 @@
+name: HCII Yambda delayed-return pilot
+on:
+  push:
+    branches:
+      - run/hcii-yambda-matched-20261009
+    paths:
+      - hcii_yambda/stage3_return.py
+      - .github/workflows/hcii-yambda-return-20261009.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  return-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependencies
+        run: python -m pip install requests==2.32.3 duckdb==1.4.0
+      - name: Execute delayed-return analysis
+        run: python hcii_yambda/stage3_return.py
+      - name: Archive aggregate output only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hcii-yambda-future-positive
+          path: hcii_yambda/results_stage3/
+          retention-days: 10
