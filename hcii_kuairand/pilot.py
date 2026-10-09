@@ -42,12 +42,12 @@ def main():
  for p in files:
   schema=c.execute("DESCRIBE SELECT * FROM read_csv_auto(?,sample_size=10000)",[paths[p]]).fetchall()
   print("SCHEMA",p,[z[0] for z in schema],flush=True)
- c.execute("""CREATE VIEW logs AS
-   SELECT *, 'random' AS arm FROM read_csv_auto(?)
+ rpath=next(v for k,v in paths.items() if 'log_random' in k).replace("'","''")
+ spath=next(v for k,v in paths.items() if 'log_standard_4_22' in k).replace("'","''")
+ c.execute(f"""CREATE VIEW logs AS
+   SELECT *, 'random' AS arm FROM read_csv_auto('{rpath}')
    UNION ALL BY NAME
-   SELECT *, 'standard_same_dates' AS arm FROM read_csv_auto(?)""",
-   [next(v for k,v in paths.items() if 'log_random' in k),
-    next(v for k,v in paths.items() if 'log_standard_4_22' in k)])
+   SELECT *, 'standard_same_dates' AS arm FROM read_csv_auto('{spath}')""")
  # Keep ratio clipped to [0,1] for binning, but preserve negative and >100% diagnostics separately.
  c.execute("""CREATE TEMP VIEW annotated AS SELECT arm,user_id,video_id,tab,
     CAST(is_rand AS INT) is_rand, CAST(is_like AS INT) is_like,
