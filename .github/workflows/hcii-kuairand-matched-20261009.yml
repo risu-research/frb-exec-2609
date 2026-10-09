@@ -1,0 +1,31 @@
+name: HCII KuaiRand matched randomized vs standard
+on:
+  push:
+    branches:
+      - run/hcii-kuairand-random-20261009
+    paths:
+      - hcii_kuairand/matched_pilot.py
+      - .github/workflows/hcii-kuairand-matched-20261009.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  matched:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependencies
+        run: python -m pip install duckdb==1.4.0 requests==2.32.3
+      - name: Same-user same-UI length matched experiment
+        run: python hcii_kuairand/matched_pilot.py
+      - name: Archive aggregate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hcii-kuairand-matched-real-result
+          path: hcii_kuairand/results_matched/
+          retention-days: 10
