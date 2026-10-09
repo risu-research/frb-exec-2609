@@ -99,7 +99,7 @@ def main():
       "no_causal_claim":True,
       "notes":["Low played ratio is a proxy, not verified user skip","Source is pathway, not randomized assignment","Same user+track controls their identities but not mood, position, prior exposure or novelty","No local-time-of-day inference from binned timestamps"] }
     if matched[0] is None or matched[0]<10000: results["decision"]="FAIL matched sample below 10k"
-    elif abs(matched[8])<0.01 and abs(matched[11])<0.01: results["decision"]="FAIL matched effect sizes tiny"
+    elif abs(matched[7])<0.01 and abs(matched[10])<0.01: results["decision"]="FAIL matched effect sizes tiny"
     else: results["decision"]="FEASIBLE matched-source comparison; novelty remains to be reviewed"
     (OUT/"pilot_results.json").write_text(json.dumps(results,indent=2,ensure_ascii=False,allow_nan=False))
     print("FINAL_DECISION",results["decision"],"SECONDS_ANALYSIS",round(time.time()-t,1),flush=True)
