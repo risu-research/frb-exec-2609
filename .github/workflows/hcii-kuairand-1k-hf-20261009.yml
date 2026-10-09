@@ -1,0 +1,31 @@
+name: HCII KuaiRand 1K random quick pilot
+on:
+  push:
+    branches:
+      - run/hcii-kuairand-random-20261009
+    paths:
+      - hcii_kuairand/mini_hf.py
+      - .github/workflows/hcii-kuairand-1k-hf-20261009.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  random:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install analysis engine
+        run: python -m pip install duckdb==1.4.0 requests==2.32.3
+      - name: Audit randomized exposure real CSV
+        run: python hcii_kuairand/mini_hf.py
+      - name: Preserve counts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kuairand-1k-random-evidence
+          path: hcii_kuairand/results_1k/
+          retention-days: 10
