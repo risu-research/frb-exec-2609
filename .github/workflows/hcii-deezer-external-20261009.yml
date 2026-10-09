@@ -1,0 +1,31 @@
+name: HCII Deezer external generality check
+on:
+  push:
+    branches:
+      - run/hcii-yambda-matched-20261009
+    paths:
+      - hcii_yambda/external_deezer.py
+      - .github/workflows/hcii-deezer-external-20261009.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  repeat-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install duckdb==1.4.0 requests==2.32.3
+      - name: Run independent provider replication
+        run: python hcii_yambda/external_deezer.py
+      - name: Archive aggregates
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deezer-external-aggregate
+          path: hcii_yambda/results_external/
+          retention-days: 10
