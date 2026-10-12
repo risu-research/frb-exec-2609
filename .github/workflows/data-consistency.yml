@@ -1,0 +1,47 @@
+name: Data consistency checks
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths:
+      - 'quality_check_2024.py'
+      - 'quality_check_2025.py'
+      - 'quality_compare.py'
+      - '.github/workflows/data-consistency.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --quiet duckdb pandas numpy requests
+      - name: First snapshot
+        run: python -u quality_check_2024.py > q24.log 2>&1 || { tail -80 q24.log; exit 1; }
+      - name: Independent snapshot
+        run: python -u quality_check_2025.py > q25.log 2>&1 || { tail -80 q25.log; exit 1; }
+      - name: Frozen-method comparison
+        run: python -u quality_compare.py > comparison.log 2>&1 || { tail -80 comparison.log; exit 1; }
+      - name: Summaries
+        if: always()
+        run: |
+          grep -E 'RAW_DIAGNOSTICS|VALID_SAMPLE|TAIL_SUMMARY|JOIN_COVERAGE|ANNUAL_AREA_RESULTS|WITHIN_UTILITY_RANK_SHIFTS|EXCLUSION_SENSITIVITY|SENSITIVITY_COMPLETE' q24.log | tail -8 || true
+          grep -E 'RAW_DIAGNOSTICS|VALID_SAMPLE|TAIL_SUMMARY|JOIN_COVERAGE|ANNUAL_AREA_RESULTS|WITHIN_UTILITY_RANK_SHIFTS|EXCLUSION_SENSITIVITY|SENSITIVITY_COMPLETE' q25.log | tail -8 || true
+          tail -5 comparison.log || true
+      - name: Archive aggregate diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-consistency-summaries
+          path: |
+            q24.log
+            q25.log
+            comparison.log
+            audit_output/summary_2024.json
+            audit_output/summary_2025.json
+            audit_output/comparison_summary.json
+          if-no-files-found: ignore
