@@ -1,0 +1,42 @@
+name: Public fault current signal audit
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths: ['current_signal_audit.py','.github/workflows/current-signal-audit.yml']
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install reproducible computation libraries
+        run: pip install --quiet pandas numpy requests
+      - name: Recover immutable previously tested sample scores
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 38208758007 --repo risu-research/frb-exec-2609 --name voltage-coverage-audit --dir original_baseline
+          test -s original_baseline/fault_output/per_fault_scores.csv
+          sha256sum original_baseline/fault_output/per_fault_scores.csv
+      - name: Test published current-phasor signals
+        run: python -u current_signal_audit.py > current_signal.log 2>&1 || { tail -100 current_signal.log; exit 1; }
+      - name: Show results
+        if: always()
+        run: grep -E 'FROZEN_POPULATION|SOURCE_OK|CURRENT_SCHEMA|PARSED_BLOCKS|KEY_DISTRIBUTIONS|RESULT|CONDITION_BREAKDOWN|TOP_CURRENT_CHANNELS|CURRENT_AUDIT_COMPLETE|Traceback|Error' current_signal.log | tail -75 || true
+      - name: Archive aggregate and sample-level diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fault-current-signal-evidence
+          path: |
+            current_signal.log
+            current_results/summary.json
+            current_results/joined_voltage_current_samples.csv
+          if-no-files-found: ignore
