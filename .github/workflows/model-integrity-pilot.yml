@@ -1,0 +1,43 @@
+name: Power model integrity pilot
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths:
+      - model_coverage_audit.py
+      - .github/workflows/model-integrity-pilot.yml
+  workflow_dispatch:
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install open network solver
+        run: pip install --quiet opendssdirect.py pandas numpy
+      - name: Retrieve reference models
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/tshort/OpenDSS.git published-models
+          cd published-models
+          git sparse-checkout set Distrib/IEEETestCases/34Bus Distrib/IEEETestCases/123Bus
+          git rev-parse HEAD
+      - name: Run covered-load simulation
+        run: python -u model_coverage_audit.py > simulation.log 2>&1 || { tail -130 simulation.log; exit 1; }
+      - name: Summarize
+        if: always()
+        run: grep -E 'BASELINE|PRUNE_SCREEN|TARGETS|PV_BASE|HC_RESULT|SIMULATION_COMPLETE|Traceback|Error' simulation.log | tail -75 || true
+      - name: Aggregate diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: power-grid-pilot-aggregates
+          path: |
+            simulation.log
+            simulation_results/simulation.json
+            simulation_results/solar_siting_decisions.csv
+            simulation_results/all_line_pruning_diagnostics.csv
+          if-no-files-found: ignore
