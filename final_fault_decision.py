@@ -29,7 +29,7 @@ assert old.SampleID.is_unique and len(old)==19800
 frozen=old[["SampleID","score_93"]].merge(meta,on="SampleID",validate="one_to_one")
 frozen["low_side"]=frozen.Fault_Bus.fillna("").str.lower().str.startswith("t_bus")
 frozen["missed_voltage"]=frozen.low_side & (frozen.Fault_Label!=0) & (frozen.score_93<.01)
-assert frozen.missed_voltage.sum()==5833 and frozen.low_side.sum()==5849
+assert frozen.missed_voltage.sum()==5833 and ((frozen.Fault_Label!=0)&frozen.low_side).sum()==5849
 assert frozen.SampleID.is_unique
 print("FROZEN_DEFINITIONS",json.dumps({"samples":len(frozen),"faults":int((frozen.Fault_Label!=0).sum()),"low_side_faults":int(((frozen.Fault_Label!=0)&frozen.low_side).sum()),"frozen_missed":int(frozen.missed_voltage.sum())}),flush=True)
 model=zipfile.ZipFile(io.BytesIO(fetch("https://wzy.ece.iastate.edu/publication/OpenDSS%20Model.zip")))
