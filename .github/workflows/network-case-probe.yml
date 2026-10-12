@@ -18,7 +18,13 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install model engine and public cases
-        run: pip install --quiet opendssdirect.py powerfulcases
+        run: pip install --quiet opendssdirect.py
+      - name: Fetch independent IEEE benchmark definitions
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/tshort/OpenDSS.git published-models
+          cd published-models
+          git sparse-checkout set Distrib/IEEETestCases/13Bus Distrib/IEEETestCases/34Bus Distrib/IEEETestCases/123Bus
+          git rev-parse HEAD
       - name: Inspect model execution
         run: python -u power_feeder_probe.py > model_probe.log 2>&1 || { cat model_probe.log; exit 1; }
       - name: Print diagnostics
