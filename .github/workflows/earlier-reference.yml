@@ -1,0 +1,28 @@
+name: Previous-year reference check
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths: ['.github/workflows/earlier-reference.yml']
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: pip install --quiet requests duckdb pandas
+      - name: Extract earlier public reference year
+        run: python -u ref_2023.py > earlier.log 2>&1 || { tail -90 earlier.log; exit 1; }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: earlier-aggregate-reference
+          path: |
+            audit_output/annual_rank_audit_2023.csv
+            earlier.log
+          if-no-files-found: error
