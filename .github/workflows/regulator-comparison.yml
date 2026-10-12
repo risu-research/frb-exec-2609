@@ -1,0 +1,40 @@
+name: Public regulator comparison
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths:
+      - regulation_sensitivity.py
+      - .github/workflows/regulator-comparison.yml
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --quiet opendssdirect.py pandas numpy
+      - name: Download fixed public IEEE test cases
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/tshort/OpenDSS.git published-models
+          cd published-models
+          git sparse-checkout set Distrib/IEEETestCases/34Bus Distrib/IEEETestCases/123Bus
+          git rev-parse HEAD
+      - name: Run fixed-control counterfactuals
+        run: python -u regulation_sensitivity.py > regulator.log 2>&1 || { tail -70 regulator.log; exit 1; }
+      - name: Diagnostics
+        if: always()
+        run: grep -E 'NONMONOTONICITY|CONTROL_AUDIT_COMPLETE|EVALUATION_FAILURE|Traceback|Error' regulator.log | tail -20 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: control-regime-diagnostics
+          path: |
+            regulator.log
+            tap_intervention.csv
+            tap_intervention.json
+          if-no-files-found: ignore
