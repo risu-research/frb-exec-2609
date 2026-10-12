@@ -128,6 +128,7 @@ scores={
 }
 # Unambiguous timestamp and deterministic tie-break by group code.
 test=test.sort_values(["date","group"],kind="stable")
+training.to_csv(OUT/"joined_training_days.csv",index=False)
 test.to_csv(OUT/"joined_heldout_days.csv",index=False)
 selection=[]
 for k in [1,2]:
