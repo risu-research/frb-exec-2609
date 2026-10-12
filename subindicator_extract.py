@@ -37,6 +37,20 @@ cnt=cnt[cnt.n_months==12]
 cnt["value"]=np.where(cnt.indicator=="NUMCON",cnt.monthly_median,cnt.annual_value)
 p=cnt.pivot(index=["cnpj","area","year"],columns="indicator",values="value").reset_index()
 p.columns.name=None
+# Exact monthly customer-hour reconstruction for each published DEC component.
+keys=["cnpj","area","year","month"]
+pop=df.loc[df.indicator=="NUMCON",keys+["value"]].rename(columns={"value":"customers"})
+part=df.loc[df.indicator.str.startswith("DEC"),keys+["indicator","value"]].merge(
+ pop,on=keys,how="left",validate="many_to_one")
+part["component_customer_hours"]=part.value*part.customers
+wide=part.groupby(["cnpj","area","year","indicator"],as_index=False).agg(
+ n_valid=("component_customer_hours","count"),
+ component_ch=("component_customer_hours","sum"))
+wide=wide[wide.n_valid==12]
+wide["indicator"]="CH_"+wide.indicator
+ch=wide.pivot(index=["cnpj","area","year"],columns="indicator",values="component_ch").reset_index()
+ch.columns.name=None
+p=p.merge(ch,on=["cnpj","area","year"],how="left",validate="one_to_one")
 p.to_csv(OUT/"annual_official_subindicators.csv",index=False)
 fields=["DEC","FEC","NUMCON","DECIND","DECINE","DECINC","DECINO","DECIPC","DECXPC","DECXNC","DECIP","DECXP","DECXN"]
 diag={"rows":len(df),"annual_areas":len(p),"official_indicators":sorted(df.indicator.unique().tolist()),"complete":{"total":len(p)}}
