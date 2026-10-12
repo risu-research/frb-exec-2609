@@ -36,4 +36,5 @@ jobs:
             results/group_diagnostics.csv
             results/daily_decisions.csv
             results/joined_heldout_days.csv
+            results/joined_training_days.csv
           if-no-files-found: ignore
