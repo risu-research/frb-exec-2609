@@ -7,7 +7,7 @@ field accuracy, relay certification or a claim that the 1% IEEE TVE bound is
 a probability model.
 """
 from __future__ import annotations
-import csv, io, json, re, zipfile, hashlib, collections, time
+import csv, io, json, re, zipfile, hashlib, collections, time, os, sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -43,6 +43,10 @@ for l in raw_lines.splitlines():
  b2=re.search(r"\bbus2\s*=\s*([A-Za-z0-9_.]+)",l,re.I)
  if b1 and b2:topology[m.group(1).lower()]=(b1.group(1).split(".")[0].lower(),b2.group(1).split(".")[0].lower())
 print("TOPOLOGY_LINES",len(topology),"PMU_BUSES",len(pmu),flush=True)
+if os.getenv("SOURCE_PREFLIGHT")=="1":
+ assert len(topology)>=150,"Unable to match enough physical line terminals"
+ print("SOURCE_PREFLIGHT_OK",flush=True)
+ sys.exit(0)
 if not RAW.exists():
  size=0;digest=hashlib.sha256()
  with requests.get(ROOT+"DERfaults_measurements.csv?download=1",stream=True,timeout=(35,240)) as r:
