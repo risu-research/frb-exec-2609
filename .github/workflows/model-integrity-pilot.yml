@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install open network solver
-        run: pip install --quiet opendssdirect.py pandas numpy
+        run: pip install --quiet opendssdirect.py pandas numpy networkx
       - name: Retrieve reference models
         run: |
           git clone --depth 1 --filter=blob:none --sparse https://github.com/tshort/OpenDSS.git published-models
