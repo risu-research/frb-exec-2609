@@ -10,6 +10,11 @@ for name,(folder,file) in CASES.items():
   path=(ROOT/folder/file).resolve()
   assert path.exists(),str(path)
   print("CASE",name,"BYTES",path.stat().st_size,flush=True)
+  # OpenDSS case names were written for case-insensitive Windows filesystems.
+  for needed in ("IEEELineCodes.dss","IEEELinecodes.DSS"):
+   if not (path.parent/needed).exists():
+    source=next((p for p in path.parent.iterdir() if p.name.lower()==needed.lower()),None)
+    if source:(path.parent/needed).symlink_to(source.name)
   os.chdir(path.parent)
   print("FOLDER_FILES",name,sorted(x.name for x in path.parent.iterdir())[:20],flush=True)
   dss.Text.Command(f'Compile "{path}"')
