@@ -1,0 +1,42 @@
+name: Public network topology cross-check
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths: ['.github/workflows/network-topology-crosscheck.yml']
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify publicly released Iowa circuit identifiers
+        run: |
+          python - <<'PY'
+          import io, re, requests, zipfile
+          url='https://wzy.ece.iastate.edu/publication/OpenDSS%20Model.zip'
+          r=requests.get(url,timeout=60);r.raise_for_status()
+          print('ARCHIVE_BYTES',len(r.content))
+          z=zipfile.ZipFile(io.BytesIO(r.content))
+          files=[x for x in z.namelist() if x.lower().endswith(('.dss','.txt','.csv'))]
+          print('FILES',files[:35],'TOTAL',len(files))
+          for fname in files:
+            if not fname.lower().endswith(('.dss','.txt')):continue
+            try:text=z.read(fname).decode('utf-8-sig',errors='replace')
+            except:continue
+            lines=text.splitlines()
+            hits=[(i,line.strip()) for i,line in enumerate(lines) if re.search(r't_bus(?:3050|3070|1004|3031)_l|t_bus[0-9]+_l',line,re.I)]
+            if hits:
+              print('MODEL_FILE',fname,'T_BUS_REFERENCES',len(hits))
+              for i,line in hits[:10]:print('MATCH',i+1,line[:320])
+          print('TOPOLOGY_CHECK_DONE')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: topology-check-log
+          path: |
+            *.log
+          if-no-files-found: ignore
