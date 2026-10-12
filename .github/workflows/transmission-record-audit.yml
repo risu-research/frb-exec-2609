@@ -1,0 +1,39 @@
+name: Public transmission records audit
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths:
+      - resource_consistency_pilot.py
+      - .github/workflows/transmission-record-audit.yml
+  workflow_dispatch:
+jobs:
+  public-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install open-source data processing
+        run: python -m pip install --quiet pandas numpy requests
+      - name: Verify cost and flow correspondence
+        run: python -u resource_consistency_pilot.py > audit.log 2>&1 || { tail -140 audit.log; exit 1; }
+      - name: Show aggregate diagnostics
+        if: always()
+        run: grep -E 'SOURCE |RAW |FLOW_QUALITY|COST_SUMMARY|MATCH_|EVALUATION_WINDOW|DECISION_RESULTS|PAIRWISE_VS_BASELINES|GROUP_DIAGNOSTICS|PILOT_COMPLETE' audit.log | tail -40 || true
+      - name: Retain reproducible aggregates
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transmission-audit-aggregates
+          path: |
+            audit.log
+            results/report.json
+            results/group_overlap.csv
+            results/group_diagnostics.csv
+            results/daily_decisions.csv
+            results/joined_heldout_days.csv
+          if-no-files-found: ignore
