@@ -1,0 +1,31 @@
+name: Public network-case compatibility
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths:
+      - 'power_feeder_probe.py'
+      - '.github/workflows/network-case-probe.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install model engine and public cases
+        run: pip install --quiet opendssdirect.py powerfulcases
+      - name: Inspect model execution
+        run: python -u power_feeder_probe.py > model_probe.log 2>&1 || { cat model_probe.log; exit 1; }
+      - name: Print diagnostics
+        if: always()
+        run: cat model_probe.log || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-feeder-probe
+          path: model_probe.log
