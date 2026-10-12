@@ -1,0 +1,38 @@
+name: Public record decision consistency
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths:
+      - 'validation_decision.py'
+      - 'run_validation.py'
+      - '.github/workflows/record-decision-check.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install --quiet duckdb pandas numpy requests
+      - name: Compare heldout public records
+        run: python -u run_validation.py > validation.log 2>&1 || { tail -120 validation.log; exit 1; }
+      - name: Show aggregates
+        if: always()
+        run: grep -E 'YEAR_PANEL|PAIRED_PANEL|DECISION_GROUPS|PRIMARY_BOARD|PAIRWISE|PROSPECTIVE_EVALUATION_COMPLETE' validation.log | tail -34 || true
+      - name: Archive metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-record-decision-metrics
+          path: |
+            validation.log
+            audit_output/prospective_summary.json
+            audit_output/fixed_budget_pairwise.json
+            audit_output/paired_2024_features_2025_outcomes.csv
+          if-no-files-found: ignore
