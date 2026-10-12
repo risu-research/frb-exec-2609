@@ -1,0 +1,34 @@
+name: Indicator completeness sensitivity
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths:
+      - dec_completeness_check.py
+      - .github/workflows/indicator-completeness.yml
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --quiet duckdb pandas numpy requests
+      - name: Compare indicator coverage
+        run: python -u dec_completeness_check.py > completeness.log 2>&1 || { tail -100 completeness.log; exit 1; }
+      - name: Print counts only
+        if: always()
+        run: grep -E 'JOIN_COVERAGE|ANNUAL_AREA_RESULTS|WITHIN_UTILITY_RANK_SHIFTS|EXCLUSION_SENSITIVITY|SENSITIVITY_COMPLETE' completeness.log || true
+      - name: Archive aggregate summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: indicator-completeness-summary
+          path: |
+            completeness.log
+            audit_output/summary_2025.json
+          if-no-files-found: ignore
