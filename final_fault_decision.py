@@ -151,7 +151,7 @@ df=scores.merge(frozen[["SampleID","Scenario_ID","Fault_Label","Fault_Type","Fau
 df["normal"]=df.Fault_Label==0
 df["test"]=df.Scenario_ID.isin(["S4","S5","S6"])
 df["train"]=df.Scenario_ID.isin(["S1","S2","S3"])
-assert df.train.sum()==9900*REPLICATES and df.test.sum()==9900*REPLICATES
+assert df.train.sum()==9900*REPLICATES*len(REGIMES) and df.test.sum()==9900*REPLICATES*len(REGIMES)
 summary={"fixed_assumptions":{"rng_seed":seed,"replicates":REPLICATES,"training_scenarios":"S1,S2,S3 - normal only",
   "testing_scenarios":"S4,S5,S6","FPR_budget":.01,"predeclared_nominal_GO_low_side_detection":.70,
   "predeclared_nominal_GO_fusion_over_best_modal_pp":10.0,
