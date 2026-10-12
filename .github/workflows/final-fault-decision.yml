@@ -1,0 +1,50 @@
+name: Final physical PMU fault decision
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths:
+      - final_fault_decision.py
+      - .github/workflows/final-fault-decision.yml
+  workflow_dispatch:
+jobs:
+  decision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --quiet numpy pandas requests
+      - name: Compile and source preflight
+        env:
+          SOURCE_PREFLIGHT: '1'
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m py_compile final_fault_decision.py
+          gh run download 38208758007 --repo risu-research/frb-exec-2609 --name voltage-coverage-audit --dir original_baseline
+          test -s original_baseline/fault_output/per_fault_scores.csv
+          python -u final_fault_decision.py
+      - name: Restore large public file cache
+        uses: actions/cache@v4
+        with:
+          path: DERfaults_measurements.csv
+          key: derfault-zenodo-22904220-sha645fc79d6cd
+      - name: Single decisive out-of-sample verification
+        run: python -u final_fault_decision.py > final_decision.log 2>&1 || { tail -125 final_decision.log; exit 1; }
+      - name: Print decision and error checks
+        if: always()
+        run: grep -E 'FROZEN_DEFINITIONS|TOPOLOGY_LINES|PHYSICAL_CHANNEL_COVERAGE|SOURCE_OK|DOWNLOAD_OK|CACHED_SOURCE_OK|EVALUATED_ROWS|HOLDOUT_RESULT|PRE_REGISTERED_FINAL_DECISION|Traceback|AssertionError' final_decision.log | tail -35 || true
+      - name: Archive full result and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-decision-validation
+          path: |
+            final_decision.log
+            decision_result/conclusion.json
+            decision_result/holdout_scores_nominal.csv
+          if-no-files-found: ignore
