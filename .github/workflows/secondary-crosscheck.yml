@@ -1,0 +1,17 @@
+name: Public secondary transformer crosscheck
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths: [secondary_case_crosscheck.py,.github/workflows/secondary-crosscheck.yml]
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install --quiet requests
+      - name: Verify all named secondary fault sites
+        run: python secondary_case_crosscheck.py
