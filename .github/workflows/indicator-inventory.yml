@@ -1,0 +1,33 @@
+name: Public indicator field inventory
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths: ['.github/workflows/indicator-inventory.yml']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install --quiet duckdb pandas numpy requests
+      - name: Extract year-compatible statistics
+        run: python -u subindicator_extract.py > inventory.log 2>&1 || { tail -120 inventory.log; exit 1; }
+      - name: Report source checks
+        if: always()
+        run: grep -E 'SOURCE|DEC_IDENTITY|EXPORT_SUMMARY|EXTRACT_COMPLETE' inventory.log || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: source-indicator-inventory
+          path: |
+            exported/annual_official_subindicators.csv
+            exported/extract_metadata.json
+            inventory.log
+          if-no-files-found: ignore
