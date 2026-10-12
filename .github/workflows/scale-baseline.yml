@@ -1,0 +1,29 @@
+name: Aggregated reference denominator check
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths: ['.github/workflows/scale-baseline.yml']
+  workflow_dispatch:
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: pip install --quiet requests duckdb pandas
+      - name: Extract prior-year public reference data
+        run: python -u quality_check_2024.py > reference.log 2>&1 || { tail -80 reference.log; exit 1; }
+      - name: Archive public aggregation
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline-aggregates
+          path: |
+            audit_output/annual_rank_audit_2024.csv
+            reference.log
+          if-no-files-found: error
