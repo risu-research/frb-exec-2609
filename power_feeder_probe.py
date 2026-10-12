@@ -1,5 +1,5 @@
 """Published IEEE distribution feeder reproducibility probe."""
-import json,traceback
+import json,traceback,os
 from pathlib import Path
 from opendssdirect import dss
 ROOT=Path("published-models/Distrib/IEEETestCases").resolve()
@@ -10,6 +10,8 @@ for name,(folder,file) in CASES.items():
   path=(ROOT/folder/file).resolve()
   assert path.exists(),str(path)
   print("CASE",name,"BYTES",path.stat().st_size,flush=True)
+  os.chdir(path.parent)
+  print("FOLDER_FILES",name,sorted(x.name for x in path.parent.iterdir())[:20],flush=True)
   dss.Text.Command(f'Compile "{path}"')
   dss.Solution.Solve()
   volts=list(dss.Circuit.AllBusMagPu())
