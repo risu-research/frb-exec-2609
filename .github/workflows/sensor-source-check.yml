@@ -1,0 +1,33 @@
+name: Public sensor data compatibility
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths: ['fault_measurement_probe.py','.github/workflows/sensor-source-check.yml']
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --quiet requests
+      - name: Verify public simulation data
+        run: python -u fault_measurement_probe.py > source.log 2>&1 || { tail -90 source.log; exit 1; }
+      - name: Display summary
+        if: always()
+        run: tail -16 source.log || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-source-check
+          path: |
+            source.log
+            labels_metadata_DERfaults.csv
+            pmu_placement_configurations.csv
+            README.md
+          if-no-files-found: ignore
