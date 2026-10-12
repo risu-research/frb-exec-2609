@@ -1,0 +1,34 @@
+name: Public voltage-observability audit
+on:
+  push:
+    branches: [public-data-smoke-20261012]
+    paths: ['voltage_fault_observability.py','.github/workflows/voltage-observability.yml']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --quiet requests pandas numpy
+      - name: Independently check fault observability on released measurements
+        run: python -u voltage_fault_observability.py > voltage_audit.log 2>&1 || { tail -110 voltage_audit.log; exit 1; }
+      - name: Show aggregate results
+        if: always()
+        run: grep -E 'PMU_OVERLAP|MEASUREMENT_VOLTAGE_SCHEMA|DOWNLOAD_|TRANSFER_MB|PARSED_RECORDS|DATA_QUALITY|SCENARIO_RESULT|BENCHMARK_AUDIT_COMPLETE|Traceback|Error' voltage_audit.log | tail -44 || true
+      - name: Save compact results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voltage-coverage-audit
+          path: |
+            voltage_audit.log
+            fault_output/report.json
+            fault_output/scenario_resistance_sensitivity.csv
+            fault_output/per_fault_scores.csv
+          if-no-files-found: ignore
