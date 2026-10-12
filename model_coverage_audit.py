@@ -2,6 +2,7 @@
 import os,json,math,hashlib,subprocess
 from pathlib import Path
 import numpy as np
+import networkx as nx
 import pandas as pd
 from opendssdirect import dss
 
@@ -39,11 +40,22 @@ def measure(catalog):
  observed=[]
  valid_volts=[float(v) for v in dss.Circuit.AllBusMagPu() if np.isfinite(v) and v>0.30]
  served=[];missed=[]
+ # Feeder-source reachability avoids counting islanded demand as supplied
+ # even if a generator happens to energize an isolated component.
+ graph=nx.Graph()
+ for line in dss.Lines.AllNames():
+  if dss.Circuit.SetActiveElement("Line."+line) and dss.CktElement.Enabled():
+   b=dss.CktElement.BusNames()
+   if len(b)>=2:graph.add_edge(b[0].split(".")[0].lower(),b[1].split(".")[0].lower())
+ for xf in dss.Transformers.AllNames():
+  if dss.Circuit.SetActiveElement("Transformer."+xf) and dss.CktElement.Enabled():
+   b=dss.CktElement.BusNames()
+   if len(b)>=2:graph.add_edge(b[0].split(".")[0].lower(),b[1].split(".")[0].lower())
+ root=dss.Circuit.AllBusNames()[0].lower()
+ reachable=nx.node_connected_component(graph,root) if root in graph else {root}
  for l in catalog:
-  dss.Circuit.SetActiveElement("Load."+l["load"])
-  power=dss.CktElement.Powers()
-  p=sum(max(float(power[i].real),0) for i in range(min(len(power),l["phase"])))
-  if l["kw"]>0 and p>.45*l["kw"]:served.append(l)
+  bus=l["bus"].split(".")[0].lower()
+  if l["kw"]>0 and bus in reachable:served.append(l)
   elif l["kw"]>0:missed.append(l)
  r={"converged":solved,"min_v":round(min(valid_volts),6) if valid_volts else None,
     "max_v":round(max(valid_volts),6) if valid_volts else None,
@@ -155,7 +167,7 @@ for case in CASES:
 pd.DataFrame(screen).to_csv(OUT/"all_line_pruning_diagnostics.csv",index=False)
 pd.DataFrame([{k:v for k,v in row.items() if k!="status_curve"} for row in results]).to_csv(OUT/"solar_siting_decisions.csv",index=False)
 summary={"case_manifest":manifest,"limits":{"voltage_pu":[0.9499,1.0501],
-         "scan_kw":levels,"service_threshold":"supplied load >45% rated demand",
+         "scan_kw":levels,"service_threshold":"electric-source reachability via active line and transformer topology",
          "claim":"Voltage-only exploratory snapshot, not full HC certification"},
          "baseline":{case:[s for s in results if s["case"]==case and s["removed_line"]=="none"] for case in CASES},
          "screen":screen,"results":results}
