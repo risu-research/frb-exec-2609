@@ -1,0 +1,26 @@
+name: Fetch official PoPETs 2027 template for private drafting
+on:
+  push:
+    branches: [foci-ooni-audit-20261029]
+    paths: [.github/workflows/foci_download_popets_template.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  download_template:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Download unchanged official submission template
+        run: |
+          mkdir -p template-download
+          curl -fLsS --retry 3 --connect-timeout 20 --max-time 100 https://petsymposium.org/files/submission-template-2027.zip -o template-download/submission-template-2027.zip
+          unzip -t template-download/submission-template-2027.zip
+          unzip -l template-download/submission-template-2027.zip | head -50
+      - name: Save verified original template
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-popets-2027-template
+          path: template-download/
+          retention-days: 1
