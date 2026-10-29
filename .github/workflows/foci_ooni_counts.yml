@@ -1,4 +1,4 @@
-name: FOCI OONI unlisted controls verification
+name: FOCI OONI pinned testlist membership
 on:
   push:
     branches:
@@ -7,13 +7,14 @@ on:
       - '.github/workflows/foci_ooni_counts.yml'
       - 'foci_ooni_controls.py'
       - 'foci_ooni_unlisted_controls.py'
+      - 'foci_ooni_list_membership.py'
   workflow_dispatch:
     inputs:
       mode:
         description: Counting or verification stage
         type: choice
-        options: [unlisted, comparison, full, quick, alias, fr, export]
-        default: unlisted
+        options: [list, unlisted, comparison, full, quick, alias, fr, export]
+        default: list
         required: true
 permissions:
   contents: read
@@ -26,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Run selected reproducible stage
         env:
-          RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'unlisted' }}
+          RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'list' }}
         run: |
           set -euo pipefail
           mkdir -p results
@@ -35,6 +36,7 @@ jobs:
             full|quick) python3 foci_ooni_count.py --mode "$RUN_MODE" --output results ;; 
             comparison) python3 foci_ooni_controls.py && cp foci_controls_results/* results/ ;;
             unlisted) python3 foci_ooni_unlisted_controls.py && cp foci_unlisted_controls_results/* results/ ;;
+            list) python3 foci_ooni_list_membership.py && cp foci_testlist_results/* results/ ;;
             alias) python3 foci_ooni_aliases.py --mode full --output results ;;
             fr) python3 foci_ooni_fr_cluster.py && cp foci_fr_cluster_results/* results/ ;;
             export) echo "Source snapshot only; no network queries" ;;
