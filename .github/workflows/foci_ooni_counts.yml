@@ -1,41 +1,46 @@
-name: FOCI OONI French cluster verification
+name: FOCI OONI reproducible audit and source export
 on:
   push:
     branches:
       - foci-ooni-audit-20261029
     paths:
-      - 'foci_ooni_count.py'
-      - 'foci_ooni_aliases.py'
-      - 'foci_ooni_fr_cluster.py'
       - '.github/workflows/foci_ooni_counts.yml'
   workflow_dispatch:
     inputs:
       mode:
-        description: Coverage (quick = 2 periods, full = 7 periods)
+        description: Counting or verification stage
         type: choice
-        options: [quick, full]
+        options: [full, quick, alias, fr, export]
         default: full
         required: true
 permissions:
   contents: read
 jobs:
-  public_ooni_aggregation:
+  audit:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - name: Checkout isolated research branch
+      - name: Check out isolated research branch
         uses: actions/checkout@v4
-      - name: Execute read-only OONI aggregation
+      - name: Run selected reproducible stage
         env:
-          RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'full' }}
+          RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'export' }}
         run: |
-          python3 --version
-          python3 foci_ooni_fr_cluster.py
-      - name: Publish research CSVs even on partial failure
+          set -euo pipefail
+          mkdir -p results
+          cp foci_ooni_count.py foci_ooni_aliases.py foci_ooni_fr_cluster.py results/
+          case "$RUN_MODE" in
+            full|quick) python3 foci_ooni_count.py --mode "$RUN_MODE" --output results ;;
+            alias) python3 foci_ooni_aliases.py --mode full --output results ;;
+            fr) python3 foci_ooni_fr_cluster.py && cp foci_fr_cluster_results/* results/ ;;
+            export) echo "Source snapshot only; no network queries" ;;
+            *) echo "Invalid mode" >&2; exit 2 ;;
+          esac
+      - name: Save source and generated data, including partial output
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: foci-ooni-france-cluster
-          path: foci_fr_cluster_results/
+          name: foci-ooni-source-and-results
+          path: results/
           if-no-files-found: warn
           retention-days: 14
