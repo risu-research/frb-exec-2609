@@ -1,0 +1,39 @@
+name: FOCI EU27 individual measurement metadata census
+on:
+  push:
+    branches: [foci-ooni-audit-20261029]
+    paths: [.github/workflows/foci_full_metadata.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout reproducible code
+        uses: actions/checkout@v4
+      - name: Obtain previously verified EU27 fixed-host aggregation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p prior
+          gh run download 40946913147 --repo "$GITHUB_REPOSITORY" --name foci-ooni-source-and-results --dir prior
+          test -f prior/eu27_host_period.csv
+          python -c 'import csv; p=list(csv.DictReader(open("prior/eu27_host_period.csv"))); assert len(p)==7938; assert sum(int(x["measurement_count"]) for x in p)==3319'
+      - name: Retrieve published OONI metadata and verify against original counts
+        continue-on-error: true
+        run: |
+          python3 foci_full_metadata.py 2>&1 | tee metadata_fetch.log
+          exit ${PIPESTATUS[0]}
+      - name: Preserve reproducibility and all partial results even when incomplete
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foci-eu27-individual-metadata
+          path: |
+            reconstruct_out/
+            metadata_fetch.log
+            foci_full_metadata.py
+            prior/eu27_host_period.csv
+          retention-days: 2
