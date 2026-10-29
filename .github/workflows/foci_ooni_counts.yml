@@ -1,10 +1,11 @@
-name: FOCI OONI public-data counting
+name: FOCI OONI alias sensitivity
 on:
   push:
     branches:
       - foci-ooni-audit-20261029
     paths:
       - 'foci_ooni_count.py'
+      - 'foci_ooni_aliases.py'
       - '.github/workflows/foci_ooni_counts.yml'
   workflow_dispatch:
     inputs:
@@ -28,12 +29,12 @@ jobs:
           RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'full' }}
         run: |
           python3 --version
-          python3 foci_ooni_count.py --mode "$RUN_MODE" --output ooni_count_results
+          python3 foci_ooni_aliases.py --mode "$RUN_MODE" --output alias_count_results
       - name: Publish research CSVs even on partial failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: foci-ooni-measurement-counts
-          path: ooni_count_results/
+          name: foci-ooni-alias-sensitivity
+          path: alias_count_results/
           if-no-files-found: warn
           retention-days: 14
