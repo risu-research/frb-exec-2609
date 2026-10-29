@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p results
-          cp foci_ooni_count.py foci_ooni_aliases.py foci_ooni_fr_cluster.py results/
+          cp foci_ooni_count.py foci_ooni_aliases.py foci_ooni_fr_cluster.py foci_ooni_controls.py foci_ooni_unlisted_controls.py foci_ooni_list_membership.py results/
           case "$RUN_MODE" in
             full|quick) python3 foci_ooni_count.py --mode "$RUN_MODE" --output results ;; 
             comparison) python3 foci_ooni_controls.py && cp foci_controls_results/* results/ ;;
