@@ -1,0 +1,36 @@
+name: FOCI EU27 per-day exact host aggregation
+on:
+  push:
+    branches: [foci-ooni-audit-20261029]
+    paths: [.github/workflows/foci_daily_counts.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore fixed full EU27 benchmark
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p prior
+          gh run download 40946913147 --repo "$GITHUB_REPOSITORY" --name foci-ooni-source-and-results --dir prior
+          test -f prior/eu27_host_period.csv
+      - name: Reconstruct country-host calendar-day measurement counts
+        continue-on-error: true
+        run: |
+          python3 foci_daily_counts.py 2>&1 | tee daily_fetch.log
+          exit ${PIPESTATUS[0]}
+      - name: Save full or partial outputs with manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foci-eu27-daily-host-counts
+          path: |
+            daily_output/
+            daily_fetch.log
+            foci_daily_counts.py
+          retention-days: 2
