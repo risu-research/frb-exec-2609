@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Independent OONI metadata inspection of the 2026 FR 9 x 10 observation cluster."""
-import csv, json, time, urllib.parse, urllib.request
+import csv, json, time, urllib.parse, urllib.request, urllib.error
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -16,16 +16,37 @@ for domain in TARGETS:
                                "limit":100})
     u="https://api.ooni.io/api/v1/measurements?"+q
     req=urllib.request.Request(u,headers={"User-Agent":"RISU-FOCI-2027-readonly/1.0","Accept":"application/json"})
-    with urllib.request.urlopen(req,timeout=75) as r: j=json.load(r)
-    if not isinstance(j.get("results"),list): raise ValueError("bad results")
-    if j["metadata"].get("next_url"):raise ValueError("pagination required "+domain)
-    if len(j["results"])!=10:raise ValueError(f"aggregate mismatch {domain}: {len(j['results'])}")
-    for m in j["results"]:
+    def fetch_rows(query_url):
+        last = None
+        for attempt in range(5):
+            try:
+                rr = urllib.request.Request(query_url, headers={"User-Agent":"RISU-FOCI-2027-readonly/1.0","Accept":"application/json"})
+                with urllib.request.urlopen(rr,timeout=65) as stream:
+                    data = json.load(stream)
+                if not isinstance(data.get("results"),list): raise ValueError("bad results")
+                if data["metadata"].get("next_url"):raise ValueError("pagination required "+domain)
+                return data["results"]
+            except (urllib.error.URLError,TimeoutError,ValueError) as ex:
+                last = ex
+                time.sleep(min(12,2**attempt*1.5))
+        raise RuntimeError(str(last))
+    try:
+        found = fetch_rows(u)
+    except RuntimeError:
+        print("Long-window fetch failed; retrying three shorter windows for",domain,flush=True)
+        found=[]
+        for lo,hi in [("2026-07-09","2026-08-09"),("2026-08-09","2026-09-09"),("2026-09-09","2026-09-30")]:
+            smaller = urllib.parse.urlencode({"domain":domain,"probe_cc":"FR",
+                 "test_name":"web_connectivity","since":lo,"until":hi,"limit":100})
+            found += fetch_rows("https://api.ooni.io/api/v1/measurements?"+smaller)
+            time.sleep(.35)
+    if len(found)!=10:raise ValueError(f"aggregate mismatch {domain}: {len(found)}")
+    for m in found:
         records.append({"query_domain":domain,"input":m.get("input"),"report_id":m.get("report_id"),
                         "measurement_uid":m.get("measurement_uid"),"probe_asn":m.get("probe_asn"),
                         "measurement_start_time":m.get("measurement_start_time"),
                         "anomaly":int(bool(m.get("anomaly"))),"confirmed":int(bool(m.get("confirmed")))})
-    print("DOMAIN",domain,"count",len(j["results"]),flush=True)
+    print("DOMAIN",domain,"count",len(found),flush=True)
     time.sleep(.5)
 with (OUT/"fr_2026Q3_90_measurements.csv").open("w",newline="",encoding="utf-8") as f:
     w=csv.DictWriter(f,fieldnames=list(records[0]));w.writeheader();w.writerows(records)
