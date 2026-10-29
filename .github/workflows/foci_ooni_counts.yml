@@ -1,4 +1,4 @@
-name: FOCI EU27 OONI measurement evidence
+name: FOCI EU27 full commit-history verification
 on:
   push:
     branches:
@@ -11,13 +11,14 @@ on:
       - 'foci_git_full_history.py'
       - 'foci_eu27_list_check.py'
       - 'foci_eu27_measurements.py'
+      - 'foci_git_eu27_history.py'
   workflow_dispatch:
     inputs:
       mode:
         description: Counting or verification stage
         type: choice
-        options: [eu27count, eu27, history, list, unlisted, comparison, full, quick, alias, fr, export]
-        default: eu27count
+        options: [eu27history, eu27count, eu27, history, list, unlisted, comparison, full, quick, alias, fr, export]
+        default: eu27history
         required: true
 permissions:
   contents: read
@@ -30,11 +31,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Run selected reproducible stage
         env:
-          RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'eu27count' }}
+          RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'eu27history' }}
         run: |
           set -euo pipefail
           mkdir -p results
-          cp foci_ooni_count.py foci_ooni_aliases.py foci_ooni_fr_cluster.py foci_ooni_controls.py foci_ooni_unlisted_controls.py foci_ooni_list_membership.py foci_git_full_history.py foci_eu27_list_check.py foci_eu27_measurements.py results/
+          cp foci_ooni_count.py foci_ooni_aliases.py foci_ooni_fr_cluster.py foci_ooni_controls.py foci_ooni_unlisted_controls.py foci_ooni_list_membership.py foci_git_full_history.py foci_eu27_list_check.py foci_eu27_measurements.py foci_git_eu27_history.py results/
           case "$RUN_MODE" in
             full|quick) python3 foci_ooni_count.py --mode "$RUN_MODE" --output results ;; 
             comparison) python3 foci_ooni_controls.py && cp foci_controls_results/* results/ ;;
@@ -43,6 +44,7 @@ jobs:
             history) python3 foci_git_full_history.py && cp foci_git_history_results/* results/ ;;
             eu27) python3 foci_eu27_list_check.py && cp foci_eu27_lists/* results/ ;;
             eu27count) python3 foci_eu27_measurements.py && cp foci_eu27_measurements/* results/ ;;
+            eu27history) python3 foci_git_eu27_history.py && cp foci_git_eu27_history_results/* results/ ;;
             alias) python3 foci_ooni_aliases.py --mode full --output results ;;
             fr) python3 foci_ooni_fr_cluster.py && cp foci_fr_cluster_results/* results/ ;;
             export) echo "Source snapshot only; no network queries" ;;
