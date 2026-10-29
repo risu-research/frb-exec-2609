@@ -60,7 +60,7 @@ for snap in SNAPS:
  for g,items in COHORTS.items():
   have=sorted(set(r["query_host"] for r in all_rows if r["snapshot"]==snap and r["cohort"]==g and r["matching_urls_count"]>0))
   checks[snap][g]={"matched_sites":len(have),"total_sites":len(items),"sites":have}
-(O/"testlist_summary.json").write_text(json.dumps({
+(OUT/"testlist_summary.json").write_text(json.dumps({
  "source_shas":SNAPS,"compared_lists":LISTS,"classification":checks,
  "as_of_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
  "note":"Only global plus six chosen country lists; no assertion about all countries, private probes, or all aliases."},indent=2)+"\n")
