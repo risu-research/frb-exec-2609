@@ -1,0 +1,39 @@
+name: FOCI OONI public-data counting
+on:
+  push:
+    branches:
+      - foci-ooni-audit-20261029
+    paths:
+      - 'foci_ooni_count.py'
+      - '.github/workflows/foci_ooni_counts.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Coverage (quick = 2 periods, full = 7 periods)
+        type: choice
+        options: [quick, full]
+        default: full
+        required: true
+permissions:
+  contents: read
+jobs:
+  public_ooni_aggregation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout isolated research branch
+        uses: actions/checkout@v4
+      - name: Execute read-only OONI aggregation
+        env:
+          RUN_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'quick' }}
+        run: |
+          python3 --version
+          python3 foci_ooni_count.py --mode "$RUN_MODE" --output ooni_count_results
+      - name: Publish research CSVs even on partial failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foci-ooni-measurement-counts
+          path: ooni_count_results/
+          if-no-files-found: warn
+          retention-days: 14
