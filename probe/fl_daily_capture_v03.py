@@ -53,10 +53,11 @@ def get_row(kind, raw, name, ordinal, day):
              eid,f['event_sequence'],f['event_code'],filed,effective])).hexdigest()}
     return row,[]
 
-def capture(start_day,end_day,out_dir):
+def capture(start_day,end_day,out_dir,event_start_day='20261005'):
     if not (re.fullmatch(r'[0-9]{8}',start_day) and re.fullmatch(r'[0-9]{8}',end_day) and
             '20261008'<=start_day<=end_day<='20261116'):
         raise ValueError('v0.3 first edition is bounded by source-vintage dates')
+    if not '20261005'<=event_start_day<=start_day:raise ValueError('Invalid event bridge start')
     out=Path(out_dir);out.mkdir(parents=True,exist_ok=True)
     if any(out.iterdir()):raise FileExistsError('Output directory must be empty')
     t=paramiko.Transport((official.HOST,22));t.banner_timeout=30;t.auth_timeout=30;t.set_keepalive(20)
@@ -75,7 +76,7 @@ def capture(start_day,end_day,out_dir):
                     files=[]
                     for a in sftp.listdir_attr(directory):
                         match=pattern.match(a.filename)
-                        if match and start_day<=match.group(1)<=end_day:
+                        if match and (event_start_day if kind=='event' else start_day)<=match.group(1)<=end_day:
                             files.append((match.group(1),a.filename,a))
                     files.sort(key=lambda x:(x[0],x[1]))
                     if not files:raise RuntimeError('No official daily source files: '+kind)
@@ -122,7 +123,7 @@ def capture(start_day,end_day,out_dir):
       'base_full_snapshot':'v0.2.6-internal',
       'base_quarterly_archive_sha256':{'cordata.zip':base.CORDATA_SHA,'corevent.zip':base.COREVENT_SHA},
       'coverage':{'kind':'daily_incremental_observations_not_full_snapshot',
-       'first_file_date':start_day,'last_file_date':end_day,'published_dates':days,
+       'first_file_date':start_day,'event_bridge_start':event_start_day,'last_file_date':end_day,'published_dates':days,
        'note':'Missing records from a daily file do not imply deletion or disappearance.'},
       'official_source_url':'https://dos.fl.gov/sunbiz/other-services/data-downloads/daily-data/',
       'counts':dict(counters),'file_receipts':receipts,
@@ -137,7 +138,8 @@ if __name__=='__main__':
     p=argparse.ArgumentParser()
     p.add_argument('--start-day',default='20261008')
     p.add_argument('--end-day',default='20261116')
+    p.add_argument('--event-start-day',default='20261005')
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args()
-    m=capture(a.start_day,a.end_day,a.out)
+    m=capture(a.start_day,a.end_day,a.out,a.event_start_day)
     print('TOTALS',json.dumps(m['counts'],sort_keys=True))
