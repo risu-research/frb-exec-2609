@@ -1,0 +1,45 @@
+name: Official Colorado and New York October source slices
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - probe/socrata_oct_ingest_v03.py
+      - probe/seal_socrata_oct_v03.py
+      - .github/workflows/socrata-oct-ingest-v03.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  official-source-slice:
+    strategy:
+      fail-fast: false
+      matrix:
+        state: [CO, NY]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated encryption library
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-editions
+          /tmp/risuap-editions/bin/pip install --quiet cryptography==44.0.3
+      - name: Ingest every October official filing row in a stable publisher edition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/socrata_oct_ingest_v03.py --state ${{ matrix.state }} --out source_minimal
+      - name: Encrypt before any artifact transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-editions/bin/python probe/seal_socrata_oct_v03.py --source source_minimal --recipient probe/archive-recipient.pem --out sealed_oct_${{ matrix.state }}.json
+          rm -rf source_minimal
+      - name: Upload only authenticated encrypted source edition
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-official-oct-2026-${{ matrix.state }}
+          path: sealed_oct_${{ matrix.state }}.json
+          retention-days: 7
+          if-no-files-found: error
