@@ -1,0 +1,36 @@
+name: Official CO NY source metadata receipt
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - probe/source_catalog_v03.py
+      - .github/workflows/source-catalog-v03.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record publisher edition times, schema and counts without entity records
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/source_catalog_v03.py > catalog_v03.json
+          python3 - <<'PY'
+          import json
+          o=json.load(open('catalog_v03.json'))
+          for r in o['dataset_receipts']:
+              print(r['jurisdiction'],r['dataset'],r.get('publisher_rows_updated_epoch'),
+                    r.get('api_record_count'),r.get('metadata_error') or r.get('count_error') or 'ok')
+          PY
+      - name: Retain official metadata receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: socrata-co-ny-source-editions-v03
+          path: catalog_v03.json
+          retention-days: 7
+          if-no-files-found: error
