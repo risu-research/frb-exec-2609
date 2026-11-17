@@ -1,0 +1,28 @@
+name: CO NY source scope census v031
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/source-scope-census-v031.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independently census official source record windows
+        run: |
+          set -euo pipefail
+          python3 probe/source_scope_census_v031.py > census.json
+          cat census.json
+      - name: Store official count-only receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-co-ny-source-census-v031
+          path: census.json
+          retention-days: 7
+          if-no-files-found: error
