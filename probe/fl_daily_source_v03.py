@@ -5,7 +5,7 @@ from datetime import datetime,timezone
 import paramiko
 import sftp_download as public_source
 
-PATHS=("/Public/doc/cor","/Public/doc/Quarterly/Cor")
+PATHS=("/Public/doc/cor","/Public/doc/cor/Events","/Public/doc/Quarterly/Cor")
 
 def main():
     client=paramiko.Transport((public_source.HOST,22))
