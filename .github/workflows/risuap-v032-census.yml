@@ -1,0 +1,35 @@
+name: RISUAP official source editions census v032
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/risuap-v032-census.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Count official historical scopes and new publisher editions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/v032_source_edition_census.py > risuap-v032-census.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('risuap-v032-census.json'))
+          for kind,v in d['sources'].items():
+              print('SOURCE',kind,v['publisher']['rows_updated_epoch'])
+              for w in v['windows']:print('COUNT',kind,w['name'],w['count'])
+          PY
+      - name: Archive count-only census
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-count-only-source-editions
+          path: risuap-v032-census.json
+          retention-days: 7
+          if-no-files-found: error
