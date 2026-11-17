@@ -1,0 +1,66 @@
+name: Official source partition
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/source-partition.yml
+      - probe/bulk_partition.py
+      - probe/seal_partition.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  official-partition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare official-source read-only tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          if ! command -v 7z >/dev/null 2>&1 && ! command -v 7zz >/dev/null 2>&1; then
+            sudo apt-get install -y -qq 7zip || sudo apt-get install -y -qq p7zip-full
+          fi
+          python3 -m venv /tmp/public-archive-tools
+          /tmp/public-archive-tools/bin/pip install --quiet cryptography==44.0.3 paramiko==3.5.1
+      - name: Download and check official events archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p source output_partition
+          /tmp/public-archive-tools/bin/python probe/sftp_download.py corevent source/corevent.zip
+      - name: Process complete event source into one deterministic shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/bulk_partition.py --kind event --source source/corevent.zip --out output_partition --modulus 256 --bucket 0
+          rm source/corevent.zip
+      - name: Download and check official master archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/public-archive-tools/bin/python probe/sftp_download.py cordata source/cordata.zip
+      - name: Process complete master source into the same shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/bulk_partition.py --kind master --source source/cordata.zip --out output_partition --modulus 256 --bucket 0
+          rm source/cordata.zip
+      - name: Seal read-only output and remove plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/public-archive-tools/bin/python probe/seal_partition.py --root output_partition --recipient probe/archive-recipient.pem --out sealed-partition.json
+          rm -rf source output_partition
+      - name: Upload encrypted partition only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-source-partition-v02
+          path: sealed-partition.json
+          retention-days: 7
+          if-no-files-found: error
