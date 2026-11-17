@@ -1,0 +1,34 @@
+name: Official CO and NY 2026 filing tranche counts
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - probe/socrata_tranche_probe_v03.py
+      - .github/workflows/socrata-tranche-probe-v03.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Count entire calendar windows using official APIs
+        run: |
+          set -euo pipefail
+          python3 probe/socrata_tranche_probe_v03.py > tranche_probe.json
+          python3 - <<'PY'
+          import json
+          for x in json.load(open('tranche_probe.json'))['results']:
+              print(x['jurisdiction'],x.get('2026_ytd_rows'),x.get('october_2026_rows'),
+                    x.get('system_id_order_supported'),x.get('ordering_error'))
+          PY
+      - name: Preserve official query receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: co-ny-tranche-source-probe-v03
+          path: tranche_probe.json
+          retention-days: 7
+          if-no-files-found: error
