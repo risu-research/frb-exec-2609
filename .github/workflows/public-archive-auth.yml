@@ -1,0 +1,33 @@
+name: Public archive authenticated metadata check
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/public-archive-auth.yml
+      - probe/public_archive_auth.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SFTP client in isolated environment
+        shell: bash
+        run: |
+          python3 -m venv /tmp/public-archive-client
+          /tmp/public-archive-client/bin/pip install --quiet paramiko==3.5.1
+      - name: Authenticate to public file gateway and inspect metadata
+        run: /tmp/public-archive-client/bin/python probe/public_archive_auth.py
+      - name: Preserve metadata results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-archive-auth-metadata
+          path: public_archive_auth.json
+          if-no-files-found: warn
