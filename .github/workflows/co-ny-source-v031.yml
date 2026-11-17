@@ -1,0 +1,127 @@
+name: Official CO NY processed source scale v0.3.1
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/co-ny-source-v031.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  co_master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare official publisher source tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-tools
+          /tmp/risuap-tools/bin/pip install --quiet cryptography==44.0.3
+      - name: Ingest and independently count co_master
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-tools/bin/python probe/socrata_source_ingest_v031.py --kind co_master --out source_data  --limit 15000
+      - name: Encrypt and remove public-runner plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-tools/bin/python probe/seal_private_v031.py --source source_data --recipient probe/archive-recipient.pem --out sealed-co_master.json
+          rm -rf source_data
+      - name: Export encrypted official source only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-risuap-v031-co_master
+          path: sealed-co_master.json
+          retention-days: 7
+          if-no-files-found: error
+  co_events:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare official publisher source tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-tools
+          /tmp/risuap-tools/bin/pip install --quiet cryptography==44.0.3
+      - name: Ingest and independently count co_events
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-tools/bin/python probe/socrata_source_ingest_v031.py --kind co_events --out source_data --start 2025-01-01 --end 2026-11-01 --limit 15000
+      - name: Encrypt and remove public-runner plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-tools/bin/python probe/seal_private_v031.py --source source_data --recipient probe/archive-recipient.pem --out sealed-co_events.json
+          rm -rf source_data
+      - name: Export encrypted official source only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-risuap-v031-co_events
+          path: sealed-co_events.json
+          retention-days: 7
+          if-no-files-found: error
+  ny_events:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare official publisher source tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-tools
+          /tmp/risuap-tools/bin/pip install --quiet cryptography==44.0.3
+      - name: Ingest and independently count ny_events
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-tools/bin/python probe/socrata_source_ingest_v031.py --kind ny_events --out source_data --start 2025-01-01 --end 2026-11-01 --limit 15000
+      - name: Encrypt and remove public-runner plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-tools/bin/python probe/seal_private_v031.py --source source_data --recipient probe/archive-recipient.pem --out sealed-ny_events.json
+          rm -rf source_data
+      - name: Export encrypted official source only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-risuap-v031-ny_events
+          path: sealed-ny_events.json
+          retention-days: 7
+          if-no-files-found: error
+  ny_status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare official publisher source tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-tools
+          /tmp/risuap-tools/bin/pip install --quiet cryptography==44.0.3
+      - name: Ingest and independently count ny_status
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-tools/bin/python probe/socrata_source_ingest_v031.py --kind ny_status --out source_data --start 2025-01-01 --end 2026-11-01 --limit 15000
+      - name: Encrypt and remove public-runner plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-tools/bin/python probe/seal_private_v031.py --source source_data --recipient probe/archive-recipient.pem --out sealed-ny_status.json
+          rm -rf source_data
+      - name: Export encrypted official source only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-risuap-v031-ny_status
+          path: sealed-ny_status.json
+          retention-days: 7
+          if-no-files-found: error
