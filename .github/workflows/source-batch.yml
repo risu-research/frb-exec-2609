@@ -51,7 +51,8 @@ jobs:
           set -euo pipefail
           mkdir -p encrypted_batch
           /tmp/source-tools/bin/python probe/seal_partition_split.py --root batch_output --recipient probe/archive-recipient.pem --out-dir encrypted_batch --first 128 --last 255 --chunk-size 16
-          rm -rf source batch_o      - name: Upload encrypted 128–143 chunk only
+          rm -rf source batch_output
+      - name: Upload encrypted 128–143 chunk only
         uses: actions/upload-artifact@v4
         with:
           name: sealed-official-source-batch-128-143
