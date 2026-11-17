@@ -32,37 +32,51 @@ jobs:
           set -euo pipefail
           mkdir -p source batch_output
           /tmp/source-tools/bin/python probe/sftp_download.py corevent source/corevent.zip
-      - name: Stream every event into deterministic buckets 32 through 63
+      - name: Stream every event into deterministic buckets 64 through 127
         run: |
           set -euo pipefail
-          python3 probe/bulk_partition_batch.py --kind event --source source/corevent.zip --out batch_output --first 32 --last 63
+          python3 probe/bulk_partition_batch.py --kind event --source source/corevent.zip --out batch_output --first 64 --last 127
           rm source/corevent.zip
       - name: Download and verify public official master archive
         run: |
           set -euo pipefail
           /tmp/source-tools/bin/python probe/sftp_download.py cordata source/cordata.zip
-      - name: Stream every entity and annual-report slot into buckets 32 through 63
+      - name: Stream every entity and annual-report slot into buckets 64 through 127
         run: |
           set -euo pipefail
-          python3 probe/bulk_partition_batch.py --kind master --source source/cordata.zip --out batch_output --first 32 --last 63
+          python3 probe/bulk_partition_batch.py --kind master --source source/cordata.zip --out batch_output --first 64 --last 127
           rm source/cordata.zip
-      - name: Seal two authenticated chunks without publishing plaintext
+      - name: Seal four authenticated chunks without publishing plaintext
         run: |
           set -euo pipefail
           mkdir -p encrypted_batch
-          /tmp/source-tools/bin/python probe/seal_partition_split.py --root batch_output --recipient probe/archive-recipient.pem --out-dir encrypted_batch --first 32 --last 63 --chunk-size 16
+          /tmp/source-tools/bin/python probe/seal_partition_split.py --root batch_output --recipient probe/archive-recipient.pem --out-dir encrypted_batch --first 64 --last 127 --chunk-size 16
           rm -rf source batch_output
-      - name: Upload encrypted 032–047 chunk only
+      - name: Upload encrypted 064–079 chunk only
         uses: actions/upload-artifact@v4
         with:
-          name: sealed-official-source-batch-032-047
-          path: encrypted_batch/sealed-batch-032-047.json
+          name: sealed-official-source-batch-064-079
+          path: encrypted_batch/sealed-batch-064-079.json
           retention-days: 7
           if-no-files-found: error
-      - name: Upload encrypted 048–063 chunk only
+      - name: Upload encrypted 080–095 chunk only
         uses: actions/upload-artifact@v4
         with:
-          name: sealed-official-source-batch-048-063
-          path: encrypted_batch/sealed-batch-048-063.json
+          name: sealed-official-source-batch-080-095
+          path: encrypted_batch/sealed-batch-080-095.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload encrypted 096–111 chunk only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-official-source-batch-096-111
+          path: encrypted_batch/sealed-batch-096-111.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload encrypted 112–127 chunk only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-official-source-batch-112-127
+          path: encrypted_batch/sealed-batch-112-127.json
           retention-days: 7
           if-no-files-found: error
