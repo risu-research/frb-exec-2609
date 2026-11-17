@@ -31,24 +31,24 @@ jobs:
           set -euo pipefail
           mkdir -p source batch_output
           /tmp/source-tools/bin/python probe/sftp_download.py corevent source/corevent.zip
-      - name: Stream every event into deterministic buckets 8 through 15
+      - name: Stream every event into deterministic buckets 16 through 31
         run: |
           set -euo pipefail
-          python3 probe/bulk_partition_batch.py --kind event --source source/corevent.zip --out batch_output --first 8 --last 15
+          python3 probe/bulk_partition_batch.py --kind event --source source/corevent.zip --out batch_output --first 16 --last 31
           rm source/corevent.zip
       - name: Download and verify public official master archive
         run: |
           set -euo pipefail
           /tmp/source-tools/bin/python probe/sftp_download.py cordata source/cordata.zip
-      - name: Stream every entity and annual-report slot into buckets 8 through 15
+      - name: Stream every entity and annual-report slot into buckets 16 through 31
         run: |
           set -euo pipefail
-          python3 probe/bulk_partition_batch.py --kind master --source source/cordata.zip --out batch_output --first 8 --last 15
+          python3 probe/bulk_partition_batch.py --kind master --source source/cordata.zip --out batch_output --first 16 --last 31
           rm source/cordata.zip
       - name: Encrypt every dataset shard and remove public-runner plaintext
         run: |
           set -euo pipefail
-          /tmp/source-tools/bin/python probe/seal_partition_batch.py --root batch_output --recipient probe/archive-recipient.pem --out sealed-batch.json --first 8 --last 15
+          /tmp/source-tools/bin/python probe/seal_partition_batch.py --root batch_output --recipient probe/archive-recipient.pem --out sealed-batch.json --first 16 --last 31
           rm -rf source batch_output
       - name: Upload only encrypted source-derived output
         uses: actions/upload-artifact@v4
