@@ -1,0 +1,58 @@
+name: RISUAP CO events recovery v031 isolated
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/co-events-recovery-v031.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  co_events:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare source-only tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-v031
+          /tmp/risuap-v031/bin/pip install --quiet cryptography==44.0.3
+      - name: Restore isolated recovery recipient (public key only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/risuap-recovery-recipient.pem <<'RISUAP_PUBLIC_KEY'
+          -----BEGIN PUBLIC KEY-----
+          MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAxLjve5GZCWXUgubolsQu
+          U5lTR76Y7lM9GRb1PIGyVZjipTIqeTHgaCVTAwfjFnsCXIPM69NpBs0dD3dN0t78
+          ZtR8Zh2voJYCLRy4EkF1MfzIAmZ9h80YHhTx6ZoNCc3zdaLNQWZZAIR+hw+ZJ78f
+          /1+ftcuVjw1rnpyiV90MU3GUx9ocUik61PGGxzuODoqyyGuBeyLbGxUwSaG+edbI
+          EhAtbkpYSWRwCgyS2TAJVrEk0Qo4nU3oPnHrw9SNbRgkG9run4fboJzbrfSYtVq9
+          xFHxRplvzkSfTPTi+J6jnSKtHVjR4GhjVHVPjFuyj7K6MJ+M60y3Xt//9NneTwW0
+          O+XJYaiwgRMyDgoHyVNURnFbcC+owdzjjN7MVpLkcBXVhITl7QjLV+vz00Cs0baq
+          Jr3aGQd6eY8tLESMZ+4e4V08+BQVN0DzL7/tUuMciTj+QJEOq/IqZFTt1s+48CLg
+          zHrV13K8P5jN9Nmo1R4K06ILrFff2cewPO3tmaTIwH8TAgMBAAE=
+          -----END PUBLIC KEY-----
+          RISUAP_PUBLIC_KEY
+          openssl pkey -pubin -in /tmp/risuap-recovery-recipient.pem -noout
+      - name: Recover official CO transactions
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-v031/bin/python probe/socrata_source_ingest_v031.py --kind co_events --out /tmp/risuap-co-events-data --start 2025-01-01 --end 2026-11-01 --limit 50000
+      - name: Seal source and remove plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-v031/bin/python probe/seal_private_v031.py --source /tmp/risuap-co-events-data --recipient /tmp/risuap-recovery-recipient.pem --out sealed-co_events.json
+          rm -rf /tmp/risuap-co-events-data
+      - name: Archive encrypted output only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-risuap-v031-co_events-recovery
+          path: sealed-co_events.json
+          retention-days: 7
+          if-no-files-found: error
