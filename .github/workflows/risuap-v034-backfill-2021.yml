@@ -1,0 +1,156 @@
+name: RISUAP 2021 historical CO NY source backfill v034
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/risuap-v034-backfill-2021.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include:
+          - kind: co_events
+            start: "2021-01-01"
+            end: "2021-04-01"
+            label: co_events_2021q1
+          - kind: co_events
+            start: "2021-04-01"
+            end: "2021-07-01"
+            label: co_events_2021q2
+          - kind: co_events
+            start: "2021-07-01"
+            end: "2021-10-01"
+            label: co_events_2021q3
+          - kind: co_events
+            start: "2021-10-01"
+            end: "2022-01-01"
+            label: co_events_2021q4
+          - kind: ny_events
+            start: "2021-01-01"
+            end: "2022-01-01"
+            label: ny_events_2021
+          - kind: ny_status
+            start: "2021-01-01"
+            end: "2022-01-01"
+            label: ny_status_2021
+    name: ${{ matrix.label }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare official source tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-v032
+          /tmp/risuap-v032/bin/pip install --quiet cryptography==44.0.3
+          openssl pkey -pubin -in probe/v032-recipient.pem -noout
+      - name: Retrieve complete declared publisher date window
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-v032/bin/python probe/socrata_source_ingest_v031.py --kind ${{ matrix.kind }} --start "${{ matrix.start }}" --end "${{ matrix.end }}" --out source_data --limit 20000
+          cp source_data/manifest.json source-receipt.json
+      - name: Encrypt privately and shred temporary plaintext workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-v032/bin/python probe/seal_private_v031.py --source source_data --recipient probe/v032-recipient.pem --out sealed-source.json
+          rm -rf source_data
+          python3 probe/v032_cipher_chunks.py --sealed sealed-source.json --label ${{ matrix.label }} --out chunks
+          rm -f sealed-source.json
+      - name: Archive metadata-only source receipt and transport checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-receipts
+          path: |
+            source-receipt.json
+            chunks/transport-receipt.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 00
+        if: ${{ hashFiles('chunks/sealed.part00') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part00
+          path: chunks/sealed.part00
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 01
+        if: ${{ hashFiles('chunks/sealed.part01') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part01
+          path: chunks/sealed.part01
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 02
+        if: ${{ hashFiles('chunks/sealed.part02') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part02
+          path: chunks/sealed.part02
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 03
+        if: ${{ hashFiles('chunks/sealed.part03') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part03
+          path: chunks/sealed.part03
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 04
+        if: ${{ hashFiles('chunks/sealed.part04') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part04
+          path: chunks/sealed.part04
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 05
+        if: ${{ hashFiles('chunks/sealed.part05') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part05
+          path: chunks/sealed.part05
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 06
+        if: ${{ hashFiles('chunks/sealed.part06') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part06
+          path: chunks/sealed.part06
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 07
+        if: ${{ hashFiles('chunks/sealed.part07') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part07
+          path: chunks/sealed.part07
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 08
+        if: ${{ hashFiles('chunks/sealed.part08') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part08
+          path: chunks/sealed.part08
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive encrypted transport part 09
+        if: ${{ hashFiles('chunks/sealed.part09') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v032-${{ matrix.label }}-part09
+          path: chunks/sealed.part09
+          retention-days: 7
+          if-no-files-found: error
