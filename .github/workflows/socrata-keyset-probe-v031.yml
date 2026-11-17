@@ -1,0 +1,27 @@
+name: Socrata keyset pagination source compatibility
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/socrata-keyset-probe-v031.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  keyset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check keyset pagination against source row IDs only
+        run: |
+          set -euo pipefail
+          python3 probe/socrata_keyset_probe_v031.py > keyset-compatibility.jsonl
+          cat keyset-compatibility.jsonl
+      - name: Persist source compatibility findings
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v031-keyset-compatibility
+          path: keyset-compatibility.jsonl
+          retention-days: 7
