@@ -1,0 +1,37 @@
+name: Official Florida source edition discovery
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - probe/fl_daily_source_v03.py
+      - .github/workflows/fl-source-catalog-v03.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-listing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install isolated public SFTP client
+        run: python3 -m pip install --quiet --user paramiko==3.5.1
+      - name: Capture file names sizes and modified times only
+        run: |
+          python3 probe/fl_daily_source_v03.py > fl-source-catalog-v03.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('fl-source-catalog-v03.json'))
+          for k,v in d['paths'].items():
+              print(k,v.get('file_count'),v.get('error_type'))
+              for row in v.get('latest_50',[])[:8]:
+                  print(row['name'],row['bytes'],row['modified_utc'])
+          PY
+      - name: Upload public source listing
+        uses: actions/upload-artifact@v4
+        with:
+          name: fl-official-source-catalog-v03
+          path: fl-source-catalog-v03.json
+          retention-days: 7
+          if-no-files-found: error
