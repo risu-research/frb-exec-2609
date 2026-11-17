@@ -1,0 +1,39 @@
+name: Official Florida daily source editions v0.3
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - probe/fl_daily_capture_v03.py
+      - probe/seal_fl_daily_v03.py
+      - .github/workflows/fl-daily-v03.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare read-only source and encryption tools
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-source
+          /tmp/risuap-source/bin/pip install --quiet paramiko==3.5.1 cryptography==44.0.3
+      - name: Capture all published post-baseline official daily corporate files and events
+        run: |
+          set -euo pipefail
+          /tmp/risuap-source/bin/python probe/fl_daily_capture_v03.py --start-day 20261008 --end-day 20261116 --out daily_plain
+      - name: Encrypt daily source edition before upload
+        run: |
+          set -euo pipefail
+          /tmp/risuap-source/bin/python probe/seal_fl_daily_v03.py --source daily_plain --recipient probe/archive-recipient.pem --out sealed_fl_daily_v03.json
+          rm -rf daily_plain
+      - name: Export only authenticated encrypted source-derived records
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-fl-daily-v03-20261008-20261116
+          path: sealed_fl_daily_v03.json
+          retention-days: 7
+          if-no-files-found: error
