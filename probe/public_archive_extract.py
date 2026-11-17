@@ -241,7 +241,7 @@ def select_candidate_events(zip_path, seven_zip=None):
        selected_id_hash([x['entity_id'] for x in old]) != FROZEN_ID_SHA256:
         raise ValueError('Original frozen anchor ordering or identities changed')
 
-    original_ids = {r['entity_id'] for r in original}
+    original_ids = {r['entity_id'] for r in old}
     excluded_new = set(original_ids)
     new = []
     shortages = {}
