@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# Re-run with isolated encryption recipient 996bfc2; private key never leaves the receiving environment.
 jobs:
   co_master:
     runs-on: ubuntu-latest
