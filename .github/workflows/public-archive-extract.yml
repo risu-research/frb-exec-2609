@@ -1,0 +1,77 @@
+name: Public official archive extract
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/public-archive-extract.yml
+      - probe/public_archive_extract.py
+      - probe/encrypt_archive_extract.py
+      - probe/archive-recipient.pem
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare ZIP decoder and isolated crypto tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          if ! command -v 7z >/dev/null 2>&1 && ! command -v 7zz >/dev/null 2>&1; then
+            sudo apt-get install -y -qq 7zip || sudo apt-get install -y -qq p7zip-full
+          fi
+          python3 -m venv /tmp/public-archive-tools
+          /tmp/public-archive-tools/bin/pip install --quiet cryptography==44.0.3
+          command -v 7z || command -v 7zz
+      - name: Download and authenticate the official event archive
+        shell: bash
+        env:
+          ARCHIVE_USER: Public
+          ARCHIVE_PASS: PubAccess1845!
+        run: |
+          set -euo pipefail
+          mkdir -p source output_public_archives
+          curl --fail --location --silent --show-error --retry 3 --retry-delay 10 --max-time 1200 \
+            --user "$ARCHIVE_USER:$ARCHIVE_PASS" \
+            --output source/corevent.zip \
+            https://sftp.floridados.gov/Public/doc/Quarterly/Cor/corevent.zip
+          echo "395c5240b2eddabf5300b09c658c93320a1e9a311a4897983526d8dc1152280d  source/corevent.zip" | sha256sum --check
+      - name: Select disjoint cases before opening corporate master
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/public_archive_extract.py --phase select --corevent source/corevent.zip --out-dir output_public_archives
+          rm source/corevent.zip
+      - name: Download and authenticate the official corporate master archive
+        shell: bash
+        env:
+          ARCHIVE_USER: Public
+          ARCHIVE_PASS: PubAccess1845!
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 3 --retry-delay 10 --max-time 2400 \
+            --user "$ARCHIVE_USER:$ARCHIVE_PASS" \
+            --output source/cordata.zip \
+            https://sftp.floridados.gov/Public/doc/Quarterly/Cor/cordata.zip
+          echo "f85264b1443a7f60c8a95ec69bebc9407cc87367fe5acef59a17b58068d5bee9  source/cordata.zip" | sha256sum --check
+      - name: Collect minimal master fields and seal output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/public_archive_extract.py --phase enrich --cordata source/cordata.zip --out-dir output_public_archives
+          /tmp/public-archive-tools/bin/python probe/encrypt_archive_extract.py
+          rm -rf output_public_archives source
+      - name: Upload only encrypted research-neutral extract
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-public-archive-extract
+          path: encrypted-extract.json
+          retention-days: 3
+          if-no-files-found: error
