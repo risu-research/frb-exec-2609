@@ -1,0 +1,118 @@
+name: RISUAP v038 NY full-name wave02 1970s-1980s
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/risuap-v038-fullnames-wave02.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - label: name_19700101_19720702
+            start: "1970-01-01"
+            end: "1972-07-02"
+            expected: 53514
+          - label: name_19720702_19750101
+            start: "1972-07-02"
+            end: "1975-01-01"
+            expected: 67354
+          - label: name_19750101_19770702
+            start: "1975-01-01"
+            end: "1977-07-02"
+            expected: 88212
+          - label: name_19770702_19781001
+            start: "1977-07-02"
+            end: "1978-10-01"
+            expected: 77733
+          - label: name_19781001_19800101
+            start: "1978-10-01"
+            end: "1980-01-01"
+            expected: 90474
+          - label: name_19800101_19810401
+            start: "1980-01-01"
+            end: "1981-04-01"
+            expected: 93357
+          - label: name_19810401_19820702
+            start: "1981-04-01"
+            end: "1982-07-02"
+            expected: 92541
+          - label: name_19820702_19831001
+            start: "1982-07-02"
+            end: "1983-10-01"
+            expected: 94369
+          - label: name_19831001_19840516
+            start: "1983-10-01"
+            end: "1984-05-16"
+            expected: 51524
+          - label: name_19840516_19841231
+            start: "1984-05-16"
+            end: "1984-12-31"
+            expected: 50048
+          - label: name_19841231_19850816
+            start: "1984-12-31"
+            end: "1985-08-16"
+            expected: 55702
+          - label: name_19850816_19860401
+            start: "1985-08-16"
+            end: "1986-04-01"
+            expected: 54540
+    name: ${{ matrix.label }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare private-recipient authenticated source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-v038
+          /tmp/risuap-v038/bin/pip install --quiet cryptography==44.0.3
+          openssl pkey -pubin -in probe/v032-recipient.pem -noout
+      - name: Retrieve complete pinned official date range and independently check edition
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-v038/bin/python probe/risuap_v038_name_full_ingest.py \
+            --label "${{ matrix.label }}" --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --expected "${{ matrix.expected }}" --rows-epoch 1794948547 --metadata-epoch 1794945028 \
+            --max-rows 100000 --limit 10000 --out source_data
+          cp source_data/manifest.json source-receipt.json
+      - name: Encrypt archive for owner only and remove runner plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-v038/bin/python probe/seal_private_v031.py \
+            --source source_data --recipient probe/v032-recipient.pem --out sealed-source.json
+          rm -rf source_data
+          python3 probe/v032_cipher_chunks.py --sealed sealed-source.json --label "${{ matrix.label }}" --out chunks
+          rm sealed-source.json
+      - name: Upload only source count/vintage and encryption receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-full-name-${{ matrix.label }}-receipts
+          path: |
+            source-receipt.json
+            chunks/transport-receipt.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload ciphertext part00
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-full-name-${{ matrix.label }}-part00
+          path: chunks/sealed.part00
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload ciphertext part01 if present
+        if: ${{ hashFiles('chunks/sealed.part01') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-full-name-${{ matrix.label }}-part01
+          path: chunks/sealed.part01
+          retention-days: 7
