@@ -1,0 +1,38 @@
+name: RISUAP v038 full NY name-source deterministic partition plan
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/risuap-v038-name-partition-plan.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify complete official source partition plan against frozen census and same publisher edition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/risuap_v038_name_partition_plan.py \
+            --census probe/risuap_v038_name_population_census_frozen.json \
+            --out NY_NAME_FULL_DATE_PARTITION_PLAN.json --cap 100000
+          python3 - <<'PY'
+          import json
+          m=json.load(open('NY_NAME_FULL_DATE_PARTITION_PLAN.json'))
+          assert m['complete_population_rows']==7542618
+          assert sum(x['official_rows'] for x in m['partitions'])==7542618
+          assert all(x['official_rows']<=100000 for x in m['partitions'])
+          print('OFFICIAL_LOCKED_DATE_PLAN',m['partition_count'],m['complete_population_rows'])
+          PY
+      - name: Publish date ranges and count-only source receipt, no entity names
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v038-full-name-date-partition-plan
+          path: NY_NAME_FULL_DATE_PARTITION_PLAN.json
+          retention-days: 7
+          if-no-files-found: error
