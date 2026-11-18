@@ -1,0 +1,35 @@
+name: RISUAP v038 NY complete name-year source census
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/risuap-v038-name-census.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Count official NY name-history source dates and lock source edition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 probe/risuap_v038_name_census.py > official-name-census.json
+          python3 - <<'PY'
+          import json
+          with open("official-name-census.json") as f:j=json.load(f)
+          assert j["status"]=="official_count_census_only_not_ingested"
+          assert sum(x["publisher_rows"] for x in j["windows"])+j["rows_without_filed_date"]==j["full_rows"]
+          print("VERIFIED_COUNT_ONLY",j["full_rows"],len(j["windows"]))
+          PY
+      - name: Upload publisher metadata and count-only receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: risuap-v038-ny-names-population-census
+          path: official-name-census.json
+          retention-days: 7
+          if-no-files-found: error
