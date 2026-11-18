@@ -1,0 +1,143 @@
+{
+  "captured_utc": "2026-11-18T07:06:15.108024+00:00",
+  "full_rows": 7542618,
+  "publisher": {
+    "column_contract": [
+      "corp_name",
+      "corpid_num",
+      "date_filed",
+      "film_num",
+      "name_status",
+      "name_type"
+    ],
+    "dataset": "ekwr-p59j",
+    "license": null,
+    "metadata_epoch": 1794945028,
+    "rows_epoch": 1794948547
+  },
+  "rows_without_filed_date": 0,
+  "schema": "risuap-v038-official-name-source-census-v1",
+  "status": "official_count_census_only_not_ingested",
+  "windows": [
+    {
+      "end_exclusive": "1800-01-01",
+      "label": "pre1800",
+      "publisher_rows": 4,
+      "start_inclusive": null
+    },
+    {
+      "end_exclusive": "1900-01-01",
+      "label": "1800_1900",
+      "publisher_rows": 6384,
+      "start_inclusive": "1800-01-01"
+    },
+    {
+      "end_exclusive": "1950-01-01",
+      "label": "1900_1950",
+      "publisher_rows": 72148,
+      "start_inclusive": "1900-01-01"
+    },
+    {
+      "end_exclusive": "1970-01-01",
+      "label": "1950_1970",
+      "publisher_rows": 190283,
+      "start_inclusive": "1950-01-01"
+    },
+    {
+      "end_exclusive": "1980-01-01",
+      "label": "1970_1980",
+      "publisher_rows": 377287,
+      "start_inclusive": "1970-01-01"
+    },
+    {
+      "end_exclusive": "1990-01-01",
+      "label": "1980_1990",
+      "publisher_rows": 836810,
+      "start_inclusive": "1980-01-01"
+    },
+    {
+      "end_exclusive": "2000-01-01",
+      "label": "1990_2000",
+      "publisher_rows": 973942,
+      "start_inclusive": "1990-01-01"
+    },
+    {
+      "end_exclusive": "2005-01-01",
+      "label": "2000_2005",
+      "publisher_rows": 667404,
+      "start_inclusive": "2000-01-01"
+    },
+    {
+      "end_exclusive": "2010-01-01",
+      "label": "2005_2010",
+      "publisher_rows": 749657,
+      "start_inclusive": "2005-01-01"
+    },
+    {
+      "end_exclusive": "2015-01-01",
+      "label": "2010_2015",
+      "publisher_rows": 798881,
+      "start_inclusive": "2010-01-01"
+    },
+    {
+      "end_exclusive": "2018-01-01",
+      "label": "2015_2018",
+      "publisher_rows": 579680,
+      "start_inclusive": "2015-01-01"
+    },
+    {
+      "end_exclusive": "2019-01-01",
+      "label": "2018_2019",
+      "publisher_rows": 211475,
+      "start_inclusive": "2018-01-01"
+    },
+    {
+      "end_exclusive": "2020-01-01",
+      "label": "2019_2020",
+      "publisher_rows": 217088,
+      "start_inclusive": "2019-01-01"
+    },
+    {
+      "end_exclusive": "2021-01-01",
+      "label": "2020_2021",
+      "publisher_rows": 231378,
+      "start_inclusive": "2020-01-01"
+    },
+    {
+      "end_exclusive": "2022-01-01",
+      "label": "2021_2022",
+      "publisher_rows": 271518,
+      "start_inclusive": "2021-01-01"
+    },
+    {
+      "end_exclusive": "2023-01-01",
+      "label": "2022_2023",
+      "publisher_rows": 270411,
+      "start_inclusive": "2022-01-01"
+    },
+    {
+      "end_exclusive": "2024-01-01",
+      "label": "2023_2024",
+      "publisher_rows": 286272,
+      "start_inclusive": "2023-01-01"
+    },
+    {
+      "end_exclusive": "2025-01-01",
+      "label": "2024_2025",
+      "publisher_rows": 262867,
+      "start_inclusive": "2024-01-01"
+    },
+    {
+      "end_exclusive": "2026-01-01",
+      "label": "2025_2026",
+      "publisher_rows": 280910,
+      "start_inclusive": "2025-01-01"
+    },
+    {
+      "end_exclusive": "2027-01-01",
+      "label": "2026_2027",
+      "publisher_rows": 258219,
+      "start_inclusive": "2026-01-01"
+    }
+  ]
+}
