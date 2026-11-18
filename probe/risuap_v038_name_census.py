@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Official NY DOS name-history source-count census. No entity names/IDs exported."""
-import datetime as dt,json,time,random,urllib.request,urllib.parse
+import datetime as dt,json,time,random,urllib.request,urllib.parse,sys
 BASE='https://data.ny.gov'
 ID='ekwr-p59j'
 def request(path,params=None):
@@ -35,7 +35,7 @@ def main():
   if end:clauses.append("date_filed < '"+end+"T00:00:00'")
   n=count(' AND '.join(clauses))
   observed.append({'label':label,'start_inclusive':start,'end_exclusive':end,'publisher_rows':n})
-  print('OFFICIAL_COUNT',label,n,flush=True)
+  print('OFFICIAL_COUNT',label,n,flush=True,file=sys.stderr)
  null=count('date_filed IS NULL')
  after=meta()
  if before!=after:raise RuntimeError('Official publisher edition changed during census')
