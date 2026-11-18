@@ -1,0 +1,110 @@
+name: RISUAP v038 official complete name wave10 final extension
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/risuap-v038-fullnames-wave10.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - label: name_20240702_20241001
+            start: "2024-07-02"
+            end: "2024-10-01"
+            expected: 63013
+          - label: name_20241001_20250101
+            start: "2024-10-01"
+            end: "2025-01-01"
+            expected: 60547
+          - label: name_20250101_20250402
+            start: "2025-01-01"
+            end: "2025-04-02"
+            expected: 74869
+          - label: name_20250402_20250702
+            start: "2025-04-02"
+            end: "2025-07-02"
+            expected: 70171
+          - label: name_20250702_20251001
+            start: "2025-07-02"
+            end: "2025-10-01"
+            expected: 68905
+          - label: name_20251001_20260101
+            start: "2025-10-01"
+            end: "2026-01-01"
+            expected: 66965
+          - label: name_20260101_20260402
+            start: "2026-01-01"
+            end: "2026-04-02"
+            expected: 77629
+          - label: name_20260402_20260702
+            start: "2026-04-02"
+            end: "2026-07-02"
+            expected: 75135
+          - label: name_20260702_20261001
+            start: "2026-07-02"
+            end: "2026-10-01"
+            expected: 69095
+          - label: name_20261001_20270101
+            start: "2026-10-01"
+            end: "2027-01-01"
+            expected: 36360
+    name: ${{ matrix.label }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare private-recipient authenticated source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap-v038
+          /tmp/risuap-v038/bin/pip install --quiet cryptography==44.0.3
+          openssl pkey -pubin -in probe/v032-recipient.pem -noout
+      - name: Retrieve complete pinned official date range and independently check edition
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-v038/bin/python probe/risuap_v038_name_full_ingest.py \
+            --label "${{ matrix.label }}" --start "${{ matrix.start }}" --end "${{ matrix.end }}" \
+            --expected "${{ matrix.expected }}" --rows-epoch 1794948547 --metadata-epoch 1794945028 \
+            --max-rows 100000 --limit 10000 --out source_data
+          cp source_data/manifest.json source-receipt.json
+      - name: Encrypt archive for owner only and remove runner plaintext
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap-v038/bin/python probe/seal_private_v031.py \
+            --source source_data --recipient probe/v032-recipient.pem --out sealed-source.json
+          rm -rf source_data
+          python3 probe/v032_cipher_chunks.py --sealed sealed-source.json --label "${{ matrix.label }}" --out chunks
+          rm sealed-source.json
+      - name: Upload only source count/vintage and encryption receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-full-name-${{ matrix.label }}-receipts
+          path: |
+            source-receipt.json
+            chunks/transport-receipt.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload ciphertext part00
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-full-name-${{ matrix.label }}-part00
+          path: chunks/sealed.part00
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload ciphertext part01 if present
+        if: ${{ hashFiles('chunks/sealed.part01') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-full-name-${{ matrix.label }}-part01
+          path: chunks/sealed.part01
+          retention-days: 7
