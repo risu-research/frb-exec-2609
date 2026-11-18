@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
-      - name: Count official NY name-history source dates and lock source edition
+      - name: Count official NY name-history source dates and lock source edition, JSON-only receipt
         shell: bash
         run: |
           set -euo pipefail
