@@ -1,0 +1,76 @@
+name: RISUAP v038 NY name history independent month pilots
+on:
+  push:
+    branches:
+      - ops/public-input-availability-261116
+    paths:
+      - .github/workflows/risuap-v038-name-pilot.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - month: "2023-10"
+            start: "2023-10-01"
+            end: "2023-11-01"
+          - month: "2024-10"
+            start: "2024-10-01"
+            end: "2024-11-01"
+          - month: "2025-10"
+            start: "2025-10-01"
+            end: "2025-11-01"
+    name: name_${{ matrix.month }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify encryption recipient and install cryptography
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/risuap038
+          /tmp/risuap038/bin/pip install --quiet cryptography==44.0.3
+          openssl pkey -pubin -in probe/v032-recipient.pem -noout
+      - name: Acquire entire official month in a stable publisher edition
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap038/bin/python probe/risuap_v038_ny_name_ingest.py --start "${{ matrix.start }}" --end "${{ matrix.end }}" --out source_data --limit 10000 --max-rows 150000
+          cp source_data/manifest.json source-receipt.json
+      - name: Seal all names and entity identifiers before artifact transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/risuap038/bin/python probe/seal_private_v031.py --source source_data --recipient probe/v032-recipient.pem --out sealed-source.json
+          rm -rf source_data
+          python3 probe/v032_cipher_chunks.py --sealed sealed-source.json --label "ny_name_${{ matrix.month }}" --out chunks
+          rm sealed-source.json
+      - name: Upload source edition and count-only receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-nyname-${{ matrix.month }}-receipts
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            source-receipt.json
+            chunks/transport-receipt.json
+      - name: Upload encrypted source part 00 only
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-nyname-${{ matrix.month }}-part00
+          retention-days: 7
+          if-no-files-found: error
+          path: chunks/sealed.part00
+      - name: Upload encrypted source part 01 if required
+        if: ${{ hashFiles('chunks/sealed.part01') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: v038-nyname-${{ matrix.month }}-part01
+          retention-days: 7
+          if-no-files-found: error
+          path: chunks/sealed.part01
