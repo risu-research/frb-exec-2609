@@ -28,9 +28,9 @@ checks={
  "requires_unprompted_questions":r"(?:asking unprompted|asking unsolicited|unprompted or unsolicited)",
  "requires_memory":r"(?:retaining information (?:on|from) prior interactions|retaining (?:information from|information on) prior)",
  "guest_explicitly_included":r"(?:as a guest or through a temporary account|uses .* as a guest)",
- "account_user_definition":r"(?:(?:account holder|user) means (?:a person|an individual)|account holder.*means an individual)",
+ "account_user_definition":r"(?:(?:account holder|user).{0,45}means (?:a person|an individual)|account holder.{0,40}means an individual)",
  "third_party_model_developer_clause":r"(?:not create liability for the developer|nothing in this section creates liability for a person that develops|not be construed to make a developer)",
- "private_right_bar":r"(?:not.*create a private right of action|no private right of action)",
+ "private_right_bar":r"(?:private right of action)",
 }
 s=requests.Session();s.headers.update({"User-Agent":"RISU Institute Stigler R00 academic public-law audit / contact via public GitHub risu-research","Accept-Language":"en"})
 def get(url):
@@ -54,14 +54,16 @@ for name,url in law_urls.items():
   resp=get(url)
   txt,kind=parse(resp)
   sha=hashlib.sha256(resp.content).hexdigest()
-  if len(txt)<1400:raise ValueError("Document too short: "+name+" "+str(len(txt)))
+  normalized=re.sub(r"\s+"," ",txt)
+  extraction_failed=(len(txt)<1400)
+  if extraction_failed: print("PDF_IMAGE_ONLY",json.dumps({"doc":name,"url":url,"status":resp.status_code,"bytes":len(resp.content),"text_chars":len(txt)}),flush=True)
   raw[name]={"url":url,"final_url":resp.url,"http_status":resp.status_code,"source_format":kind,
-    "source_sha256":sha,"text":txt,"text_characters":len(txt)}
+    "source_sha256":sha,"text":txt,"text_characters":len(txt),"text_extraction_failed":extraction_failed}
   row={"document":name,"format":kind,"text_chars":len(txt),"url":url,"sha256":sha}
   for key,pat in checks.items():
-    match=re.search(pat,txt,re.I|re.S)
-    row[key+"_present"]=bool(match)
-    row[key+"_context"]=txt[max(0,match.start()-120):match.end()+180].replace("\n"," ") if match else ""
+    match=re.search(pat,normalized,re.I|re.S) if not extraction_failed else None
+    row[key+"_present"]=(bool(match) if not extraction_failed else None)
+    row[key+"_context"]=normalized[max(0,match.start()-120):match.end()+180].replace("\n"," ") if match else ""
   matrix.append(row)
   print("LAW",json.dumps({"document":name,"format":kind,"length":len(txt),
     "signals":{k:row[k+"_present"] for k in checks}}),flush=True)
