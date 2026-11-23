@@ -1,4 +1,4 @@
-name: Stigler G-Cloud R01 public search exposure
+name: Stigler G-Cloud R01 full-index check
 on:
   push:
     branches:
@@ -10,7 +10,7 @@ on:
 permissions:
   contents: read
 jobs:
-  public_r01:
+  official_index:
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -18,13 +18,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Install deterministic parsing dependencies
         run: python -m pip install --disable-pip-version-check 'requests>=2.31,<3' 'beautifulsoup4>=4.12,<5'
-      - name: Observe public G-Cloud 15 search terms
-        run: python -u research/gcloud_r01/run.py
-      - name: Retain all observed URLs, IDs, counts and parsing diagnostics
+      - name: Collect complete public result indices and check stability
+        run: python -u research/gcloud_r01/run_deep.py
+      - name: Preserve URLs, IDs, supplier records and parse diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: stigler-gcloud-r01-public-observations
-          path: research/gcloud_r01/results/
+          name: stigler-gcloud-r01-full-index
+          path: research/gcloud_r01/results_full/
           retention-days: 14
           if-no-files-found: warn
