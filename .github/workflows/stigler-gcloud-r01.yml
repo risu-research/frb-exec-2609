@@ -1,0 +1,30 @@
+name: Stigler G-Cloud R01 public search exposure
+on:
+  push:
+    branches:
+      - experiment/stigler-gcloud-r01-20261123
+    paths:
+      - research/gcloud_r01/**
+      - .github/workflows/stigler-gcloud-r01.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public_r01:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout public research branch
+        uses: actions/checkout@v4
+      - name: Install deterministic parsing dependencies
+        run: python -m pip install --disable-pip-version-check 'requests>=2.31,<3' 'beautifulsoup4>=4.12,<5'
+      - name: Observe public G-Cloud 15 search terms
+        run: python -u research/gcloud_r01/run.py
+      - name: Retain all observed URLs, IDs, counts and parsing diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stigler-gcloud-r01-public-observations
+          path: research/gcloud_r01/results/
+          retention-days: 14
+          if-no-files-found: warn
