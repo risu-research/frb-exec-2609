@@ -106,7 +106,7 @@ def build(db_path: pathlib.Path):
 def compress_encrypt(db: pathlib.Path, report:dict, pubkey_path: pathlib.Path, artifact: pathlib.Path):
     raw_sha=hash_file(db); raw_bytes=db.stat().st_size
     compress=artifact/'co_names.sqlite3.xz'; cipherpath=artifact/'co_names.sqlite3.xz.aesgcm'
-    with open(db,'rb') as src,lzma.open(compress,'wb',preset=5) as dst:
+    with open(db,'rb') as src,lzma.open(compress,'wb',preset=1) as dst:
         for block in iter(lambda:src.read(1<<20),b''):dst.write(block)
     zip_sha=hash_file(compress)
     pub=serialization.load_pem_public_key(pubkey_path.read_bytes())
