@@ -1,0 +1,143 @@
+name: HybridInference quota reproduction R38b
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/hybrid-quota-mechanism-r38b.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: continuation-cache-audit-results
+          path: capture
+          run-id: 45316568340
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Obtain pinned upstream source and dependencies
+        run: |
+          git clone --quiet https://github.com/HarvardMadSys/hybridInference.git upstream
+          cd upstream
+          git checkout --quiet 94a693e43b211b7e5d76fce0402ad7051b779910
+          git rev-parse HEAD
+          python -m pip install uv
+          uv sync --locked --group dev
+      - name: Upstream control tests
+        working-directory: upstream
+        run: uv run --no-sync pytest -q -o addopts='' tests/unit/storage/test_cost_calculation.py tests/unit/serving/test_quota_refusal.py tests/unit/serving/test_spend_ledger.py tests/servers/test_contract_auth_quota.py
+      - name: Run actual cost ledger and HTTP quota replay
+        working-directory: upstream
+        env:
+          USER_AUTH_ENABLED: '1'
+          API_KEY_SECRET: 'r38-local-test-only'
+        run: |
+          cat > r38.py <<'PY'
+          import asyncio,gzip,json,pathlib,statistics as S,time
+          from decimal import Decimal
+          from serving.storage.utils import calculate_cost
+          from serving.quota import first_refusal,refusal_payload
+          from serving.spend_ledger import SpendLedger,SpendCheck,counted_amount,utc_day
+          from tests.unit.serving.test_spend_ledger import _AtomicStore
+          from tests.servers.test_auth_key_limits import _row,_store,KEY
+          from serving.servers.auth import verify_api_key
+          from serving.servers.deps import AppServices
+          from serving.servers.middleware.error import install_error_handlers
+          from routing.routers import FixedRouter
+          from fastapi import FastAPI,Depends
+          from httpx import ASGITransport,AsyncClient
+          import os
+          os.environ["USER_AUTH_ENABLED"]="1"
+          os.environ["API_KEY_SECRET"]="test-only"
+          P={"prompt":"0.44","completion":"1.32","input_cache_reads":"0.014"}
+          F={"prompt":"0.44","completion":"1.32","input_cache_reads":"0.44"}
+          events=[json.loads(s) for s in gzip.open("../capture/events.jsonl.gz","rt")]
+          assert len(events)==922
+          selected=[e for e in events if e['type']=='provider_only' and e['before_model']==e['after_model']=='deepseek-v4-flash' and e['week']>='2026-08-23']
+          assert len(selected)==16
+          def charge(n,c,o=0,p=P):
+              v=calculate_cost({"prompt_tokens":n,"cache_read_tokens":c,"completion_tokens":o},p)
+              assert v is not None
+              return float(v)
+          def gate(limit,spent):
+              return first_refusal(account_quota_usd=limit,account_spent_usd=spent)
+          def counts(limit,costs):
+              spent=Decimal(0); k=0
+              for c in costs:
+                  if gate(limit,float(spent)) is not None:break
+                  spent+=counted_amount(c);k+=1
+              return k,float(spent)
+          # same input and output; actual observed cache counts on changed route vs prior-cache-preservation counterfactual.
+          # subsequent identical warm requests are controlled probes, not observed continuation.
+          rows=[]
+          for e in selected:
+              n=e['after_prompt'];a=e['after_cached'];w=min(n,e['before_cached'])
+              assert w>a
+              cold=charge(n,a);warm=charge(n,w);flat_a=charge(n,a,p=F);flat_w=charge(n,w,p=F)
+              assert abs(flat_a-flat_w)<1e-12
+              assert abs(cold-warm-(w-a)*.426/1e6)<1e-12
+              for budget in [.05,.1,.25,.5,1.,2.,5.]:
+                  kw,sw=counts(budget,[warm]*1000)
+                  kc,sc=counts(budget,[cold]+[warm]*999)
+                  assert kw>=kc
+                  rows.append(dict(budget=budget,warm_count=kw,loss_count=kc,warm_spent=sw,loss_spent=sc))
+          async def ledger_http():
+              # Use real ledger/reservations and real auth dependency; storage is an in-memory atomic test double.
+              e=sorted(selected,key=lambda e:(min(e['after_prompt'],e['before_cached'])-e['after_cached']))[len(selected)//2]
+              n=e['after_prompt'];warm=charge(n,min(n,e['before_cached']),500);cold=charge(n,e['after_cached'],500)
+              limit=.25
+              result={}
+              for label,first in [('preserve',warm),('loss',cold)]:
+                  db=_AtomicStore();ledger=SpendLedger(db)
+                  async def replay():
+                      for step in range(1000):
+                          spent=sum((c for c,k in db.totals().values()),Decimal(0))
+                          check=SpendCheck(ledger=ledger,user_id='u',key_id=None,read_at=time.monotonic(),account_quota_usd=limit,account_spent_usd=float(spent))
+                          res,ref=check.admit()
+                          if ref is not None:
+                              body,headers=refusal_payload(ref)
+                              assert body['error']=='Daily cost quota exceeded'
+                              return step,float(spent),body,headers
+                          assert res is not None
+                          ledger.record('u',first if step==0 else warm)
+                          res.release();assert await ledger.flush()
+                      raise AssertionError('probe bound')
+                  k,spent,body,headers=await replay()
+                  # Independent HTTP verification of the final stored counter using upstream auth.
+                  store=_store(_row(quota_daily_cost_usd=limit,cost_usd=spent))
+                  app=FastAPI();install_error_handlers(app)
+                  app.state.services=AppServices(router=FixedRouter(),operational_store=store,log_store=None)
+                  @app.get('/gate')
+                  async def auth(ctx=Depends(verify_api_key)):return {'allowed':True}
+                  async with AsyncClient(transport=ASGITransport(app=app),base_url='http://test') as client:
+                      resp=await client.get('/gate',headers={'Authorization':'Bearer '+KEY})
+                      assert resp.status_code==429,(resp.status_code,resp.text)
+                      assert resp.json()['remaining_usd']==body['remaining_usd']
+                  result[label]=dict(admitted=k,spent=spent,status=resp.status_code,remaining=body['remaining_usd'],scope=body.get('scope'))
+              assert result['preserve']['admitted']>=result['loss']['admitted']
+              result['input_tokens']=n;result['output_tokens']=500;result['warm_charge']=warm;result['loss_charge']=cold;result['budget']=limit
+              return result
+          summary={}
+          for b in [.05,.1,.25,.5,1.,2.,5.]:
+              r=[x for x in rows if x['budget']==b];d=[x['warm_count']-x['loss_count'] for x in r]
+              summary[str(b)]=dict(n=len(r),affected=sum(x>0 for x in d),mean_lost=S.mean(d),median_lost=S.median(d),max_lost=max(d),mean_warm=S.mean(x['warm_count'] for x in r),mean_loss=S.mean(x['loss_count'] for x in r))
+          print('QUOTA_GRID',json.dumps(summary),flush=True)
+          pathlib.Path('../r38-results').mkdir(exist_ok=True)
+          pathlib.Path('../r38-results/grid.json').write_text(json.dumps(summary,indent=2))
+          http=asyncio.run(ledger_http())
+          print('HTTP',json.dumps(http),flush=True)
+          pathlib.Path('../r38-results/http.json').write_text(json.dumps(http,indent=2))
+          
+          PY
+          PYTHONPATH=apps/backend:. uv run --no-sync python r38.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hybrid-quota-mechanism-r38b
+          path: r38-results/
+          retention-days: 14
