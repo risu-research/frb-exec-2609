@@ -1,0 +1,60 @@
+{
+  "as_of": "2026-11-23 US Eastern",
+  "sources": [
+    {
+      "url": "https://api-docs.deepseek.com/news/news260813/",
+      "fact": "Official Aug 13 announcement; new peak/offpeak tariff effective Aug 16 16:00 UTC, offpeak half of peak; purpose workload scheduling."
+    },
+    {
+      "url": "https://doc.freeinference.org/models",
+      "fact": "Gateway documents uniform peak reference accounting, V4 Flash 0.014/0.44/1.32 USD per million cache hit/miss/output and two peak windows 01–04 and 06–10 UTC daily.",
+      "limit": "Current public documentation, not archived deployment ledger; no actual provider identity."
+    },
+    {
+      "url": "https://www.deepseek.com/zh/platform/",
+      "fact": "Older V4 Flash card 0.0028/0.14/0.28 USD per million cache hit/miss/output.",
+      "limit": "Undated page; corroborated by historical pricing tracker and Aug13 Reuters report for input/output."
+    },
+    {
+      "url": "https://deepseek-off-peak-hours.sivaram.dev/index.action",
+      "fact": "Historical rate cards and effective date, third-party corroboration."
+    },
+    {
+      "url": "https://aitoolsworth.com/deepseek-weekend-off-peak-pricing/",
+      "fact": "Secondary report quotes historical official notice extending offpeak to weekends as of Aug22 16 UTC.",
+      "limit": "Historical primary snapshot not independently retrieved. Daily and weekend scenarios reported separately."
+    },
+    {
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "fact": "Current card describes weekday peak and Chinese holiday exclusions; rates changed after trace end.",
+      "limit": "Do not apply newer V4.1 tariff retroactively."
+    },
+    {
+      "url": "https://vercel.com/ai-gateway/models/deepseek-v4-pro-0813",
+      "fact": "Commercial gateway documents peak/offpeak billing schedule for a pinned DeepSeek model.",
+      "limit": "Not V4 Flash historical invoice."
+    },
+    {
+      "url": "https://openrouter.ai/pricing",
+      "fact": "Current provider posted prices with credit purchase fee; no per-token markup.",
+      "limit": "Actual time-based price verified separately from frozen API snapshot."
+    },
+    {
+      "url": "https://developers.cloudflare.com/changelog/product/ai-gateway/",
+      "fact": "Aug19 GPT-5.6 Sol promotion 50% through Sep18 for Unified Billing, excludes BYOK.",
+      "limit": "A different model and promotion, not evidence of supplier procurement savings or DeepSeek schedule."
+    },
+    {
+      "url": "https://doi.org/10.1287/isre.2015.0608",
+      "fact": "Cheng, Li, Naranjo 2016: cloud spot prices, time variation and limits to arbitrage.",
+      "limit": "Prior literature precludes broad claim that cloud price signals or dynamic price wedges are novel."
+    }
+  ],
+  "estimands": {
+    "reference_discount": "sum of half of reference peak cost for offpeak requests",
+    "normalized_credit_wedge": "reference peak debit minus scheduled reference price",
+    "pass_through": "0% for time-of-day differential under documented uniform reference accounting; 100% hypothetical scheduled debit; not actual procurement savings or cash profit",
+    "observed_workload": "request timestamp at gateway, first-party hypothetical rate; unknown anonymous providers",
+    "behavior": "descriptive pre/post and clock-boundary differences, confounded by model availability, usage growth, routing and geography; no identified elasticity"
+  }
+}
