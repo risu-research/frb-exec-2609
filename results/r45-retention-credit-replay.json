@@ -1,0 +1,1277 @@
+{
+  "run": 45325283037,
+  "weeks": [
+    {
+      "week": "2026-08-09_2026-08-15",
+      "sha": "cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7",
+      "counts": {
+        "requests": 163970
+      }
+    },
+    {
+      "week": "2026-08-16_2026-08-22",
+      "sha": "b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856",
+      "counts": {
+        "requests": 144227,
+        "target_valid_post": 84817,
+        "chain_starts": 7140
+      }
+    },
+    {
+      "week": "2026-08-23_2026-08-29",
+      "sha": "27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",
+      "counts": {
+        "requests": 159925,
+        "target_valid_post": 102659,
+        "chain_starts": 7781
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "sha": "e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",
+      "counts": {
+        "requests": 190544,
+        "target_valid_post": 107360,
+        "chain_starts": 6214
+      }
+    }
+  ],
+  "gap_checks": {
+    "linked": 273701,
+    "eligible_5_to_60": 2597,
+    "eligible_observed_positive_loss": 914
+  },
+  "scenarios": [
+    {
+      "mode": "append_full",
+      "cap": 1000000,
+      "cohort": "all",
+      "results": {
+        "groups": 3343,
+        "requests": 294836,
+        "short_units": 259101987393,
+        "long_units": 304142265502,
+        "credit_units": 17080062821,
+        "premium_units": 62120340930,
+        "nocache_units": 1320583303860,
+        "credit_recipients": 849,
+        "long_cheaper": 375,
+        "long_costlier": 2968,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 3343,
+          "mean": -2.0209517548160334,
+          "median": -0.37487925,
+          "p10": -4.01293845,
+          "p90": 0.05858949
+        },
+        "eligible_gaps": 2597,
+        "equal_budget": {
+          "rate": 0.0659202308436691,
+          "discount_units": 17080062821.000002,
+          "credit_units": 17080062821,
+          "credit_wins": 621,
+          "discount_wins": 2722,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 3343,
+            "mean": -7.395303127148449e-17,
+            "median": -0.07633551854858793,
+            "p10": -0.90012446328126,
+            "p90": 0.5312831785664417
+          },
+          "credit_recipient_discount_share": 0.619872841358758
+        },
+        "frozen_discount": {
+          "rate": 0.05199573820418884,
+          "discount_units": 13472199104.671465,
+          "credit_units": 17080062821,
+          "credit_wins": 683,
+          "discount_wins": 2660,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 3343,
+            "mean": 0.16188440246762797,
+            "median": -0.056590851168836394,
+            "p10": -0.677650829524222,
+            "p90": 0.6557511248663166
+          },
+          "credit_recipient_discount_share": 0.619872841358758
+        },
+        "premium_per_credit": 3.637008925612546,
+        "median_long_vs_short_ratio": 1.2417643660543045,
+        "median_credit_recipient_saving": {
+          "n": 849,
+          "mean": 3.0176789436395763,
+          "median": 1.0239048,
+          "p10": 0.18583080000000002,
+          "p90": 6.452350770000003
+        },
+        "mean_short_usd": 11.625874396933893
+      }
+    },
+    {
+      "mode": "append_full",
+      "cap": 1000000,
+      "cohort": "development",
+      "results": {
+        "groups": 2054,
+        "requests": 187476,
+        "short_units": 169834166645,
+        "long_units": 205749083118,
+        "credit_units": 8830652867,
+        "premium_units": 44745569340,
+        "nocache_units": 831936746500,
+        "credit_recipients": 449,
+        "long_cheaper": 177,
+        "long_costlier": 1877,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 2054,
+          "mean": -2.6228030530428432,
+          "median": -0.4427883,
+          "p10": -5.3042922,
+          "p90": -0.01784789999999998
+        },
+        "eligible_gaps": 1275,
+        "equal_budget": {
+          "rate": 0.05199573820418884,
+          "discount_units": 8830652867,
+          "credit_units": 8830652867,
+          "credit_wins": 338,
+          "discount_wins": 1716,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2054,
+            "mean": -1.3433338815977653e-17,
+            "median": -0.06656211548084424,
+            "p10": -0.8202393608342585,
+            "p90": 0.4126825007912393
+          },
+          "credit_recipient_discount_share": 0.5783934597761455
+        },
+        "frozen_discount": {
+          "rate": 0.05199573820418884,
+          "discount_units": 8830652867,
+          "credit_units": 8830652867,
+          "credit_wins": 338,
+          "discount_wins": 1716,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2054,
+            "mean": -1.3433338815977653e-17,
+            "median": -0.06656211548084424,
+            "p10": -0.8202393608342585,
+            "p90": 0.4126825007912393
+          },
+          "credit_recipient_discount_share": 0.5783934597761455
+        },
+        "premium_per_credit": 5.06707375025616,
+        "median_long_vs_short_ratio": 1.2675048989752011,
+        "median_credit_recipient_saving": {
+          "n": 449,
+          "mean": 2.95010674844098,
+          "median": 0.9761085,
+          "p10": 0.17262489,
+          "p90": 5.994299789999997
+        },
+        "mean_short_usd": 12.402689871835443
+      }
+    },
+    {
+      "mode": "append_full",
+      "cap": 1000000,
+      "cohort": "holdout",
+      "results": {
+        "groups": 1289,
+        "requests": 107360,
+        "short_units": 89267820748,
+        "long_units": 98393182384,
+        "credit_units": 8249409954,
+        "premium_units": 17374771590,
+        "nocache_units": 488646557360,
+        "credit_recipients": 400,
+        "long_cheaper": 198,
+        "long_costlier": 1091,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 1289,
+          "mean": -1.0619117497284716,
+          "median": -0.28267875,
+          "p10": -2.1313755599999995,
+          "p90": 0.2786757000000002
+        },
+        "eligible_gaps": 1322,
+        "equal_budget": {
+          "rate": 0.09241191153627243,
+          "discount_units": 8249409954,
+          "credit_units": 8249409954,
+          "credit_wins": 264,
+          "discount_wins": 1025,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1289,
+            "mean": -5.55213287691066e-17,
+            "median": -0.09338718988586163,
+            "p10": -0.9511088088693318,
+            "p90": 0.549763203339986
+          },
+          "credit_recipient_discount_share": 0.6987883581150106
+        },
+        "frozen_discount": {
+          "rate": 0.05199573820418884,
+          "discount_units": 4641546237.671465,
+          "credit_units": 8249409954,
+          "credit_wins": 345,
+          "discount_wins": 944,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1289,
+            "mean": 0.4198444976332663,
+            "median": -0.04042243320237172,
+            "p10": -0.4324924988423818,
+            "p90": 1.046792999089267
+          },
+          "credit_recipient_discount_share": 0.6987883581150106
+        },
+        "premium_per_credit": 2.1061835557796793,
+        "median_long_vs_short_ratio": 1.201487540568319,
+        "median_credit_recipient_saving": {
+          "n": 400,
+          "mean": 3.09352873275,
+          "median": 1.094517675,
+          "p10": 0.20281963500000003,
+          "p90": 6.76852257
+        },
+        "mean_short_usd": 10.388031894647014
+      }
+    },
+    {
+      "mode": "append_full",
+      "cap": 200000,
+      "cohort": "all",
+      "results": {
+        "groups": 2125,
+        "requests": 88996,
+        "short_units": 36840441671,
+        "long_units": 46045253040,
+        "credit_units": 1306191206,
+        "premium_units": 10511002575,
+        "nocache_units": 149704931700,
+        "credit_recipients": 344,
+        "long_cheaper": 147,
+        "long_costlier": 1978,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 2125,
+          "mean": -0.6497513907529412,
+          "median": -0.222012,
+          "p10": -1.23226065,
+          "p90": -0.021184649999999982
+        },
+        "eligible_gaps": 665,
+        "equal_budget": {
+          "rate": 0.03545536227998606,
+          "discount_units": 1306191206,
+          "credit_units": 1306191206,
+          "credit_wins": 316,
+          "discount_wins": 1809,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2125,
+            "mean": 1.8648277366750676e-19,
+            "median": -0.02560068970124928,
+            "p10": -0.14974375339870008,
+            "p90": 0.15005163562266036
+          },
+          "credit_recipient_discount_share": 0.3452577454578259
+        },
+        "frozen_discount": {
+          "rate": 0.027956790994084865,
+          "discount_units": 1029940527.9259216,
+          "credit_units": 1306191206,
+          "credit_wins": 321,
+          "discount_wins": 1804,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2125,
+            "mean": 0.019500047864052593,
+            "median": -0.020071354439875278,
+            "p10": -0.11680900765876757,
+            "p90": 0.17380297238546152
+          },
+          "credit_recipient_discount_share": 0.3452577454578259
+        },
+        "premium_per_credit": 8.047062732253611,
+        "median_long_vs_short_ratio": 1.260399045664849,
+        "median_credit_recipient_saving": {
+          "n": 344,
+          "mean": 0.5695601188953489,
+          "median": 0.341986425,
+          "p10": 0.10893823500000001,
+          "p90": 1.3409942999999986
+        },
+        "mean_short_usd": 2.600501765011765
+      }
+    },
+    {
+      "mode": "append_full",
+      "cap": 200000,
+      "cohort": "development",
+      "results": {
+        "groups": 1324,
+        "requests": 55660,
+        "short_units": 23646232686,
+        "long_units": 30039747906,
+        "credit_units": 661072785,
+        "premium_units": 7054588005,
+        "nocache_units": 94087682500,
+        "credit_recipients": 186,
+        "long_cheaper": 70,
+        "long_costlier": 1254,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 1324,
+          "mean": -0.7243408481873111,
+          "median": -0.24871275,
+          "p10": -1.5628585499999998,
+          "p90": -0.032930159999999986
+        },
+        "eligible_gaps": 324,
+        "equal_budget": {
+          "rate": 0.027956790994084865,
+          "discount_units": 661072785,
+          "credit_units": 661072785,
+          "credit_wins": 168,
+          "discount_wins": 1156,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1324,
+            "mean": 2.9621074837033162e-18,
+            "median": -0.02291035608152797,
+            "p10": -0.1324578341380465,
+            "p90": 0.10085489930326182
+          },
+          "credit_recipient_discount_share": 0.3314533359320424
+        },
+        "frozen_discount": {
+          "rate": 0.027956790994084865,
+          "discount_units": 661072785,
+          "credit_units": 661072785,
+          "credit_wins": 168,
+          "discount_wins": 1156,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1324,
+            "mean": 2.9621074837033162e-18,
+            "median": -0.02291035608152797,
+            "p10": -0.1324578341380465,
+            "p90": 0.10085489930326182
+          },
+          "credit_recipient_discount_share": 0.3314533359320424
+        },
+        "premium_per_credit": 10.671424032377917,
+        "median_long_vs_short_ratio": 1.2774641661037927,
+        "median_credit_recipient_saving": {
+          "n": 186,
+          "mean": 0.5331232137096774,
+          "median": 0.34466189999999997,
+          "p10": 0.10837830000000001,
+          "p90": 1.17485265
+        },
+        "mean_short_usd": 2.6789538541540785
+      }
+    },
+    {
+      "mode": "append_full",
+      "cap": 200000,
+      "cohort": "holdout",
+      "results": {
+        "groups": 801,
+        "requests": 33336,
+        "short_units": 13194208985,
+        "long_units": 16005505134,
+        "credit_units": 645118421,
+        "premium_units": 3456414570,
+        "nocache_units": 55617249200,
+        "credit_recipients": 158,
+        "long_cheaper": 77,
+        "long_costlier": 724,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 801,
+          "mean": -0.5264599529962546,
+          "median": -0.18406575,
+          "p10": -0.7553025,
+          "p90": -0.00477675
+        },
+        "eligible_gaps": 341,
+        "equal_budget": {
+          "rate": 0.0488940581230304,
+          "discount_units": 645118421,
+          "credit_units": 645118421,
+          "credit_wins": 149,
+          "discount_wins": 652,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 801,
+            "mean": 6.615392881155623e-18,
+            "median": -0.02737563890561326,
+            "p10": -0.17014029176863324,
+            "p90": 0.19991758895903464
+          },
+          "credit_recipient_discount_share": 0.369997559728663
+        },
+        "frozen_discount": {
+          "rate": 0.027956790994084865,
+          "discount_units": 368867742.9259216,
+          "credit_units": 645118421,
+          "credit_wins": 153,
+          "discount_wins": 648,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 801,
+            "mean": 0.05173233671799221,
+            "median": -0.015597247457950414,
+            "p10": -0.09689233870259839,
+            "p90": 0.2473663963084877
+          },
+          "credit_recipient_discount_share": 0.369997559728663
+        },
+        "premium_per_credit": 5.357798595554288,
+        "median_long_vs_short_ratio": 1.2314960545454607,
+        "median_credit_recipient_saving": {
+          "n": 158,
+          "mean": 0.6124541971518987,
+          "median": 0.337035675,
+          "p10": 0.12366042000000001,
+          "p90": 1.5527546100000003
+        },
+        "mean_short_usd": 2.470825652621723
+      }
+    },
+    {
+      "mode": "previous_hit_proxy",
+      "cap": 1000000,
+      "cohort": "all",
+      "results": {
+        "groups": 3343,
+        "requests": 294836,
+        "short_units": 275844252549,
+        "long_units": 332166310904,
+        "credit_units": 16860405760,
+        "premium_units": 73182464115,
+        "nocache_units": 1320583303860,
+        "credit_recipients": 849,
+        "long_cheaper": 244,
+        "long_costlier": 3099,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 3343,
+          "mean": -2.5271638508076575,
+          "median": -0.5372235,
+          "p10": -4.89562959,
+          "p90": -0.032948099999999945
+        },
+        "eligible_gaps": 2597,
+        "equal_budget": {
+          "rate": 0.061122918473731754,
+          "discount_units": 16860405760,
+          "credit_units": 16860405760,
+          "credit_wins": 617,
+          "discount_wins": 2726,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 3343,
+            "mean": 2.306699310385429e-17,
+            "median": -0.0802262784696578,
+            "p10": -0.8809834958131424,
+            "p90": 0.5147510958559774
+          },
+          "credit_recipient_discount_share": 0.6155839146289133
+        },
+        "frozen_discount": {
+          "rate": 0.04819319160621983,
+          "discount_units": 13293814916.568449,
+          "credit_units": 16860405760,
+          "credit_wins": 676,
+          "discount_wins": 2667,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 3343,
+            "mean": 0.1600324937226242,
+            "median": -0.05841984951620877,
+            "p10": -0.6703123019915759,
+            "p90": 0.6421910304131617
+          },
+          "credit_recipient_discount_share": 0.6155839146289133
+        },
+        "premium_per_credit": 4.340492462442374,
+        "median_long_vs_short_ratio": 1.289683588495461,
+        "median_credit_recipient_saving": {
+          "n": 849,
+          "mean": 2.9788702756183745,
+          "median": 1.0121472,
+          "p10": 0.17734656000000001,
+          "p90": 6.396311040000001
+        },
+        "mean_short_usd": 12.377097781139694
+      }
+    },
+    {
+      "mode": "previous_hit_proxy",
+      "cap": 1000000,
+      "cohort": "development",
+      "results": {
+        "groups": 2054,
+        "requests": 187476,
+        "short_units": 180756348639,
+        "long_units": 223991742320,
+        "credit_units": 8711225344,
+        "premium_units": 51946619025,
+        "nocache_units": 831936746500,
+        "credit_recipients": 449,
+        "long_cheaper": 120,
+        "long_costlier": 1934,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 2054,
+          "mean": -3.157404601825706,
+          "median": -0.606083625,
+          "p10": -6.225492,
+          "p90": -0.04834395
+        },
+        "eligible_gaps": 1275,
+        "equal_budget": {
+          "rate": 0.04819319160621983,
+          "discount_units": 8711225344,
+          "credit_units": 8711225344,
+          "credit_wins": 337,
+          "discount_wins": 1717,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2054,
+            "mean": 3.679243239424513e-17,
+            "median": -0.0691205308395173,
+            "p10": -0.8019335702452781,
+            "p90": 0.37237857147347847
+          },
+          "credit_recipient_discount_share": 0.5725439442997842
+        },
+        "frozen_discount": {
+          "rate": 0.04819319160621983,
+          "discount_units": 8711225344,
+          "credit_units": 8711225344,
+          "credit_wins": 337,
+          "discount_wins": 1717,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2054,
+            "mean": 3.679243239424513e-17,
+            "median": -0.0691205308395173,
+            "p10": -0.8019335702452781,
+            "p90": 0.37237857147347847
+          },
+          "credit_recipient_discount_share": 0.5725439442997842
+        },
+        "premium_per_credit": 5.963181639053694,
+        "median_long_vs_short_ratio": 1.3126182753371158,
+        "median_credit_recipient_saving": {
+          "n": 449,
+          "mean": 2.910208912249443,
+          "median": 0.9724032,
+          "p10": 0.16621824000000002,
+          "p90": 5.990215679999998
+        },
+        "mean_short_usd": 13.200317573442064
+      }
+    },
+    {
+      "mode": "previous_hit_proxy",
+      "cap": 1000000,
+      "cohort": "holdout",
+      "results": {
+        "groups": 1289,
+        "requests": 107360,
+        "short_units": 95087903910,
+        "long_units": 108174568584,
+        "credit_units": 8149180416,
+        "premium_units": 21235845090,
+        "nocache_units": 488646557360,
+        "credit_recipients": 400,
+        "long_cheaper": 124,
+        "long_costlier": 1165,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 1289,
+          "mean": -1.5228857262218773,
+          "median": -0.44841375,
+          "p10": -2.8268628,
+          "p90": -0.008769089999999952
+        },
+        "eligible_gaps": 1322,
+        "equal_budget": {
+          "rate": 0.08570154647338887,
+          "discount_units": 8149180416.000001,
+          "credit_units": 8149180416,
+          "credit_wins": 264,
+          "discount_wins": 1025,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1289,
+            "mean": -6.493386904156513e-17,
+            "median": -0.09837182165187568,
+            "p10": -0.9539315631528801,
+            "p90": 0.5179207749407388
+          },
+          "credit_recipient_discount_share": 0.6974002925521002
+        },
+        "frozen_discount": {
+          "rate": 0.04819319160621983,
+          "discount_units": 4582589572.56845,
+          "credit_units": 8149180416,
+          "credit_wins": 339,
+          "discount_wins": 950,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1289,
+            "mean": 0.41504160319218975,
+            "median": -0.04318397440305228,
+            "p10": -0.43048038084375423,
+            "p90": 0.9935626772410434
+          },
+          "credit_recipient_discount_share": 0.6974002925521002
+        },
+        "premium_per_credit": 2.605887218830719,
+        "median_long_vs_short_ratio": 1.2526922027072043,
+        "median_credit_recipient_saving": {
+          "n": 400,
+          "mean": 3.0559426559999996,
+          "median": 1.0633728,
+          "p10": 0.19156608,
+          "p90": 6.576307200000005
+        },
+        "mean_short_usd": 11.065310773079906
+      }
+    },
+    {
+      "mode": "previous_hit_proxy",
+      "cap": 200000,
+      "cohort": "all",
+      "results": {
+        "groups": 2125,
+        "requests": 88996,
+        "short_units": 40538456053,
+        "long_units": 52222903160,
+        "credit_units": 1265101568,
+        "premium_units": 12949548675,
+        "nocache_units": 149704931700,
+        "credit_recipients": 344,
+        "long_cheaper": 70,
+        "long_costlier": 2055,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 2125,
+          "mean": -0.8247845016705881,
+          "median": -0.33252075,
+          "p10": -1.54513935,
+          "p90": -0.0482616
+        },
+        "eligible_gaps": 665,
+        "equal_budget": {
+          "rate": 0.03120744328165842,
+          "discount_units": 1265101568,
+          "credit_units": 1265101568,
+          "credit_wins": 316,
+          "discount_wins": 1809,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2125,
+            "mean": 3.1023360963500225e-18,
+            "median": -0.026823743086116847,
+            "p10": -0.14480807302733323,
+            "p90": 0.148977969423713
+          },
+          "credit_recipient_discount_share": 0.34547781069140066
+        },
+        "frozen_discount": {
+          "rate": 0.024252441021195194,
+          "discount_units": 983156514.5156958,
+          "credit_units": 1265101568,
+          "credit_wins": 320,
+          "discount_wins": 1805,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2125,
+            "mean": 0.019902003775362647,
+            "median": -0.0204960762285643,
+            "p10": -0.11102416590934024,
+            "p90": 0.17143165320481255
+          },
+          "credit_recipient_discount_share": 0.3454778106914007
+        },
+        "premium_per_credit": 10.23597551576191,
+        "median_long_vs_short_ratio": 1.3159811114382232,
+        "median_credit_recipient_saving": {
+          "n": 344,
+          "mean": 0.5516431255813954,
+          "median": 0.3360576,
+          "p10": 0.097152,
+          "p90": 1.2524659199999995
+        },
+        "mean_short_usd": 2.861538074329412
+      }
+    },
+    {
+      "mode": "previous_hit_proxy",
+      "cap": 200000,
+      "cohort": "development",
+      "results": {
+        "groups": 1324,
+        "requests": 55660,
+        "short_units": 26016028302,
+        "long_units": 34004826860,
+        "credit_units": 630952192,
+        "premium_units": 8619750750,
+        "nocache_units": 94087682500,
+        "credit_recipients": 186,
+        "long_cheaper": 32,
+        "long_costlier": 1292,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 1324,
+          "mean": -0.9050753653323262,
+          "median": -0.36239062499999997,
+          "p10": -1.9286715149999993,
+          "p90": -0.059783849999999986
+        },
+        "eligible_gaps": 324,
+        "equal_budget": {
+          "rate": 0.024252441021195194,
+          "discount_units": 630952192,
+          "credit_units": 630952192,
+          "credit_wins": 167,
+          "discount_wins": 1157,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1324,
+            "mean": 4.395645492127126e-18,
+            "median": -0.0227432207111116,
+            "p10": -0.12377683558113188,
+            "p90": 0.10273542885537819
+          },
+          "credit_recipient_discount_share": 0.33320702369983146
+        },
+        "frozen_discount": {
+          "rate": 0.024252441021195194,
+          "discount_units": 630952192,
+          "credit_units": 630952192,
+          "credit_wins": 167,
+          "discount_wins": 1157,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1324,
+            "mean": 4.395645492127126e-18,
+            "median": -0.0227432207111116,
+            "p10": -0.12377683558113188,
+            "p90": 0.10273542885537819
+          },
+          "credit_recipient_discount_share": 0.33320702369983146
+        },
+        "premium_per_credit": 13.661495845948341,
+        "median_long_vs_short_ratio": 1.3322051239065351,
+        "median_credit_recipient_saving": {
+          "n": 186,
+          "mean": 0.5088324129032258,
+          "median": 0.3404736,
+          "p10": 0.0958272,
+          "p90": 1.1711232
+        },
+        "mean_short_usd": 2.947435230589124
+      }
+    },
+    {
+      "mode": "previous_hit_proxy",
+      "cap": 200000,
+      "cohort": "holdout",
+      "results": {
+        "groups": 801,
+        "requests": 33336,
+        "short_units": 14522427751,
+        "long_units": 18218076300,
+        "credit_units": 634149376,
+        "premium_units": 4329797925,
+        "nocache_units": 55617249200,
+        "credit_recipients": 158,
+        "long_cheaper": 38,
+        "long_costlier": 763,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 801,
+          "mean": -0.6920690166666666,
+          "median": -0.28892475,
+          "p10": -1.039308,
+          "p90": -0.03561555
+        },
+        "eligible_gaps": 341,
+        "equal_budget": {
+          "rate": 0.04366689832258474,
+          "discount_units": 634149376,
+          "credit_units": 634149376,
+          "credit_wins": 147,
+          "discount_wins": 654,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 801,
+            "mean": 7.292714687787018e-18,
+            "median": -0.02950386517004688,
+            "p10": -0.17078402092105205,
+            "p90": 0.18472486916552033
+          },
+          "credit_recipient_discount_share": 0.3674601642712624
+        },
+        "frozen_discount": {
+          "rate": 0.024252441021195194,
+          "discount_units": 352204322.51569587,
+          "credit_units": 634149376,
+          "credit_wins": 153,
+          "discount_wins": 648,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 801,
+            "mean": 0.05279869915436407,
+            "median": -0.01599594848829386,
+            "p10": -0.09482036648323801,
+            "p90": 0.24120991258489388
+          },
+          "credit_recipient_discount_share": 0.36746016427126243
+        },
+        "premium_per_credit": 6.8277255941035575,
+        "median_long_vs_short_ratio": 1.2900634159929498,
+        "median_credit_recipient_saving": {
+          "n": 158,
+          "mean": 0.6020405468354431,
+          "median": 0.3294336,
+          "p10": 0.11313792,
+          "p90": 1.5489561600000001
+        },
+        "mean_short_usd": 2.719555758614232
+      }
+    },
+    {
+      "mode": "append_full_start_clock",
+      "cap": 1000000,
+      "cohort": "all",
+      "results": {
+        "groups": 3343,
+        "requests": 294836,
+        "short_units": 259537794935,
+        "long_units": 304205019880,
+        "credit_units": 17477887450,
+        "premium_units": 62145112395,
+        "nocache_units": 1320583303860,
+        "credit_recipients": 862,
+        "long_cheaper": 385,
+        "long_costlier": 2958,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 3343,
+          "mean": -2.0042129051002093,
+          "median": -0.37045575,
+          "p10": -4.01084145,
+          "p90": 0.07491660000000026
+        },
+        "eligible_gaps": 2659,
+        "equal_budget": {
+          "rate": 0.06734235934453113,
+          "discount_units": 17477887450,
+          "credit_units": 17477887450,
+          "credit_wins": 631,
+          "discount_wins": 2712,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 3343,
+            "mean": -6.785386703105302e-17,
+            "median": -0.07798234100607412,
+            "p10": -0.9057581104032644,
+            "p90": 0.5548621344292101
+          },
+          "credit_recipient_discount_share": 0.6237467347194792
+        },
+        "frozen_discount": {
+          "rate": 0.05349619146028434,
+          "discount_units": 13884283569.022774,
+          "credit_units": 17477887450,
+          "credit_wins": 683,
+          "discount_wins": 2660,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 3343,
+            "mean": 0.16124456540430265,
+            "median": -0.057772925762909766,
+            "p10": -0.6813862487703002,
+            "p90": 0.6736986711708997
+          },
+          "credit_recipient_discount_share": 0.6237467347194792
+        },
+        "premium_per_credit": 3.5556420976380645,
+        "median_long_vs_short_ratio": 1.2412360755576013,
+        "median_credit_recipient_saving": {
+          "n": 862,
+          "mean": 3.041395727958237,
+          "median": 1.026190425,
+          "p10": 0.18362487,
+          "p90": 6.564561329999999
+        },
+        "mean_short_usd": 11.645429027894107
+      }
+    },
+    {
+      "mode": "append_full_start_clock",
+      "cap": 1000000,
+      "cohort": "development",
+      "results": {
+        "groups": 2054,
+        "requests": 187476,
+        "short_units": 170143527409,
+        "long_units": 205811837496,
+        "credit_units": 9102030718,
+        "premium_units": 44770340805,
+        "nocache_units": 831936746500,
+        "credit_recipients": 458,
+        "long_cheaper": 184,
+        "long_costlier": 1870,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 2054,
+          "mean": -2.604793823296008,
+          "median": -0.438800625,
+          "p10": -5.3042922,
+          "p90": -0.016094924999999982
+        },
+        "eligible_gaps": 1312,
+        "equal_budget": {
+          "rate": 0.05349619146028434,
+          "discount_units": 9102030718,
+          "credit_units": 9102030718,
+          "credit_wins": 337,
+          "discount_wins": 1717,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2054,
+            "mean": 1.1222244670276476e-17,
+            "median": -0.0685807519617975,
+            "p10": -0.8273615211951868,
+            "p90": 0.43841141788871396
+          },
+          "credit_recipient_discount_share": 0.5834413352344135
+        },
+        "frozen_discount": {
+          "rate": 0.05349619146028434,
+          "discount_units": 9102030718,
+          "credit_units": 9102030718,
+          "credit_wins": 337,
+          "discount_wins": 1717,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2054,
+            "mean": 1.1222244670276476e-17,
+            "median": -0.0685807519617975,
+            "p10": -0.8273615211951868,
+            "p90": 0.43841141788871396
+          },
+          "credit_recipient_discount_share": 0.5834413352344135
+        },
+        "premium_per_credit": 4.918720029856968,
+        "median_long_vs_short_ratio": 1.2667634277854143,
+        "median_credit_recipient_saving": {
+          "n": 458,
+          "mean": 2.981014427292576,
+          "median": 0.98218395,
+          "p10": 0.17055558,
+          "p90": 6.019090110000003
+        },
+        "mean_short_usd": 12.425281943208374
+      }
+    },
+    {
+      "mode": "append_full_start_clock",
+      "cap": 1000000,
+      "cohort": "holdout",
+      "results": {
+        "groups": 1289,
+        "requests": 107360,
+        "short_units": 89394267526,
+        "long_units": 98393182384,
+        "credit_units": 8375856732,
+        "premium_units": 17374771590,
+        "nocache_units": 488646557360,
+        "credit_recipients": 404,
+        "long_cheaper": 201,
+        "long_costlier": 1088,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 1289,
+          "mean": -1.0471972294026377,
+          "median": -0.2793105,
+          "p10": -2.12145255,
+          "p90": 0.3005621700000001
+        },
+        "eligible_gaps": 1347,
+        "equal_budget": {
+          "rate": 0.09369568053750105,
+          "discount_units": 8375856732,
+          "credit_units": 8375856732,
+          "credit_wins": 264,
+          "discount_wins": 1025,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1289,
+            "mean": -1.0466462167046838e-18,
+            "median": -0.09275779614488872,
+            "p10": -0.9761092206004982,
+            "p90": 0.551200959382147
+          },
+          "credit_recipient_discount_share": 0.7004597391637898
+        },
+        "frozen_discount": {
+          "rate": 0.05349619146028434,
+          "discount_units": 4782252851.022775,
+          "credit_units": 8375856732,
+          "credit_wins": 346,
+          "discount_wins": 943,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1289,
+            "mean": 0.41818509088175626,
+            "median": -0.04073740864281713,
+            "p10": -0.4449730366813974,
+            "p90": 1.0740858431796656
+          },
+          "credit_recipient_discount_share": 0.7004597391637898
+        },
+        "premium_per_credit": 2.074387390560252,
+        "median_long_vs_short_ratio": 1.20139134340901,
+        "median_credit_recipient_saving": {
+          "n": 404,
+          "mean": 3.1098477965346536,
+          "median": 1.083198225,
+          "p10": 0.19845814500000003,
+          "p90": 6.808268985
+        },
+        "mean_short_usd": 10.402746414972848
+      }
+    },
+    {
+      "mode": "append_full_start_clock",
+      "cap": 200000,
+      "cohort": "all",
+      "results": {
+        "groups": 2125,
+        "requests": 88996,
+        "short_units": 36876857019,
+        "long_units": 46045253040,
+        "credit_units": 1342606554,
+        "premium_units": 10511002575,
+        "nocache_units": 149704931700,
+        "credit_recipients": 350,
+        "long_cheaper": 152,
+        "long_costlier": 1973,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 2125,
+          "mean": -0.6471808956,
+          "median": -0.22064625,
+          "p10": -1.22064075,
+          "p90": -0.01977164999999994
+        },
+        "eligible_gaps": 684,
+        "equal_budget": {
+          "rate": 0.03640783576833164,
+          "discount_units": 1342606554,
+          "credit_units": 1342606554,
+          "credit_wins": 322,
+          "discount_wins": 1803,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2125,
+            "mean": 4.9860034401869855e-18,
+            "median": -0.026127169502465415,
+            "p10": -0.1537664722763501,
+            "p90": 0.15287422742617898
+          },
+          "credit_recipient_discount_share": 0.34825901655293123
+        },
+        "frozen_discount": {
+          "rate": 0.028580212590426833,
+          "discount_units": 1053948413.269794,
+          "credit_units": 1342606554,
+          "credit_wins": 327,
+          "discount_wins": 1798,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 2125,
+            "mean": 0.02037586875742631,
+            "median": -0.02043114086155032,
+            "p10": -0.11941378651329196,
+            "p90": 0.17605162252689055
+          },
+          "credit_recipient_discount_share": 0.34825901655293123
+        },
+        "premium_per_credit": 7.828803266068371,
+        "median_long_vs_short_ratio": 1.2599684266982767,
+        "median_credit_recipient_saving": {
+          "n": 350,
+          "mean": 0.5754028088571429,
+          "median": 0.34659562499999996,
+          "p10": 0.109933905,
+          "p90": 1.3491169800000005
+        },
+        "mean_short_usd": 2.603072260164706
+      }
+    },
+    {
+      "mode": "append_full_start_clock",
+      "cap": 200000,
+      "cohort": "development",
+      "results": {
+        "groups": 1324,
+        "requests": 55660,
+        "short_units": 23661407971,
+        "long_units": 30039747906,
+        "credit_units": 676248070,
+        "premium_units": 7054588005,
+        "nocache_units": 94087682500,
+        "credit_recipients": 189,
+        "long_cheaper": 74,
+        "long_costlier": 1250,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 1324,
+          "mean": -0.7226215938444108,
+          "median": -0.247644825,
+          "p10": -1.5628585499999998,
+          "p90": -0.03138277499999999
+        },
+        "eligible_gaps": 333,
+        "equal_budget": {
+          "rate": 0.028580212590426833,
+          "discount_units": 676248070,
+          "credit_units": 676248070,
+          "credit_wins": 171,
+          "discount_wins": 1153,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1324,
+            "mean": -3.198642073977061e-18,
+            "median": -0.023185305915071282,
+            "p10": -0.13541157351478011,
+            "p90": 0.10381214247224824
+          },
+          "credit_recipient_discount_share": 0.3327181807037361
+        },
+        "frozen_discount": {
+          "rate": 0.028580212590426833,
+          "discount_units": 676248070,
+          "credit_units": 676248070,
+          "credit_wins": 171,
+          "discount_wins": 1153,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 1324,
+            "mean": -3.198642073977061e-18,
+            "median": -0.023185305915071282,
+            "p10": -0.13541157351478011,
+            "p90": 0.10381214247224824
+          },
+          "credit_recipient_discount_share": 0.3327181807037361
+        },
+        "premium_per_credit": 10.431952885277735,
+        "median_long_vs_short_ratio": 1.2773696890400936,
+        "median_credit_recipient_saving": {
+          "n": 189,
+          "mean": 0.5367048174603175,
+          "median": 0.34589355,
+          "p10": 0.10841556000000001,
+          "p90": 1.1696052000000003
+        },
+        "mean_short_usd": 2.6806731084969786
+      }
+    },
+    {
+      "mode": "append_full_start_clock",
+      "cap": 200000,
+      "cohort": "holdout",
+      "results": {
+        "groups": 801,
+        "requests": 33336,
+        "short_units": 13215449048,
+        "long_units": 16005505134,
+        "credit_units": 666358484,
+        "premium_units": 3456414570,
+        "nocache_units": 55617249200,
+        "credit_recipients": 161,
+        "long_cheaper": 78,
+        "long_costlier": 723,
+        "long_ties": 0,
+        "long_net_saving": {
+          "n": 801,
+          "mean": -0.5224824131086142,
+          "median": -0.1821375,
+          "p10": -0.7553025,
+          "p90": -0.00441855
+        },
+        "eligible_gaps": 351,
+        "equal_budget": {
+          "rate": 0.05042268950375511,
+          "discount_units": 666358484,
+          "credit_units": 666358484,
+          "credit_wins": 151,
+          "discount_wins": 650,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 801,
+            "mean": -6.080465666965522e-18,
+            "median": -0.028131095798937245,
+            "p10": -0.17475440263252992,
+            "p90": 0.20548118896579498
+          },
+          "credit_recipient_discount_share": 0.37608387940114435
+        },
+        "frozen_discount": {
+          "rate": 0.028580212590426833,
+          "discount_units": 377700343.2697939,
+          "credit_units": 666358484,
+          "credit_wins": 156,
+          "discount_wins": 645,
+          "ties": 0,
+          "median_credit_minus_discount_usd": {
+            "n": 801,
+            "mean": 0.05405583159741687,
+            "median": -0.01558909267656524,
+            "p10": -0.09863394190755134,
+            "p90": 0.255999221620668
+          },
+          "credit_recipient_discount_share": 0.37608387940114435
+        },
+        "premium_per_credit": 5.187019679335245,
+        "median_long_vs_short_ratio": 1.2314960545454607,
+        "median_credit_recipient_saving": {
+          "n": 161,
+          "mean": 0.6208308857142857,
+          "median": 0.3474702,
+          "p10": 0.1275603,
+          "p90": 1.55834085
+        },
+        "mean_short_usd": 2.474803192509363
+      }
+    }
+  ],
+  "limitations": [
+    "Replay of DeepSeek observed timing and token counts under normalized Claude-like prices, not actual Claude behavior or invoice.",
+    "Deterministic idealized rolling TTL with all prompt tokens written, append prefix proxy, reset at session/day/route/mutation/invalid/declining token counts. No backend hit guarantee, cross-session cache, exact cache key, write eligibility or breakpoint semantics. End-clock vs start-clock and prior-hit proxy sensitivity.",
+    "Credit hypothetical covers modeled short-TTL rewrite increment only in 5–60m gaps, not actual Anthropic fallback credit. Credit leaves cache reconstruction unchanged.",
+    "Same aggregate customer concessions do not imply same provider cost or welfare. Long TTL premium paid on modeled writes including first and final; no live storage cost.",
+    "Week-local session-day groups, not unique customers. 200k cap sensitivity based on group maximum. Fixed discount rate computed on development, applied unchanged to final week."
+  ]
+}
