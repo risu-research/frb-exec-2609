@@ -1,0 +1,96 @@
+{
+  "as_of": "2026-11-23 US Eastern",
+  "scope": "Public product terms and documented operation; no customer-level linkage or inference of forced transitions in FreeInference",
+  "sources": [
+    {
+      "product": "OpenRouter",
+      "source": "Terms of Service",
+      "url": "https://openrouter.ai/terms",
+      "locator": "§1, §4.6, §9, §11",
+      "rule": "May remove models at any time; fee changes receive advance notice; service modification/discontinuation reserved; material amendments to terms receive 30 days notice.",
+      "distinction": "Notice for amendment of terms does not establish notice or grace period for individual model removal or provider fallback."
+    },
+    {
+      "product": "OpenRouter",
+      "source": "Routing announcement",
+      "url": "https://openrouter.ai/blog/announcements/how-we-rebuilt-provider-routing/",
+      "locator": "Routing behavior; How we measured it; Results",
+      "rule": "Conversation pins to original provider; automatic fallback if unavailable; explicit order or sort can bypass default scoring.",
+      "experiment": {
+        "requests": "over 24 million",
+        "input_tokens": "103 billion",
+        "cost_per_1000_legacy": 1.25,
+        "cost_per_1000_new": 1.32,
+        "reported_cost_change_pct": 6,
+        "ttft_median_change_pct": -16.9,
+        "throughput_median_change_pct": 16.3,
+        "capacity_error_rate_legacy_pct": 7.1,
+        "capacity_error_rate_new_pct": 3.8
+      },
+      "distinction": "Published vendor switchback experiment on routing policy, not isolated effect of cache loss or timing discretion."
+    },
+    {
+      "product": "OpenRouter",
+      "source": "Public pricing FAQ",
+      "url": "https://openrouter.ai/pricing",
+      "locator": "What happens if a model is deprecated or pricing changes?; Are failed or fallback attempts billed?",
+      "rule": "Deprecated model yields 404; new rate charged after price changes; failed model attempts not charged, auxiliary services may still be billed.",
+      "distinction": "A successful fallback can still incur regular token charges. No direct evidence of cache-loss compensation."
+    },
+    {
+      "product": "OpenRouter",
+      "source": "Provider selection",
+      "url": "https://learn.openrouter.ai/courses/control-routing/provider-selection",
+      "locator": "Provider order/only/ignore/allow_fallbacks",
+      "rule": "Caller can restrict candidate providers and prevent fallback beyond list.",
+      "distinction": "A hard stop protects route preference, not availability."
+    },
+    {
+      "product": "UiPath",
+      "source": "Restricting LLM calls to your own models",
+      "url": "https://docs.uipath.com/automation-cloud/automation-cloud/latest/admin-guide/restricting-llm-calls-to-your-own-models",
+      "rule": "Some products use managed fallback if configured model unreachable; policy can block it.",
+      "distinction": "Managed fallback may change model, billing path or provider; do not apply same-model tariff magnitudes."
+    },
+    {
+      "product": "UiPath",
+      "source": "September 2026 release notes",
+      "url": "https://docs.uipath.com/automation-cloud/automation-cloud/latest/release-notes/september-2026",
+      "rule": "Kimi K2.7 Code BYO configurations invalidated unless updated to Kimi K3; managed fallback.",
+      "distinction": "Announced transition; no customer event-level costs."
+    },
+    {
+      "product": "Salesforce",
+      "source": "Agentforce and Generative AI Release Notes",
+      "url": "https://help.salesforce.com/s/articleView?id=release-notes.rn_einstein_copilot.htm&language=en_US&type=5",
+      "rule": "October 20, 2026 reroute Gemini 2.5 Pro/Flash to Gemini 3.5 Flash and Flash-Lite to Flash-Lite; test in advance; GPT-4o/4.1 planned April 14, 2027.",
+      "distinction": "Scheduled model change; no observed completion or dollar linkage."
+    },
+    {
+      "product": "Cursor",
+      "source": "Official community support reply",
+      "url": "https://forum.cursor.com/t/multiple-ai-models-fail-with-fallback-model-disabled-in-cursor-pro/172754/5",
+      "rule": "Historical premium usage exhaustion triggers alternative model; disabled fallback blocks request.",
+      "distinction": "Historical support evidence, not current universal contract."
+    },
+    {
+      "product": "GitHub Copilot",
+      "source": "Budgets for usage-based billing",
+      "url": "https://docs.github.com/en/copilot/concepts/billing-and-usage/organizations-and-enterprises/budgets",
+      "rule": "Enforced budget exhaustion blocks credit-consuming features; administrator may approve additional budget.",
+      "distinction": "Interruption, not proof of automatic substitution."
+    }
+  ],
+  "economic_framework": {
+    "immediate": "Required one switch at next observed request; cheapest technically screened alternate for 20 calls.",
+    "bounded": "Incumbent remains available through permitted grace period; mandatory switch by request 5 or 20; same workload and endpoint feasibility; future token sequence known in hindsight.",
+    "fixed": "Switch at request 5 or 20; not guaranteed to improve cost.",
+    "optional": "May stay for full horizon; distinct from timing-only discretion.",
+    "loss_probabilities": [
+      0,
+      0.1041711229946524,
+      1
+    ],
+    "caveat": "Pure token expenditure holding output/workload constant; service outage and quality differences not priced. Do not infer economic welfare or actual policy adoption."
+  }
+}
