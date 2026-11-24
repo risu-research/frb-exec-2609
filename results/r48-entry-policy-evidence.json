@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-24",
+  "sources": [
+    {
+      "url": "https://huggingface.co/blog/openrouter",
+      "date": "2026-11-16",
+      "facts": "Hugging Face replaces its language model router with OpenRouter, retains customer API, cache-aware provider affinity, removes language-model BYOK; image/video/audio BYOK retained; PRO $2 monthly and Team/Enterprise $2 per seat. No observed migration cache loss."
+    },
+    {
+      "url": "https://vercel.com/docs/ai-gateway/pricing",
+      "facts": "$5 monthly free-tier grant; subset of models, lower rate caps, no BYOK; buying credits moves to paid tier and monthly free grant ceases.",
+      "scope": "Gateway grant, not an individual underlying provider grant."
+    },
+    {
+      "url": "https://startups.novita.ai/",
+      "facts": "Up to $10000 total across products; up to $1000 upfront, next $5000 matched 1:1 spending, last $4000 matched 1:2. One year. Model API and sandbox each capped at $5000; applications reviewed.",
+      "scope": "Headline not unconditional upfront inference credit. No allocation of initial $1000 across products specified."
+    },
+    {
+      "url": "https://novita.ai/referral/",
+      "facts": "$10 LLM API referral voucher for each party, $500 referral reward total, 90-day expiry per voucher.",
+      "scope": "Search indexing and vendor blog corroborate; JS page body not fully readable. Not automatic signup credit."
+    },
+    {
+      "url": "https://blogs.novita.ai/free-llm-api-comparison-2026/",
+      "facts": "Vendor explicitly describes successful referral and full serverless LLM catalog."
+    },
+    {
+      "url": "https://www.together.ai/get-credits",
+      "facts": "Indexed $150 promotion; current opened page says promotion expired.",
+      "scope": "Negative control: no current $150 offer."
+    },
+    {
+      "url": "https://support.together.ai/articles/1862638756-changes-to-free-tier-and-billing-july-2025",
+      "facts": "Prepaid credits; sufficient credit required; sales contracts differ."
+    },
+    {
+      "url": "https://fireworks.ai/events/nvidia-gtc-2026",
+      "facts": "$100 event-specific credit for NVIDIA GTC 2026 attendees; historical offer, current redemption not tested."
+    },
+    {
+      "url": "https://developers.cloudflare.com/changelog/product/ai-gateway/",
+      "facts": "Aug19–Sep18 2026 GPT-5.6 Sol 50% discount on input/output/cache read; Unified Billing only, not BYOK. Historical, not transferred to different model."
+    },
+    {
+      "url": "https://vercel.com/i/chatgpt-api-credits-ai-gateway",
+      "date": "2026-10-29",
+      "facts": "Eligible OpenAI grants remain in linked API organization; BYOK may use them, system fallback uses Gateway balance; unused grant expires billing cycle; Codex API-key usage excluded. Successful response does not establish grant-funded routing."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/guides/chatgpt-api-credits",
+      "facts": "Eligible subscription benefit, separate API organization; not a general new-customer subsidy."
+    },
+    {
+      "url": "https://cepr.org/publications/dp704",
+      "facts": "Klemperer 1992 switching costs survey expressly addresses introductory offers and entry."
+    },
+    {
+      "url": "https://www.digitalocean.com/community/tutorials/inference-provider-lock-in-problem",
+      "facts": "Industry discussion identifies cache pricing among several migration frictions; not claim novelty of cache lock-in."
+    }
+  ],
+  "estimand": "Same-model endpoint cost matching grant: max(0, entrant cold cost - incumbent observed-cache cost). Restriction on eligible debit can prevent using face-value grant. Compare 1/5/20 common anchors. Actual grants not joined to anonymous provider traces, no claim market share, CAC or adoption; prices are November snapshot applied to earlier workload. Existing restricted grant opportunity cost depends on alternative use, expiry and future demand; sensitivity assumes zero value outside fixed horizon."
+}
