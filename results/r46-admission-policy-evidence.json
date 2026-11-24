@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-23 US Eastern",
+  "sources": [
+    {
+      "url": "https://docs.aws.amazon.com/en_en/bedrock/latest/userguide/quotas-token-burndown.html",
+      "fact": "Runtime initially reserves uncached input plus max_tokens; final quota is uncached input plus model-specific output multiplier; cache reads excluded. Examples 36,000 vs 5,250 initial, both 9,000 final.",
+      "limit": "Token quota, not cash; actual max_tokens absent in trace; during-generation adjustments not simulated."
+    },
+    {
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/quotas-mantle.html",
+      "fact": "Separate input/output TPM; initial input includes max_tokens; unused portion replenished; output generation can be cut off.",
+      "limit": "Not same quota as Runtime."
+    },
+    {
+      "url": "https://aws.amazon.com/bedrock/sla/",
+      "locator": "Service Credits; Credit Request and Payment Procedures",
+      "fact": "Future payment offsets (discretionary card credit); claim required; eligible monthly availability breach; credit above $1; issue within specified billing cycle.",
+      "limit": "Not an automatic cache-loss refund; no evidence of direct TPM replenishment."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/build-with-claude/fallback-credit",
+      "locator": "Checking that the credit applied",
+      "fact": "Eligible retry reprices overlapping writes as cache reads in retry usage. Strict/best-effort redemption modes documented in API reference.",
+      "limit": "No documented proof of whether prepaid admission considers credit before reservation."
+    },
+    {
+      "url": "https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage",
+      "fact": "Prepaid API credit accounts exist.",
+      "limit": "Exact authorization order undocumented."
+    },
+    {
+      "url": "https://help.openai.com/en/articles/8264644-setting-up-and-managing-prepaid-api-billing",
+      "fact": "Prepaid exhausted balance stops usage subject to processing delay; negative balance possible; auto recharge available.",
+      "limit": "Not deterministic hard gate; can mitigate or defer liquidity constraint."
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/concepts/billing-and-usage/organizations-and-enterprises/budgets",
+      "fact": "Universal user-level budgets enforce hard stop even if other funds available.",
+      "limit": "No claim exact per-request authorization amount."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/hybridInference/blob/94a693e43b211b7e5d76fce0402ad7051b779910/apps/backend/serving/spend_ledger.py",
+      "locator": "decide_admission; SpendCheck",
+      "fact": "Gate minimum 0.01 USD, estimated in-flight reservation clipped to remaining headroom, actual final charge may exceed budget; other scopes also checked.",
+      "limit": "Current public source, not confirmed historical deployment; sequential experiment only."
+    },
+    {
+      "url": "https://doi.org/10.1093/rfs/10.3.661",
+      "fact": "Petersen and Rajan 1997, Trade Credit: Theories and Evidence. Supplier finance and financing constraints are established economics."
+    },
+    {
+      "url": "https://doi.org/10.2307/2555961",
+      "fact": "Fazzari and Petersen 1993, Working Capital and Fixed Investment: New Evidence on Financing Constraints."
+    },
+    {
+      "url": "https://doi.org/10.1371/journal.pone.0160456",
+      "fact": "Budget-constrained cloud scheduling is established."
+    }
+  ],
+  "model": {
+    "threshold": "max_i(prior accumulated debit - already available credit + admission requirement); prefix maximum retained across later release",
+    "credit_timing": "fixed gross workload and nominal credit, release after kth completed call; no retroactive admission",
+    "strict_net": "oracle realized cost as authorization, not operational estimate; gross versus net treatment differs even with same net invoice",
+    "economic_scope": "Liquidity constraint on execution, not novelty of working capital or delayed payment. No actual balances or losses, no causal welfare claim."
+  }
+}
