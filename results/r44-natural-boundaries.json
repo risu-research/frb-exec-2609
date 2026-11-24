@@ -1,0 +1,280 @@
+{
+  "run": 45324284930,
+  "weeks": [
+    {
+      "week": "2026-08-09_2026-08-15",
+      "sha": "cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7",
+      "counts": {
+        "requests": 163970
+      }
+    },
+    {
+      "week": "2026-08-16_2026-08-22",
+      "sha": "b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856",
+      "counts": {
+        "requests": 144227
+      }
+    },
+    {
+      "week": "2026-08-23_2026-08-29",
+      "sha": "27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",
+      "counts": {
+        "requests": 159925
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "sha": "e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",
+      "counts": {
+        "requests": 190544
+      }
+    }
+  ],
+  "groups": [
+    {
+      "calendar": "daily",
+      "cohort": "all",
+      "sessions": 88,
+      "counts": {
+        "n": 99,
+        "zero": 0,
+        "severe": 5,
+        "positive_loss": 19,
+        "offpeak_costlier_than_peak_preserved": 12,
+        "offpeak_saves": 87,
+        "peak_reference_units": 5140527520,
+        "offpeak_actual_cache_units": 4369687760,
+        "excess_units": 1649181440,
+        "flat_reference_extra_units": 3942374400
+      },
+      "stats": {
+        "gap_minutes": {
+          "n": 99,
+          "mean": 24.275920370370372,
+          "median": 6.0085,
+          "p10": 0.17704666666666669,
+          "p90": 64.49652666666667
+        },
+        "cost_ratio": {
+          "n": 99,
+          "mean": 1.0025116226973676,
+          "median": 0.4823921012454178,
+          "p10": 0.4078052260563285,
+          "p90": 1.1688282613329561
+        },
+        "extra_usd": {
+          "n": 99,
+          "mean": -0.0007786260202020202,
+          "median": -0.002236112,
+          "p10": -0.0051343072,
+          "p90": 0.0008783344000000001
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "cohort": "tool",
+      "sessions": 38,
+      "counts": {
+        "n": 47,
+        "zero": 0,
+        "severe": 0,
+        "positive_loss": 6,
+        "offpeak_costlier_than_peak_preserved": 1,
+        "offpeak_saves": 46,
+        "peak_reference_units": 2525006560,
+        "offpeak_actual_cache_units": 1251597680,
+        "excess_units": 9043760,
+        "flat_reference_extra_units": 148316160
+      },
+      "stats": {
+        "gap_minutes": {
+          "n": 47,
+          "mean": 12.352377659574467,
+          "median": 1.7214666666666667,
+          "p10": 0.12289333333333335,
+          "p90": 57.672396666666664
+        },
+        "cost_ratio": {
+          "n": 47,
+          "mean": 0.47869587761590665,
+          "median": 0.47436690562933365,
+          "p10": 0.39469166200559896,
+          "p90": 0.5267314125594117
+        },
+        "extra_usd": {
+          "n": 47,
+          "mean": -0.002709380595744681,
+          "median": -0.002378612,
+          "p10": -0.004945824,
+          "p90": -0.0011076064000000003
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "cohort": "user",
+      "sessions": 51,
+      "counts": {
+        "n": 52,
+        "zero": 0,
+        "severe": 5,
+        "positive_loss": 13,
+        "offpeak_costlier_than_peak_preserved": 11,
+        "offpeak_saves": 41,
+        "peak_reference_units": 2615520960,
+        "offpeak_actual_cache_units": 3118090080,
+        "excess_units": 1640137680,
+        "flat_reference_extra_units": 3794058240
+      },
+      "stats": {
+        "gap_minutes": {
+          "n": 52,
+          "mean": 35.052968589743585,
+          "median": 33.06166666666667,
+          "p10": 2.1764350000000006,
+          "p90": 77.94975833333332
+        },
+        "cost_ratio": {
+          "n": 52,
+          "mean": 1.4759604692133037,
+          "median": 0.48640467071555754,
+          "p10": 0.4175796410020541,
+          "p90": 3.6662398651718253
+        },
+        "extra_usd": {
+          "n": 52,
+          "mean": 0.000966479076923077,
+          "median": -0.002013204,
+          "p10": -0.0052759252,
+          "p90": 0.010349353999999998
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "cohort": "all",
+      "sessions": 72,
+      "counts": {
+        "n": 79,
+        "zero": 0,
+        "severe": 5,
+        "positive_loss": 14,
+        "offpeak_costlier_than_peak_preserved": 9,
+        "offpeak_saves": 70,
+        "peak_reference_units": 3828604800,
+        "offpeak_actual_cache_units": 3463442880,
+        "excess_units": 1438066760,
+        "flat_reference_extra_units": 3329479680
+      },
+      "stats": {
+        "gap_minutes": {
+          "n": 79,
+          "mean": 25.88789746835443,
+          "median": 6.796833333333334,
+          "p10": 0.16709000000000002,
+          "p90": 67.40112333333333
+        },
+        "cost_ratio": {
+          "n": 79,
+          "mean": 1.0774709558675493,
+          "median": 0.4763117013105718,
+          "p10": 0.4078052260563285,
+          "p90": 1.1688282613329561
+        },
+        "extra_usd": {
+          "n": 79,
+          "mean": -0.0004622302784810126,
+          "median": -0.002059008,
+          "p10": -0.0047378944000000004,
+          "p90": 0.0007573896000000019
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "cohort": "tool",
+      "sessions": 32,
+      "counts": {
+        "n": 37,
+        "zero": 0,
+        "severe": 0,
+        "positive_loss": 3,
+        "offpeak_costlier_than_peak_preserved": 0,
+        "offpeak_saves": 37,
+        "peak_reference_units": 1844134640,
+        "offpeak_actual_cache_units": 863177080,
+        "excess_units": 0,
+        "flat_reference_extra_units": 29445120
+      },
+      "stats": {
+        "gap_minutes": {
+          "n": 37,
+          "mean": 8.046832432432433,
+          "median": 1.3062166666666666,
+          "p10": 0.12289333333333334,
+          "p90": 23.9769
+        },
+        "cost_ratio": {
+          "n": 37,
+          "mean": 0.4586372313342186,
+          "median": 0.4668327623793211,
+          "p10": 0.38627903859439283,
+          "p90": 0.5
+        },
+        "extra_usd": {
+          "n": 37,
+          "mean": -0.0026512366486486486,
+          "median": -0.002323884,
+          "p10": -0.004758896800000001,
+          "p90": -0.0013217888000000002
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "cohort": "user",
+      "sessions": 41,
+      "counts": {
+        "n": 42,
+        "zero": 0,
+        "severe": 5,
+        "positive_loss": 11,
+        "offpeak_costlier_than_peak_preserved": 9,
+        "offpeak_saves": 33,
+        "peak_reference_units": 1984470160,
+        "offpeak_actual_cache_units": 2600265800,
+        "excess_units": 1438066760,
+        "flat_reference_extra_units": 3300034560
+      },
+      "stats": {
+        "gap_minutes": {
+          "n": 42,
+          "mean": 41.60502619047619,
+          "median": 39.71478333333333,
+          "p10": 3.856978333333333,
+          "p90": 80.78374666666667
+        },
+        "cost_ratio": {
+          "n": 42,
+          "mean": 1.6226339989088168,
+          "median": 0.4910458940092897,
+          "p10": 0.4341378331034331,
+          "p90": 4.640418008819248
+        },
+        "extra_usd": {
+          "n": 42,
+          "mean": 0.0014661800952380953,
+          "median": -0.001827286,
+          "p10": -0.0033719191999999998,
+          "p90": 0.010349353999999998
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Observed same-route append continuations following a peak-time request; next request starts within one hour after next offpeak boundary. No evidence of deliberate delay or earlier readiness.",
+    "Counterfactual peak price uses capped previous cached token count, not an observed earlier execution; actual route tariff unknown.",
+    "Natural crossings selected by calendar and prior high cache, not causal effect of waiting."
+  ]
+}
