@@ -1,0 +1,50 @@
+{
+  "as_of": "2026-11-23 US Eastern",
+  "sources": [
+    {
+      "url": "https://api-docs.deepseek.com/guides/kv_cache/",
+      "locator": "Cache Persistence and Hit Rules; Additional Notes",
+      "facts": "Disk cache; matching a complete persisted prefix unit required; best effort; unused entries typically cleared within hours to days. No guaranteed TTL.",
+      "scope": "Current first-party docs; trace providers anonymous, not evidence of historical backend expiry."
+    },
+    {
+      "url": "https://doc.freeinference.org/models",
+      "facts": "Aug16 16:00 UTC effective; peak 01–04 and 06–10 UTC daily; offpeak half. Fixed peak quota reference 0.014/0.44/1.32 USD per million.",
+      "scope": "Reference policy; unknown actual individual upstream rate."
+    },
+    {
+      "url": "https://aitoolsworth.com/deepseek-weekend-off-peak-pricing/",
+      "facts": "Historical secondary record of Aug22 16:00 UTC weekend change.",
+      "scope": "Separate calendar sensitivity; primary historical archive not independently retrieved."
+    },
+    {
+      "url": "https://arxiv.org/abs/2607.19214",
+      "facts": "Khailo, Keeping the Cache Warm Pays, July 2026. Actual keepalive experiment over four providers; DeepSeek via pinned DeepInfra OpenRouter route, not first-party; measures delays through 600s, whole-strategy cost and breaks even at provider-specific intervals. July pricing.",
+      "scope": "Strong related work, no claim novelty of cache retention economics or keepalive; different time-of-use policy question."
+    },
+    {
+      "url": "https://arxiv.org/abs/2601.06007",
+      "facts": "Don't Break the Cache, evaluates agentic prompt caching, cost and latency."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching",
+      "facts": "5m/1h TTL; cache write and refresh semantics; no transfer of Anthropic TTL to DeepSeek."
+    }
+  ],
+  "model": {
+    "now": "W=a(P-C)+cC+bO",
+    "delayed": "d*(W+f*(a-c)*C), with d=0.5 and lost fraction f",
+    "break_even": "f*=(1/d-1)*W/((a-c)*C); same expression for binary full-miss probability under risk-neutral expected cost",
+    "full_loss_reversal": "C/P > (a+b*O/P)/(2*(a-c)) for d=0.5",
+    "example": {
+      "prompt": 100000,
+      "cached": 98000,
+      "output": 500,
+      "now_usd": 0.002912,
+      "delayed_warm_usd": 0.001456,
+      "delayed_full_loss_usd": 0.02233,
+      "break_even_loss_fraction": 0.06975184439973173
+    },
+    "limitations": "No latency or quality utility, no actual delay intervention or physical expiry; fixed quota reference has no time benefit."
+  }
+}
