@@ -1,0 +1,26 @@
+{
+  "sources": [
+    {
+      "url": "https://aws.amazon.com/bedrock/sla/",
+      "locator": "Service Credits; Credit Request and Payment Procedures; Definitions",
+      "rule": "Regional monthly uptime threshold; Error is HTTP 500; credits 10/25/100% of affected monthly charges; greater than $1; claim required by end of second later billing cycle; future payments.",
+      "contrast": "Successful but cold fallback is not itself a qualifying HTTP 500; SLA eligibility is aggregate, not request-level state loss."
+    },
+    {
+      "url": "https://uncitral.un.org/en/cloud/drafting%20a%20contract",
+      "locator": "K. Remedies for breach; Service credits",
+      "rule": "Cloud service credits commonly offset later fees, may be capped, limited to provider-controlled failures and subject to claim deadlines; exclusive remedies can restrict customer options.",
+      "contrast": "Existing legal literature explicitly considers service credits. Novelty must be computational-state-specific."
+    },
+    {
+      "url": "https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage",
+      "rule": "Most organizations use prepaid credits; depleted credits block API until replenished; invoiced organizations differ."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/api-credits-for-subscribers",
+      "rule": "Current Max $100 and Ultra $200 monthly API credits; Team pool capped at $500; credits expire each cycle; cover API and Managed Agents; not Claude Code or extra app usage.",
+      "contrast": "Managed Agents can consume included monthly credits but fallback-credit documentation explicitly excludes this surface; no guarantee that Managed Agents implements same underlying refusal paths."
+    }
+  ],
+  "scope": "Separate actual contractual SLA, documented product credit, and quota accounting. No finding of breach; no observed Anthropic live transactions."
+}
