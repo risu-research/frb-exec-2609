@@ -1,0 +1,885 @@
+{
+  "run": 45316676343,
+  "days": [
+    {
+      "job": "audit (07)",
+      "id": 138185087721,
+      "counts": {
+        "shards": 23,
+        "sessions": 11129,
+        "turns": 45496,
+        "calls": 376810,
+        "adjacent": 364886,
+        "overlap_excluded": 277623,
+        "invalid_tokens": 3499,
+        "sessions_invalid_time": 2
+      },
+      "stats": {
+        "same/all": {
+          "n": 83397,
+          "drop_gt_50pp": 4603,
+          "zero_after": 4109,
+          "change_pp_sum": 62815.60647482595,
+          "uncached_delta_sum": 31396250
+        },
+        "same/all/prior90": {
+          "n": 68546,
+          "drop_gt_50pp": 4122,
+          "zero_after": 2711,
+          "change_pp_sum": -440207.1879667499,
+          "uncached_delta_sum": 336133543
+        },
+        "same/within_turn": {
+          "n": 71806,
+          "drop_gt_50pp": 1878,
+          "zero_after": 1666,
+          "change_pp_sum": 227861.82509827855,
+          "uncached_delta_sum": -118691473
+        },
+        "same/within_turn/prior90": {
+          "n": 59965,
+          "drop_gt_50pp": 1676,
+          "zero_after": 1056,
+          "change_pp_sum": -192053.54987549162,
+          "uncached_delta_sum": 134454520
+        },
+        "same/across_turn": {
+          "n": 11591,
+          "drop_gt_50pp": 2725,
+          "zero_after": 2443,
+          "change_pp_sum": -165046.2186234529,
+          "uncached_delta_sum": 150087723
+        },
+        "same/across_turn/prior90": {
+          "n": 8581,
+          "drop_gt_50pp": 2446,
+          "zero_after": 1655,
+          "change_pp_sum": -248153.63809125614,
+          "uncached_delta_sum": 201679023
+        },
+        "switch/all": {
+          "n": 367,
+          "drop_gt_50pp": 195,
+          "zero_after": 279,
+          "change_pp_sum": -16304.435705369542,
+          "uncached_delta_sum": 13337677
+        },
+        "switch/across_turn": {
+          "n": 300,
+          "drop_gt_50pp": 185,
+          "zero_after": 253,
+          "change_pp_sum": -16494.503166124134,
+          "uncached_delta_sum": 10617116
+        },
+        "switch/all/prior90": {
+          "n": 169,
+          "drop_gt_50pp": 165,
+          "zero_after": 148,
+          "change_pp_sum": -15999.561098885752,
+          "uncached_delta_sum": 10266424
+        },
+        "switch/across_turn/prior90": {
+          "n": 162,
+          "drop_gt_50pp": 158,
+          "zero_after": 142,
+          "change_pp_sum": -15335.848450055568,
+          "uncached_delta_sum": 10024284
+        },
+        "switch/within_turn": {
+          "n": 67,
+          "drop_gt_50pp": 10,
+          "zero_after": 26,
+          "change_pp_sum": 190.06746075458997,
+          "uncached_delta_sum": 2720561
+        },
+        "switch/within_turn/prior90": {
+          "n": 7,
+          "drop_gt_50pp": 7,
+          "zero_after": 6,
+          "change_pp_sum": -663.7126488301858,
+          "uncached_delta_sum": 242140
+        }
+      }
+    },
+    {
+      "job": "audit (05)",
+      "id": 138185088017,
+      "counts": {
+        "shards": 96,
+        "sessions": 47863,
+        "turns": 183603,
+        "calls": 1531103,
+        "adjacent": 1482969,
+        "overlap_excluded": 1128593,
+        "invalid_tokens": 13291,
+        "sessions_invalid_time": 2
+      },
+      "stats": {
+        "same/all": {
+          "n": 339400,
+          "drop_gt_50pp": 21691,
+          "zero_after": 19368,
+          "change_pp_sum": 271323.5405438188,
+          "uncached_delta_sum": 149417973
+        },
+        "same/all/prior90": {
+          "n": 266762,
+          "drop_gt_50pp": 19264,
+          "zero_after": 11696,
+          "change_pp_sum": -2005523.0738528648,
+          "uncached_delta_sum": 1708514297
+        },
+        "same/across_turn": {
+          "n": 48357,
+          "drop_gt_50pp": 13655,
+          "zero_after": 11909,
+          "change_pp_sum": -849354.5689199115,
+          "uncached_delta_sum": 829517466
+        },
+        "same/across_turn/prior90": {
+          "n": 33814,
+          "drop_gt_50pp": 12205,
+          "zero_after": 7806,
+          "change_pp_sum": -1199966.6759430065,
+          "uncached_delta_sum": 1092303435
+        },
+        "same/within_turn": {
+          "n": 291043,
+          "drop_gt_50pp": 8036,
+          "zero_after": 7459,
+          "change_pp_sum": 1120678.1094637618,
+          "uncached_delta_sum": -680099493
+        },
+        "same/within_turn/prior90": {
+          "n": 232948,
+          "drop_gt_50pp": 7059,
+          "zero_after": 3890,
+          "change_pp_sum": -805556.3979098259,
+          "uncached_delta_sum": 616210862
+        },
+        "switch/all": {
+          "n": 1685,
+          "drop_gt_50pp": 905,
+          "zero_after": 1263,
+          "change_pp_sum": -78584.73436077645,
+          "uncached_delta_sum": 67777100
+        },
+        "switch/across_turn": {
+          "n": 1501,
+          "drop_gt_50pp": 885,
+          "zero_after": 1144,
+          "change_pp_sum": -80204.60711226107,
+          "uncached_delta_sum": 64948654
+        },
+        "switch/all/prior90": {
+          "n": 834,
+          "drop_gt_50pp": 784,
+          "zero_after": 639,
+          "change_pp_sum": -75519.72535233786,
+          "uncached_delta_sum": 54102547
+        },
+        "switch/across_turn/prior90": {
+          "n": 807,
+          "drop_gt_50pp": 768,
+          "zero_after": 623,
+          "change_pp_sum": -73903.59793852665,
+          "uncached_delta_sum": 53795513
+        },
+        "switch/within_turn": {
+          "n": 184,
+          "drop_gt_50pp": 20,
+          "zero_after": 119,
+          "change_pp_sum": 1619.8727514846094,
+          "uncached_delta_sum": 2828446
+        },
+        "same/all/prior90_shape": {
+          "n": 3,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": 2.9194644999076647,
+          "uncached_delta_sum": 60
+        },
+        "same/within_turn/prior90_shape": {
+          "n": 3,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": 2.9194644999076647,
+          "uncached_delta_sum": 60
+        },
+        "switch/within_turn/prior90": {
+          "n": 27,
+          "drop_gt_50pp": 16,
+          "zero_after": 16,
+          "change_pp_sum": -1616.1274138111908,
+          "uncached_delta_sum": 307034
+        }
+      }
+    },
+    {
+      "job": "audit (01)",
+      "id": 138185088054,
+      "counts": {
+        "shards": 112,
+        "sessions": 55870,
+        "turns": 224159,
+        "calls": 1748037,
+        "adjacent": 1691462,
+        "overlap_excluded": 1252342,
+        "invalid_tokens": 14478,
+        "sessions_invalid_time": 6
+      },
+      "stats": {
+        "same/all": {
+          "n": 422161,
+          "drop_gt_50pp": 28486,
+          "zero_after": 25397,
+          "change_pp_sum": 374918.73481361056,
+          "uncached_delta_sum": 152120539
+        },
+        "same/within_turn": {
+          "n": 356345,
+          "drop_gt_50pp": 9301,
+          "zero_after": 8882,
+          "change_pp_sum": 1609159.6682602158,
+          "uncached_delta_sum": -877068138
+        },
+        "same/all/prior90": {
+          "n": 325833,
+          "drop_gt_50pp": 24924,
+          "zero_after": 14872,
+          "change_pp_sum": -2575094.509094211,
+          "uncached_delta_sum": 1927232310
+        },
+        "same/within_turn/prior90": {
+          "n": 280385,
+          "drop_gt_50pp": 8035,
+          "zero_after": 4421,
+          "change_pp_sum": -922024.8233025233,
+          "uncached_delta_sum": 631512780
+        },
+        "same/across_turn": {
+          "n": 65816,
+          "drop_gt_50pp": 19185,
+          "zero_after": 16515,
+          "change_pp_sum": -1234240.9334466194,
+          "uncached_delta_sum": 1029188677
+        },
+        "same/across_turn/prior90": {
+          "n": 45448,
+          "drop_gt_50pp": 16889,
+          "zero_after": 10451,
+          "change_pp_sum": -1653069.6857916352,
+          "uncached_delta_sum": 1295719530
+        },
+        "switch/all": {
+          "n": 2481,
+          "drop_gt_50pp": 1259,
+          "zero_after": 1867,
+          "change_pp_sum": -107467.52997353335,
+          "uncached_delta_sum": 87435531
+        },
+        "switch/all/prior90": {
+          "n": 1130,
+          "drop_gt_50pp": 1060,
+          "zero_after": 889,
+          "change_pp_sum": -102306.28732730504,
+          "uncached_delta_sum": 67313685
+        },
+        "switch/across_turn": {
+          "n": 2189,
+          "drop_gt_50pp": 1235,
+          "zero_after": 1689,
+          "change_pp_sum": -112229.90166504908,
+          "uncached_delta_sum": 79100016
+        },
+        "switch/across_turn/prior90": {
+          "n": 1097,
+          "drop_gt_50pp": 1042,
+          "zero_after": 873,
+          "change_pp_sum": -100500.61637076948,
+          "uncached_delta_sum": 67080768
+        },
+        "switch/within_turn": {
+          "n": 292,
+          "drop_gt_50pp": 24,
+          "zero_after": 178,
+          "change_pp_sum": 4762.371691515686,
+          "uncached_delta_sum": 8335515
+        },
+        "switch/within_turn/prior90": {
+          "n": 33,
+          "drop_gt_50pp": 18,
+          "zero_after": 16,
+          "change_pp_sum": -1805.6709565355798,
+          "uncached_delta_sum": 232917
+        },
+        "same/all/prior90_shape": {
+          "n": 1,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": -0.6787680807171514,
+          "uncached_delta_sum": 97
+        },
+        "same/within_turn/prior90_shape": {
+          "n": 1,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": -0.6787680807171514,
+          "uncached_delta_sum": 97
+        }
+      }
+    },
+    {
+      "job": "audit (03)",
+      "id": 138185088076,
+      "counts": {
+        "shards": 121,
+        "sessions": 60202,
+        "turns": 240117,
+        "calls": 1815851,
+        "adjacent": 1755467,
+        "invalid_tokens": 15560,
+        "overlap_excluded": 1293652,
+        "sessions_invalid_time": 2
+      },
+      "stats": {
+        "same/all": {
+          "n": 443480,
+          "drop_gt_50pp": 30631,
+          "zero_after": 26746,
+          "change_pp_sum": 400551.48787419806,
+          "uncached_delta_sum": 132542358
+        },
+        "same/all/prior90": {
+          "n": 345031,
+          "drop_gt_50pp": 27046,
+          "zero_after": 16193,
+          "change_pp_sum": -2784975.315469535,
+          "uncached_delta_sum": 2063976098
+        },
+        "same/within_turn": {
+          "n": 371449,
+          "drop_gt_50pp": 9712,
+          "zero_after": 9039,
+          "change_pp_sum": 1726089.1589723767,
+          "uncached_delta_sum": -967650927
+        },
+        "same/within_turn/prior90": {
+          "n": 294859,
+          "drop_gt_50pp": 8511,
+          "zero_after": 4650,
+          "change_pp_sum": -970298.2716828986,
+          "uncached_delta_sum": 635749099
+        },
+        "same/across_turn": {
+          "n": 72031,
+          "drop_gt_50pp": 20919,
+          "zero_after": 17707,
+          "change_pp_sum": -1325537.6710981391,
+          "uncached_delta_sum": 1100193285
+        },
+        "same/across_turn/prior90": {
+          "n": 50172,
+          "drop_gt_50pp": 18535,
+          "zero_after": 11543,
+          "change_pp_sum": -1814677.0437866217,
+          "uncached_delta_sum": 1428226999
+        },
+        "switch/all": {
+          "n": 2775,
+          "drop_gt_50pp": 1409,
+          "zero_after": 2039,
+          "change_pp_sum": -115172.73422186187,
+          "uncached_delta_sum": 95639174
+        },
+        "switch/across_turn": {
+          "n": 2304,
+          "drop_gt_50pp": 1361,
+          "zero_after": 1777,
+          "change_pp_sum": -123081.4904726727,
+          "uncached_delta_sum": 76922531
+        },
+        "switch/all/prior90": {
+          "n": 1273,
+          "drop_gt_50pp": 1202,
+          "zero_after": 1000,
+          "change_pp_sum": -115100.30065029247,
+          "uncached_delta_sum": 70453224
+        },
+        "switch/across_turn/prior90": {
+          "n": 1218,
+          "drop_gt_50pp": 1164,
+          "zero_after": 967,
+          "change_pp_sum": -111412.11106983793,
+          "uncached_delta_sum": 69711125
+        },
+        "switch/within_turn": {
+          "n": 471,
+          "drop_gt_50pp": 48,
+          "zero_after": 262,
+          "change_pp_sum": 7908.756250810811,
+          "uncached_delta_sum": 18716643
+        },
+        "switch/within_turn/prior90": {
+          "n": 55,
+          "drop_gt_50pp": 38,
+          "zero_after": 33,
+          "change_pp_sum": -3688.1895804544793,
+          "uncached_delta_sum": 742099
+        },
+        "same/all/prior90_shape": {
+          "n": 2,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": 4.670486624730508,
+          "uncached_delta_sum": -1305
+        },
+        "same/within_turn/prior90_shape": {
+          "n": 2,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": 4.670486624730508,
+          "uncached_delta_sum": -1305
+        }
+      }
+    },
+    {
+      "job": "audit (06)",
+      "id": 138185088105,
+      "counts": {
+        "shards": 22,
+        "sessions": 10674,
+        "turns": 41827,
+        "calls": 354297,
+        "adjacent": 343470,
+        "overlap_excluded": 261096,
+        "invalid_tokens": 2854,
+        "sessions_invalid_time": 1
+      },
+      "stats": {
+        "same/all": {
+          "n": 79233,
+          "drop_gt_50pp": 4331,
+          "zero_after": 3927,
+          "change_pp_sum": 63206.93763742245,
+          "uncached_delta_sum": 9300146
+        },
+        "same/all/prior90": {
+          "n": 65083,
+          "drop_gt_50pp": 3937,
+          "zero_after": 2458,
+          "change_pp_sum": -417081.4753240674,
+          "uncached_delta_sum": 311490773
+        },
+        "same/across_turn": {
+          "n": 10767,
+          "drop_gt_50pp": 2505,
+          "zero_after": 2219,
+          "change_pp_sum": -146341.51220873004,
+          "uncached_delta_sum": 128287152
+        },
+        "same/across_turn/prior90": {
+          "n": 7968,
+          "drop_gt_50pp": 2295,
+          "zero_after": 1453,
+          "change_pp_sum": -230218.2672632267,
+          "uncached_delta_sum": 181684517
+        },
+        "same/within_turn": {
+          "n": 68466,
+          "drop_gt_50pp": 1826,
+          "zero_after": 1708,
+          "change_pp_sum": 209548.44984615536,
+          "uncached_delta_sum": -118987006
+        },
+        "same/within_turn/prior90": {
+          "n": 57115,
+          "drop_gt_50pp": 1642,
+          "zero_after": 1005,
+          "change_pp_sum": -186863.2080608384,
+          "uncached_delta_sum": 129806256
+        },
+        "switch/all": {
+          "n": 287,
+          "drop_gt_50pp": 183,
+          "zero_after": 234,
+          "change_pp_sum": -17120.931332406508,
+          "uncached_delta_sum": 13183665
+        },
+        "switch/all/prior90": {
+          "n": 175,
+          "drop_gt_50pp": 162,
+          "zero_after": 144,
+          "change_pp_sum": -15800.399405416958,
+          "uncached_delta_sum": 11413878
+        },
+        "switch/within_turn": {
+          "n": 17,
+          "drop_gt_50pp": 2,
+          "zero_after": 10,
+          "change_pp_sum": -41.14254840734806,
+          "uncached_delta_sum": 365699
+        },
+        "switch/within_turn/prior90": {
+          "n": 4,
+          "drop_gt_50pp": 1,
+          "zero_after": 1,
+          "change_pp_sum": -113.60511123822609,
+          "uncached_delta_sum": 20854
+        },
+        "switch/across_turn": {
+          "n": 270,
+          "drop_gt_50pp": 181,
+          "zero_after": 224,
+          "change_pp_sum": -17079.78878399916,
+          "uncached_delta_sum": 12817966
+        },
+        "switch/across_turn/prior90": {
+          "n": 171,
+          "drop_gt_50pp": 161,
+          "zero_after": 143,
+          "change_pp_sum": -15686.794294178731,
+          "uncached_delta_sum": 11393024
+        }
+      }
+    },
+    {
+      "job": "audit (04)",
+      "id": 138185088136,
+      "counts": {
+        "shards": 111,
+        "sessions": 55143,
+        "turns": 217951,
+        "calls": 1656229,
+        "adjacent": 1600431,
+        "overlap_excluded": 1185870,
+        "invalid_tokens": 14782,
+        "sessions_invalid_time": 4
+      },
+      "stats": {
+        "same/all": {
+          "n": 397380,
+          "drop_gt_50pp": 27343,
+          "zero_after": 23689,
+          "change_pp_sum": 364367.1958978277,
+          "uncached_delta_sum": 133996144
+        },
+        "same/all/prior90": {
+          "n": 309470,
+          "drop_gt_50pp": 24208,
+          "zero_after": 14137,
+          "change_pp_sum": -2489279.5089638247,
+          "uncached_delta_sum": 1907939927
+        },
+        "same/within_turn": {
+          "n": 334010,
+          "drop_gt_50pp": 8865,
+          "zero_after": 8335,
+          "change_pp_sum": 1508870.725535644,
+          "uncached_delta_sum": -864230813
+        },
+        "same/within_turn/prior90": {
+          "n": 265413,
+          "drop_gt_50pp": 7780,
+          "zero_after": 4217,
+          "change_pp_sum": -888913.7803519584,
+          "uncached_delta_sum": 605288804
+        },
+        "same/across_turn": {
+          "n": 63370,
+          "drop_gt_50pp": 18478,
+          "zero_after": 15354,
+          "change_pp_sum": -1144503.5296378268,
+          "uncached_delta_sum": 998226957
+        },
+        "same/across_turn/prior90": {
+          "n": 44057,
+          "drop_gt_50pp": 16428,
+          "zero_after": 9920,
+          "change_pp_sum": -1600365.7286119163,
+          "uncached_delta_sum": 1302651123
+        },
+        "switch/all": {
+          "n": 2399,
+          "drop_gt_50pp": 1201,
+          "zero_after": 1795,
+          "change_pp_sum": -102094.11729694724,
+          "uncached_delta_sum": 82552151
+        },
+        "switch/all/prior90": {
+          "n": 1131,
+          "drop_gt_50pp": 1044,
+          "zero_after": 876,
+          "change_pp_sum": -100885.00657770562,
+          "uncached_delta_sum": 63218223
+        },
+        "switch/across_turn": {
+          "n": 2024,
+          "drop_gt_50pp": 1152,
+          "zero_after": 1560,
+          "change_pp_sum": -105060.82425431059,
+          "uncached_delta_sum": 75260255
+        },
+        "switch/across_turn/prior90": {
+          "n": 1061,
+          "drop_gt_50pp": 1002,
+          "zero_after": 834,
+          "change_pp_sum": -96596.35147518395,
+          "uncached_delta_sum": 62732631
+        },
+        "switch/within_turn": {
+          "n": 375,
+          "drop_gt_50pp": 49,
+          "zero_after": 235,
+          "change_pp_sum": 2966.7069573633025,
+          "uncached_delta_sum": 7291896
+        },
+        "switch/within_turn/prior90": {
+          "n": 70,
+          "drop_gt_50pp": 42,
+          "zero_after": 42,
+          "change_pp_sum": -4288.655102521677,
+          "uncached_delta_sum": 485592
+        },
+        "same/all/prior90_shape": {
+          "n": 1,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": -0.6100826431041817,
+          "uncached_delta_sum": 180
+        },
+        "same/within_turn/prior90_shape": {
+          "n": 1,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": -0.6100826431041817,
+          "uncached_delta_sum": 180
+        }
+      }
+    },
+    {
+      "job": "audit (02)",
+      "id": 138185088150,
+      "counts": {
+        "shards": 121,
+        "sessions": 60145,
+        "turns": 236428,
+        "calls": 1827928,
+        "adjacent": 1767352,
+        "overlap_excluded": 1312057,
+        "invalid_tokens": 15647,
+        "sessions_invalid_time": 4
+      },
+      "stats": {
+        "same/all": {
+          "n": 437055,
+          "drop_gt_50pp": 29850,
+          "zero_after": 25804,
+          "change_pp_sum": 395867.8785880947,
+          "uncached_delta_sum": 132038541
+        },
+        "same/all/prior90": {
+          "n": 339284,
+          "drop_gt_50pp": 26238,
+          "zero_after": 15414,
+          "change_pp_sum": -2707077.287391892,
+          "uncached_delta_sum": 2002518362
+        },
+        "same/within_turn": {
+          "n": 368075,
+          "drop_gt_50pp": 9639,
+          "zero_after": 9050,
+          "change_pp_sum": 1673602.4762553803,
+          "uncached_delta_sum": -926331119
+        },
+        "same/within_turn/prior90": {
+          "n": 291273,
+          "drop_gt_50pp": 8328,
+          "zero_after": 4495,
+          "change_pp_sum": -959397.5305272645,
+          "uncached_delta_sum": 639564323
+        },
+        "same/across_turn": {
+          "n": 68980,
+          "drop_gt_50pp": 20211,
+          "zero_after": 16754,
+          "change_pp_sum": -1277734.5976672745,
+          "uncached_delta_sum": 1058369660
+        },
+        "same/across_turn/prior90": {
+          "n": 48011,
+          "drop_gt_50pp": 17910,
+          "zero_after": 10919,
+          "change_pp_sum": -1747679.7568646006,
+          "uncached_delta_sum": 1362954039
+        },
+        "switch/all": {
+          "n": 2593,
+          "drop_gt_50pp": 1362,
+          "zero_after": 1970,
+          "change_pp_sum": -118207.36886572489,
+          "uncached_delta_sum": 92122404
+        },
+        "switch/across_turn": {
+          "n": 2259,
+          "drop_gt_50pp": 1326,
+          "zero_after": 1752,
+          "change_pp_sum": -121664.52937575713,
+          "uncached_delta_sum": 86870839
+        },
+        "switch/all/prior90": {
+          "n": 1233,
+          "drop_gt_50pp": 1163,
+          "zero_after": 975,
+          "change_pp_sum": -112284.37563750327,
+          "uncached_delta_sum": 74958491
+        },
+        "switch/across_turn/prior90": {
+          "n": 1184,
+          "drop_gt_50pp": 1132,
+          "zero_after": 944,
+          "change_pp_sum": -109171.44330675282,
+          "uncached_delta_sum": 73983089
+        },
+        "switch/within_turn": {
+          "n": 334,
+          "drop_gt_50pp": 36,
+          "zero_after": 218,
+          "change_pp_sum": 3457.16051003225,
+          "uncached_delta_sum": 5251565
+        },
+        "switch/within_turn/prior90": {
+          "n": 49,
+          "drop_gt_50pp": 31,
+          "zero_after": 31,
+          "change_pp_sum": -3112.932330750414,
+          "uncached_delta_sum": 975402
+        },
+        "same/all/prior90_shape": {
+          "n": 1,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": 1.198721935110325,
+          "uncached_delta_sum": -1677
+        },
+        "same/within_turn/prior90_shape": {
+          "n": 1,
+          "drop_gt_50pp": 0,
+          "zero_after": 0,
+          "change_pp_sum": 1.198721935110325,
+          "uncached_delta_sum": -1677
+        }
+      }
+    }
+  ],
+  "totals": {
+    "shards": 606,
+    "sessions": 301026,
+    "turns": 1189581,
+    "calls": 9310255,
+    "adjacent": 9006037,
+    "overlap_excluded": 6711233,
+    "invalid_tokens": 80111,
+    "sessions_invalid_time": 21
+  },
+  "stats": {
+    "same/all": {
+      "n": 2202106,
+      "drop_gt_50pp": 146935,
+      "zero_after": 129040,
+      "change_pp_sum": 1933051.3818297982,
+      "uncached_delta_sum": 740811951
+    },
+    "same/all/prior90": {
+      "n": 1720009,
+      "drop_gt_50pp": 129739,
+      "zero_after": 77481,
+      "change_pp_sum": -13419238.358063145,
+      "uncached_delta_sum": 10257805310
+    },
+    "same/within_turn": {
+      "n": 1861194,
+      "drop_gt_50pp": 49257,
+      "zero_after": 46139,
+      "change_pp_sum": 8075810.413431813,
+      "uncached_delta_sum": -4553058969
+    },
+    "same/within_turn/prior90": {
+      "n": 1481958,
+      "drop_gt_50pp": 43031,
+      "zero_after": 23734,
+      "change_pp_sum": -4925107.561710801,
+      "uncached_delta_sum": 3392586644
+    },
+    "same/across_turn": {
+      "n": 340912,
+      "drop_gt_50pp": 97678,
+      "zero_after": 82901,
+      "change_pp_sum": -6142759.031601954,
+      "uncached_delta_sum": 5293870920
+    },
+    "same/across_turn/prior90": {
+      "n": 238051,
+      "drop_gt_50pp": 86708,
+      "zero_after": 53747,
+      "change_pp_sum": -8494130.796352264,
+      "uncached_delta_sum": 6865218666
+    },
+    "switch/all": {
+      "n": 12587,
+      "drop_gt_50pp": 6514,
+      "zero_after": 9447,
+      "change_pp_sum": -554951.8517566199,
+      "uncached_delta_sum": 452047702
+    },
+    "switch/across_turn": {
+      "n": 10847,
+      "drop_gt_50pp": 6325,
+      "zero_after": 8399,
+      "change_pp_sum": -575815.6448301738,
+      "uncached_delta_sum": 406537377
+    },
+    "switch/all/prior90": {
+      "n": 5945,
+      "drop_gt_50pp": 5580,
+      "zero_after": 4671,
+      "change_pp_sum": -537895.656049447,
+      "uncached_delta_sum": 351726472
+    },
+    "switch/across_turn/prior90": {
+      "n": 5700,
+      "drop_gt_50pp": 5427,
+      "zero_after": 4526,
+      "change_pp_sum": -522606.76290530514,
+      "uncached_delta_sum": 348720434
+    },
+    "switch/within_turn": {
+      "n": 1740,
+      "drop_gt_50pp": 189,
+      "zero_after": 1048,
+      "change_pp_sum": 20863.793073553898,
+      "uncached_delta_sum": 45510325
+    },
+    "switch/within_turn/prior90": {
+      "n": 245,
+      "drop_gt_50pp": 153,
+      "zero_after": 145,
+      "change_pp_sum": -15288.893144141754,
+      "uncached_delta_sum": 3006038
+    },
+    "same/all/prior90_shape": {
+      "n": 8,
+      "drop_gt_50pp": 0,
+      "zero_after": 0,
+      "change_pp_sum": 7.499822335927164,
+      "uncached_delta_sum": -2645
+    },
+    "same/within_turn/prior90_shape": {
+      "n": 8,
+      "drop_gt_50pp": 0,
+      "zero_after": 0,
+      "change_pp_sum": 7.499822335927164,
+      "uncached_delta_sum": -2645
+    }
+  }
+}
