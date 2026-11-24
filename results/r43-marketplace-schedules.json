@@ -1,0 +1,379 @@
+{
+  "run": 45323185680,
+  "snapshot_run": 45318045292,
+  "models": [
+    {
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "model_pricing": {
+        "prompt": "0.00000003",
+        "completion": "0.0000002",
+        "input_cache_read": "0.000000001"
+      },
+      "endpoints": [
+        {
+          "provider": "Pareto Inference",
+          "tag": "pareto-inference/fp8",
+          "pricing": {
+            "prompt": "0.00000015",
+            "completion": "0.0000006",
+            "input_cache_read": "0.000000003",
+            "discount": 0,
+            "overrides": [
+              {
+                "utc_days": [
+                  "saturday",
+                  "sunday"
+                ],
+                "prompt": "0.000000075",
+                "completion": "0.0000003",
+                "input_cache_read": "0.0000000015"
+              },
+              {
+                "utc_start": 0,
+                "utc_end": 100,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.000000075",
+                "completion": "0.0000003",
+                "input_cache_read": "0.0000000015"
+              },
+              {
+                "utc_start": 100,
+                "utc_end": 400,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.00000015",
+                "completion": "0.0000006",
+                "input_cache_read": "0.000000003"
+              },
+              {
+                "utc_start": 400,
+                "utc_end": 600,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.000000075",
+                "completion": "0.0000003",
+                "input_cache_read": "0.0000000015"
+              },
+              {
+                "utc_start": 600,
+                "utc_end": 1000,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.00000015",
+                "completion": "0.0000006",
+                "input_cache_read": "0.000000003"
+              },
+              {
+                "utc_start": 1000,
+                "utc_end": 0,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.000000075",
+                "completion": "0.0000003",
+                "input_cache_read": "0.0000000015"
+              }
+            ]
+          },
+          "pricing_overrides": null,
+          "pricing_tiers": null
+        },
+        {
+          "provider": "Alibaba",
+          "tag": "alibaba",
+          "pricing": {
+            "prompt": "0.00000018",
+            "completion": "0.00000072",
+            "input_cache_read": "0.0000000036",
+            "discount": 0,
+            "overrides": [
+              {
+                "utc_start": 0,
+                "utc_end": 1400,
+                "prompt": "0.00000018",
+                "completion": "0.00000072",
+                "input_cache_read": "0.0000000036"
+              },
+              {
+                "utc_start": 1400,
+                "utc_end": 0,
+                "prompt": "0.00000009",
+                "completion": "0.00000036",
+                "input_cache_read": "0.0000000018"
+              }
+            ]
+          },
+          "pricing_overrides": null,
+          "pricing_tiers": null
+        },
+        {
+          "provider": "DeepSeek",
+          "tag": "deepseek",
+          "pricing": {
+            "prompt": "0.0000003",
+            "completion": "0.0000012",
+            "input_cache_read": "0.000000006",
+            "discount": 0,
+            "overrides": [
+              {
+                "utc_days": [
+                  "saturday",
+                  "sunday"
+                ],
+                "prompt": "0.00000015",
+                "completion": "0.0000006",
+                "input_cache_read": "0.000000003"
+              },
+              {
+                "utc_start": 0,
+                "utc_end": 100,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.00000015",
+                "completion": "0.0000006",
+                "input_cache_read": "0.000000003"
+              },
+              {
+                "utc_start": 100,
+                "utc_end": 400,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.0000003",
+                "completion": "0.0000012",
+                "input_cache_read": "0.000000006"
+              },
+              {
+                "utc_start": 400,
+                "utc_end": 600,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.00000015",
+                "completion": "0.0000006",
+                "input_cache_read": "0.000000003"
+              },
+              {
+                "utc_start": 600,
+                "utc_end": 1000,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.0000003",
+                "completion": "0.0000012",
+                "input_cache_read": "0.000000006"
+              },
+              {
+                "utc_start": 1000,
+                "utc_end": 0,
+                "utc_days": [
+                  "monday",
+                  "tuesday",
+                  "wednesday",
+                  "thursday",
+                  "friday"
+                ],
+                "prompt": "0.00000015",
+                "completion": "0.0000006",
+                "input_cache_read": "0.000000003"
+              }
+            ]
+          },
+          "pricing_overrides": null,
+          "pricing_tiers": null
+        }
+      ]
+    },
+    {
+      "model": "deepseek/deepseek-v4.1-flash-1017:batch",
+      "model_pricing": {
+        "prompt": "0.000000035",
+        "completion": "0.000000149",
+        "input_cache_read": "0.0000000029"
+      },
+      "endpoints": []
+    },
+    {
+      "model": "deepseek/deepseek-v4.1-flash",
+      "model_pricing": {
+        "prompt": "0.0000000498",
+        "completion": "0.0000001992",
+        "input_cache_read": "0.000000000996"
+      },
+      "endpoints": [
+        {
+          "provider": "Alibaba",
+          "tag": "alibaba",
+          "pricing": {
+            "prompt": "0.00000018",
+            "completion": "0.00000072",
+            "input_cache_read": "0.0000000036",
+            "discount": 0,
+            "overrides": [
+              {
+                "utc_start": 0,
+                "utc_end": 1400,
+                "prompt": "0.00000018",
+                "completion": "0.00000072",
+                "input_cache_read": "0.0000000036"
+              },
+              {
+                "utc_start": 1400,
+                "utc_end": 0,
+                "prompt": "0.00000009",
+                "completion": "0.00000036",
+                "input_cache_read": "0.0000000018"
+              }
+            ]
+          },
+          "pricing_overrides": null,
+          "pricing_tiers": null
+        }
+      ]
+    },
+    {
+      "model": "deepseek/deepseek-v4.1-flash:batch",
+      "model_pricing": {
+        "prompt": "0.00000005",
+        "completion": "0.00000015",
+        "input_cache_read": "0.000000004"
+      },
+      "endpoints": []
+    },
+    {
+      "model": "deepseek/deepseek-v4-flash-vision-exp",
+      "model_pricing": {
+        "prompt": "0.0000002156",
+        "completion": "0.0000006468",
+        "input_cache_read": "0.00000000686"
+      },
+      "endpoints": []
+    },
+    {
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "model_pricing": {
+        "prompt": "0.0000000443",
+        "completion": "0.0000003",
+        "input_cache_read": "0.000000035"
+      },
+      "endpoints": [
+        {
+          "provider": "Alibaba",
+          "tag": "alibaba",
+          "pricing": {
+            "prompt": "0.000000352",
+            "completion": "0.000001056",
+            "input_cache_read": "0.0000000352",
+            "discount": 0,
+            "overrides": [
+              {
+                "utc_start": 0,
+                "utc_end": 1400,
+                "prompt": "0.000000352",
+                "completion": "0.000001056",
+                "input_cache_read": "0.0000000352"
+              },
+              {
+                "utc_start": 1400,
+                "utc_end": 0,
+                "prompt": "0.000000176",
+                "completion": "0.000000528",
+                "input_cache_read": "0.0000000176"
+              }
+            ]
+          },
+          "pricing_overrides": null,
+          "pricing_tiers": null
+        },
+        {
+          "provider": "Alibaba",
+          "tag": "alibaba/us-east-1",
+          "pricing": {
+            "prompt": "0.000000374",
+            "completion": "0.000001122",
+            "input_cache_read": "0.0000000374",
+            "discount": 0,
+            "overrides": [
+              {
+                "utc_start": 0,
+                "utc_end": 1400,
+                "prompt": "0.000000374",
+                "completion": "0.000001122",
+                "input_cache_read": "0.0000000374"
+              },
+              {
+                "utc_start": 1400,
+                "utc_end": 0,
+                "prompt": "0.000000187",
+                "completion": "0.000000561",
+                "input_cache_read": "0.0000000187"
+              }
+            ]
+          },
+          "pricing_overrides": null,
+          "pricing_tiers": null
+        }
+      ]
+    },
+    {
+      "model": "deepseek/deepseek-v4-flash-0731:batch",
+      "model_pricing": {
+        "prompt": "0.000000048",
+        "completion": "0.000000144",
+        "input_cache_read": "0.000000012"
+      },
+      "endpoints": []
+    },
+    {
+      "model": "deepseek/deepseek-v4-flash",
+      "model_pricing": {
+        "prompt": "0.00000009",
+        "completion": "0.00000018",
+        "input_cache_read": "0.000000018"
+      },
+      "endpoints": []
+    }
+  ]
+}
