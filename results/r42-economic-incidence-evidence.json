@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-23 US Eastern",
+  "sources": [
+    {
+      "url": "https://doc.hybridinference.org/openrouter",
+      "locator": "Cost accounting",
+      "fact": "Registry-based caller cost_usd and upstream_cost_usd separately recorded. The latter is null for non-OpenRouter routes or no cost figure.",
+      "limit": "Does not establish margin-maximizing operation or fixed prices across every configured endpoint."
+    },
+    {
+      "url": "https://openrouter.ai/pricing",
+      "locator": "Billing and Pricing FAQ",
+      "fact": "Posted provider list price with no per-request markup, 5.5% Standard and 8% Business credit purchase fee; BYOK allowance then 5% of equivalent list price; Enterprise contractual. Failed inference token attempts not billed.",
+      "limit": "No evidence of private settlement amounts or fee revenue maximization by routing."
+    },
+    {
+      "url": "https://openrouter.ai/blog/announcements/how-we-rebuilt-provider-routing/",
+      "fact": "Effective price reflects observed cache hit and input/output mix; routing also weights latency, reliability and tool-call quality.",
+      "limit": "Price-only simulations do not reproduce default router or welfare effects."
+    },
+    {
+      "url": "https://doc.freeinference.org/models",
+      "locator": "DeepSeek Upstream Reference Pricing",
+      "fact": "Documented August 16 V4 Flash peak rates $0.014 cache read, $0.44 uncached input, $1.32 output per million; offpeak half; internal accounting always peak. No cash charged to user.",
+      "limit": "Historical deployment rates/actual upstream provider invoices not in public trace; current DeepSeek catalog has retired legacy model."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/hybridInference/blob/94a693e43b211b7e5d76fce0402ad7051b779910/apps/backend/routing/routewise/effective_cost.py",
+      "fact": "Base API route cost helper uses cold cache; separate postcompletion billing cache-aware."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/hybridInference/blob/94a693e43b211b7e5d76fce0402ad7051b779910/apps/backend/routing/routewise/router.py",
+      "fact": "Optional session prefix adjustment defaults off in source; when enabled reduces API candidate cost using predicted prefix reuse. Not proof production configuration."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/RouteWise",
+      "fact": "EuroSys 2027 accepted work optimizes latency under cost budgets; related work, not a new routing algorithm contribution."
+    },
+    {
+      "url": "https://vercel.com/academy/ai-gateway/ai-gateway-pricing",
+      "fact": "Provider list price no markup, including BYOK."
+    }
+  ],
+  "model": {
+    "stay": "upstream proxy K_A; fixed registry cash charge R_A",
+    "switch": "upstream proxy K_B includes first-request lost cache; fixed registry cash charge R_A + D",
+    "credit": "alpha*D; retained increment (1-alpha)*D",
+    "margin_delta": "(1-alpha)*D - (K_B-K_A)",
+    "cost_increasing_profitable_switch": "0 < K_B-K_A < (1-alpha)*D",
+    "threshold": "alpha >= 1 - (K_B-K_A)/D for an individual cost-increasing alternative, D>0",
+    "pass_through": "customer cost equals upstream tariff proxy, excluding credit purchase fees; no inference about actual platform profit",
+    "quota": "Reference quota debits are not cash receipts; procurement savings and customer entitlement loss can diverge without a revenue incentive."
+  },
+  "limitations": [
+    "Fixed registry cash scenario uses incumbent tariff as registry schedule; public list prices are procurement proxies, not invoices or marginal social costs.",
+    "Identical output and quality, availability, latency assumed; no operational decisions, causal manipulation or welfare claims.",
+    "Full-loss and 10.417% full-loss probability are scenarios, not calibrated individual risk."
+  ]
+}
