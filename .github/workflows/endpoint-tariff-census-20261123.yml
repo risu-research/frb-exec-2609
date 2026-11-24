@@ -1,0 +1,140 @@
+name: Public endpoint tariff census 20261123
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/endpoint-tariff-census-20261123.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Collect public catalog and analyze comparable tariffs
+        run: |
+          cat > audit.py <<'PY'
+          import concurrent.futures as cf, collections as C, datetime as dt, hashlib, json, pathlib, statistics as st, time, urllib.request as u, urllib.parse as p
+          from decimal import Decimal as D
+          OUT=pathlib.Path("r35-results");OUT.mkdir(exist_ok=True);RAW=OUT/"raw";RAW.mkdir(exist_ok=True)
+          BASE="https://openrouter.ai/api/v1"
+          def fetch(url,path):
+              err=None
+              for i in range(3):
+                  try:
+                      with u.urlopen(u.Request(url,headers={"User-Agent":"RISU public tariff research/1.0","Accept":"application/json"}),timeout=30) as r:
+                          raw=r.read(); headers=dict(r.headers); status=r.status
+                      obj=json.loads(raw)
+                      path.write_bytes(raw)
+                      return obj,dict(url=url,sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw),status=status,utc=dt.datetime.now(dt.timezone.utc).isoformat(),server_date=headers.get("Date"))
+                  except Exception as e:
+                      err=repr(e);time.sleep(2**i)
+              raise RuntimeError(err)
+          cat,meta=fetch(BASE+"/models",OUT/"models.json")
+          models=sorted({m["id"] for m in cat["data"] if "text" in (m.get("architecture",{}).get("output_modalities") or []) and "text" in (m.get("architecture",{}).get("input_modalities") or [])})
+          assert models
+          print("CATALOG",json.dumps({"total":len(cat["data"]),"text_text":len(models),"meta":meta}),flush=True)
+          def get(mid):
+              try:
+                  file=RAW/(hashlib.sha256(mid.encode()).hexdigest()+".json")
+                  obj,m=fetch(BASE+"/models/"+p.quote(mid,safe="/:")+"/endpoints",file)
+                  data=obj["data"]; assert data["id"]==mid,(data["id"],mid)
+                  endpoints=data["endpoints"];assert isinstance(endpoints,list)
+                  return mid,endpoints,dict(m,file=file.name),None
+              except Exception as e:return mid,[],None,repr(e)
+          def dec(x):
+              try:
+                  if x is None or isinstance(x,bool):return None
+                  n=D(str(x));return n if n.is_finite() and n>=0 else None
+              except Exception:return None
+          def integer(x):
+              return x if isinstance(x,int) and not isinstance(x,bool) and x>0 else None
+          def normalize(e):
+              price=e.get("pricing") or {}; a,b,c=[dec(price.get(k)) for k in ["prompt","completion","input_cache_read"]]
+              provider=e.get("provider_name")
+              if not provider or a is None or b is None or a<=0:return None,"nonpositive_or_missing_price"
+              if c is None:return None,"missing_explicit_cache_read"
+              if c>a:return None,"cache_read_above_prompt"
+              if price.get("overrides") or e.get("pricing_overrides") or e.get("pricing_tiers") or e.get("discount") not in (None,0,"0",0.0):return None,"conditional_or_discounted"
+              if any(dec(price.get(k)) not in (None,D(0)) for k in ["request","internal_reasoning"]):return None,"other_nonzero_charge"
+              if dec(price.get("input_cache_write")) not in (None,D(0)):return None,"nonzero_cache_write"
+              if e.get("status") not in (0,None):return None,"nonzero_status"
+              tag=str(e.get("tag") or "")
+              if any(x in tag.lower() for x in [":free",":batch","/free","/batch"]):return None,"nonstandard"
+              return (provider,a,b,c,integer(e.get("context_length")),integer(e.get("max_prompt_tokens")),integer(e.get("max_completion_tokens")),str(e.get("quantization") or "").lower(),tuple(sorted(e.get("supported_parameters") or [])),str(e.get("tag") or e.get("name") or "")),None
+          def feasible(r,n,o,strict):
+              _,a,b,c,ctx,pm,cm,quant,params,tag=r
+              if ctx is None or ctx<n+o or (pm is not None and pm<n) or (cm is not None and cm<o):return False
+              if strict and ("tools" not in params or not quant or quant in ("unknown","none","other","null")):return False
+              return True
+          def cost(r,h,q):return (1-h)*r[1]+h*r[3]+q*r[2]
+          def analyze(rows,n,h,q,H,loss,strict):
+              o=int(n*q)
+              rr=[r for r in rows if feasible(r,n,o,strict)]
+              records=[]
+              for a in rr:
+                  groups=C.defaultdict(list)
+                  for b in rr:
+                      if a[0]!=b[0] and (not strict or a[7]==b[7]):groups[b[0]].append(b)
+                  if not groups:continue
+                  base={k for k,bs in groups.items() if min(cost(b,D(0),q) for b in bs)<cost(a,D(0),q)}
+                  warm={k for k,bs in groups.items() if min(cost(b,h,q) for b in bs)<cost(a,h,q)}
+                  sw={k for k,bs in groups.items() if min(cost(b,h*(1-loss),q)+(H-1)*cost(b,h,q) for b in bs)<H*cost(a,h,q)}
+                  records.append(dict(provider=a[0],tag=a[9],base=len(base),warm=len(base&warm),survive=len(base&sw),all_warm=len(warm),all_switch=len(sw),new=len(sw-base),feasible=len(groups)))
+              rr=[r for r in records if r["base"]]
+              return {"incumbents":len(records),"eligible_incumbents":len(rr),"cold":sum(r["base"] for r in rr),"warm":sum(r["warm"] for r in rr),"switch":sum(r["survive"] for r in rr),"all_warm":sum(r["all_warm"] for r in records),"all_switch":sum(r["all_switch"] for r in records),"zero_original":sum(r["survive"]==0 for r in rr),"zero_any":sum(r["all_switch"]==0 for r in rr),"median_cold":st.median([r["base"] for r in rr]) if rr else None,"median_switch":st.median([r["survive"] for r in rr]) if rr else None}
+          # Synthetic exact arithmetic sanity check: cheaper cold competitor loses to warm incumbent.
+          a=("A",D(".15"),D(".5"),D(".03"),200000,None,None,"fp16",("tools",),"A")
+          b=("B",D(".075"),D(".25"),D(".015"),200000,None,None,"fp16",("tools",),"B")
+          assert analyze([a,b],32000,D(".9"),D(".01"),1,D(1),True)["switch"]==0
+          assert analyze([a,b],32000,D(0),D(".01"),1,D(1),True)["switch"]==1
+          results=[];manifest=[];exclusions=C.Counter();statuses=C.Counter();fields=C.Counter()
+          scenarios=[(n,D(h),D(q),H,D(loss),strict) for n in [8192,32768,104816] for h in [".5",".9"] for q in [".01",".1"] for H in [1,5,20] for loss in ["0","1"] for strict in [False,True]]
+          with cf.ThreadPoolExecutor(max_workers=5) as pool:
+              for mid,ends,m,err in pool.map(get,models):
+                  manifest.append(dict(model=mid,meta=m,error=err,endpoint_count=len(ends)))
+                  if err:continue
+                  rows=[]
+                  for e in ends:
+                      statuses[str(e.get("status"))]+=1
+                      fields.update((e.get("pricing") or {}).keys())
+                      r,why=normalize(e)
+                      if why:exclusions[why]+=1
+                      else:rows.append(r)
+                  rows=sorted(set(rows),key=str)
+                  row=dict(model=mid,endpoint_count=len(ends),providers=len({e.get("provider_name") for e in ends if e.get("provider_name")}),eligible_tariffs=len(rows),eligible_providers=len({r[0] for r in rows}),scenarios={})
+                  if row["eligible_providers"]>=2:
+                      for n,h,q,H,loss,strict in scenarios:
+                          k=f"{n}/{h}/{q}/{H}/{loss}/{int(strict)}"
+                          s=analyze(rows,n,h,q,H,loss,strict)
+                          if s["eligible_incumbents"]:row["scenarios"][k]=s
+                  results.append(row)
+                  if len(manifest)%50==0: print("PROGRESS",len(manifest),sum(bool(x["error"]) for x in manifest),flush=True)
+          (OUT/"manifest.json").write_text(json.dumps({"catalog":meta,"models":manifest},indent=2))
+          (OUT/"model_results.json").write_text(json.dumps(results,indent=2))
+          print("COVERAGE",json.dumps(dict(catalog=len(cat["data"]),target=len(models),success=len(results),failures=[x for x in manifest if x["error"]],endpoints=sum(r["endpoint_count"] for r in results),multi_provider=sum(r["providers"]>=2 for r in results),eligible_tariffs=sum(r["eligible_tariffs"] for r in results),eligible_multi=sum(r["eligible_providers"]>=2 for r in results),exclusions=dict(exclusions),statuses=dict(statuses),pricing_fields=dict(fields))),flush=True)
+          agg={}
+          for n,h,q,H,loss,strict in scenarios:
+              k=f"{n}/{h}/{q}/{H}/{loss}/{int(strict)}"
+              rr=[r["scenarios"][k] for r in results if k in r["scenarios"]]
+              if not rr:continue
+              d={x:sum(s[x] for s in rr) for x in ["eligible_incumbents","cold","warm","switch","zero_original","zero_any","all_warm","all_switch"]}
+              d.update(models=len(rr),models_with_loss=sum(s["switch"]<s["cold"] for s in rr),median_model_retention=st.median(s["switch"]/s["cold"] for s in rr))
+              agg[k]=d
+          (OUT/"summary.json").write_text(json.dumps(agg,indent=2))
+          for k,d in agg.items():
+              if "/0.9/0.01/" in k:print("SCENARIO",k,json.dumps(d),flush=True)
+          k="32768/0.9/0.01/1/1/1"
+          for r in results:
+              if k in r["scenarios"]:print("MODEL",r["model"],json.dumps(r["scenarios"][k]),flush=True)
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: endpoint-tariff-census
+          path: r35-results/
+          retention-days: 14
