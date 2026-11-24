@@ -1,0 +1,47 @@
+name: FreeInference quota exposure on observed switches 20261123
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/quota-exposure-audit-20261123.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: continuation-cache-audit-results
+          path: capture
+          run-id: 45316568340
+          github-token: ${{ github.token }}
+      - name: Price observed same-model cache loss at documented reference rate
+        run: |
+          python - <<'PY'
+          import gzip,json,pathlib,statistics as S,collections as C
+          from decimal import Decimal as D
+          # Current public gateway accounting reference; historical applicability unknown.
+          # Use weeks entirely after documented Aug 16 pricing boundary.
+          p=pathlib.Path('capture/events.jsonl.gz')
+          events=[json.loads(s) for s in gzip.open(p,'rt')]
+          assert len(events)==922
+          selected=[e for e in events if e['type']=='provider_only' and e['before_model']==e['after_model']=='deepseek-v4-flash' and e['week']>='2026-08-23']
+          r=[]
+          for e in selected:
+              n=e['after_prompt']; actual=e['after_cached']; preserved=min(n,e['before_cached'])
+              excess=max(0,preserved-actual)
+              inp=D(n-actual)*D('.44')/1000000+D(actual)*D('.014')/1000000
+              diff=D(excess)*D('.426')/1000000
+              base=inp-diff
+              r.append(dict(week=e['week'],input_tokens=n,cache_before=e['before_cached'],cache_after=actual,reference_excess_usd=float(diff),reference_input_usd=float(inp),reference_preserved_input_usd=float(base),ratio=float(inp/base) if base else None))
+          vals=[v['reference_excess_usd'] for v in r]
+          s=dict(n=len(r),unique_sessions=len({(e['week'],e['session_id']) for e in selected}),weeks=dict(C.Counter(e['week'] for e in selected)),sum_excess_usd=sum(vals),median_excess_usd=S.median(vals) if vals else None,mean_excess_usd=S.mean(vals) if vals else None,ge_cent=sum(x>=.01 for x in vals),ge_dime=sum(x>=.1 for x in vals),median_input_cost_ratio=S.median(v['ratio'] for v in r if v['ratio'] is not None) if r else None,rate_source='https://doc.freeinference.org/models',scope='Severe observed provider-only losses, retained normalized prefix, prior cache >=90%; two full weeks after documented rate change; reference-rate scenario, not actual quota charges.')
+          print('QUOTA',json.dumps(s))
+          pathlib.Path('quota.json').write_text(json.dumps(s,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quota-exposure
+          path: quota.json
+          retention-days: 14
