@@ -1,0 +1,302 @@
+{
+  "upstream": "94a693e43b211b7e5d76fce0402ad7051b779910",
+  "runs": {
+    "mechanism": 45320302020,
+    "trace": 45320276864
+  },
+  "upstream_tests": "69 passed, 2 warnings",
+  "trace": {
+    "coverage": {
+      "eligible_events": 16,
+      "followup_events": 16,
+      "requests": 579,
+      "stop_route_change": 10,
+      "stop_session_end": 5,
+      "stop_invalid": 1
+    },
+    "grid": {
+      "0.05": {
+        "n": 16,
+        "affected": 15,
+        "mean_lost": 7,
+        "max_lost": 16,
+        "actual_complete": 1,
+        "preserved_complete": 8,
+        "actual_total": 27,
+        "preserved_total": 139
+      },
+      "0.1": {
+        "n": 16,
+        "affected": 14,
+        "mean_lost": 7.625,
+        "max_lost": 24,
+        "actual_complete": 2,
+        "preserved_complete": 10,
+        "actual_total": 106,
+        "preserved_total": 228
+      },
+      "0.25": {
+        "n": 16,
+        "affected": 5,
+        "mean_lost": 4.4375,
+        "max_lost": 20,
+        "actual_complete": 11,
+        "preserved_complete": 12,
+        "actual_total": 383,
+        "preserved_total": 454
+      },
+      "0.5": {
+        "n": 16,
+        "affected": 0,
+        "mean_lost": 0,
+        "max_lost": 0,
+        "actual_complete": 16,
+        "preserved_complete": 16,
+        "actual_total": 579,
+        "preserved_total": 579
+      },
+      "1.0": {
+        "n": 16,
+        "affected": 0,
+        "mean_lost": 0,
+        "max_lost": 0,
+        "actual_complete": 16,
+        "preserved_complete": 16,
+        "actual_total": 579,
+        "preserved_total": 579
+      },
+      "2.0": {
+        "n": 16,
+        "affected": 0,
+        "mean_lost": 0,
+        "max_lost": 0,
+        "actual_complete": 16,
+        "preserved_complete": 16,
+        "actual_total": 579,
+        "preserved_total": 579
+      },
+      "5.0": {
+        "n": 16,
+        "affected": 0,
+        "mean_lost": 0,
+        "max_lost": 0,
+        "actual_complete": 16,
+        "preserved_complete": 16,
+        "actual_total": 579,
+        "preserved_total": 579
+      }
+    },
+    "cases": [
+      {
+        "n": 74,
+        "first_extra": 0.045149,
+        "observed_cost": 0.34891,
+        "preserved_cost": 0.303761,
+        "stop": "route_change"
+      },
+      {
+        "n": 3,
+        "first_extra": 0.075794,
+        "observed_cost": 0.086916,
+        "preserved_cost": 0.011122,
+        "stop": "route_change"
+      },
+      {
+        "n": 6,
+        "first_extra": 0.126178,
+        "observed_cost": 0.156581,
+        "preserved_cost": 0.030403,
+        "stop": "route_change"
+      },
+      {
+        "n": 5,
+        "first_extra": 0.139155,
+        "observed_cost": 0.173921,
+        "preserved_cost": 0.034766,
+        "stop": "route_change"
+      },
+      {
+        "n": 114,
+        "first_extra": 0.072086,
+        "observed_cost": 0.56811,
+        "preserved_cost": 0.496024,
+        "stop": "session_end"
+      },
+      {
+        "n": 7,
+        "first_extra": 0.08201,
+        "observed_cost": 0.105445,
+        "preserved_cost": 0.023435,
+        "stop": "route_change"
+      },
+      {
+        "n": 166,
+        "first_extra": 0.02781,
+        "observed_cost": 0.362562,
+        "preserved_cost": 0.334752,
+        "stop": "route_change"
+      },
+      {
+        "n": 18,
+        "first_extra": 0.07852,
+        "observed_cost": 0.144101,
+        "preserved_cost": 0.065581,
+        "stop": "route_change"
+      },
+      {
+        "n": 20,
+        "first_extra": 0.042096,
+        "observed_cost": 0.105706,
+        "preserved_cost": 0.06361,
+        "stop": "session_end"
+      },
+      {
+        "n": 2,
+        "first_extra": 0.163147,
+        "observed_cost": 0.174655,
+        "preserved_cost": 0.011508,
+        "stop": "route_change"
+      },
+      {
+        "n": 107,
+        "first_extra": 0.043513,
+        "observed_cost": 0.447253,
+        "preserved_cost": 0.40374,
+        "stop": "route_change"
+      },
+      {
+        "n": 2,
+        "first_extra": 0.163693,
+        "observed_cost": 0.175058,
+        "preserved_cost": 0.011365,
+        "stop": "route_change"
+      },
+      {
+        "n": 25,
+        "first_extra": 0.154314,
+        "observed_cost": 0.344112,
+        "preserved_cost": 0.189798,
+        "stop": "invalid"
+      },
+      {
+        "n": 20,
+        "first_extra": 0.07743,
+        "observed_cost": 0.222966,
+        "preserved_cost": 0.145536,
+        "stop": "session_end"
+      },
+      {
+        "n": 5,
+        "first_extra": 0.080265,
+        "observed_cost": 0.09619,
+        "preserved_cost": 0.015925,
+        "stop": "session_end"
+      },
+      {
+        "n": 5,
+        "first_extra": 0.013632,
+        "observed_cost": 0.026252,
+        "preserved_cost": 0.01262,
+        "stop": "session_end"
+      }
+    ],
+    "limitations": [
+      "Current public source and reference tariff applied to historical observed requests; no actual balance or live deployment version.",
+      "First request cache count counterfactual only; later observed usage held constant.",
+      "Same model/provider continuation, no UTC reset, sequential requests only; censored at route change/invalid/end.",
+      "Remaining budgets are scenarios, not actual account balances; completion means observed request segment only."
+    ]
+  },
+  "http": {
+    "preserve": {
+      "admitted": 66,
+      "spent": 0.241824,
+      "status": 429,
+      "remaining": 0.008175999999999989,
+      "scope": "account"
+    },
+    "loss": {
+      "admitted": 45,
+      "spent": 0.2434,
+      "status": 429,
+      "remaining": 0.006599999999999995,
+      "scope": "account"
+    },
+    "input_tokens": 185282,
+    "output_tokens": 500,
+    "warm_charge": 0.0036637600000000003,
+    "loss_charge": 0.08218407999999999,
+    "budget": 0.25
+  },
+  "controlled_grid": {
+    "0.05": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 10.4375,
+      "median_lost": 10,
+      "max_lost": 17,
+      "mean_warm": 12.6875,
+      "mean_loss": 2.25
+    },
+    "0.1": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 18.25,
+      "median_lost": 17,
+      "max_lost": 27,
+      "mean_warm": 27.5,
+      "mean_loss": 9.25
+    },
+    "0.25": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 21.9375,
+      "median_lost": 26,
+      "max_lost": 30,
+      "mean_warm": 72.6875,
+      "mean_loss": 50.75
+    },
+    "0.5": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 22,
+      "median_lost": 26.5,
+      "max_lost": 30,
+      "mean_warm": 147.875,
+      "mean_loss": 125.875
+    },
+    "1.0": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 21.875,
+      "median_lost": 26,
+      "max_lost": 30,
+      "mean_warm": 298.125,
+      "mean_loss": 276.25
+    },
+    "2.0": {
+      "n": 16,
+      "affected": 14,
+      "mean_lost": 20.375,
+      "median_lost": 26,
+      "max_lost": 29,
+      "mean_warm": 584.5625,
+      "mean_loss": 564.1875
+    },
+    "5.0": {
+      "n": 16,
+      "affected": 5,
+      "mean_lost": 6.8125,
+      "median_lost": 0,
+      "max_lost": 30,
+      "mean_warm": 976.875,
+      "mean_loss": 970.0625
+    }
+  },
+  "limitations": [
+    "HTTP test exercises upstream authentication dependency with an in-memory store; not a live inference endpoint.",
+    "Controlled grid uses repeated input-only probes and a 1000-call cap.",
+    "Observed trace replay includes actual subsequent token counts and output counts but counterfactual cache preservation for the first request only.",
+    "Current public reference rates and code do not establish historical customer balances or actual deployment revision."
+  ]
+}
