@@ -1,0 +1,160 @@
+name: Continuation cache audit 20261123
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/continuation-cache-audit-20261123.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Audit public request tables
+        shell: bash
+        run: |
+          cat > audit.py <<'PY'
+          import collections, csv, datetime as dt, gzip, hashlib, json, os, pathlib, statistics, tempfile, time
+          import numpy as np
+          import pyarrow.parquet as pq
+          from huggingface_hub import HfApi, hf_hub_download
+          
+          REPO="harvardMadsys/freeinference_agentic_trace"
+          OUT=pathlib.Path("r32-results")
+          OUT.mkdir(exist_ok=True)
+          COLS="session_id step model provider prompt_tokens cache_read_tokens block_ids start_ms end_ms ttft_ms step_trigger transition cause".split()
+          def good(r):
+              p,c=r["prompt_tokens"],r["cache_read_tokens"]
+              return p is not None and c is not None and p>0 and 0<=c<=p
+          def group(a,b):
+              if not all(a[k] and b[k] for k in ("model","provider")): return "unknown"
+              return {(False,False):"same",(True,False):"model_only",(False,True):"provider_only",(True,True):"both"}[(a["model"]!=b["model"],a["provider"]!=b["provider"])]
+          def pair(a,b):
+              g=group(a,b)
+              x,y=a["blocks"],b["blocks"]
+              prefix=x is not None and y is not None and len(x)>0 and len(x)<=len(y) and np.array_equal(x,y[:len(x)])
+              valid=good(a) and good(b)
+              ar=a["cache_read_tokens"]/a["prompt_tokens"] if valid else None
+              br=b["cache_read_tokens"]/b["prompt_tokens"] if valid else None
+              return g,bool(prefix),valid,ar,br
+          def selftest():
+              def r(m,p,blocks,c=95):return dict(model=m,provider=p,blocks=np.array(blocks),prompt_tokens=100,cache_read_tokens=c)
+              a=r("m","p",[1,2])
+              for b,g in [(r("m","p",[1,2,3]),"same"),(r("n","p",[1,2,3]),"model_only"),(r("m","q",[1,2,3],0),"provider_only"),(r("n","q",[1,2,3]),"both")]:
+                  assert pair(a,b)[:3]==(g,True,True)
+              assert not pair(a,r("m","q",[1,9,3]))[1]
+              assert not pair(a,r("m","q",[1,2],101))[2]
+          selftest()
+          api=HfApi()
+          info=api.dataset_info(REPO,files_metadata=True)
+          rev=info.sha
+          paths=sorted(s.rfilename for s in info.siblings if s.rfilename.endswith("/processed/requests.parquet"))
+          expected=[(dt.date(2026,5,17)+dt.timedelta(days=7*i)) for i in range(16)]
+          expected_paths=[f"release/{d}_{d+dt.timedelta(days=6)}/processed/requests.parquet" for d in expected]
+          assert paths==expected_paths,(paths,expected_paths)
+          print("SNAPSHOT",rev,"weeks",len(paths),flush=True)
+          (OUT/"source.json").write_text(json.dumps({"revision":rev,"files":[{"path":s.rfilename,"bytes":s.size} for s in info.siblings if s.rfilename in paths]},indent=2))
+          agg=collections.defaultdict(lambda:collections.Counter())
+          vals=collections.defaultdict(lambda:collections.defaultdict(list))
+          weeks=[]
+          events=[]
+          def record(key,a,b,ar,br):
+              c=agg[key]; c["n"]+=1
+              c["drop_gt_50pp"]+=ar-br>0.5
+              c["zero_after"]+=br==0
+              vals[key]["change_pp"].append(100*(br-ar))
+              vals[key]["uncached_delta"].append((b["prompt_tokens"]-b["cache_read_tokens"])-(a["prompt_tokens"]-a["cache_read_tokens"]))
+              vals[key]["lost_cached_count"].append(max(0,a["cache_read_tokens"]-b["cache_read_tokens"]))
+              if a["ttft_ms"] is not None and b["ttft_ms"] is not None and a["ttft_ms"]>=0 and b["ttft_ms"]>=0:
+                  vals[key]["ttft_delta_ms"].append(b["ttft_ms"]-a["ttft_ms"])
+          def finish_pending(p,reason):
+              p["end_reason"]=reason
+              events.append(p)
+          def summary():
+              ans={}
+              for key,c in sorted(agg.items()):
+                  row=dict(c)
+                  for metric,v in vals[key].items():
+                      if v:
+                          row[metric]={"n":len(v),"mean":statistics.fmean(v),"p10":float(np.quantile(v,.1)),"median":float(np.median(v)),"p90":float(np.quantile(v,.9))}
+                  ans[key]=row
+              return ans
+          for path in paths:
+              week=path.split("/")[1]
+              with tempfile.TemporaryDirectory() as cache:
+                  f=hf_hub_download(REPO,path,repo_type="dataset",revision=rev,cache_dir=cache)
+                  digest=hashlib.sha256()
+                  with open(f,"rb") as inp:
+                      for chunk in iter(lambda:inp.read(2**20),b""):digest.update(chunk)
+                  pf=pq.ParquetFile(f)
+                  missing=set(COLS)-set(pf.schema_arrow.names)
+                  assert not missing,missing
+                  cnt=collections.Counter(); prev=None; pending=None
+                  for batch in pf.iter_batches(batch_size=128,columns=COLS):
+                      ix=batch.schema.get_field_index("block_ids")
+                      ba=batch.column(ix)
+                      offsets=ba.offsets.to_numpy()
+                      flat=ba.values.to_numpy(zero_copy_only=False)
+                      null=ba.is_null().to_numpy(zero_copy_only=False)
+                      rows=batch.drop_columns(["block_ids"]).to_pylist()
+                      for i,b in enumerate(rows):
+                          b["blocks"]=None if null[i] else flat[offsets[i]:offsets[i+1]]
+                          cnt["requests"]+=1
+                          if prev is None or prev["session_id"]!=b["session_id"]:
+                              cnt["sessions"]+=1
+                              if pending:finish_pending(pending,"session_end");pending=None
+                          else:
+                              assert b["step"]>prev["step"],("duplicate_or_out_of_order",week)
+                              if b["step"]!=prev["step"]+1:
+                                  cnt["gap_pairs"]+=1
+                                  if pending:finish_pending(pending,"gap");pending=None
+                              else:
+                                  g,prefix,valid,ar,br=pair(prev,b)
+                                  cnt["adjacent_pairs"]+=1;cnt[g]+=1
+                                  if not valid:cnt["invalid_tokens"]+=1
+                                  if pending:
+                                      if g!="same":finish_pending(pending,"route_change");pending=None
+                                      elif not good(b):finish_pending(pending,"invalid_tokens");pending=None
+                                      else:
+                                          pending["followup"]+=1
+                                          if b["cache_read_tokens"]/b["prompt_tokens"]>=.9:finish_pending(pending,"recovered_90");pending=None
+                                          elif pending["followup"]>=10:finish_pending(pending,"horizon_10");pending=None
+                                  if valid and g!="unknown":
+                                      record(g+"/all",prev,b,ar,br)
+                                      if prefix:
+                                          record(g+"/prefix",prev,b,ar,br)
+                                          if ar>=.9:
+                                              record(g+"/prefix_prior90",prev,b,ar,br)
+                                              if g!="same" and ar-br>.5:
+                                                  pending={"week":week,"session_id":b["session_id"],"step":b["step"],"type":g,"before":ar,"after":br,"before_model":prev["model"],"after_model":b["model"],"before_provider":prev["provider"],"after_provider":b["provider"],"before_prompt":prev["prompt_tokens"],"after_prompt":b["prompt_tokens"],"before_cached":prev["cache_read_tokens"],"after_cached":b["cache_read_tokens"],"before_ttft_ms":prev["ttft_ms"],"after_ttft_ms":b["ttft_ms"],"prior_blocks":len(prev["blocks"]),"followup":0}
+                          prev=b
+                  if pending:finish_pending(pending,"session_end")
+                  assert cnt["requests"]==pf.metadata.num_rows
+                  assert cnt["requests"]==cnt["sessions"]+cnt["adjacent_pairs"]+cnt["gap_pairs"]
+                  weeks.append({"week":week,"sha256":digest.hexdigest(),"bytes":os.path.getsize(f),**cnt})
+                  print("WEEK",json.dumps(weeks[-1]),flush=True)
+                  (OUT/"weekly.json").write_text(json.dumps(weeks,indent=2))
+                  (OUT/"summary.json").write_text(json.dumps(summary(),indent=2))
+                  with gzip.open(OUT/"events.jsonl.gz","wt") as o:
+                      for e in events:o.write(json.dumps(e)+"\n")
+          result=summary()
+          recovery=collections.Counter((e["type"],e["end_reason"],e["followup"]) for e in events)
+          (OUT/"recovery.json").write_text(json.dumps([{"type":k[0],"reason":k[1],"followup":k[2],"n":v} for k,v in sorted(recovery.items())],indent=2))
+          print("FINAL",json.dumps(result),flush=True)
+          print("RECOVERY",json.dumps([{"type":k[0],"reason":k[1],"followup":k[2],"n":v} for k,v in sorted(recovery.items())]),flush=True)
+          print("COMPLETE",sum(w["requests"] for w in weeks),len(weeks),flush=True)
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: continuation-cache-audit-results
+          path: r32-results/
+          retention-days: 7
+          if-no-files-found: warn
