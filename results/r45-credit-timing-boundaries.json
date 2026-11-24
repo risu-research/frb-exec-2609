@@ -1,0 +1,217 @@
+{
+  "sources": [
+    "results/r38-final-quota-mechanism.json",
+    "results/r39-exact-quota-boundaries.json"
+  ],
+  "sums": {
+    "n": 16,
+    "invoice_reference": 3.538738,
+    "credit_total": 1.384792,
+    "uniform_rate": 0.391323686579792,
+    "immediate_threshold_reduction": 1.3847960000000001,
+    "uniform_threshold_reduction": 1.3169239503890935,
+    "deferred_threshold_reduction": 0,
+    "immediate_better": 11,
+    "uniform_better": 5
+  },
+  "rows": [
+    {
+      "n": 74,
+      "actual_usd": 0.34891,
+      "preserved_usd": 0.303761,
+      "credit_usd": 0.045149,
+      "threshold_actual": 0.354999,
+      "threshold_preserved": 0.309849,
+      "uniform_relief": 0.13653674748455522,
+      "uniform_threshold_reduction": 0.13500628054634167,
+      "immediate_threshold_reduction": 0.04515000000000002,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 3,
+      "actual_usd": 0.086916,
+      "preserved_usd": 0.011122,
+      "credit_usd": 0.075794,
+      "threshold_actual": 0.093665,
+      "threshold_preserved": 0.017871,
+      "uniform_relief": 0.0340122895427692,
+      "uniform_threshold_reduction": 0.0327400962376983,
+      "immediate_threshold_reduction": 0.075794,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 6,
+      "actual_usd": 0.156581,
+      "preserved_usd": 0.030403,
+      "credit_usd": 0.126178,
+      "threshold_actual": 0.161327,
+      "threshold_preserved": 0.035149,
+      "uniform_relief": 0.06127385416835041,
+      "uniform_threshold_reduction": 0.05921783951906018,
+      "immediate_threshold_reduction": 0.126178,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 5,
+      "actual_usd": 0.173921,
+      "preserved_usd": 0.034766,
+      "credit_usd": 0.139155,
+      "threshold_actual": 0.174645,
+      "threshold_preserved": 0.035489,
+      "uniform_relief": 0.068059406893644,
+      "uniform_threshold_reduction": 0.06442948837692984,
+      "immediate_threshold_reduction": 0.139156,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 114,
+      "actual_usd": 0.56811,
+      "preserved_usd": 0.496024,
+      "credit_usd": 0.072086,
+      "threshold_actual": 0.469655,
+      "threshold_preserved": 0.397569,
+      "uniform_relief": 0.22231489958284564,
+      "uniform_threshold_reduction": 0.1798738891548343,
+      "immediate_threshold_reduction": 0.07208599999999998,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 7,
+      "actual_usd": 0.105445,
+      "preserved_usd": 0.023435,
+      "credit_usd": 0.08201,
+      "threshold_actual": 0.111643,
+      "threshold_preserved": 0.029633,
+      "uniform_relief": 0.04126312613140617,
+      "uniform_threshold_reduction": 0.0397753134750298,
+      "immediate_threshold_reduction": 0.08201,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 166,
+      "actual_usd": 0.362562,
+      "preserved_usd": 0.334752,
+      "credit_usd": 0.02781,
+      "threshold_actual": 0.37112,
+      "threshold_preserved": 0.34331,
+      "uniform_relief": 0.14187909845374255,
+      "uniform_threshold_reduction": 0.14131480969769447,
+      "immediate_threshold_reduction": 0.02781,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 18,
+      "actual_usd": 0.144101,
+      "preserved_usd": 0.065581,
+      "credit_usd": 0.07852,
+      "threshold_actual": 0.147953,
+      "threshold_preserved": 0.069433,
+      "uniform_relief": 0.05639013455983461,
+      "uniform_threshold_reduction": 0.05398427653474204,
+      "immediate_threshold_reduction": 0.07852,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 20,
+      "actual_usd": 0.105706,
+      "preserved_usd": 0.06361,
+      "credit_usd": 0.042096,
+      "threshold_actual": 0.11368,
+      "threshold_preserved": 0.071584,
+      "uniform_relief": 0.04136526161360349,
+      "uniform_threshold_reduction": 0.04057243982459284,
+      "immediate_threshold_reduction": 0.04209600000000001,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 2,
+      "actual_usd": 0.174655,
+      "preserved_usd": 0.011508,
+      "credit_usd": 0.163147,
+      "threshold_actual": 0.178833,
+      "threshold_preserved": 0.015685,
+      "uniform_relief": 0.06834663847959357,
+      "uniform_threshold_reduction": 0.06606835197632602,
+      "immediate_threshold_reduction": 0.163148,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 107,
+      "actual_usd": 0.447253,
+      "preserved_usd": 0.40374,
+      "credit_usd": 0.043513,
+      "threshold_actual": 0.454415,
+      "threshold_preserved": 0.410902,
+      "uniform_relief": 0.17502069279387172,
+      "uniform_threshold_reduction": 0.17391011617135826,
+      "immediate_threshold_reduction": 0.043513000000000024,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 2,
+      "actual_usd": 0.175058,
+      "preserved_usd": 0.011365,
+      "credit_usd": 0.163693,
+      "threshold_actual": 0.179479,
+      "threshold_preserved": 0.015786,
+      "uniform_relief": 0.06850434192528522,
+      "uniform_threshold_reduction": 0.06632114707785657,
+      "immediate_threshold_reduction": 0.163693,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 25,
+      "actual_usd": 0.344112,
+      "preserved_usd": 0.189798,
+      "credit_usd": 0.154314,
+      "threshold_actual": 0.3477,
+      "threshold_preserved": 0.193385,
+      "uniform_relief": 0.13465917643634537,
+      "uniform_threshold_reduction": 0.13215000895799575,
+      "immediate_threshold_reduction": 0.154315,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 20,
+      "actual_usd": 0.222966,
+      "preserved_usd": 0.145536,
+      "credit_usd": 0.07743,
+      "threshold_actual": 0.229333,
+      "threshold_preserved": 0.151903,
+      "uniform_relief": 0.0872518771019499,
+      "uniform_threshold_reduction": 0.08583019814860551,
+      "immediate_threshold_reduction": 0.07743,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 5,
+      "actual_usd": 0.09619,
+      "preserved_usd": 0.015925,
+      "credit_usd": 0.080265,
+      "threshold_actual": 0.103369,
+      "threshold_preserved": 0.023104,
+      "uniform_relief": 0.03764142541211019,
+      "uniform_threshold_reduction": 0.036537501292268605,
+      "immediate_threshold_reduction": 0.080265,
+      "deferred_threshold_reduction": 0
+    },
+    {
+      "n": 5,
+      "actual_usd": 0.026252,
+      "preserved_usd": 0.01262,
+      "credit_usd": 0.013632,
+      "threshold_actual": 0.03349,
+      "threshold_preserved": 0.019858,
+      "uniform_relief": 0.0102730294200927,
+      "uniform_threshold_reduction": 0.009192193397759313,
+      "immediate_threshold_reduction": 0.013631999999999998,
+      "deferred_threshold_reduction": 0
+    }
+  ],
+  "limitations": [
+    "Full observed workload reference-cost matched budget, not realized payout under hard stop.",
+    "Continuous proportional discount approximation applied to rounded source-gate prefix boundary, within micro-dollar rounding.",
+    "Deferred credit after completion cannot help admission of that same work; if a contract pays immediately upon cutoff, result may differ.",
+    "Each event is an observed same-model route change with severe cache decline, not established contractual fault. No actual balances, no welfare estimate."
+  ]
+}
