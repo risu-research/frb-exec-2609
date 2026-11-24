@@ -1,0 +1,1034 @@
+{
+  "run": 45320637249,
+  "upstream": "94a693e43b211b7e5d76fce0402ad7051b779910",
+  "counts": {
+    "requests": 350469,
+    "same_n": 188918,
+    "switch_n": 41,
+    "same_drop": 464,
+    "same_cases": 411,
+    "same_nonpositive_delta": 53,
+    "switch_drop": 16,
+    "switch_cases": 16
+  },
+  "weeks": [
+    {
+      "week": "2026-08-23_2026-08-29",
+      "sha256": "27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",
+      "counts": {
+        "requests": 159925,
+        "same_n": 91173,
+        "switch_n": 11,
+        "same_drop": 246,
+        "same_cases": 207,
+        "same_nonpositive_delta": 39,
+        "switch_drop": 1,
+        "switch_cases": 1
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "sha256": "e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",
+      "counts": {
+        "requests": 190544,
+        "same_n": 97745,
+        "switch_n": 30,
+        "switch_drop": 15,
+        "switch_cases": 15,
+        "same_drop": 218,
+        "same_cases": 204,
+        "same_nonpositive_delta": 14
+      }
+    }
+  ],
+  "matched": {
+    "switch_n": 40,
+    "switch_drop": 15,
+    "same_n": 19746,
+    "same_drop": 114,
+    "expected_switch_drops": 1.6810904900594381,
+    "cells": 28
+  },
+  "summary": {
+    "same": {
+      "events": 411,
+      "followup_events": 400,
+      "requests": 49323,
+      "delta": {
+        "n": 411,
+        "mean": 0.06386038686131387,
+        "median": 0.047548,
+        "min": 0.000764,
+        "max": 0.338292
+      },
+      "completion_width": {
+        "n": 400,
+        "mean": 0.0644161,
+        "median": 0.04793,
+        "min": 0.000764,
+        "max": 0.338292
+      },
+      "any_width": {
+        "n": 400,
+        "mean": 0.8295637,
+        "median": 0.363723,
+        "min": 0.00312,
+        "max": 9.820925
+      },
+      "area": {
+        "n": 400,
+        "mean": 8.10349755,
+        "median": 3.028333,
+        "min": 0.005351,
+        "max": 348.963311
+      },
+      "full_preserved": {
+        "n": 400,
+        "mean": 0.87330856,
+        "median": 0.328661,
+        "min": 0.011195,
+        "max": 9.599949
+      },
+      "full_actual": {
+        "n": 400,
+        "mean": 0.93772466,
+        "median": 0.389627,
+        "min": 0.013682,
+        "max": 9.845871
+      },
+      "credits": {
+        "0": {
+          "reference_credit_usd": 0,
+          "remaining_completion_width_usd": 25.76644,
+          "remaining_area_request_usd": 3241.39902
+        },
+        "25": {
+          "reference_credit_usd": 6.561503,
+          "remaining_completion_width_usd": 19.324983,
+          "remaining_area_request_usd": 2431.068483
+        },
+        "50": {
+          "reference_credit_usd": 13.1232,
+          "remaining_completion_width_usd": 12.883329,
+          "remaining_area_request_usd": 1620.713986
+        },
+        "75": {
+          "reference_credit_usd": 19.684803,
+          "remaining_completion_width_usd": 6.441771,
+          "remaining_area_request_usd": 810.370325
+        },
+        "100": {
+          "reference_credit_usd": 26.246619,
+          "remaining_completion_width_usd": 0,
+          "remaining_area_request_usd": 0
+        }
+      }
+    },
+    "switch": {
+      "events": 16,
+      "followup_events": 16,
+      "requests": 579,
+      "delta": {
+        "n": 16,
+        "mean": 0.0865495,
+        "median": 0.077975,
+        "min": 0.013632,
+        "max": 0.163693
+      },
+      "completion_width": {
+        "n": 16,
+        "mean": 0.08654975000000001,
+        "median": 0.077975,
+        "min": 0.013632,
+        "max": 0.163693
+      },
+      "any_width": {
+        "n": 16,
+        "mean": 0.203115625,
+        "median": 0.1612185,
+        "min": 0.020798,
+        "max": 0.455145
+      },
+      "area": {
+        "n": 16,
+        "mean": 1.90534775,
+        "median": 0.715355,
+        "min": 0.054528,
+        "max": 8.14571
+      },
+      "full_preserved": {
+        "n": 16,
+        "mean": 0.133781875,
+        "median": 0.052460999999999994,
+        "min": 0.015685,
+        "max": 0.410902
+      },
+      "full_actual": {
+        "n": 16,
+        "mean": 0.220331625,
+        "median": 0.17673899999999998,
+        "min": 0.03349,
+        "max": 0.469655
+      },
+      "credits": {
+        "0": {
+          "reference_credit_usd": 0,
+          "remaining_completion_width_usd": 1.384796,
+          "remaining_area_request_usd": 30.485564
+        },
+        "25": {
+          "reference_credit_usd": 0.346192,
+          "remaining_completion_width_usd": 1.038601,
+          "remaining_area_request_usd": 22.864401
+        },
+        "50": {
+          "reference_credit_usd": 0.692393,
+          "remaining_completion_width_usd": 0.692401,
+          "remaining_area_request_usd": 15.242873
+        },
+        "75": {
+          "reference_credit_usd": 1.038587,
+          "remaining_completion_width_usd": 0.346205,
+          "remaining_area_request_usd": 7.6217
+        },
+        "100": {
+          "reference_credit_usd": 1.384792,
+          "remaining_completion_width_usd": 0,
+          "remaining_area_request_usd": 0
+        }
+      }
+    }
+  },
+  "switch_cases": [
+    {
+      "week": "2026-08-23_2026-08-29",
+      "group": "switch",
+      "n": 74,
+      "gap_ms": 420,
+      "trigger": "tool",
+      "delta": 45149,
+      "full_preserved": 309849,
+      "full_actual": 354999,
+      "completion_width": 45150,
+      "any_width": 339937,
+      "area": 3295873,
+      "intervals": [
+        [
+          15062,
+          354999
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 354999,
+          "remaining_completion_width": 45150,
+          "remaining_area": 3295873
+        },
+        "25": {
+          "credit": 11287,
+          "completion_threshold": 343711,
+          "remaining_completion_width": 33862,
+          "remaining_area": 2471919
+        },
+        "50": {
+          "credit": 22574,
+          "completion_threshold": 332424,
+          "remaining_completion_width": 22575,
+          "remaining_area": 1647968
+        },
+        "75": {
+          "credit": 33861,
+          "completion_threshold": 321137,
+          "remaining_completion_width": 11288,
+          "remaining_area": 824030
+        },
+        "100": {
+          "credit": 45149,
+          "completion_threshold": 309849,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 3,
+      "gap_ms": 536566,
+      "trigger": "user",
+      "delta": 75794,
+      "full_preserved": 17871,
+      "full_actual": 93665,
+      "completion_width": 75794,
+      "any_width": 79165,
+      "area": 151588,
+      "intervals": [
+        [
+          14500,
+          93665
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 93665,
+          "remaining_completion_width": 75794,
+          "remaining_area": 151588
+        },
+        "25": {
+          "credit": 18948,
+          "completion_threshold": 74717,
+          "remaining_completion_width": 56846,
+          "remaining_area": 113692
+        },
+        "50": {
+          "credit": 37897,
+          "completion_threshold": 55769,
+          "remaining_completion_width": 37898,
+          "remaining_area": 75795
+        },
+        "75": {
+          "credit": 56845,
+          "completion_threshold": 36820,
+          "remaining_completion_width": 18949,
+          "remaining_area": 37898
+        },
+        "100": {
+          "credit": 75794,
+          "completion_threshold": 17871,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 6,
+      "gap_ms": 535943,
+      "trigger": "user",
+      "delta": 126178,
+      "full_preserved": 35149,
+      "full_actual": 161327,
+      "completion_width": 126178,
+      "any_width": 146316,
+      "area": 630889,
+      "intervals": [
+        [
+          15011,
+          161327
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 161327,
+          "remaining_completion_width": 126178,
+          "remaining_area": 630889
+        },
+        "25": {
+          "credit": 31544,
+          "completion_threshold": 129783,
+          "remaining_completion_width": 94634,
+          "remaining_area": 473168
+        },
+        "50": {
+          "credit": 63089,
+          "completion_threshold": 98238,
+          "remaining_completion_width": 63089,
+          "remaining_area": 315443
+        },
+        "75": {
+          "credit": 94633,
+          "completion_threshold": 66694,
+          "remaining_completion_width": 31545,
+          "remaining_area": 157723
+        },
+        "100": {
+          "credit": 126178,
+          "completion_threshold": 35149,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 5,
+      "gap_ms": 995833,
+      "trigger": "user",
+      "delta": 139155,
+      "full_preserved": 35489,
+      "full_actual": 174645,
+      "completion_width": 139156,
+      "any_width": 159289,
+      "area": 556622,
+      "intervals": [
+        [
+          15356,
+          174645
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 174645,
+          "remaining_completion_width": 139156,
+          "remaining_area": 556622
+        },
+        "25": {
+          "credit": 34788,
+          "completion_threshold": 139856,
+          "remaining_completion_width": 104367,
+          "remaining_area": 417468
+        },
+        "50": {
+          "credit": 69577,
+          "completion_threshold": 105067,
+          "remaining_completion_width": 69578,
+          "remaining_area": 278312
+        },
+        "75": {
+          "credit": 104366,
+          "completion_threshold": 70278,
+          "remaining_completion_width": 34789,
+          "remaining_area": 139156
+        },
+        "100": {
+          "credit": 139155,
+          "completion_threshold": 35489,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 114,
+      "gap_ms": 2969872,
+      "trigger": "user",
+      "delta": 72086,
+      "full_preserved": 397569,
+      "full_actual": 469655,
+      "completion_width": 72086,
+      "any_width": 455145,
+      "area": 8145710,
+      "intervals": [
+        [
+          14510,
+          469655
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 469655,
+          "remaining_completion_width": 72086,
+          "remaining_area": 8145710
+        },
+        "25": {
+          "credit": 18021,
+          "completion_threshold": 451635,
+          "remaining_completion_width": 54066,
+          "remaining_area": 6109356
+        },
+        "50": {
+          "credit": 36043,
+          "completion_threshold": 433612,
+          "remaining_completion_width": 36043,
+          "remaining_area": 4072853
+        },
+        "75": {
+          "credit": 54064,
+          "completion_threshold": 415591,
+          "remaining_completion_width": 18022,
+          "remaining_area": 2036483
+        },
+        "100": {
+          "credit": 72086,
+          "completion_threshold": 397569,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 7,
+      "gap_ms": 7453,
+      "trigger": "tool",
+      "delta": 82010,
+      "full_preserved": 29633,
+      "full_actual": 111643,
+      "completion_width": 82010,
+      "any_width": 98222,
+      "area": 492060,
+      "intervals": [
+        [
+          13421,
+          111643
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 111643,
+          "remaining_completion_width": 82010,
+          "remaining_area": 492060
+        },
+        "25": {
+          "credit": 20502,
+          "completion_threshold": 91141,
+          "remaining_completion_width": 61508,
+          "remaining_area": 369048
+        },
+        "50": {
+          "credit": 41005,
+          "completion_threshold": 70638,
+          "remaining_completion_width": 41005,
+          "remaining_area": 246031
+        },
+        "75": {
+          "credit": 61507,
+          "completion_threshold": 50136,
+          "remaining_completion_width": 20503,
+          "remaining_area": 123019
+        },
+        "100": {
+          "credit": 82010,
+          "completion_threshold": 29633,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 166,
+      "gap_ms": 594294,
+      "trigger": "tool",
+      "delta": 27810,
+      "full_preserved": 343310,
+      "full_actual": 371120,
+      "completion_width": 27810,
+      "any_width": 359314,
+      "area": 4588649,
+      "intervals": [
+        [
+          11806,
+          371120
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 371120,
+          "remaining_completion_width": 27810,
+          "remaining_area": 4588649
+        },
+        "25": {
+          "credit": 6952,
+          "completion_threshold": 364167,
+          "remaining_completion_width": 20857,
+          "remaining_area": 3441574
+        },
+        "50": {
+          "credit": 13905,
+          "completion_threshold": 357215,
+          "remaining_completion_width": 13905,
+          "remaining_area": 2294326
+        },
+        "75": {
+          "credit": 20857,
+          "completion_threshold": 350262,
+          "remaining_completion_width": 6952,
+          "remaining_area": 1147245
+        },
+        "100": {
+          "credit": 27810,
+          "completion_threshold": 343310,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 18,
+      "gap_ms": 145932,
+      "trigger": "tool",
+      "delta": 78520,
+      "full_preserved": 69433,
+      "full_actual": 147953,
+      "completion_width": 78520,
+      "any_width": 134586,
+      "area": 1334839,
+      "intervals": [
+        [
+          13367,
+          147953
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 147953,
+          "remaining_completion_width": 78520,
+          "remaining_area": 1334839
+        },
+        "25": {
+          "credit": 19630,
+          "completion_threshold": 128323,
+          "remaining_completion_width": 58890,
+          "remaining_area": 1001128
+        },
+        "50": {
+          "credit": 39260,
+          "completion_threshold": 108693,
+          "remaining_completion_width": 39260,
+          "remaining_area": 667419
+        },
+        "75": {
+          "credit": 58890,
+          "completion_threshold": 89063,
+          "remaining_completion_width": 19630,
+          "remaining_area": 333709
+        },
+        "100": {
+          "credit": 78520,
+          "completion_threshold": 69433,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 20,
+      "gap_ms": 1224,
+      "trigger": "tool",
+      "delta": 42096,
+      "full_preserved": 71584,
+      "full_actual": 113680,
+      "completion_width": 42096,
+      "any_width": 94250,
+      "area": 799821,
+      "intervals": [
+        [
+          19430,
+          113680
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 113680,
+          "remaining_completion_width": 42096,
+          "remaining_area": 799821
+        },
+        "25": {
+          "credit": 10524,
+          "completion_threshold": 103156,
+          "remaining_completion_width": 31572,
+          "remaining_area": 599865
+        },
+        "50": {
+          "credit": 21048,
+          "completion_threshold": 92632,
+          "remaining_completion_width": 21048,
+          "remaining_area": 399909
+        },
+        "75": {
+          "credit": 31572,
+          "completion_threshold": 82108,
+          "remaining_completion_width": 10524,
+          "remaining_area": 199954
+        },
+        "100": {
+          "credit": 42096,
+          "completion_threshold": 71584,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 2,
+      "gap_ms": 1319277,
+      "trigger": "tool",
+      "delta": 163147,
+      "full_preserved": 15685,
+      "full_actual": 178833,
+      "completion_width": 163148,
+      "any_width": 163148,
+      "area": 163148,
+      "intervals": [
+        [
+          15685,
+          178833
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 178833,
+          "remaining_completion_width": 163148,
+          "remaining_area": 163148
+        },
+        "25": {
+          "credit": 40786,
+          "completion_threshold": 138046,
+          "remaining_completion_width": 122361,
+          "remaining_area": 122361
+        },
+        "50": {
+          "credit": 81573,
+          "completion_threshold": 97259,
+          "remaining_completion_width": 81574,
+          "remaining_area": 81574
+        },
+        "75": {
+          "credit": 122360,
+          "completion_threshold": 56472,
+          "remaining_completion_width": 40787,
+          "remaining_area": 40787
+        },
+        "100": {
+          "credit": 163147,
+          "completion_threshold": 15685,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 107,
+      "gap_ms": 12612,
+      "trigger": "tool",
+      "delta": 43513,
+      "full_preserved": 410902,
+      "full_actual": 454415,
+      "completion_width": 43513,
+      "any_width": 402293,
+      "area": 4612383,
+      "intervals": [
+        [
+          15364,
+          327716
+        ],
+        [
+          364474,
+          454415
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 454415,
+          "remaining_completion_width": 43513,
+          "remaining_area": 4612383
+        },
+        "25": {
+          "credit": 10878,
+          "completion_threshold": 443537,
+          "remaining_completion_width": 32635,
+          "remaining_area": 3459312
+        },
+        "50": {
+          "credit": 21756,
+          "completion_threshold": 432659,
+          "remaining_completion_width": 21757,
+          "remaining_area": 2306246
+        },
+        "75": {
+          "credit": 32634,
+          "completion_threshold": 421781,
+          "remaining_completion_width": 10879,
+          "remaining_area": 1153177
+        },
+        "100": {
+          "credit": 43513,
+          "completion_threshold": 410902,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 2,
+      "gap_ms": 3439130,
+      "trigger": "tool",
+      "delta": 163693,
+      "full_preserved": 15786,
+      "full_actual": 179479,
+      "completion_width": 163693,
+      "any_width": 163693,
+      "area": 163693,
+      "intervals": [
+        [
+          15786,
+          179479
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 179479,
+          "remaining_completion_width": 163693,
+          "remaining_area": 163693
+        },
+        "25": {
+          "credit": 40923,
+          "completion_threshold": 138556,
+          "remaining_completion_width": 122770,
+          "remaining_area": 122770
+        },
+        "50": {
+          "credit": 81846,
+          "completion_threshold": 97633,
+          "remaining_completion_width": 81847,
+          "remaining_area": 81847
+        },
+        "75": {
+          "credit": 122769,
+          "completion_threshold": 56710,
+          "remaining_completion_width": 40924,
+          "remaining_area": 40924
+        },
+        "100": {
+          "credit": 163693,
+          "completion_threshold": 15786,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 25,
+      "gap_ms": 1372511,
+      "trigger": "user",
+      "delta": 154314,
+      "full_preserved": 193385,
+      "full_actual": 347700,
+      "completion_width": 154315,
+      "any_width": 331388,
+      "area": 3703537,
+      "intervals": [
+        [
+          16312,
+          347700
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 347700,
+          "remaining_completion_width": 154315,
+          "remaining_area": 3703537
+        },
+        "25": {
+          "credit": 38578,
+          "completion_threshold": 309122,
+          "remaining_completion_width": 115737,
+          "remaining_area": 2777666
+        },
+        "50": {
+          "credit": 77157,
+          "completion_threshold": 270542,
+          "remaining_completion_width": 77157,
+          "remaining_area": 1851769
+        },
+        "75": {
+          "credit": 115735,
+          "completion_threshold": 231964,
+          "remaining_completion_width": 38579,
+          "remaining_area": 925896
+        },
+        "100": {
+          "credit": 154314,
+          "completion_threshold": 193385,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 20,
+      "gap_ms": 782635,
+      "trigger": "user",
+      "delta": 77430,
+      "full_preserved": 151903,
+      "full_actual": 229333,
+      "completion_width": 77430,
+      "any_width": 212331,
+      "area": 1471164,
+      "intervals": [
+        [
+          13061,
+          131991
+        ],
+        [
+          135932,
+          229333
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 229333,
+          "remaining_completion_width": 77430,
+          "remaining_area": 1471164
+        },
+        "25": {
+          "credit": 19357,
+          "completion_threshold": 209976,
+          "remaining_completion_width": 58073,
+          "remaining_area": 1103381
+        },
+        "50": {
+          "credit": 38715,
+          "completion_threshold": 190618,
+          "remaining_completion_width": 38715,
+          "remaining_area": 735580
+        },
+        "75": {
+          "credit": 58072,
+          "completion_threshold": 171261,
+          "remaining_completion_width": 19358,
+          "remaining_area": 367798
+        },
+        "100": {
+          "credit": 77430,
+          "completion_threshold": 151903,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 5,
+      "gap_ms": 20027,
+      "trigger": "user",
+      "delta": 80265,
+      "full_preserved": 23104,
+      "full_actual": 103369,
+      "completion_width": 80265,
+      "any_width": 89975,
+      "area": 321060,
+      "intervals": [
+        [
+          13394,
+          103369
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 103369,
+          "remaining_completion_width": 80265,
+          "remaining_area": 321060
+        },
+        "25": {
+          "credit": 20066,
+          "completion_threshold": 83303,
+          "remaining_completion_width": 60199,
+          "remaining_area": 240796
+        },
+        "50": {
+          "credit": 40132,
+          "completion_threshold": 63237,
+          "remaining_completion_width": 40133,
+          "remaining_area": 160535
+        },
+        "75": {
+          "credit": 60198,
+          "completion_threshold": 43171,
+          "remaining_completion_width": 20067,
+          "remaining_area": 80268
+        },
+        "100": {
+          "credit": 80265,
+          "completion_threshold": 23104,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "group": "switch",
+      "n": 5,
+      "gap_ms": 607302,
+      "trigger": "tool",
+      "delta": 13632,
+      "full_preserved": 19858,
+      "full_actual": 33490,
+      "completion_width": 13632,
+      "any_width": 20798,
+      "area": 54528,
+      "intervals": [
+        [
+          12692,
+          33490
+        ]
+      ],
+      "credits": {
+        "0": {
+          "credit": 0,
+          "completion_threshold": 33490,
+          "remaining_completion_width": 13632,
+          "remaining_area": 54528
+        },
+        "25": {
+          "credit": 3408,
+          "completion_threshold": 30082,
+          "remaining_completion_width": 10224,
+          "remaining_area": 40897
+        },
+        "50": {
+          "credit": 6816,
+          "completion_threshold": 26675,
+          "remaining_completion_width": 6817,
+          "remaining_area": 27266
+        },
+        "75": {
+          "credit": 10224,
+          "completion_threshold": 23267,
+          "remaining_completion_width": 3409,
+          "remaining_area": 13633
+        },
+        "100": {
+          "credit": 13632,
+          "completion_threshold": 19858,
+          "remaining_completion_width": 0,
+          "remaining_area": 0
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Integer micro-dollar balance grid, source gate invoked at exact boundary; historical workload and current code/reference rates, not actual balances.",
+    "Full completion refers to same-route sequential valid observed window, censored at next route change, invalid, reset or session end.",
+    "Same-route severe cache loss is a descriptive control, not identification of fault or causality.",
+    "Credits shift reference accounting burden at fixed served workload; total operation cost may change when extra requests are admitted."
+  ]
+}
