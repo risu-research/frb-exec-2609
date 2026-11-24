@@ -1,0 +1,218 @@
+{
+  "run": 45322298094,
+  "counts": {
+    "requests": 350469,
+    "same_n": 188918,
+    "switch_n": 41,
+    "same_drop": 464,
+    "same_cases": 411,
+    "same_nonpositive_delta": 53,
+    "switch_drop": 16,
+    "switch_cases": 16
+  },
+  "weeks": [
+    {
+      "week": "2026-08-23_2026-08-29",
+      "sha256": "27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",
+      "counts": {
+        "requests": 159925,
+        "same_n": 91173,
+        "switch_n": 11,
+        "same_drop": 246,
+        "same_cases": 207,
+        "same_nonpositive_delta": 39,
+        "switch_drop": 1,
+        "switch_cases": 1
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "sha256": "e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",
+      "counts": {
+        "requests": 190544,
+        "same_n": 97745,
+        "switch_n": 30,
+        "switch_drop": 15,
+        "switch_cases": 15,
+        "same_drop": 218,
+        "same_cases": 204,
+        "same_nonpositive_delta": 14
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "route": "same",
+      "prefix": "prefix_changed_or_unknown",
+      "transition": "mutation",
+      "cause": "compaction",
+      "counts": {
+        "pairs": 23,
+        "severe": 18,
+        "positive_reference_delta": 18,
+        "reference_delta_micro_usd": 510380
+      }
+    },
+    {
+      "route": "same",
+      "prefix": "prefix_changed_or_unknown",
+      "transition": "mutation",
+      "cause": "dropped_turns",
+      "counts": {
+        "pairs": 484,
+        "severe": 53,
+        "positive_reference_delta": 53,
+        "reference_delta_micro_usd": 3482509
+      }
+    },
+    {
+      "route": "same",
+      "prefix": "prefix_changed_or_unknown",
+      "transition": "mutation",
+      "cause": "injection",
+      "counts": {
+        "pairs": 1074,
+        "severe": 88,
+        "positive_reference_delta": 88,
+        "reference_delta_micro_usd": 5197955
+      }
+    },
+    {
+      "route": "same",
+      "prefix": "prefix_changed_or_unknown",
+      "transition": "mutation",
+      "cause": "other",
+      "counts": {
+        "pairs": 1732,
+        "severe": 137,
+        "positive_reference_delta": 137,
+        "reference_delta_micro_usd": 6848228
+      }
+    },
+    {
+      "route": "same",
+      "prefix": "prefix_changed_or_unknown",
+      "transition": "mutation",
+      "cause": "system_prompt",
+      "counts": {
+        "pairs": 1100,
+        "severe": 831,
+        "positive_reference_delta": 831,
+        "reference_delta_micro_usd": 55442670
+      }
+    },
+    {
+      "route": "same",
+      "prefix": "prefix_changed_or_unknown",
+      "transition": "mutation",
+      "cause": "tool_definitions",
+      "counts": {
+        "pairs": 345,
+        "severe": 213,
+        "positive_reference_delta": 213,
+        "reference_delta_micro_usd": 14147739
+      }
+    },
+    {
+      "route": "same",
+      "prefix": "prefix_changed_or_unknown",
+      "transition": "mutation",
+      "cause": "tool_result",
+      "counts": {
+        "pairs": 2700,
+        "severe": 120,
+        "positive_reference_delta": 120,
+        "reference_delta_micro_usd": 4969683
+      }
+    },
+    {
+      "route": "same",
+      "prefix": "prefix_retained",
+      "transition": "append",
+      "cause": "None",
+      "counts": {
+        "pairs": 188918,
+        "severe": 464,
+        "positive_reference_delta": 411,
+        "reference_delta_micro_usd": 26246619
+      }
+    },
+    {
+      "route": "switch",
+      "prefix": "prefix_changed_or_unknown",
+      "transition": "switch",
+      "cause": "None",
+      "counts": {
+        "pairs": 12,
+        "severe": 7,
+        "positive_reference_delta": 7,
+        "reference_delta_micro_usd": 310155
+      }
+    },
+    {
+      "route": "switch",
+      "prefix": "prefix_retained",
+      "transition": "switch",
+      "cause": "None",
+      "counts": {
+        "pairs": 41,
+        "severe": 16,
+        "positive_reference_delta": 16,
+        "reference_delta_micro_usd": 1384792
+      }
+    }
+  ],
+  "session_counts": [
+    {
+      "route": "same",
+      "prefix": "prefix_changed_or_unknown",
+      "sessions": 432
+    },
+    {
+      "route": "same",
+      "prefix": "prefix_retained",
+      "sessions": 314
+    },
+    {
+      "route": "switch",
+      "prefix": "prefix_changed_or_unknown",
+      "sessions": 6
+    },
+    {
+      "route": "switch",
+      "prefix": "prefix_retained",
+      "sessions": 15
+    }
+  ],
+  "limitations": [
+    "Normalized block prefix is not byte-level provider cache key; provider label is not physical endpoint identity.",
+    "No originating request routing preference, failed-attempt log, cache expiry, deployment identity, causal fault or balance recorded.",
+    "Reference difference in non-prefix cases is only a numerical benchmark, not an economically valid preservation counterfactual."
+  ],
+  "groups": {
+    "same/prefix_changed_or_unknown": {
+      "pairs": 7458,
+      "severe": 1460,
+      "positive": 1460,
+      "delta": 90.599164
+    },
+    "same/prefix_retained": {
+      "pairs": 188918,
+      "severe": 464,
+      "positive": 411,
+      "delta": 26.246619
+    },
+    "switch/prefix_changed_or_unknown": {
+      "pairs": 12,
+      "severe": 7,
+      "positive": 7,
+      "delta": 0.310155
+    },
+    "switch/prefix_retained": {
+      "pairs": 41,
+      "severe": 16,
+      "positive": 16,
+      "delta": 1.384792
+    }
+  }
+}
