@@ -1,0 +1,74 @@
+name: Upstream multi-scope ledger probe R47
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/scope-ledger-r47.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin upstream and install
+        run: |
+          git clone --quiet https://github.com/HarvardMadSys/hybridInference.git upstream
+          cd upstream
+          git checkout --quiet 94a693e43b211b7e5d76fce0402ad7051b779910
+          python -m pip install uv
+          uv sync --locked --group dev
+      - name: Run upstream scope and accounting tests
+        working-directory: upstream
+        run: uv run --no-sync pytest -q -o addopts='' tests/unit/serving/test_quota_refusal.py tests/unit/serving/test_spend_ledger.py tests/unit/serving/test_shared_spend_ledger.py tests/servers/test_auth_key_limits.py tests/servers/test_auth_account_monthly_quota.py
+      - name: Probe real ledger attribution and cap recognition
+        working-directory: upstream
+        run: |
+          cat > probe.py <<'PY'
+          import asyncio,json,pathlib,time,itertools
+          from serving.spend_ledger import SpendLedger
+          from serving.quota import first_refusal,refusal_payload
+          from serving.utils import context as req_ctx
+          from tests.unit.serving.test_spend_ledger import _AtomicStore,_check
+          R=json.loads(pathlib.Path("../results/r46-credit-liquidity.json").read_text())
+          case=next(x for x in R["switch_cases"] if x["n"]==2 and x["delta"]==163147)
+          d=case["delta"]/1e6
+          first=case["timing"]["strict_actual_gross/1"]["threshold"]/1e6
+          assert first==.168832
+          cap=.05
+          # Scenario: initial headroom identical for all six caps. Each of six views is
+          # adjusted by the same single concession. It is not six separate monetary payments.
+          names=["key_day","key_month","project_day","project_month","account_day","account_month"]
+          args=["key_budget_daily_usd","key_budget_monthly_usd","project_budget_daily_usd","project_budget_monthly_usd","account_quota_usd","account_quota_monthly_usd"]
+          masks=[]
+          async def main():
+              store=_AtomicStore();store.gate=asyncio.Event()
+              ledger=SpendLedger(store)
+              req_ctx.update({req_ctx.PROJECT_ID:"p"})
+              assert ledger.record("u1",first,api_key_id=1) is not None
+              req_ctx.reset_request_scope()
+              # Cost accounting does not treat a negative record as a refund.
+              assert ledger.record("u1",-d,api_key_id=1) is None
+              for bits in itertools.product((False,True),repeat=6):
+                  fields=dict(zip(args,[cap+(d if b else 0) for b in bits]))
+                  check=_check(ledger,key_id=1,project_id="p",**fields)
+                  refusal=check.refusal()
+                  expected=next((s for s,b in zip(names,bits) if not b),None)
+                  actual=None if refusal is None else refusal.scope+"_"+refusal.window
+                  assert actual==expected,(bits,actual,expected)
+                  masks.append(dict(adjusted=[s for s,b in zip(names,bits) if b],refusal=actual))
+              # Changing keys does not remove the shared project constraint.
+              fields=dict(account_quota_usd=1.,project_budget_daily_usd=cap,key_budget_daily_usd=1.)
+              same=_check(ledger,key_id=2,project_id="p",**fields).refusal()
+              other=_check(ledger,key_id=3,project_id="q",**fields).refusal()
+              assert same.scope=="project" and other is None
+              store.gate.set();assert await ledger.flush()
+              inc=store.batches[0][0]
+              assert inc.project_id=="p" and abs(float(inc.cost_usd)-first)<1e-6
+              print("R47_LEDGER",json.dumps(dict(first=first,credit=d,headroom=cap,masks=masks,negative_record_ignored=True,same_project_new_key=same.scope,other_project_new_key=None,stored_project=inc.project_id,stored_cost=float(inc.cost_usd))),flush=True)
+          asyncio.run(main())
+          PY
+          PYTHONPATH=apps/backend:. uv run --no-sync python probe.py
