@@ -1,0 +1,95 @@
+name: Natural tariff boundary continuations R44
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/natural-boundary-r44.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Observe cache state in natural peak to offpeak continuations
+        run: |
+          cat > expected.json <<'JSON'
+          {"2026-08-09_2026-08-15":{"sha256":"cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7","requests":163970},"2026-08-16_2026-08-22":{"sha256":"b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856","requests":144227},"2026-08-23_2026-08-29":{"sha256":"27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f","requests":159925},"2026-08-30_2026-09-05":{"sha256":"e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a","requests":190544}}
+          JSON
+          cat > audit.py <<'PY'
+          import pathlib,json,hashlib,collections as C,statistics as S,tempfile,datetime as dt
+          import numpy as np
+          import pyarrow.parquet as pq
+          from huggingface_hub import hf_hub_download
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXP=json.loads(pathlib.Path("expected.json").read_text())
+          UTC=dt.timezone.utc;DAY=86400000;HOUR=3600000
+          CUT=int(dt.datetime(2026,8,16,16,tzinfo=UTC).timestamp()*1000)
+          WEEKEND=int(dt.datetime(2026,8,22,16,tzinfo=UTC).timestamp()*1000)
+          # Integer units of 0.1 nano-USD, R43 tariff. Half-price costs exact.
+          def cost(r):return (r["prompt_tokens"]-r["cache_read_tokens"])*4400+r["cache_read_tokens"]*140+r["completion_tokens"]*13200
+          def valid(r):
+              p,c,o=r["prompt_tokens"],r["cache_read_tokens"],r["completion_tokens"]
+              return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0 and r["start_ms"] is not None and r["end_ms"] is not None and r["end_ms"]>=r["start_ms"] and bool(r["provider"])
+          def peak(t,cal):
+              h=t%DAY;w=dt.datetime.fromtimestamp(t/1000,UTC).weekday()
+              return (HOUR<=h<4*HOUR or 6*HOUR<=h<10*HOUR) and (cal=="daily" or t<WEEKEND or w<5)
+          def factor(t,cal):return 2 if peak(t,cal) else 1
+          def delay(t,cal):
+              assert peak(t,cal)
+              return (4*HOUR if t%DAY<4*HOUR else 10*HOUR)-t%DAY
+          def q(a):
+              if not a:return {}
+              return dict(n=len(a),mean=S.fmean(a),median=S.median(a),p10=float(np.quantile(a,.1)),p90=float(np.quantile(a,.9)))
+          gaps=[1,5,15,60,300,900,1800,3600,7200,14400,28800,86400]
+          def gapbin(t):return str(next((g for g in gaps if t<=g*1000),999999))
+          def adj(a,b):return a["session_id"]==b["session_id"] and b["step"]==a["step"]+1 and a["model"]==b["model"] and a["provider"]==b["provider"] and b["start_ms"]>=a["end_ms"]
+          # Natural peak-to-offpeak continuations with actual observed cache use.
+          # Compare identical next-request tokens priced at peak with prior cached count preserved.
+          # This is an accounting counterfactual; earlier execution/actual cache retention not established.
+          groups=C.defaultdict(C.Counter);vals=C.defaultdict(lambda:C.defaultdict(list));weeks=[];sessions=C.defaultdict(set)
+          for week,e in EXP.items():
+              prev=None;wc=C.Counter()
+              with tempfile.TemporaryDirectory() as td:
+                  f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+                  with open(f,"rb") as v:assert hashlib.file_digest(v,"sha256").hexdigest()==e["sha256"]
+                  pf=pq.ParquetFile(f);assert pf.metadata.num_rows==e["requests"]
+                  for batch in pf.iter_batches(batch_size=8192,columns="session_id step model provider prompt_tokens cache_read_tokens completion_tokens start_ms end_ms step_trigger transition".split()):
+                      for b in batch.to_pylist():
+                          wc["requests"]+=1;a=prev;prev=b
+                          if not a or a["model"]!="deepseek-v4-flash" or b["model"]!=a["model"] or not valid(a) or not valid(b) or not adj(a,b):continue
+                          if a["start_ms"]<CUT or a["cache_read_tokens"]*10<a["prompt_tokens"]*9 or b["transition"]!="append":continue
+                          t=b["start_ms"];g=t-a["end_ms"]
+                          if a["end_ms"]//DAY!=t//DAY:continue
+                          for cal in ("daily","weekend"):
+                              if not peak(a["end_ms"],cal) or peak(t,cal):continue
+                              # First offpeak boundary following preceding request's completion, not another later interval.
+                              d=delay(a["end_ms"],cal)
+                              if t<a["end_ms"]+d:continue
+                              if t-a["end_ms"]-d>HOUR:continue
+                              p=min(b["prompt_tokens"],a["cache_read_tokens"])
+                              observed=cost(b);ref=observed+(b["cache_read_tokens"]-p)*4260
+                              assert ref>0
+                              later=observed//2;loss=max(0,p-b["cache_read_tokens"])
+                              for k in [(cal,"all"),(cal,b["step_trigger"] or "unknown")]:
+                                  c=groups[k];c["n"]+=1;c["zero"]+=int(b["cache_read_tokens"]==0);c["severe"]+=int(a["cache_read_tokens"]/a["prompt_tokens"]-b["cache_read_tokens"]/b["prompt_tokens"]>.5)
+                                  c["positive_loss"]+=int(loss>0);c["offpeak_costlier_than_peak_preserved"]+=int(later>ref);c["offpeak_saves"]+=int(later<ref);c["peak_reference_units"]+=ref;c["offpeak_actual_cache_units"]+=later
+                                  c["excess_units"]+=max(0,later-ref);c["flat_reference_extra_units"]+=loss*4260
+                                  v=vals[k];v["gap_minutes"].append(g/60000);v["cost_ratio"].append(later/ref);v["extra_usd"].append((later-ref)/1e10)
+                                  sessions[k].add((week,b["session_id"]))
+              assert wc["requests"]==e["requests"];weeks.append(dict(week=week,sha=e["sha256"],counts=wc));print("WEEK",week,json.dumps(wc),flush=True)
+          out=dict(weeks=weeks,groups=[dict(calendar=k[0],cohort=k[1],sessions=len(sessions[k]),counts=c,stats={a:q(b) for a,b in vals[k].items()}) for k,c in sorted(groups.items())],limitations=["Observed same-route append continuations following a peak-time request; next request starts within one hour after next offpeak boundary. No evidence of deliberate delay or earlier readiness.","Counterfactual peak price uses capped previous cached token count, not an observed earlier execution; actual route tariff unknown.","Natural crossings selected by calendar and prior high cache, not causal effect of waiting."])
+          print("R44_NATURAL",json.dumps(out),flush=True)
+          pathlib.Path("r44-natural").mkdir(exist_ok=True);pathlib.Path("r44-natural/results.json").write_text(json.dumps(out,indent=2))
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: natural-boundary-r44
+          path: r44-natural/
+          retention-days: 14
