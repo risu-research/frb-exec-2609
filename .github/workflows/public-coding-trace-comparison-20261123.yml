@@ -1,0 +1,109 @@
+name: Public coding trace comparison 20261123
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/public-coding-trace-comparison-20261123.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        day: ['01','02','03','04','05','06','07']
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read verified daily archive
+        env:
+          DAY: ${{ matrix.day }}
+        run: |
+          cat > audit.py <<'PY'
+          import collections, datetime, gzip, hashlib, json, os, pathlib, tarfile
+          from urllib.request import urlretrieve
+          day=os.environ["DAY"]
+          digests={"01":"cacad69f23d3c87ac54d788fec3f8e9c84df82c0cc9638d693340423c14e68e9","02":"95b0450041095dbe88181b88841c64b1e42f55a0127aa7abe91c1c9d3b424240","03":"622a5b0742eeb196d69d9a5ee5f6457cf82d432ddc435b9eb76eb5bb4363f1d0","04":"fd81d45e0149cae10aa193f2c2536ae709a5eba61b5aa886e534587e80473028","05":"ababba256966dc8bb005c98fbb4b72faea5301e17dcd949fd5b69e71b8239c50","06":"9546e3fd156d379e2420b8a0ada496ff507cf74aab32b9fc97bd1b6b353fa182","07":"8b6da125b486aea3eb37c752adf6be14d61dd1e6a584f5967bca7077fafe8c3c"}
+          file=f"date.2026-06-{day}.tar.gz"
+          urlretrieve("https://github.com/Azure/AzurePublicDataset/releases/download/ghcp-coding-agent-2026/"+file,file)
+          with open(file,"rb") as f: digest=hashlib.file_digest(f,"sha256").hexdigest()
+          assert digest==digests[day]
+          def timing(c):
+              try:
+                  t=datetime.datetime.fromisoformat(c["timestamp"].replace("Z","+00:00"))
+                  if t.tzinfo is None:t=t.replace(tzinfo=datetime.timezone.utc)
+                  d=float(c["duration_ms"])
+                  if d<0:return None
+                  return t.timestamp(),t.timestamp()+d/1000
+              except (KeyError,ValueError,TypeError,OverflowError):return None
+          def rate(c):
+              t=c.get("tokens") or {};p=t.get("prompt");r=t.get("cached")
+              if isinstance(p,int) and isinstance(r,int) and p>0 and 0<=r<=p:return r/p
+          def shape(c):
+              a=c.get("message_metadata") or []
+              if not a:return None
+              if any(any(x.get(k) is None for k in ("sequenceId","type","role","token_len")) for x in a):return None
+              a=sorted(a,key=lambda x:x["sequenceId"])
+              if len({x["sequenceId"] for x in a})!=len(a):return None
+              return [(x["sequenceId"],x["type"],x["role"],x["token_len"]) for x in a]
+          def prefix(a,b):
+              x,y=shape(a),shape(b)
+              return bool(x and y and len(x)<=len(y) and x==y[:len(x)])
+          cnt=collections.Counter()
+          stats=collections.defaultdict(collections.Counter)
+          def add(k,a,b,ar,br):
+              s=stats[k];s["n"]+=1;s["drop_gt_50pp"]+=ar-br>.5;s["zero_after"]+=br==0
+              s["change_pp_sum"]+=100*(br-ar)
+              at,bt=a["tokens"],b["tokens"]
+              s["uncached_delta_sum"]+=(bt["prompt"]-bt["cached"])-(at["prompt"]-at["cached"])
+              s["hist_"+str(max(-100,min(100,int((br-ar)*100))))]+=1
+          with tarfile.open(file,"r|gz") as tar:
+              for member in tar:
+                  if not member.isfile() or not member.name.endswith(".jsonl.gz"):continue
+                  cnt["shards"]+=1
+                  with gzip.GzipFile(fileobj=tar.extractfile(member)) as f:
+                      for line in f:
+                          if not line.strip():continue
+                          session=json.loads(line);cnt["sessions"]+=1
+                          calls=[]
+                          for ti,turn in enumerate(session.get("turns") or []):
+                              cnt["turns"]+=1
+                              for c in turn.get("llm_calls") or []:
+                                  cnt["calls"]+=1
+                                  calls.append((timing(c),ti,c))
+                          if any(t is None for t,_,_ in calls):
+                              cnt["sessions_invalid_time"]+=1;continue
+                          calls.sort(key=lambda x:x[0][0])
+                          max_end=float("-inf")
+                          for i in range(len(calls)-1):
+                              (sa,ea),ta,a=calls[i];(sb,eb),tb,b=calls[i+1]
+                              cnt["adjacent"]+=1
+                              isolated=sa>=max_end and sb>=ea and (i+2==len(calls) or calls[i+2][0][0]>=eb) and sb>sa
+                              max_end=max(max_end,ea)
+                              if not isolated:cnt["overlap_excluded"]+=1;continue
+                              if not a.get("model") or not b.get("model"):cnt["missing_model"]+=1;continue
+                              ar,br=rate(a),rate(b)
+                              if ar is None or br is None:cnt["invalid_tokens"]+=1;continue
+                              g="same" if a["model"]==b["model"] else "switch"
+                              for scope in ["all", "within_turn" if ta==tb else "across_turn"]:
+                                  add(g+"/"+scope,a,b,ar,br)
+                                  if ar>=.9:
+                                      add(g+"/"+scope+"/prior90",a,b,ar,br)
+                                      if prefix(a,b):add(g+"/"+scope+"/prior90_shape",a,b,ar,br)
+          assert cnt["shards"]>0
+          out={"day":day,"sha256":digest,"counts":dict(cnt),"stats":{k:dict(v) for k,v in stats.items()}}
+          pathlib.Path("copilot-result.json").write_text(json.dumps(out,indent=2))
+          print("COUNTS",json.dumps(out["counts"]))
+          print("SUMMARY",json.dumps({k:{a:b for a,b in v.items() if not a.startswith("hist_")} for k,v in stats.items()}))
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coding-trace-day-${{ matrix.day }}
+          path: copilot-result.json
+          retention-days: 7
