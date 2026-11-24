@@ -1,0 +1,83 @@
+{
+  "date": "2026-11-23 US Eastern",
+  "scope": "Current public documentation; not negotiated customer contracts or live redemption tests.",
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/build-with-claude/fallback-credit",
+      "locators": [
+        "Where it works",
+        "Fields that must match",
+        "Token scope and lifetime",
+        "When a token cannot be redeemed by either shape"
+      ],
+      "findings": [
+        "Classifier refusal credit beta; source and target allowlists; token can be absent; 5-minute expiry; identity and platform restrictions.",
+        "Batch and Managed Agents unsupported. Haiku 5.5 refusal explicitly lacks credit.",
+        "Prompt-shaping fields and beta headers must match with documented exceptions. If completed server tools require continuation but structured output or forced tool choice forbids continuation, token may be unusable."
+      ]
+    },
+    {
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-fallback-credit.html",
+      "findings": [
+        "Same feature on AWS; identity binding; supported source-target pairs; client-side beta flag; no server-side fallback beta; token may be absent."
+      ]
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "findings": [
+        "Opus 5 and 4.8: read 0.5, 5-minute write 6.25, 1-hour write 10 USD per million. Sonnet 5: read 0.2, write 2.5/4."
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/enterprise-cloud@latest/copilot/concepts/models/auto-model-selection",
+      "findings": [
+        "Automatic model selection discounts model costs 10% for paid eligible users; task optimization routes at natural cache boundaries and substantial complexity drifts. No incident-specific credit established by this text."
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/concepts/billing-and-usage/organizations-and-enterprises/budgets",
+      "findings": [
+        "Universal user-level budget always hard stop; other limits may enforce stop; distinguishes economic entitlement from availability."
+      ]
+    },
+    {
+      "url": "https://openrouter.ai/pricing",
+      "findings": [
+        "Failed attempt model tokens not charged; successful answer billed at serving model rate. No general cache reconstruction credit established by this text."
+      ]
+    },
+    {
+      "url": "https://openrouter.ai/blog/insights/reliability-failover/",
+      "findings": [
+        "Automatic same-model provider failover; model fallback opt-in; availability benefits."
+      ]
+    }
+  ],
+  "price_examples": [
+    {
+      "target": "Opus 5 or 4.8",
+      "prefix_tokens": 100000,
+      "ttl": "5m",
+      "read_usd": 0.05,
+      "write_usd": 0.625,
+      "difference_usd": 0.575
+    },
+    {
+      "target": "Opus 5 or 4.8",
+      "prefix_tokens": 100000,
+      "ttl": "1h",
+      "read_usd": 0.05,
+      "write_usd": 1,
+      "difference_usd": 0.95
+    },
+    {
+      "target": "Sonnet 5",
+      "prefix_tokens": 100000,
+      "ttl": "5m",
+      "read_usd": 0.02,
+      "write_usd": 0.25,
+      "difference_usd": 0.23
+    }
+  ],
+  "limits": "Examples only for fully overlapping cache-write tokens eligible to reprice; no API calls or actual redemption. No transfer of DeepSeek trace tokens to Claude. Do not equate elapsed time between trace requests with refusal-token age."
+}
