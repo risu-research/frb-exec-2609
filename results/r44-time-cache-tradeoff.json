@@ -1,0 +1,2216 @@
+{
+  "run": 45324196706,
+  "coverage": {
+    "requests": 658666,
+    "valid_target": 404733
+  },
+  "weeks": [
+    {
+      "week": "2026-08-09_2026-08-15",
+      "sha": "cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7",
+      "counts": {
+        "requests": 163970,
+        "valid_target": 103569
+      }
+    },
+    {
+      "week": "2026-08-16_2026-08-22",
+      "sha": "b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856",
+      "counts": {
+        "requests": 144227,
+        "valid_target": 91090
+      }
+    },
+    {
+      "week": "2026-08-23_2026-08-29",
+      "sha": "27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",
+      "counts": {
+        "requests": 159925,
+        "valid_target": 102673
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "sha": "e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",
+      "counts": {
+        "requests": 190544,
+        "valid_target": 107401
+      }
+    }
+  ],
+  "gaps": [
+    {
+      "bin_seconds": "1",
+      "trigger": "tool",
+      "counts": {
+        "n": 81993,
+        "zero": 1,
+        "severe": 75,
+        "high": 81004,
+        "cached": 14051514880,
+        "prompt": 14130970866
+      }
+    },
+    {
+      "bin_seconds": "1",
+      "trigger": "user",
+      "counts": {
+        "n": 569,
+        "zero": 0,
+        "severe": 0,
+        "high": 568,
+        "cached": 111829504,
+        "prompt": 112784505
+      }
+    },
+    {
+      "bin_seconds": "14400",
+      "trigger": "tool",
+      "counts": {
+        "n": 6,
+        "zero": 0,
+        "severe": 0,
+        "high": 6,
+        "cached": 1583104,
+        "prompt": 1588206
+      }
+    },
+    {
+      "bin_seconds": "14400",
+      "trigger": "user",
+      "counts": {
+        "n": 31,
+        "zero": 0,
+        "severe": 5,
+        "high": 25,
+        "cached": 5380352,
+        "prompt": 6258995
+      }
+    },
+    {
+      "bin_seconds": "15",
+      "trigger": "tool",
+      "counts": {
+        "n": 37065,
+        "zero": 2,
+        "severe": 63,
+        "high": 36674,
+        "cached": 9714590464,
+        "prompt": 9755254613
+      }
+    },
+    {
+      "bin_seconds": "15",
+      "trigger": "user",
+      "counts": {
+        "n": 759,
+        "zero": 0,
+        "severe": 2,
+        "high": 753,
+        "cached": 251705088,
+        "prompt": 252587914
+      }
+    },
+    {
+      "bin_seconds": "1800",
+      "trigger": "tool",
+      "counts": {
+        "n": 211,
+        "zero": 1,
+        "severe": 10,
+        "high": 187,
+        "cached": 75465728,
+        "prompt": 80827816
+      }
+    },
+    {
+      "bin_seconds": "1800",
+      "trigger": "user",
+      "counts": {
+        "n": 293,
+        "zero": 2,
+        "severe": 21,
+        "high": 233,
+        "cached": 69567488,
+        "prompt": 75580626
+      }
+    },
+    {
+      "bin_seconds": "28800",
+      "trigger": "tool",
+      "counts": {
+        "n": 2,
+        "zero": 0,
+        "severe": 1,
+        "high": 1,
+        "cached": 313856,
+        "prompt": 599529
+      }
+    },
+    {
+      "bin_seconds": "28800",
+      "trigger": "user",
+      "counts": {
+        "n": 10,
+        "zero": 1,
+        "severe": 2,
+        "high": 8,
+        "cached": 2278400,
+        "prompt": 3408748
+      }
+    },
+    {
+      "bin_seconds": "300",
+      "trigger": "tool",
+      "counts": {
+        "n": 6800,
+        "zero": 3,
+        "severe": 127,
+        "high": 6595,
+        "cached": 1847302400,
+        "prompt": 1876741726
+      }
+    },
+    {
+      "bin_seconds": "300",
+      "trigger": "user",
+      "counts": {
+        "n": 4460,
+        "zero": 2,
+        "severe": 71,
+        "high": 4337,
+        "cached": 1009687296,
+        "prompt": 1023436294
+      }
+    },
+    {
+      "bin_seconds": "3600",
+      "trigger": "tool",
+      "counts": {
+        "n": 120,
+        "zero": 0,
+        "severe": 6,
+        "high": 107,
+        "cached": 39577600,
+        "prompt": 42365273
+      }
+    },
+    {
+      "bin_seconds": "3600",
+      "trigger": "user",
+      "counts": {
+        "n": 181,
+        "zero": 0,
+        "severe": 18,
+        "high": 144,
+        "cached": 46738176,
+        "prompt": 51410978
+      }
+    },
+    {
+      "bin_seconds": "5",
+      "trigger": "tool",
+      "counts": {
+        "n": 106063,
+        "zero": 5,
+        "severe": 122,
+        "high": 104924,
+        "cached": 26336435200,
+        "prompt": 26438823186
+      }
+    },
+    {
+      "bin_seconds": "5",
+      "trigger": "user",
+      "counts": {
+        "n": 2607,
+        "zero": 0,
+        "severe": 1,
+        "high": 2532,
+        "cached": 796360192,
+        "prompt": 800625470
+      }
+    },
+    {
+      "bin_seconds": "60",
+      "trigger": "tool",
+      "counts": {
+        "n": 18193,
+        "zero": 2,
+        "severe": 116,
+        "high": 17859,
+        "cached": 4640990208,
+        "prompt": 4680638991
+      }
+    },
+    {
+      "bin_seconds": "60",
+      "trigger": "user",
+      "counts": {
+        "n": 3113,
+        "zero": 0,
+        "severe": 15,
+        "high": 3072,
+        "cached": 676988928,
+        "prompt": 681241704
+      }
+    },
+    {
+      "bin_seconds": "7200",
+      "trigger": "tool",
+      "counts": {
+        "n": 19,
+        "zero": 0,
+        "severe": 0,
+        "high": 18,
+        "cached": 3321600,
+        "prompt": 3392412
+      }
+    },
+    {
+      "bin_seconds": "7200",
+      "trigger": "user",
+      "counts": {
+        "n": 118,
+        "zero": 0,
+        "severe": 13,
+        "high": 90,
+        "cached": 22167040,
+        "prompt": 25330355
+      }
+    },
+    {
+      "bin_seconds": "86400",
+      "trigger": "tool",
+      "counts": {
+        "n": 1,
+        "zero": 0,
+        "severe": 1,
+        "high": 0,
+        "cached": 8192,
+        "prompt": 234126
+      }
+    },
+    {
+      "bin_seconds": "86400",
+      "trigger": "user",
+      "counts": {
+        "n": 8,
+        "zero": 0,
+        "severe": 6,
+        "high": 1,
+        "cached": 456192,
+        "prompt": 2379898
+      }
+    },
+    {
+      "bin_seconds": "900",
+      "trigger": "tool",
+      "counts": {
+        "n": 744,
+        "zero": 0,
+        "severe": 59,
+        "high": 594,
+        "cached": 218389248,
+        "prompt": 238156418
+      }
+    },
+    {
+      "bin_seconds": "900",
+      "trigger": "user",
+      "counts": {
+        "n": 969,
+        "zero": 1,
+        "severe": 77,
+        "high": 769,
+        "cached": 227694080,
+        "prompt": 248771020
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "calendar": "daily",
+      "horizon": "1",
+      "cohort": "all",
+      "counts": {
+        "n": 57963,
+        "now_units": 2489202138960,
+        "later_warm_units": 1244601069480,
+        "later_loss_units": 29592696229800,
+        "warm_saves": 57963,
+        "loss_costlier": 57951,
+        "reversal": 57951,
+        "loss_saves": 12,
+        "flat_reference_extra_units": 56696190320640,
+        "flat_reference_costlier": 57963,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 39822,
+        "expected_costlier_0.1": 54320,
+        "expected_costlier_0.25": 57598,
+        "expected_costlier_0.5": 57907,
+        "expected_costlier_1.0": 57951,
+        "upstream_saves_customer_extra_full": 12
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 57963,
+          "mean": 109.22740224252252,
+          "median": 109.68466666666667,
+          "p10": 22.381723333333333,
+          "p90": 196.25562333333338
+        },
+        "extra_gap_minutes": {
+          "n": 57963,
+          "mean": 109.61843972591711,
+          "median": 110.05176666666667,
+          "p10": 22.676953333333334,
+          "p90": 196.90841333333333
+        },
+        "now_usd": {
+          "n": 57963,
+          "mean": 0.004294467399824026,
+          "median": 0.003617808,
+          "p10": 0.0014672464,
+          "p90": 0.007832657600000001
+        },
+        "warm_saving_usd": {
+          "n": 57963,
+          "mean": 0.002147233699912013,
+          "median": 0.001808904,
+          "p10": 0.0007336232,
+          "p90": 0.0039163288000000004
+        },
+        "loss_extra_usd": {
+          "n": 57963,
+          "mean": 0.0467599918755758,
+          "median": 0.036396972,
+          "p10": 0.0111687472,
+          "p90": 0.0955240848
+        },
+        "break_even_loss_fraction": {
+          "n": 57963,
+          "mean": 0.054077206413840985,
+          "median": 0.042196335628253014,
+          "p10": 0.035200670811055115,
+          "p90": 0.08144892558424856
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "horizon": "1",
+      "cohort": "common20",
+      "counts": {
+        "n": 38407,
+        "now_units": 1673044696320,
+        "later_warm_units": 836522348160,
+        "later_loss_units": 20087086377600,
+        "warm_saves": 38407,
+        "loss_costlier": 38400,
+        "reversal": 38400,
+        "loss_saves": 7,
+        "flat_reference_extra_units": 38501128058880,
+        "flat_reference_costlier": 38407,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 27356,
+        "expected_costlier_0.1": 36426,
+        "expected_costlier_0.25": 38237,
+        "expected_costlier_0.5": 38374,
+        "expected_costlier_1.0": 38400,
+        "upstream_saves_customer_extra_full": 7
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 38407,
+          "mean": 109.7983075034065,
+          "median": 110.29986666666667,
+          "p10": 21.933063333333333,
+          "p90": 197.63595
+        },
+        "extra_gap_minutes": {
+          "n": 38407,
+          "mean": 110.12706258147388,
+          "median": 110.63621666666667,
+          "p10": 22.28870666666667,
+          "p90": 197.97035000000002
+        },
+        "now_usd": {
+          "n": 38407,
+          "mean": 0.0043560931505194364,
+          "median": 0.00369872,
+          "p10": 0.0015072688,
+          "p90": 0.0078375088
+        },
+        "warm_saving_usd": {
+          "n": 38407,
+          "mean": 0.0021780465752597182,
+          "median": 0.00184936,
+          "p10": 0.0007536344,
+          "p90": 0.0039187544
+        },
+        "loss_extra_usd": {
+          "n": 38407,
+          "mean": 0.04794449366334262,
+          "median": 0.037894572,
+          "p10": 0.012136044,
+          "p90": 0.09443931200000001
+        },
+        "break_even_loss_fraction": {
+          "n": 38407,
+          "mean": 0.05200873554420387,
+          "median": 0.04160449988063977,
+          "p10": 0.0351598798360814,
+          "p90": 0.07609274644836941
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "horizon": "1",
+      "cohort": "first_session_day",
+      "counts": {
+        "n": 915,
+        "now_units": 30324909120,
+        "later_warm_units": 15162454560,
+        "later_loss_units": 294421063200,
+        "warm_saves": 915,
+        "loss_costlier": 912,
+        "reversal": 912,
+        "loss_saves": 3,
+        "flat_reference_extra_units": 558517217280,
+        "flat_reference_costlier": 915,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 345,
+        "expected_costlier_0.1": 679,
+        "expected_costlier_0.25": 874,
+        "expected_costlier_0.5": 906,
+        "expected_costlier_1.0": 912,
+        "upstream_saves_customer_extra_full": 3
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 915,
+          "mean": 121.34366422586521,
+          "median": 125.76776666666666,
+          "p10": 29.224006666666668,
+          "p90": 212.0167766666667
+        },
+        "extra_gap_minutes": {
+          "n": 915,
+          "mean": 124.78897260473587,
+          "median": 127.07208333333334,
+          "p10": 29.545993333333335,
+          "p90": 219.41356
+        },
+        "now_usd": {
+          "n": 915,
+          "mean": 0.003314197718032787,
+          "median": 0.002297112,
+          "p10": 0.0007332112,
+          "p90": 0.007167054400000001
+        },
+        "warm_saving_usd": {
+          "n": 915,
+          "mean": 0.0016570988590163935,
+          "median": 0.001148556,
+          "p10": 0.0003666056,
+          "p90": 0.0035835272000000005
+        },
+        "loss_extra_usd": {
+          "n": 915,
+          "mean": 0.028862967659016393,
+          "median": 0.013909884,
+          "p10": 0.0033123464000000004,
+          "p90": 0.07649627040000001
+        },
+        "break_even_loss_fraction": {
+          "n": 915,
+          "mean": 0.09143288457562054,
+          "median": 0.05999479581893879,
+          "p10": 0.03680879774041645,
+          "p90": 0.16267813448487536
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "horizon": "20",
+      "cohort": "all",
+      "counts": {
+        "n": 38407,
+        "now_units": 39776332931240,
+        "later_warm_units": 20193055850920,
+        "later_loss_units": 39443619880360,
+        "warm_saves": 38400,
+        "loss_costlier": 21037,
+        "reversal": 21030,
+        "loss_saves": 17370,
+        "flat_reference_extra_units": 38501128058880,
+        "flat_reference_costlier": 38407,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 8,
+        "expected_costlier_0.05": 61,
+        "expected_costlier_0.1": 146,
+        "expected_costlier_0.25": 415,
+        "expected_costlier_0.5": 922,
+        "expected_costlier_1.0": 21037,
+        "upstream_saves_customer_extra_full": 17370
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 38407,
+          "mean": 109.7983075034065,
+          "median": 110.29986666666667,
+          "p10": 21.933063333333333,
+          "p90": 197.63595
+        },
+        "extra_gap_minutes": {
+          "n": 38407,
+          "mean": 110.12706258147388,
+          "median": 110.63621666666667,
+          "p10": 22.28870666666667,
+          "p90": 197.97035000000002
+        },
+        "now_usd": {
+          "n": 38407,
+          "mean": 0.1035653212467519,
+          "median": 0.085342432,
+          "p10": 0.0382779552,
+          "p90": 0.1792176752
+        },
+        "warm_saving_usd": {
+          "n": 38407,
+          "mean": 0.05098882255922097,
+          "median": 0.04192378,
+          "p10": 0.0182138936,
+          "p90": 0.0888860384
+        },
+        "loss_extra_usd": {
+          "n": 38407,
+          "mean": -0.0008662823206186372,
+          "median": 0.001538448,
+          "p10": -0.021225835199999998,
+          "p90": 0.0243760896
+        },
+        "break_even_loss_fraction": {
+          "n": 38400,
+          "mean": 1.2708404041737449,
+          "median": 0.9550470493762564,
+          "p10": 0.7403814505340754,
+          "p90": 2.0290265484466627
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "horizon": "20",
+      "cohort": "common20",
+      "counts": {
+        "n": 38407,
+        "now_units": 39776332931240,
+        "later_warm_units": 20193055850920,
+        "later_loss_units": 39443619880360,
+        "warm_saves": 38400,
+        "loss_costlier": 21037,
+        "reversal": 21030,
+        "loss_saves": 17370,
+        "flat_reference_extra_units": 38501128058880,
+        "flat_reference_costlier": 38407,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 8,
+        "expected_costlier_0.05": 61,
+        "expected_costlier_0.1": 146,
+        "expected_costlier_0.25": 415,
+        "expected_costlier_0.5": 922,
+        "expected_costlier_1.0": 21037,
+        "upstream_saves_customer_extra_full": 17370
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 38407,
+          "mean": 109.7983075034065,
+          "median": 110.29986666666667,
+          "p10": 21.933063333333333,
+          "p90": 197.63595
+        },
+        "extra_gap_minutes": {
+          "n": 38407,
+          "mean": 110.12706258147388,
+          "median": 110.63621666666667,
+          "p10": 22.28870666666667,
+          "p90": 197.97035000000002
+        },
+        "now_usd": {
+          "n": 38407,
+          "mean": 0.1035653212467519,
+          "median": 0.085342432,
+          "p10": 0.0382779552,
+          "p90": 0.1792176752
+        },
+        "warm_saving_usd": {
+          "n": 38407,
+          "mean": 0.05098882255922097,
+          "median": 0.04192378,
+          "p10": 0.0182138936,
+          "p90": 0.0888860384
+        },
+        "loss_extra_usd": {
+          "n": 38407,
+          "mean": -0.0008662823206186372,
+          "median": 0.001538448,
+          "p10": -0.021225835199999998,
+          "p90": 0.0243760896
+        },
+        "break_even_loss_fraction": {
+          "n": 38400,
+          "mean": 1.2708404041737449,
+          "median": 0.9550470493762564,
+          "p10": 0.7403814505340754,
+          "p90": 2.0290265484466627
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "horizon": "20",
+      "cohort": "first_session_day",
+      "counts": {
+        "n": 534,
+        "now_units": 429349846880,
+        "later_warm_units": 218481500480,
+        "later_loss_units": 391839099200,
+        "warm_saves": 534,
+        "loss_costlier": 168,
+        "reversal": 168,
+        "loss_saves": 366,
+        "flat_reference_extra_units": 346715197440,
+        "flat_reference_costlier": 534,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 1,
+        "expected_costlier_0.1": 2,
+        "expected_costlier_0.25": 4,
+        "expected_costlier_0.5": 8,
+        "expected_costlier_1.0": 168,
+        "upstream_saves_customer_extra_full": 366
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 534,
+          "mean": 120.22787927590511,
+          "median": 122.559575,
+          "p10": 27.694788333333335,
+          "p90": 210.30871666666664
+        },
+        "extra_gap_minutes": {
+          "n": 534,
+          "mean": 122.81323876404494,
+          "median": 123.93875833333334,
+          "p10": 28.22177166666667,
+          "p90": 220.99386666666663
+        },
+        "now_usd": {
+          "n": 534,
+          "mean": 0.08040259304868914,
+          "median": 0.063258592,
+          "p10": 0.026586171999999998,
+          "p90": 0.1544509304
+        },
+        "warm_saving_usd": {
+          "n": 534,
+          "mean": 0.03948845438202247,
+          "median": 0.031093219999999998,
+          "p10": 0.0127738256,
+          "p90": 0.07644614239999999
+        },
+        "loss_extra_usd": {
+          "n": 534,
+          "mean": -0.007024484584269663,
+          "median": -0.006294648,
+          "p10": -0.0314597276,
+          "p90": 0.0187035076
+        },
+        "break_even_loss_fraction": {
+          "n": 534,
+          "mean": 2.4157311283281375,
+          "median": 1.554110177806037,
+          "p10": 0.763927463856979,
+          "p90": 4.989240283128223
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "horizon": "5",
+      "cohort": "all",
+      "counts": {
+        "n": 52016,
+        "now_units": 12813922793880,
+        "later_warm_units": 6441104794720,
+        "later_loss_units": 32035809140320,
+        "warm_saves": 52016,
+        "loss_costlier": 49910,
+        "reversal": 49910,
+        "loss_saves": 2106,
+        "flat_reference_extra_units": 51189408691200,
+        "flat_reference_costlier": 52016,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 84,
+        "expected_costlier_0.1": 223,
+        "expected_costlier_0.25": 31925,
+        "expected_costlier_0.5": 46972,
+        "expected_costlier_1.0": 49910,
+        "upstream_saves_customer_extra_full": 2106
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 52016,
+          "mean": 109.1981738493925,
+          "median": 109.65916666666666,
+          "p10": 22.073075,
+          "p90": 196.66226666666665
+        },
+        "extra_gap_minutes": {
+          "n": 52016,
+          "mean": 109.58826082743772,
+          "median": 110.02095,
+          "p10": 22.467916666666667,
+          "p90": 197.3605
+        },
+        "now_usd": {
+          "n": 52016,
+          "mean": 0.02463457934843125,
+          "median": 0.019722924000000003,
+          "p10": 0.00844052,
+          "p90": 0.0422083
+        },
+        "warm_saving_usd": {
+          "n": 52016,
+          "mean": 0.012251649490848969,
+          "median": 0.00980995,
+          "p10": 0.004174568,
+          "p90": 0.021043844
+        },
+        "loss_extra_usd": {
+          "n": 52016,
+          "mean": 0.03695379565218394,
+          "median": 0.028335614000000002,
+          "p10": 0.005579799999999999,
+          "p90": 0.080136702
+        },
+        "break_even_loss_fraction": {
+          "n": 52016,
+          "mean": 0.31235120109126174,
+          "median": 0.22591598480300804,
+          "p10": 0.1816861578035195,
+          "p90": 0.4894727804216794
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "horizon": "5",
+      "cohort": "common20",
+      "counts": {
+        "n": 38407,
+        "now_units": 9665396923080,
+        "later_warm_units": 4855991793960,
+        "later_loss_units": 24106555823400,
+        "warm_saves": 38407,
+        "loss_costlier": 36910,
+        "reversal": 36910,
+        "loss_saves": 1497,
+        "flat_reference_extra_units": 38501128058880,
+        "flat_reference_costlier": 38407,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 54,
+        "expected_costlier_0.1": 143,
+        "expected_costlier_0.25": 24146,
+        "expected_costlier_0.5": 35048,
+        "expected_costlier_1.0": 36910,
+        "upstream_saves_customer_extra_full": 1497
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 38407,
+          "mean": 109.7983075034065,
+          "median": 110.29986666666667,
+          "p10": 21.933063333333333,
+          "p90": 197.63595
+        },
+        "extra_gap_minutes": {
+          "n": 38407,
+          "mean": 110.12706258147388,
+          "median": 110.63621666666667,
+          "p10": 22.28870666666667,
+          "p90": 197.97035000000002
+        },
+        "now_usd": {
+          "n": 38407,
+          "mean": 0.025165716986695133,
+          "median": 0.020205528,
+          "p10": 0.0085612304,
+          "p90": 0.04262168480000001
+        },
+        "warm_saving_usd": {
+          "n": 38407,
+          "mean": 0.012522209829249875,
+          "median": 0.010055188,
+          "p10": 0.0042368944,
+          "p90": 0.021237951200000004
+        },
+        "loss_extra_usd": {
+          "n": 38407,
+          "mean": 0.03760033040935246,
+          "median": 0.029512236,
+          "p10": 0.006311107200000001,
+          "p90": 0.0793358576
+        },
+        "break_even_loss_fraction": {
+          "n": 38407,
+          "mean": 0.30528650882534286,
+          "median": 0.22397165857362278,
+          "p10": 0.18198612045516824,
+          "p90": 0.4578707326468
+        }
+      }
+    },
+    {
+      "calendar": "daily",
+      "horizon": "5",
+      "cohort": "first_session_day",
+      "counts": {
+        "n": 820,
+        "now_units": 153885756920,
+        "later_warm_units": 77302200760,
+        "later_loss_units": 331047703480,
+        "warm_saves": 820,
+        "loss_costlier": 703,
+        "reversal": 703,
+        "loss_saves": 117,
+        "flat_reference_extra_units": 507491005440,
+        "flat_reference_costlier": 820,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 1,
+        "expected_costlier_0.1": 3,
+        "expected_costlier_0.25": 267,
+        "expected_costlier_0.5": 535,
+        "expected_costlier_1.0": 703,
+        "upstream_saves_customer_extra_full": 117
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 820,
+          "mean": 120.97270615853658,
+          "median": 125.56672499999999,
+          "p10": 29.02475666666667,
+          "p90": 212.71218500000006
+        },
+        "extra_gap_minutes": {
+          "n": 820,
+          "mean": 124.73818833333333,
+          "median": 127.06045833333334,
+          "p10": 29.46805666666667,
+          "p90": 222.31283666666667
+        },
+        "now_usd": {
+          "n": 820,
+          "mean": 0.01876655572195122,
+          "median": 0.014233404,
+          "p10": 0.0053729424,
+          "p90": 0.0360610176
+        },
+        "warm_saving_usd": {
+          "n": 820,
+          "mean": 0.009339458068292682,
+          "median": 0.007112976,
+          "p10": 0.00268183,
+          "p90": 0.017955889200000002
+        },
+        "loss_extra_usd": {
+          "n": 820,
+          "mean": 0.02160511543414634,
+          "median": 0.009141326,
+          "p10": -0.001106392,
+          "p90": 0.064359438
+        },
+        "break_even_loss_fraction": {
+          "n": 820,
+          "mean": 0.5839066582832282,
+          "median": 0.34323706965053186,
+          "p10": 0.19154385965277745,
+          "p90": 1.2589070406388363
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "1",
+      "cohort": "all",
+      "counts": {
+        "n": 45716,
+        "now_units": 1969244240560,
+        "later_warm_units": 984622120280,
+        "later_loss_units": 23426274311000,
+        "warm_saves": 45716,
+        "loss_costlier": 45713,
+        "reversal": 45713,
+        "loss_saves": 3,
+        "flat_reference_extra_units": 44883304381440,
+        "flat_reference_costlier": 45716,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 30974,
+        "expected_costlier_0.1": 42678,
+        "expected_costlier_0.25": 45423,
+        "expected_costlier_0.5": 45690,
+        "expected_costlier_1.0": 45713,
+        "upstream_saves_customer_extra_full": 3
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 45716,
+          "mean": 107.06562808754047,
+          "median": 107.03319166666665,
+          "p10": 21.523983333333334,
+          "p90": 192.144475
+        },
+        "extra_gap_minutes": {
+          "n": 45716,
+          "mean": 107.45459706083939,
+          "median": 107.45025833333334,
+          "p10": 21.872025,
+          "p90": 192.475925
+        },
+        "now_usd": {
+          "n": 45716,
+          "mean": 0.004307560242715898,
+          "median": 0.0035756720000000002,
+          "p10": 0.0014486999999999998,
+          "p90": 0.007951352
+        },
+        "warm_saving_usd": {
+          "n": 45716,
+          "mean": 0.002153780121357949,
+          "median": 0.0017878360000000001,
+          "p10": 0.0007243499999999999,
+          "p90": 0.003975676
+        },
+        "loss_extra_usd": {
+          "n": 45716,
+          "mean": 0.04693549319809257,
+          "median": 0.035041232,
+          "p10": 0.011065776,
+          "p90": 0.09726025199999999
+        },
+        "break_even_loss_fraction": {
+          "n": 45716,
+          "mean": 0.05438127580111924,
+          "median": 0.042468311062504246,
+          "p10": 0.03517155706908337,
+          "p90": 0.08316398688130139
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "1",
+      "cohort": "common20",
+      "counts": {
+        "n": 28485,
+        "now_units": 1254559418480,
+        "later_warm_units": 627279709240,
+        "later_loss_units": 15102234604600,
+        "warm_saves": 28485,
+        "loss_costlier": 28484,
+        "reversal": 28484,
+        "loss_saves": 1,
+        "flat_reference_extra_units": 28949909790720,
+        "flat_reference_costlier": 28485,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 20075,
+        "expected_costlier_0.1": 26942,
+        "expected_costlier_0.25": 28366,
+        "expected_costlier_0.5": 28472,
+        "expected_costlier_1.0": 28484,
+        "upstream_saves_customer_extra_full": 1
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 28485,
+          "mean": 106.24427911941957,
+          "median": 105.919,
+          "p10": 20.915416666666665,
+          "p90": 191.09605000000002
+        },
+        "extra_gap_minutes": {
+          "n": 28485,
+          "mean": 106.574882181265,
+          "median": 106.08921666666667,
+          "p10": 21.19899,
+          "p90": 191.5255266666667
+        },
+        "now_usd": {
+          "n": 28485,
+          "mean": 0.004404280914446199,
+          "median": 0.003659704,
+          "p10": 0.0014902576,
+          "p90": 0.008067107200000003
+        },
+        "warm_saving_usd": {
+          "n": 28485,
+          "mean": 0.0022021404572230997,
+          "median": 0.001829852,
+          "p10": 0.0007451288,
+          "p90": 0.0040335536000000016
+        },
+        "loss_extra_usd": {
+          "n": 28485,
+          "mean": 0.048613920260207125,
+          "median": 0.036717228,
+          "p10": 0.0121515944,
+          "p90": 0.09714555280000008
+        },
+        "break_even_loss_fraction": {
+          "n": 28485,
+          "mean": 0.052038767715168584,
+          "median": 0.04181303987887106,
+          "p10": 0.03510525689305631,
+          "p90": 0.07740619197337163
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "1",
+      "cohort": "first_session_day",
+      "counts": {
+        "n": 781,
+        "now_units": 26021809760,
+        "later_warm_units": 13010904880,
+        "later_loss_units": 253795102000,
+        "warm_saves": 781,
+        "loss_costlier": 780,
+        "reversal": 780,
+        "loss_saves": 1,
+        "flat_reference_extra_units": 481568394240,
+        "flat_reference_costlier": 781,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 300,
+        "expected_costlier_0.1": 576,
+        "expected_costlier_0.25": 748,
+        "expected_costlier_0.5": 777,
+        "expected_costlier_1.0": 780,
+        "upstream_saves_customer_extra_full": 1
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 781,
+          "mean": 120.91707140418268,
+          "median": 125.76776666666666,
+          "p10": 27.59423333333333,
+          "p90": 212.36231666666666
+        },
+        "extra_gap_minutes": {
+          "n": 781,
+          "mean": 124.5093709346991,
+          "median": 127.10903333333333,
+          "p10": 28.796083333333332,
+          "p90": 219.33175
+        },
+        "now_usd": {
+          "n": 781,
+          "mean": 0.003331857843790013,
+          "median": 0.002303432,
+          "p10": 0.000767272,
+          "p90": 0.007042512
+        },
+        "warm_saving_usd": {
+          "n": 781,
+          "mean": 0.0016659289218950064,
+          "median": 0.001151716,
+          "p10": 0.000383636,
+          "p90": 0.003521256
+        },
+        "loss_extra_usd": {
+          "n": 781,
+          "mean": 0.029164313987195902,
+          "median": 0.014175408,
+          "p10": 0.003394336,
+          "p90": 0.076220104
+        },
+        "break_even_loss_fraction": {
+          "n": 781,
+          "mean": 0.08835177366474042,
+          "median": 0.05999479581893879,
+          "p10": 0.03670057968766889,
+          "p90": 0.16437339313659735
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "20",
+      "cohort": "all",
+      "counts": {
+        "n": 28485,
+        "now_units": 28278577230240,
+        "later_warm_units": 14363653933640,
+        "later_loss_units": 28838608829000,
+        "warm_saves": 28478,
+        "loss_costlier": 15670,
+        "reversal": 15663,
+        "loss_saves": 12815,
+        "flat_reference_extra_units": 28949909790720,
+        "flat_reference_costlier": 28485,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 8,
+        "expected_costlier_0.05": 48,
+        "expected_costlier_0.1": 113,
+        "expected_costlier_0.25": 322,
+        "expected_costlier_0.5": 716,
+        "expected_costlier_1.0": 15670,
+        "upstream_saves_customer_extra_full": 12815
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 28485,
+          "mean": 106.24427911941957,
+          "median": 105.919,
+          "p10": 20.915416666666665,
+          "p90": 191.09605000000002
+        },
+        "extra_gap_minutes": {
+          "n": 28485,
+          "mean": 106.574882181265,
+          "median": 106.08921666666667,
+          "p10": 21.19899,
+          "p90": 191.5255266666667
+        },
+        "now_usd": {
+          "n": 28485,
+          "mean": 0.09927532817356503,
+          "median": 0.083821968,
+          "p10": 0.037353175999999995,
+          "p90": 0.17600747200000014
+        },
+        "warm_saving_usd": {
+          "n": 28485,
+          "mean": 0.04885000279655959,
+          "median": 0.041182948,
+          "p10": 0.017745216,
+          "p90": 0.08754855360000001
+        },
+        "loss_extra_usd": {
+          "n": 28485,
+          "mean": 0.0019660579208706334,
+          "median": 0.001588788,
+          "p10": -0.0168328768,
+          "p90": 0.025399829600000007
+        },
+        "break_even_loss_fraction": {
+          "n": 28478,
+          "mean": 1.222069015162092,
+          "median": 0.9529329389943016,
+          "p10": 0.7363553718159747,
+          "p90": 1.8999174374688788
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "20",
+      "cohort": "common20",
+      "counts": {
+        "n": 28485,
+        "now_units": 28278577230240,
+        "later_warm_units": 14363653933640,
+        "later_loss_units": 28838608829000,
+        "warm_saves": 28478,
+        "loss_costlier": 15670,
+        "reversal": 15663,
+        "loss_saves": 12815,
+        "flat_reference_extra_units": 28949909790720,
+        "flat_reference_costlier": 28485,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 8,
+        "expected_costlier_0.05": 48,
+        "expected_costlier_0.1": 113,
+        "expected_costlier_0.25": 322,
+        "expected_costlier_0.5": 716,
+        "expected_costlier_1.0": 15670,
+        "upstream_saves_customer_extra_full": 12815
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 28485,
+          "mean": 106.24427911941957,
+          "median": 105.919,
+          "p10": 20.915416666666665,
+          "p90": 191.09605000000002
+        },
+        "extra_gap_minutes": {
+          "n": 28485,
+          "mean": 106.574882181265,
+          "median": 106.08921666666667,
+          "p10": 21.19899,
+          "p90": 191.5255266666667
+        },
+        "now_usd": {
+          "n": 28485,
+          "mean": 0.09927532817356503,
+          "median": 0.083821968,
+          "p10": 0.037353175999999995,
+          "p90": 0.17600747200000014
+        },
+        "warm_saving_usd": {
+          "n": 28485,
+          "mean": 0.04885000279655959,
+          "median": 0.041182948,
+          "p10": 0.017745216,
+          "p90": 0.08754855360000001
+        },
+        "loss_extra_usd": {
+          "n": 28485,
+          "mean": 0.0019660579208706334,
+          "median": 0.001588788,
+          "p10": -0.0168328768,
+          "p90": 0.025399829600000007
+        },
+        "break_even_loss_fraction": {
+          "n": 28478,
+          "mean": 1.222069015162092,
+          "median": 0.9529329389943016,
+          "p10": 0.7363553718159747,
+          "p90": 1.8999174374688788
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "20",
+      "cohort": "first_session_day",
+      "counts": {
+        "n": 438,
+        "now_units": 350609421240,
+        "later_warm_units": 178499441280,
+        "later_loss_units": 323225477760,
+        "warm_saves": 438,
+        "loss_costlier": 137,
+        "reversal": 137,
+        "loss_saves": 301,
+        "flat_reference_extra_units": 289452072960,
+        "flat_reference_costlier": 438,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 0,
+        "expected_costlier_0.1": 1,
+        "expected_costlier_0.25": 3,
+        "expected_costlier_0.5": 6,
+        "expected_costlier_1.0": 137,
+        "upstream_saves_customer_extra_full": 301
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 438,
+          "mean": 119.47173424657534,
+          "median": 121.72933333333333,
+          "p10": 27.58533333333333,
+          "p90": 207.1244066666667
+        },
+        "extra_gap_minutes": {
+          "n": 438,
+          "mean": 121.91006796042619,
+          "median": 122.57775833333334,
+          "p10": 27.864146666666667,
+          "p90": 216.94585333333333
+        },
+        "now_usd": {
+          "n": 438,
+          "mean": 0.08004781306849315,
+          "median": 0.06294043199999999,
+          "p10": 0.0270999744,
+          "p90": 0.1502996816
+        },
+        "warm_saving_usd": {
+          "n": 438,
+          "mean": 0.03929451597260274,
+          "median": 0.0309421,
+          "p10": 0.013104920400000001,
+          "p90": 0.07455089
+        },
+        "loss_extra_usd": {
+          "n": 438,
+          "mean": -0.006252041890410958,
+          "median": -0.006217922000000001,
+          "p10": -0.030272181999999998,
+          "p90": 0.018824016400000004
+        },
+        "break_even_loss_fraction": {
+          "n": 438,
+          "mean": 2.311923784849763,
+          "median": 1.5346708496753467,
+          "p10": 0.7631684580030884,
+          "p90": 4.835104300185763
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "5",
+      "cohort": "all",
+      "counts": {
+        "n": 40395,
+        "now_units": 9653201735480,
+        "later_warm_units": 4850494404760,
+        "later_loss_units": 24829804978840,
+        "warm_saves": 40395,
+        "loss_costlier": 39015,
+        "reversal": 39015,
+        "loss_saves": 1380,
+        "flat_reference_extra_units": 39958621148160,
+        "flat_reference_costlier": 40395,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 64,
+        "expected_costlier_0.1": 177,
+        "expected_costlier_0.25": 24422,
+        "expected_costlier_0.5": 36558,
+        "expected_costlier_1.0": 39015,
+        "upstream_saves_customer_extra_full": 1380
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 40395,
+          "mean": 106.61075745306762,
+          "median": 106.43301666666666,
+          "p10": 21.20299,
+          "p90": 191.77531666666667
+        },
+        "extra_gap_minutes": {
+          "n": 40395,
+          "mean": 107.00188003341998,
+          "median": 106.62368333333333,
+          "p10": 21.490623333333335,
+          "p90": 192.14207666666667
+        },
+        "now_usd": {
+          "n": 40395,
+          "mean": 0.02389702125381854,
+          "median": 0.019533456,
+          "p10": 0.0083171184,
+          "p90": 0.0424091424
+        },
+        "warm_saving_usd": {
+          "n": 40395,
+          "mean": 0.011889360888030696,
+          "median": 0.009712364,
+          "p10": 0.0040970424,
+          "p90": 0.0211552912
+        },
+        "loss_extra_usd": {
+          "n": 40395,
+          "mean": 0.037570499426562695,
+          "median": 0.027176412,
+          "p10": 0.005730176,
+          "p90": 0.08155463919999999
+        },
+        "break_even_loss_fraction": {
+          "n": 40395,
+          "mean": 0.3063621433975263,
+          "median": 0.22771744322524293,
+          "p10": 0.1812139929679292,
+          "p90": 0.48418056066572907
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "5",
+      "cohort": "common20",
+      "counts": {
+        "n": 28485,
+        "now_units": 6957506835560,
+        "later_warm_units": 3494033734440,
+        "later_loss_units": 17968988629800,
+        "warm_saves": 28485,
+        "loss_costlier": 27585,
+        "reversal": 27585,
+        "loss_saves": 900,
+        "flat_reference_extra_units": 28949909790720,
+        "flat_reference_costlier": 28485,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 41,
+        "expected_costlier_0.1": 110,
+        "expected_costlier_0.25": 17690,
+        "expected_costlier_0.5": 26120,
+        "expected_costlier_1.0": 27585,
+        "upstream_saves_customer_extra_full": 900
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 28485,
+          "mean": 106.24427911941957,
+          "median": 105.919,
+          "p10": 20.915416666666665,
+          "p90": 191.09605000000002
+        },
+        "extra_gap_minutes": {
+          "n": 28485,
+          "mean": 106.574882181265,
+          "median": 106.08921666666667,
+          "p10": 21.19899,
+          "p90": 191.5255266666667
+        },
+        "now_usd": {
+          "n": 28485,
+          "mean": 0.024425160033561523,
+          "median": 0.02001888,
+          "p10": 0.008423292800000001,
+          "p90": 0.043358740800000004
+        },
+        "warm_saving_usd": {
+          "n": 28485,
+          "mean": 0.012158936637247675,
+          "median": 0.00995088,
+          "p10": 0.00417118,
+          "p90": 0.02159496000000001
+        },
+        "loss_extra_usd": {
+          "n": 28485,
+          "mean": 0.038657124080182556,
+          "median": 0.028624216,
+          "p10": 0.006717712000000001,
+          "p90": 0.0812594112
+        },
+        "break_even_loss_fraction": {
+          "n": 28485,
+          "mean": 0.296722747312552,
+          "median": 0.22530727332746478,
+          "p10": 0.1813735791694139,
+          "p90": 0.4499010461106098
+        }
+      }
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "5",
+      "cohort": "first_session_day",
+      "counts": {
+        "n": 697,
+        "now_units": 131111093360,
+        "later_warm_units": 65852518200,
+        "later_loss_units": 285184309560,
+        "warm_saves": 697,
+        "loss_costlier": 606,
+        "reversal": 606,
+        "loss_saves": 91,
+        "flat_reference_extra_units": 438663582720,
+        "flat_reference_costlier": 697,
+        "crosses_day": 0,
+        "expected_costlier_0.01": 0,
+        "expected_costlier_0.05": 0,
+        "expected_costlier_0.1": 2,
+        "expected_costlier_0.25": 229,
+        "expected_costlier_0.5": 463,
+        "expected_costlier_1.0": 606,
+        "upstream_saves_customer_extra_full": 91
+      },
+      "stats": {
+        "wait_minutes": {
+          "n": 697,
+          "mean": 120.60374598278335,
+          "median": 125.36568333333334,
+          "p10": 28.30381333333334,
+          "p90": 211.62060666666665
+        },
+        "extra_gap_minutes": {
+          "n": 697,
+          "mean": 124.54456989478719,
+          "median": 127.07208333333334,
+          "p10": 29.056113333333336,
+          "p90": 221.63282999999998
+        },
+        "now_usd": {
+          "n": 697,
+          "mean": 0.018810773796269727,
+          "median": 0.014246024,
+          "p10": 0.0053710176,
+          "p90": 0.035736403199999996
+        },
+        "warm_saving_usd": {
+          "n": 697,
+          "mean": 0.009362779793400288,
+          "median": 0.007116704,
+          "p10": 0.0026765680000000003,
+          "p90": 0.0177530336
+        },
+        "loss_extra_usd": {
+          "n": 697,
+          "mean": 0.02210519601147776,
+          "median": 0.009843432,
+          "p10": -0.0008204687999999997,
+          "p90": 0.06436639200000001
+        },
+        "break_even_loss_fraction": {
+          "n": 697,
+          "mean": 0.5472598053692523,
+          "median": 0.3363242179526434,
+          "p10": 0.19215146240049732,
+          "p90": 1.2063376956244072
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Historical DeepSeek first-party reference rates; actual anonymous route prices/expiry unknown.",
+    "Same-route append label is structural evidence not actual cache key. Gap survival descriptive conditional on previous high hit, no causal extrapolation to delayed requests.",
+    "Replay shifts observed sequential requests by same delay to next offpeak boundary, holds future token counts and gaps fixed, excludes UTC day crossing. First request only loss, later observed cache assumed restored. Not actual customer scheduling or latency valuation.",
+    "All anchor results overlap; first per session-day is a sensitivity, not independent account observations.",
+    "Full loss, partial loss and expected loss probabilities are scenarios. Fixed internal peak accounting implies no time discount; reference debit not real money."
+  ],
+  "derived": [
+    {
+      "calendar": "daily",
+      "horizon": "1",
+      "cohort": "all",
+      "n": 57963,
+      "wait_med": 109.68466666666667,
+      "gap_med": 110.05176666666667,
+      "now": 248.920213896,
+      "later_warm": 124.460106948,
+      "later_loss": 2959.26962298,
+      "warm_saves": 1,
+      "reversal": 0.999792971378293,
+      "loss_costlier": 0.999792971378293,
+      "loss_saves": 0.00020702862170695097,
+      "break_even": {
+        "n": 57963,
+        "mean": 0.054077206413840985,
+        "median": 0.042196335628253014,
+        "p10": 0.035200670811055115,
+        "p90": 0.08144892558424856
+      },
+      "expected_costlier": {
+        "1": 0.999792971378293,
+        "0.01": 0,
+        "0.05": 0.6870244811345169,
+        "0.1": 0.9371495609267981,
+        "0.25": 0.9937028794230802,
+        "0.5": 0.9990338664320342
+      },
+      "upstream_saves_customer_extra_full": 0.00020702862170695097
+    },
+    {
+      "calendar": "daily",
+      "horizon": "1",
+      "cohort": "common20",
+      "n": 38407,
+      "wait_med": 110.29986666666667,
+      "gap_med": 110.63621666666667,
+      "now": 167.304469632,
+      "later_warm": 83.652234816,
+      "later_loss": 2008.70863776,
+      "warm_saves": 1,
+      "reversal": 0.9998177415575286,
+      "loss_costlier": 0.9998177415575286,
+      "loss_saves": 0.0001822584424714245,
+      "break_even": {
+        "n": 38407,
+        "mean": 0.05200873554420387,
+        "median": 0.04160449988063977,
+        "p10": 0.0351598798360814,
+        "p90": 0.07609274644836941
+      },
+      "expected_costlier": {
+        "1": 0.9998177415575286,
+        "0.01": 0,
+        "0.05": 0.7122659931783268,
+        "0.1": 0.9484208607805868,
+        "0.25": 0.9955737235399796,
+        "0.5": 0.999140781628349
+      },
+      "upstream_saves_customer_extra_full": 0.0001822584424714245
+    },
+    {
+      "calendar": "daily",
+      "horizon": "1",
+      "cohort": "first_session_day",
+      "n": 915,
+      "wait_med": 125.76776666666666,
+      "gap_med": 127.07208333333334,
+      "now": 3.032490912,
+      "later_warm": 1.516245456,
+      "later_loss": 29.44210632,
+      "warm_saves": 1,
+      "reversal": 0.9967213114754099,
+      "loss_costlier": 0.9967213114754099,
+      "loss_saves": 0.003278688524590164,
+      "break_even": {
+        "n": 915,
+        "mean": 0.09143288457562054,
+        "median": 0.05999479581893879,
+        "p10": 0.03680879774041645,
+        "p90": 0.16267813448487536
+      },
+      "expected_costlier": {
+        "1": 0.9967213114754099,
+        "0.01": 0,
+        "0.05": 0.3770491803278688,
+        "0.1": 0.7420765027322405,
+        "0.25": 0.9551912568306011,
+        "0.5": 0.9901639344262295
+      },
+      "upstream_saves_customer_extra_full": 0.003278688524590164
+    },
+    {
+      "calendar": "daily",
+      "horizon": "20",
+      "cohort": "all",
+      "n": 38407,
+      "wait_med": 110.29986666666667,
+      "gap_med": 110.63621666666667,
+      "now": 3977.633293124,
+      "later_warm": 2019.305585092,
+      "later_loss": 3944.361988036,
+      "warm_saves": 0.9998177415575286,
+      "reversal": 0.5475564350248653,
+      "loss_costlier": 0.5477386934673367,
+      "loss_saves": 0.45226130653266333,
+      "break_even": {
+        "n": 38400,
+        "mean": 1.2708404041737449,
+        "median": 0.9550470493762564,
+        "p10": 0.7403814505340754,
+        "p90": 2.0290265484466627
+      },
+      "expected_costlier": {
+        "1": 0.5477386934673367,
+        "0.01": 0.0002082953628244851,
+        "0.05": 0.001588252141536699,
+        "0.1": 0.0038013903715468536,
+        "0.25": 0.010805321946520166,
+        "0.5": 0.02400604056552191
+      },
+      "upstream_saves_customer_extra_full": 0.45226130653266333
+    },
+    {
+      "calendar": "daily",
+      "horizon": "20",
+      "cohort": "common20",
+      "n": 38407,
+      "wait_med": 110.29986666666667,
+      "gap_med": 110.63621666666667,
+      "now": 3977.633293124,
+      "later_warm": 2019.305585092,
+      "later_loss": 3944.361988036,
+      "warm_saves": 0.9998177415575286,
+      "reversal": 0.5475564350248653,
+      "loss_costlier": 0.5477386934673367,
+      "loss_saves": 0.45226130653266333,
+      "break_even": {
+        "n": 38400,
+        "mean": 1.2708404041737449,
+        "median": 0.9550470493762564,
+        "p10": 0.7403814505340754,
+        "p90": 2.0290265484466627
+      },
+      "expected_costlier": {
+        "1": 0.5477386934673367,
+        "0.01": 0.0002082953628244851,
+        "0.05": 0.001588252141536699,
+        "0.1": 0.0038013903715468536,
+        "0.25": 0.010805321946520166,
+        "0.5": 0.02400604056552191
+      },
+      "upstream_saves_customer_extra_full": 0.45226130653266333
+    },
+    {
+      "calendar": "daily",
+      "horizon": "20",
+      "cohort": "first_session_day",
+      "n": 534,
+      "wait_med": 122.559575,
+      "gap_med": 123.93875833333334,
+      "now": 42.934984688,
+      "later_warm": 21.848150048,
+      "later_loss": 39.18390992,
+      "warm_saves": 1,
+      "reversal": 0.3146067415730337,
+      "loss_costlier": 0.3146067415730337,
+      "loss_saves": 0.6853932584269663,
+      "break_even": {
+        "n": 534,
+        "mean": 2.4157311283281375,
+        "median": 1.554110177806037,
+        "p10": 0.763927463856979,
+        "p90": 4.989240283128223
+      },
+      "expected_costlier": {
+        "1": 0.3146067415730337,
+        "0.01": 0,
+        "0.05": 0.0018726591760299626,
+        "0.1": 0.003745318352059925,
+        "0.25": 0.00749063670411985,
+        "0.5": 0.0149812734082397
+      },
+      "upstream_saves_customer_extra_full": 0.6853932584269663
+    },
+    {
+      "calendar": "daily",
+      "horizon": "5",
+      "cohort": "all",
+      "n": 52016,
+      "wait_med": 109.65916666666666,
+      "gap_med": 110.02095,
+      "now": 1281.392279388,
+      "later_warm": 644.110479472,
+      "later_loss": 3203.580914032,
+      "warm_saves": 1,
+      "reversal": 0.9595124577053215,
+      "loss_costlier": 0.9595124577053215,
+      "loss_saves": 0.04048754229467856,
+      "break_even": {
+        "n": 52016,
+        "mean": 0.31235120109126174,
+        "median": 0.22591598480300804,
+        "p10": 0.1816861578035195,
+        "p90": 0.4894727804216794
+      },
+      "expected_costlier": {
+        "1": 0.9595124577053215,
+        "0.01": 0,
+        "0.05": 0.0016148877268532759,
+        "0.1": 0.004287142417717625,
+        "0.25": 0.6137534604737004,
+        "0.5": 0.903029836973239
+      },
+      "upstream_saves_customer_extra_full": 0.04048754229467856
+    },
+    {
+      "calendar": "daily",
+      "horizon": "5",
+      "cohort": "common20",
+      "n": 38407,
+      "wait_med": 110.29986666666667,
+      "gap_med": 110.63621666666667,
+      "now": 966.539692308,
+      "later_warm": 485.599179396,
+      "later_loss": 2410.65558234,
+      "warm_saves": 1,
+      "reversal": 0.9610227302314682,
+      "loss_costlier": 0.9610227302314682,
+      "loss_saves": 0.038977269768531775,
+      "break_even": {
+        "n": 38407,
+        "mean": 0.30528650882534286,
+        "median": 0.22397165857362278,
+        "p10": 0.18198612045516824,
+        "p90": 0.4578707326468
+      },
+      "expected_costlier": {
+        "1": 0.9610227302314682,
+        "0.01": 0,
+        "0.05": 0.0014059936990652745,
+        "0.1": 0.0037232796104876716,
+        "0.25": 0.6286874788450022,
+        "0.5": 0.9125419845340693
+      },
+      "upstream_saves_customer_extra_full": 0.038977269768531775
+    },
+    {
+      "calendar": "daily",
+      "horizon": "5",
+      "cohort": "first_session_day",
+      "n": 820,
+      "wait_med": 125.56672499999999,
+      "gap_med": 127.06045833333334,
+      "now": 15.388575692,
+      "later_warm": 7.730220076,
+      "later_loss": 33.104770348,
+      "warm_saves": 1,
+      "reversal": 0.8573170731707317,
+      "loss_costlier": 0.8573170731707317,
+      "loss_saves": 0.14268292682926828,
+      "break_even": {
+        "n": 820,
+        "mean": 0.5839066582832282,
+        "median": 0.34323706965053186,
+        "p10": 0.19154385965277745,
+        "p90": 1.2589070406388363
+      },
+      "expected_costlier": {
+        "1": 0.8573170731707317,
+        "0.01": 0,
+        "0.05": 0.0012195121951219512,
+        "0.1": 0.003658536585365854,
+        "0.25": 0.325609756097561,
+        "0.5": 0.6524390243902439
+      },
+      "upstream_saves_customer_extra_full": 0.14268292682926828
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "1",
+      "cohort": "all",
+      "n": 45716,
+      "wait_med": 107.03319166666665,
+      "gap_med": 107.45025833333334,
+      "now": 196.924424056,
+      "later_warm": 98.462212028,
+      "later_loss": 2342.6274311,
+      "warm_saves": 1,
+      "reversal": 0.9999343774608452,
+      "loss_costlier": 0.9999343774608452,
+      "loss_saves": 0.0000656225391547817,
+      "break_even": {
+        "n": 45716,
+        "mean": 0.05438127580111924,
+        "median": 0.042468311062504246,
+        "p10": 0.03517155706908337,
+        "p90": 0.08316398688130139
+      },
+      "expected_costlier": {
+        "1": 0.9999343774608452,
+        "0.01": 0,
+        "0.05": 0.6775308425934028,
+        "0.1": 0.9335462420159244,
+        "0.25": 0.9935908653425497,
+        "0.5": 0.9994312713273252
+      },
+      "upstream_saves_customer_extra_full": 0.0000656225391547817
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "1",
+      "cohort": "common20",
+      "n": 28485,
+      "wait_med": 105.919,
+      "gap_med": 106.08921666666667,
+      "now": 125.455941848,
+      "later_warm": 62.727970924,
+      "later_loss": 1510.22346046,
+      "warm_saves": 1,
+      "reversal": 0.9999648938037564,
+      "loss_costlier": 0.9999648938037564,
+      "loss_saves": 0.000035106196243637,
+      "break_even": {
+        "n": 28485,
+        "mean": 0.052038767715168584,
+        "median": 0.04181303987887106,
+        "p10": 0.03510525689305631,
+        "p90": 0.07740619197337163
+      },
+      "expected_costlier": {
+        "1": 0.9999648938037564,
+        "0.01": 0,
+        "0.05": 0.7047568895910128,
+        "0.1": 0.9458311391960681,
+        "0.25": 0.9958223626470072,
+        "0.5": 0.9995436194488327
+      },
+      "upstream_saves_customer_extra_full": 0.000035106196243637
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "1",
+      "cohort": "first_session_day",
+      "n": 781,
+      "wait_med": 125.76776666666666,
+      "gap_med": 127.10903333333333,
+      "now": 2.602180976,
+      "later_warm": 1.301090488,
+      "later_loss": 25.3795102,
+      "warm_saves": 1,
+      "reversal": 0.998719590268886,
+      "loss_costlier": 0.998719590268886,
+      "loss_saves": 0.0012804097311139564,
+      "break_even": {
+        "n": 781,
+        "mean": 0.08835177366474042,
+        "median": 0.05999479581893879,
+        "p10": 0.03670057968766889,
+        "p90": 0.16437339313659735
+      },
+      "expected_costlier": {
+        "1": 0.998719590268886,
+        "0.01": 0,
+        "0.05": 0.38412291933418696,
+        "0.1": 0.737516005121639,
+        "0.25": 0.9577464788732394,
+        "0.5": 0.9948783610755442
+      },
+      "upstream_saves_customer_extra_full": 0.0012804097311139564
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "20",
+      "cohort": "all",
+      "n": 28485,
+      "wait_med": 105.919,
+      "gap_med": 106.08921666666667,
+      "now": 2827.857723024,
+      "later_warm": 1436.365393364,
+      "later_loss": 2883.8608829,
+      "warm_saves": 0.9997542566262946,
+      "reversal": 0.5498683517640863,
+      "loss_costlier": 0.5501140951377919,
+      "loss_saves": 0.4498859048622082,
+      "break_even": {
+        "n": 28478,
+        "mean": 1.222069015162092,
+        "median": 0.9529329389943016,
+        "p10": 0.7363553718159747,
+        "p90": 1.8999174374688788
+      },
+      "expected_costlier": {
+        "1": 0.5501140951377919,
+        "0.01": 0.000280849569949096,
+        "0.05": 0.0016850974196945762,
+        "0.1": 0.003967000175530981,
+        "0.25": 0.011304195190451114,
+        "0.5": 0.025136036510444094
+      },
+      "upstream_saves_customer_extra_full": 0.4498859048622082
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "20",
+      "cohort": "common20",
+      "n": 28485,
+      "wait_med": 105.919,
+      "gap_med": 106.08921666666667,
+      "now": 2827.857723024,
+      "later_warm": 1436.365393364,
+      "later_loss": 2883.8608829,
+      "warm_saves": 0.9997542566262946,
+      "reversal": 0.5498683517640863,
+      "loss_costlier": 0.5501140951377919,
+      "loss_saves": 0.4498859048622082,
+      "break_even": {
+        "n": 28478,
+        "mean": 1.222069015162092,
+        "median": 0.9529329389943016,
+        "p10": 0.7363553718159747,
+        "p90": 1.8999174374688788
+      },
+      "expected_costlier": {
+        "1": 0.5501140951377919,
+        "0.01": 0.000280849569949096,
+        "0.05": 0.0016850974196945762,
+        "0.1": 0.003967000175530981,
+        "0.25": 0.011304195190451114,
+        "0.5": 0.025136036510444094
+      },
+      "upstream_saves_customer_extra_full": 0.4498859048622082
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "20",
+      "cohort": "first_session_day",
+      "n": 438,
+      "wait_med": 121.72933333333333,
+      "gap_med": 122.57775833333334,
+      "now": 35.060942124,
+      "later_warm": 17.849944128,
+      "later_loss": 32.322547776,
+      "warm_saves": 1,
+      "reversal": 0.3127853881278539,
+      "loss_costlier": 0.3127853881278539,
+      "loss_saves": 0.6872146118721462,
+      "break_even": {
+        "n": 438,
+        "mean": 2.311923784849763,
+        "median": 1.5346708496753467,
+        "p10": 0.7631684580030884,
+        "p90": 4.835104300185763
+      },
+      "expected_costlier": {
+        "1": 0.3127853881278539,
+        "0.01": 0,
+        "0.05": 0,
+        "0.1": 0.00228310502283105,
+        "0.25": 0.00684931506849315,
+        "0.5": 0.0136986301369863
+      },
+      "upstream_saves_customer_extra_full": 0.6872146118721462
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "5",
+      "cohort": "all",
+      "n": 40395,
+      "wait_med": 106.43301666666666,
+      "gap_med": 106.62368333333333,
+      "now": 965.320173548,
+      "later_warm": 485.049440476,
+      "later_loss": 2482.980497884,
+      "warm_saves": 1,
+      "reversal": 0.9658373561084292,
+      "loss_costlier": 0.9658373561084292,
+      "loss_saves": 0.03416264389157074,
+      "break_even": {
+        "n": 40395,
+        "mean": 0.3063621433975263,
+        "median": 0.22771744322524293,
+        "p10": 0.1812139929679292,
+        "p90": 0.48418056066572907
+      },
+      "expected_costlier": {
+        "1": 0.9658373561084292,
+        "0.01": 0,
+        "0.05": 0.0015843544993192227,
+        "0.1": 0.004381730412179726,
+        "0.25": 0.6045797747245947,
+        "0.5": 0.9050129966580023
+      },
+      "upstream_saves_customer_extra_full": 0.03416264389157074
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "5",
+      "cohort": "common20",
+      "n": 28485,
+      "wait_med": 105.919,
+      "gap_med": 106.08921666666667,
+      "now": 695.750683556,
+      "later_warm": 349.403373444,
+      "later_loss": 1796.89886298,
+      "warm_saves": 1,
+      "reversal": 0.9684044233807267,
+      "loss_costlier": 0.9684044233807267,
+      "loss_saves": 0.0315955766192733,
+      "break_even": {
+        "n": 28485,
+        "mean": 0.296722747312552,
+        "median": 0.22530727332746478,
+        "p10": 0.1813735791694139,
+        "p90": 0.4499010461106098
+      },
+      "expected_costlier": {
+        "1": 0.9684044233807267,
+        "0.01": 0,
+        "0.05": 0.0014393540459891171,
+        "0.1": 0.0038616815868000704,
+        "0.25": 0.6210286115499386,
+        "0.5": 0.9169738458837985
+      },
+      "upstream_saves_customer_extra_full": 0.0315955766192733
+    },
+    {
+      "calendar": "weekend",
+      "horizon": "5",
+      "cohort": "first_session_day",
+      "n": 697,
+      "wait_med": 125.36568333333334,
+      "gap_med": 127.07208333333334,
+      "now": 13.111109336,
+      "later_warm": 6.58525182,
+      "later_loss": 28.518430956,
+      "warm_saves": 1,
+      "reversal": 0.8694404591104734,
+      "loss_costlier": 0.8694404591104734,
+      "loss_saves": 0.13055954088952654,
+      "break_even": {
+        "n": 697,
+        "mean": 0.5472598053692523,
+        "median": 0.3363242179526434,
+        "p10": 0.19215146240049732,
+        "p90": 1.2063376956244072
+      },
+      "expected_costlier": {
+        "1": 0.8694404591104734,
+        "0.01": 0,
+        "0.05": 0,
+        "0.1": 0.0028694404591104736,
+        "0.25": 0.3285509325681492,
+        "0.5": 0.6642754662840746
+      },
+      "upstream_saves_customer_extra_full": 0.13055954088952654
+    }
+  ],
+  "gap_aggregate": {
+    "1": {
+      "n": 82562,
+      "zero": 1,
+      "severe": 75,
+      "high": 81572
+    },
+    "5": {
+      "n": 108670,
+      "zero": 5,
+      "severe": 123,
+      "high": 107456
+    },
+    "15": {
+      "n": 37824,
+      "zero": 2,
+      "severe": 65,
+      "high": 37427
+    },
+    "60": {
+      "n": 21306,
+      "zero": 2,
+      "severe": 131,
+      "high": 20931
+    },
+    "300": {
+      "n": 11260,
+      "zero": 5,
+      "severe": 198,
+      "high": 10932
+    },
+    "900": {
+      "n": 1713,
+      "zero": 1,
+      "severe": 136,
+      "high": 1363
+    },
+    "1800": {
+      "n": 504,
+      "zero": 3,
+      "severe": 31,
+      "high": 420
+    },
+    "3600": {
+      "n": 301,
+      "zero": 0,
+      "severe": 24,
+      "high": 251
+    },
+    "7200": {
+      "n": 137,
+      "zero": 0,
+      "severe": 13,
+      "high": 108
+    },
+    "14400": {
+      "n": 37,
+      "zero": 0,
+      "severe": 5,
+      "high": 31
+    },
+    "28800": {
+      "n": 12,
+      "zero": 1,
+      "severe": 3,
+      "high": 9
+    },
+    "86400": {
+      "n": 9,
+      "zero": 0,
+      "severe": 7,
+      "high": 1
+    }
+  }
+}
