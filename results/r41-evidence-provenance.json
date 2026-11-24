@@ -1,0 +1,77 @@
+{
+  "as_of": "2026-11-23 US Eastern",
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics",
+      "fields": [
+        "diagnostics.previous_message_id",
+        "diagnostics.cache_miss_reason.type",
+        "usage.cache_read_input_tokens"
+      ],
+      "scope": "Opt-in fingerprints; earliest structural divergence only; same organization/workspace, limited retention; null ambiguous unless request context known; unavailable or pending inconclusive; Messages API, not Managed Agents. Not actor attribution or physical cache identity."
+    },
+    {
+      "url": "https://openrouter.ai/docs/api/api-reference/generations/get-generation",
+      "fields": [
+        "provider_name",
+        "provider_responses",
+        "native_tokens_cached",
+        "total_cost",
+        "upstream_inference_cost",
+        "is_byok",
+        "request_id",
+        "session_id"
+      ],
+      "scope": "Authenticated generation metadata. Need actual prior and current generation, request preferences, and applicable policy to attribute a loss."
+    },
+    {
+      "url": "https://openrouter.ai/blog/tutorials/llm-api-rate-limits/",
+      "facts": "Vendor experiment 150 pinned requests, 79 Crusoe 429 attempts followed by CoreWeave success, all 150 returned 200; no measured cache loss in reported experiment.",
+      "scope": "Independent documented example of successful fallback obscuring prior failed attempt at HTTP status level."
+    },
+    {
+      "url": "https://doc.hybridinference.org/routing",
+      "fields": [
+        "endpoint_id",
+        "fallback",
+        "failed_attempts",
+        "offload"
+      ],
+      "scope": "Internal _routing removed before normal client response; explicit admin pin disables fallback; weighted selection and affinity may select alternate without failed attempt."
+    },
+    {
+      "url": "https://doc.hybridinference.org/architecture",
+      "fields": [
+        "request_id",
+        "model_id",
+        "served_model_id",
+        "served_endpoint_id",
+        "cost_usd",
+        "upstream_cost_usd"
+      ],
+      "scope": "Operator log, not public trace or necessarily customer-facing; upstream cost optional."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/freeinference_agentic_trace/blob/main/release/schema.py",
+      "scope": "Public release request schema: normalized block_ids, model, anonymous provider, cache_read_tokens, step_trigger, transition, cause; cause pertains to input mutation, not routing decision or legal fault. No failed_attempts, requested route preference, historical price, balance, or actual credit decision."
+    }
+  ],
+  "distinctions": [
+    "Observed structural divergence != identity of the actor causing it.",
+    "Observed serving route change != failed fallback, forced switch, or causal cache loss.",
+    "Recorded failed attempt != fault attributable to platform under a contract.",
+    "Reference cost difference != actual charge or credit entitlement.",
+    "No direct confirmation of contractual fault from released trace; absence of evidence is not evidence of no fault."
+  ],
+  "restricted_reference_exposure": {
+    "source": "R39 16 selected same-model switch cases",
+    "eligible_if": "Hypothetical policy covers these selected severe switches only, positive difference and followup",
+    "confirmed_fault_count": 0,
+    "possible_count": 16,
+    "reference_credit_lower_usd": 0,
+    "reference_credit_upper_usd": 1.384792,
+    "exposure_lower": 0,
+    "exposure_upper": 30.485564,
+    "scope": "Set of possible reference exposure conditional on stipulated eligibility; not a bound on actual damages, fault, or all platform events."
+  }
+}
