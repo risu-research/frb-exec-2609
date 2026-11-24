@@ -1,0 +1,188 @@
+name: Observed workload tariff replay 20261123
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/observed-workload-replay-20261123.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: endpoint-tariff-census
+          path: capture
+          run-id: 45318045292
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Replay observed continuation workloads against frozen tariffs
+        run: |
+          cat > expected.json <<'JSON'
+          {"2026-05-17_2026-05-23":{"sha256":"6772d28dee9df407dac2064cf5758a481baf1b8576600965a8cbf47266844d90","requests":10738},"2026-05-24_2026-05-30":{"sha256":"a045b793e1de0aed6e877f59e1699b6b496a55b9a522465eacfb9b8d7ad6e4d7","requests":12827},"2026-05-31_2026-06-06":{"sha256":"bfb76d58fc23d5afe92bdb3f9503cf0c19cb983586744706f47b5f94bd0f2d69","requests":7324},"2026-06-07_2026-06-13":{"sha256":"81c8642eed8141a6911d9321be96454d1620acf4d4e36faa50a80c8c59ca80c5","requests":6859},"2026-06-14_2026-06-20":{"sha256":"1e3ee32ffe76fce288ea4b71c79fd6af34c97c7dc9bef3050269276ae370576f","requests":35659},"2026-06-21_2026-06-27":{"sha256":"82e639ac17c4560e05c5f4cbc4b24cad9fb8f006c5f8b8a79fff1f8fcf27d4a8","requests":56310},"2026-06-28_2026-07-04":{"sha256":"d146b14e3353a675b0c9427ee013df5fd022370ce57649df29ee2e8c7bb72efc","requests":50615},"2026-07-05_2026-07-11":{"sha256":"502b4635f3d9b87b42523c181c0dcef4e91f918b8c104cc628e79bd42affaa20","requests":68302},"2026-07-12_2026-07-18":{"sha256":"b479e68289f78cc184c650996d0d7cbc07fa5169a5ccc6a6dc8939d2e536b024","requests":72025},"2026-07-19_2026-07-25":{"sha256":"764616d813311357fd19cc99ecd2e167fcbf14132f9fa8fbfcb1fc19595ccef9","requests":78804},"2026-07-26_2026-08-01":{"sha256":"16466f33e7fec987a621a1374baf272d7d9943fd5062ab2cb7ee2ad113a29eaf","requests":84524},"2026-08-02_2026-08-08":{"sha256":"f1cdcf63fb579b2c51de3a56025cb3a03d06bc1e45e82a0a79cb53d4c5ac7820","requests":79546},"2026-08-09_2026-08-15":{"sha256":"cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7","requests":163970},"2026-08-16_2026-08-22":{"sha256":"b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856","requests":144227},"2026-08-23_2026-08-29":{"sha256":"27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f","requests":159925},"2026-08-30_2026-09-05":{"sha256":"e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a","requests":190544}}
+          JSON
+          cat > audit.py <<'PY'
+          import pathlib,json,hashlib,collections as C,statistics as S,tempfile
+          from decimal import Decimal as D
+          import numpy as np
+          import pyarrow.parquet as pq
+          from huggingface_hub import HfApi,hf_hub_download
+          def d(x):
+              try:
+                  if x is None or isinstance(x,bool):return None
+                  a=D(str(x));return a if a.is_finite() and a>=0 else None
+              except Exception:return None
+          def nonzero(v):
+              return v is not None and d(v)!=D(0)
+          def positive(v):return isinstance(v,int) and not isinstance(v,bool) and v>0
+          def norm(e):
+              p=e.get("pricing") or {}; a,b,c=(d(p.get(k)) for k in ("prompt","completion","input_cache_read"))
+              if not e.get("provider_name") or a is None or a<=0 or b is None:return None,"price"
+              if c is None:return None,"unknown_cache"
+              if c>a:return None,"cache_above_prompt"
+              if p.get("overrides") or e.get("pricing_overrides") or e.get("pricing_tiers"):return None,"overrides"
+              if nonzero(p.get("discount")) or nonzero(e.get("discount")):return None,"discount"
+              if any(nonzero(p.get(k)) for k in ("input_cache_write","input_cache_write_1h")):return None,"cache_write"
+              if any(nonzero(p.get(k)) for k in ("request","internal_reasoning")):return None,"other_charge"
+              if e.get("status")!=0:return None,"status"
+              tag=str(e.get("tag") or e.get("name") or "")
+              if any(x in tag.lower() for x in (":free",":batch","/free","/batch")):return None,"variant"
+              q=e.get("quantization");q=q.lower() if isinstance(q,str) else ""
+              return (e["provider_name"],a,b,c,e.get("context_length"),e.get("max_prompt_tokens"),e.get("max_completion_tokens"),q,tuple(sorted(e.get("supported_parameters") or [])),tag),None
+          
+          P=pathlib.Path("capture");O=pathlib.Path("r36-results");O.mkdir(exist_ok=True)
+          m=json.loads((P/"manifest.json").read_text())
+          assert hashlib.sha256((P/"models.json").read_bytes()).hexdigest()==m["catalog"]["sha256"]
+          models={};labels=C.defaultdict(set)
+          for r in m["models"]:
+              if r["error"] or ":" in r["model"]:continue
+              raw=(P/"raw"/r["meta"]["file"]).read_bytes();assert hashlib.sha256(raw).hexdigest()==r["meta"]["sha256"]
+              obj=json.loads(raw)["data"];assert obj["id"]==r["model"]
+              rs=[]
+              for e in obj["endpoints"]:
+                  a,why=norm(e)
+                  if a is not None:rs.append(a)
+              unique={}
+              for a in rs:unique.setdefault(a[:9],a)
+              mid=r["model"];models[mid]=list(unique.values())
+              labels[mid.casefold()].add(mid);labels[mid.split("/",1)[-1].casefold()].add(mid)
+          def map_model(x):
+              if not isinstance(x,str):return None
+              v=labels.get(x.strip().casefold(),set())
+              return next(iter(v)) if len(v)==1 else None
+          def valid(p,c,o):return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0
+          def workload(seg):
+              a=np.array([[r[0],r[1],r[2]] for r in seg],dtype=np.int64)
+              z=np.vstack([np.zeros((1,3),dtype=np.int64),np.cumsum(a,axis=0)])
+              for H in (1,5,20,"remaining"):
+                  start=np.arange(1,len(a),dtype=np.int64)
+                  end=np.full(len(start),len(a),dtype=np.int64) if H=="remaining" else start+H
+                  keep=end<=len(a);start=start[keep];end=end[keep]
+                  if not len(start):continue
+                  sums=z[end]-z[start]; first=a[start]; prior=a[start-1]
+                  if H=="remaining":
+                      # reverse cumulative max on entire observed continuation
+                      caps=np.column_stack((a[:,0]+a[:,2],a[:,0],a[:,2]))
+                      mx=np.maximum.accumulate(caps[::-1],axis=0)[::-1][start]
+                  else:
+                      caps=np.column_stack((a[:,0]+a[:,2],a[:,0],a[:,2]))
+                      mx=np.max(np.stack([caps[start+i] for i in range(H)]),axis=0)
+                  # columns total prompt, cached, output, first cached, max ctx/prompt/output, prior high, remaining requests, prior ratio
+                  yield str(H),np.column_stack((sums,first[:,1],mx,prior[:,1]*10>=prior[:,0]*9,end-start,prior[:,1]/prior[:,0]))
+          def analyze(A,rs,strict):
+              if strict:rs=[r for r in rs if "tools" in r[8] and r[7] not in ("","unknown","none","other","null")]
+              n=len(A); agg={k:C.Counter() for k in ("all","prior90")}
+              if len({r[0] for r in rs})<2 or not n:return agg
+              pt,ct,ot,first,mc,mp,mo,high,remaining,ratio=A.T
+              ec=[];cold=[];warm=[];loss=[]
+              for r in rs:
+                  good=(mc<=r[4]) if positive(r[4]) else np.zeros(n,dtype=bool)
+                  for lim,v in [(r[5],mp),(r[6],mo)]:
+                      if lim is not None:good &= (v<=lim) if positive(lim) else False
+                  a,b,c=map(float,r[1:4]);ec.append(good);cold.append(pt*a+ot*b);warm.append((pt-ct)*a+ct*c+ot*b);loss.append(first*(a-c))
+              ec=np.array(ec);cold=np.array(cold);warm=np.array(warm);loss=np.array(loss)
+              for i,a in enumerate(rs):
+                  groups=C.defaultdict(list)
+                  for j,b in enumerate(rs):
+                      if a[0]!=b[0] and (not strict or a[7]==b[7]):groups[b[0]].append(j)
+                  if not groups:continue
+                  nb=np.zeros(n,dtype=np.int32);nw=nb.copy();ns=nb.copy();nr=nb.copy();allw=nb.copy();alls=nb.copy();allr=nb.copy();nf=nb.copy()
+                  for js in groups.values():
+                      f=np.any(ec[js],axis=0)
+                      base=np.any(ec[js] & (cold[js]<cold[i]-1e-12),axis=0)
+                      w=np.any(ec[js] & (warm[js]<warm[i]-1e-12),axis=0)
+                      sw=np.any(ec[js] & (warm[js]+loss[js]<warm[i]-1e-12),axis=0)
+                      risk=np.any(ec[js] & (warm[js]+.1041711229946524*loss[js]<warm[i]-1e-12),axis=0)
+                      nf+=f;nb+=base;nw+=base&w;ns+=base&sw;nr+=base&risk;allw+=w;alls+=sw;allr+=risk
+                  for cohort,mask in [("all",ec[i] & (nf>0)),("prior90",ec[i] & (nf>0) & (high==1))]:
+                      x=agg[cohort];x["incumbent_states"]+=int(mask.sum());x["with_cold_alternative"]+=int((mask & (nb>0)).sum())
+                      for key,arr in [("cold",nb),("retained_warm",nw),("retained_loss",ns),("retained_risk",nr),("all_warm",allw),("all_loss",alls),("all_risk",allr)]:x[key]+=int(arr[mask].sum())
+                      x["zero_any_loss_given_cold"]+=int((mask & (nb>0) & (alls==0)).sum())
+                      x["zero_any_warm_given_cold"]+=int((mask & (nb>0) & (allw==0)).sum())
+                      x["zero_any_risk_given_cold"]+=int((mask & (nb>0) & (allr==0)).sum())
+              return agg
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          info=HfApi().dataset_info(REPO,revision=REV,files_metadata=True);assert info.sha==REV
+          paths=sorted(s.rfilename for s in info.siblings if s.rfilename.endswith("/processed/requests.parquet"));assert len(paths)==16
+          expected=json.loads(pathlib.Path("expected.json").read_text())
+          allcounts=C.Counter();inventory=C.Counter();mapping={};totals=C.defaultdict(C.Counter);per=C.defaultdict(C.Counter);weeks=[]
+          for path in paths:
+              week=path.split("/")[1]; counts=C.Counter();inv=C.Counter(); groups=C.defaultdict(list);seg=[];prev=None;mid=None
+              def close():
+                  if len(seg)<2:return
+                  if mid is None or len({r[0] for r in models[mid]})<2:return
+                  for H,A in workload(seg):groups[(mid,H)].append(A)
+              with tempfile.TemporaryDirectory() as cache:
+                  f=hf_hub_download(REPO,path,repo_type="dataset",revision=REV,cache_dir=cache)
+                  with open(f,"rb") as v:sha=hashlib.file_digest(v,"sha256").hexdigest()
+                  assert sha==expected[week]["sha256"]
+                  pf=pq.ParquetFile(f)
+                  for batch in pf.iter_batches(batch_size=8192,columns="session_id step model provider prompt_tokens cache_read_tokens completion_tokens".split()):
+                      for r in batch.to_pylist():
+                          counts["requests"]+=1;label=r["model"];inv[str(label)]+=1; x=map_model(label);mapping[str(label)]=x
+                          if x is not None:counts["mapped_requests"]+=1
+                          if x is not None and len({t[0] for t in models[x]})>=2:counts["mapped_multi_requests"]+=1
+                          p,c,o=r["prompt_tokens"],r["cache_read_tokens"],r["completion_tokens"]
+                          key=(r["session_id"],r["step"],label,r["provider"])
+                          contiguous=prev is not None and key[0]==prev[0] and key[1]==prev[1]+1 and key[2:]==prev[2:] and bool(key[3])
+                          if not contiguous or not valid(p,c,o):
+                              close();seg=[];mid=x
+                          if valid(p,c,o) and bool(key[3]):seg.append((p,c,o))
+                          prev=key
+                  close()
+                  assert counts["requests"]==expected[week]["requests"]==pf.metadata.num_rows
+              for (mid,H),arrays in groups.items():
+                  A=np.concatenate(arrays)
+                  counts["anchors_"+H]+=len(A)
+                  for cohort, mask in [("all",np.ones(len(A),dtype=bool)),("prior90",A[:,7]==1)]:
+                      x=A[mask]
+                      if len(x):
+                          key=H+"/"+cohort
+                          totals[key+"/workload"]["anchors"]+=len(x)
+                          for k,i in [("prompt",0),("cached",1),("output",2),("first_cached",3),("remaining",8)]:totals[key+"/workload"][k]+=int(x[:,i].sum())
+                  for strict in (False,True):
+                      for cohort,s in analyze(A,models[mid],strict).items():
+                          k=H+"/"+cohort+"/"+str(int(strict));totals[k].update(s);per[(mid,k)].update(s)
+              inventory.update(inv);allcounts.update(counts);weeks.append(dict(week=week,sha256=sha,counts=dict(counts)))
+              print("WEEK",week,json.dumps(dict(counts)),flush=True)
+              (O/"progress.json").write_text(json.dumps(dict(weeks=weeks,totals=totals),indent=2))
+          print("COVERAGE",json.dumps(dict(allcounts)),flush=True)
+          print("INVENTORY",json.dumps([dict(label=k,requests=v,mapped=mapping[k],tariffs=len(models.get(mapping[k],[]))) for k,v in inventory.most_common()]),flush=True)
+          for k,v in sorted(totals.items()):print("TOTAL",k,json.dumps(v),flush=True)
+          for (mid,k),v in sorted(per.items()):
+              if k in ("1/prior90/1","remaining/prior90/1","1/all/0","remaining/all/0"):print("MODEL",mid,k,json.dumps(v),flush=True)
+          (O/"summary.json").write_text(json.dumps(dict(weeks=weeks,coverage=allcounts,inventory=inventory,mapping=mapping,totals=totals,per=[dict(model=m,scenario=k,counts=v) for (m,k),v in per.items()]),indent=2))
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: observed-workload-replay
+          path: r36-results/
+          retention-days: 14
