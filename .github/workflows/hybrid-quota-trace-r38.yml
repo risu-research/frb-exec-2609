@@ -1,0 +1,113 @@
+name: Observed continuation quota rights R38
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/hybrid-quota-trace-r38.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: continuation-cache-audit-results
+          path: capture
+          run-id: 45316568340
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Obtain pinned upstream implementation and trace readers
+        run: |
+          git clone --quiet https://github.com/HarvardMadSys/hybridInference.git upstream
+          cd upstream
+          git checkout --quiet 94a693e43b211b7e5d76fce0402ad7051b779910
+          git rev-parse HEAD
+          python -m pip install uv
+          uv sync --locked --group dev
+          uv pip install --python .venv/bin/python 'huggingface_hub==0.36.0' 'pyarrow==21.0.0'
+      - name: Replay observed post-switch continuations through upstream quota and cost code
+        working-directory: upstream
+        run: |
+          cat > replay.py <<'PY'
+          import gzip,json,pathlib,tempfile,hashlib,collections as C,statistics as S
+          from decimal import Decimal
+          from datetime import datetime,timezone
+          from huggingface_hub import hf_hub_download
+          import pyarrow.parquet as pq
+          from serving.storage.utils import calculate_cost
+          from serving.spend_ledger import counted_amount
+          from serving.quota import first_refusal
+          P={"prompt":"0.44","completion":"1.32","input_cache_reads":"0.014"}
+          F={"prompt":"0.44","completion":"1.32","input_cache_reads":"0.44"}
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXPECTED={"2026-08-23_2026-08-29":("27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",159925),"2026-08-30_2026-09-05":("e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",190544)}
+          events=[json.loads(s) for s in gzip.open("../capture/events.jsonl.gz","rt")]
+          selected=[e for e in events if e['type']=='provider_only' and e['before_model']==e['after_model']=='deepseek-v4-flash' and e['week']>='2026-08-23']
+          assert len(selected)==16
+          def valid(r):
+              p,c,o=[r[k] for k in ("prompt_tokens","cache_read_tokens","completion_tokens")]
+              return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0
+          def charge(r,c=None,p=P):
+              v=calculate_cost({"prompt_tokens":r["prompt_tokens"],"completion_tokens":r["completion_tokens"],"cache_read_tokens":r["cache_read_tokens"] if c is None else c},p)
+              assert v is not None
+              return counted_amount(v)
+          def run(b,costs):
+              spent=Decimal(0); n=0
+              for v in costs:
+                  if first_refusal(account_quota_usd=b,account_spent_usd=float(spent)) is not None:break
+                  spent+=v;n+=1
+              return n
+          def day(t):return datetime.fromtimestamp(t/1000,timezone.utc).date() if t is not None else None
+          rows=[];allcases=[];coverage=C.Counter()
+          for week,(sha,nrows) in EXPECTED.items():
+              es=[e for e in selected if e["week"]==week];ids={e["session_id"] for e in es};sessions=C.defaultdict(list)
+              with tempfile.TemporaryDirectory() as td:
+                  f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+                  with open(f,"rb") as x:assert hashlib.file_digest(x,"sha256").hexdigest()==sha
+                  pf=pq.ParquetFile(f);assert pf.metadata.num_rows==nrows
+                  for b in pf.iter_batches(columns="session_id step model provider prompt_tokens completion_tokens cache_read_tokens start_ms end_ms step_trigger".split()):
+                      for r in b.to_pylist():
+                          if r["session_id"] in ids:sessions[r["session_id"]].append(r)
+              for e in es:
+                  seq=sorted(sessions[e["session_id"]],key=lambda r:r["step"]);loc=next(i for i,r in enumerate(seq) if r["step"]==e["step"]);assert loc>0
+                  p,r=seq[loc-1:loc+1]
+                  assert p["cache_read_tokens"]==e["before_cached"] and r["cache_read_tokens"]==e["after_cached"] and r["prompt_tokens"]==e["after_prompt"]
+                  assert p["provider"]!=r["provider"] and p["model"]==r["model"]
+                  if not valid(r) or day(r["start_ms"]) is None or day(r["start_ms"])!=day(r["end_ms"]):coverage["invalid_anchor"]+=1;continue
+                  window=[r];stop="session_end"
+                  for x in seq[loc+1:]:
+                      if x["step"]!=window[-1]["step"]+1:stop="gap";break
+                      if x["model"]!=r["model"] or x["provider"]!=r["provider"]:stop="route_change";break
+                      if not valid(x) or x["start_ms"] is None or x["end_ms"] is None or window[-1]["end_ms"] is None:stop="invalid";break
+                      if day(x["start_ms"])!=day(r["start_ms"]) or day(x["end_ms"])!=day(r["start_ms"]):stop="reset";break
+                      if x["start_ms"]<window[-1]["end_ms"]:stop="overlap";break
+                      window.append(x)
+                  coverage["eligible_events"]+=1;coverage["followup_events"]+=len(window)>1;coverage["requests"]+=len(window);coverage["stop_"+stop]+=1
+                  actual=[charge(x) for x in window];preserved=actual.copy();preserved[0]=charge(r,min(r["prompt_tokens"],p["cache_read_tokens"]))
+                  assert actual[0]>=preserved[0]
+                  flat=[charge(x,p=F) for x in window];assert charge(r,min(r["prompt_tokens"],p["cache_read_tokens"]),F)==flat[0]
+                  case=dict(n=len(window),first_extra=float(actual[0]-preserved[0]),observed_cost=float(sum(actual)),preserved_cost=float(sum(preserved)),stop=stop)
+                  allcases.append(case)
+                  for b in [.05,.1,.25,.5,1.,2.,5.]:
+                      a=run(b,actual);w=run(b,preserved);assert w>=a
+                      rows.append(dict(budget=b,length=len(window),actual=a,preserved=w))
+          out={}
+          for b in [.05,.1,.25,.5,1.,2.,5.]:
+              rr=[r for r in rows if r["budget"]==b];d=[r["preserved"]-r["actual"] for r in rr]
+              out[str(b)]=dict(n=len(rr),affected=sum(x>0 for x in d),mean_lost=S.mean(d),max_lost=max(d),actual_complete=sum(r["actual"]==r["length"] for r in rr),preserved_complete=sum(r["preserved"]==r["length"] for r in rr),actual_total=sum(r["actual"] for r in rr),preserved_total=sum(r["preserved"] for r in rr))
+          result=dict(coverage=coverage,grid=out,cases=allcases,limitations=["Current public source and reference tariff applied to historical observed requests; no actual balance or live deployment version.","First request cache count counterfactual only; later observed usage held constant.","Same model/provider continuation, no UTC reset, sequential requests only; censored at route change/invalid/end.","Remaining budgets are scenarios, not actual account balances; completion means observed request segment only."])
+          print("TRACE_QUOTA",json.dumps(result),flush=True)
+          pathlib.Path("../r38-trace").mkdir(exist_ok=True);pathlib.Path("../r38-trace/results.json").write_text(json.dumps(result,indent=2))
+          
+          PY
+          PYTHONPATH=apps/backend:. uv run --no-sync python replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: observed-continuation-quota-r38
+          path: r38-trace/
+          retention-days: 14
