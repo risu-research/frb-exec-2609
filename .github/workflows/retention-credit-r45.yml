@@ -1,0 +1,104 @@
+name: Retention and credit contract economics R45
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/retention-credit-r45.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Replay short and long retention and equal customer concessions
+        run: |
+          cat > expected.json <<'JSON'
+          {"2026-08-09_2026-08-15":{"sha256":"cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7","requests":163970},"2026-08-16_2026-08-22":{"sha256":"b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856","requests":144227},"2026-08-23_2026-08-29":{"sha256":"27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f","requests":159925},"2026-08-30_2026-09-05":{"sha256":"e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a","requests":190544}}
+          JSON
+          cat > audit.py <<'PY'
+          import pathlib,json,hashlib,collections as C,statistics as S,tempfile,datetime as dt
+          import numpy as np
+          import pyarrow.parquet as pq
+          from huggingface_hub import hf_hub_download
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXP=json.loads(pathlib.Path("expected.json").read_text())
+          CUT=int(dt.datetime(2026,8,16,16,tzinfo=dt.timezone.utc).timestamp()*1000)
+          DAY=86400000
+          # Price units: 1/20 of standard input-token rate; 5m write 25, 1h write 40, read 2, output 100.
+          # Normalized published Claude tariff shape; not a historical Claude invoice or a DeepSeek actual tariff.
+          def valid(r):
+           p,c,o=r["prompt_tokens"],r["cache_read_tokens"],r["completion_tokens"]
+           return p is not None and c is not None and o is not None and 0<p<=1000000 and 0<=c<=p and o>=0 and r["start_ms"] is not None and r["end_ms"] is not None and r["end_ms"]>=r["start_ms"] and bool(r["provider"])
+          def adj(a,b):
+           return a["session_id"]==b["session_id"] and b["step"]==a["step"]+1 and a["model"]==b["model"] and a["provider"]==b["provider"] and b["transition"]=="append" and b["start_ms"]>=a["end_ms"] and b["prompt_tokens"]>=a["prompt_tokens"] and b["start_ms"]//DAY==a["start_ms"]//DAY
+          def q(a):
+           if not a:return {}
+           return dict(n=len(a),mean=S.fmean(a),median=S.median(a),p10=float(np.quantile(a,.1)),p90=float(np.quantile(a,.9)))
+          groups=C.defaultdict(C.Counter);wcounts=[];gaps=C.Counter()
+          for week,e in EXP.items():
+           wc=C.Counter();prev=None
+           with tempfile.TemporaryDirectory() as td:
+            f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+            with open(f,"rb") as v:assert hashlib.file_digest(v,"sha256").hexdigest()==e["sha256"]
+            pf=pq.ParquetFile(f);assert pf.metadata.num_rows==e["requests"]
+            for batch in pf.iter_batches(batch_size=8192,columns="session_id step model provider prompt_tokens cache_read_tokens completion_tokens start_ms end_ms transition step_trigger".split()):
+             for r in batch.to_pylist():
+              wc["requests"]+=1;a=prev;prev=r
+              if r["model"]!="deepseek-v4-flash" or not valid(r) or r["start_ms"]<CUT:continue
+              wc["target_valid_post"]+=1
+              p,o=r["prompt_tokens"],r["completion_tokens"]
+              linked=bool(a and a["model"]==r["model"] and valid(a) and a["start_ms"]>=CUT and adj(a,r))
+              if not linked:wc["chain_starts"]+=1
+              for mode in ("append_full","previous_hit_proxy","append_full_start_clock"):
+               gap=(r["start_ms"]-(a["start_ms"] if mode.endswith("start_clock") else a["end_ms"])) if linked else 10**20
+               common=(min(a["prompt_tokens"],p) if mode!="previous_hit_proxy" else min(a["cache_read_tokens"],p)) if linked else 0
+               r5=common if gap<=300000 else 0
+               r60=common if gap<=3600000 else 0
+               short=25*(p-r5)+2*r5+100*o
+               long=40*(p-r60)+2*r60+100*o
+               credit=23*(r60-r5)
+               premium=15*(p-r60)
+               assert long==short-credit+premium
+               assert credit>=0 and premium>=0
+               k=(mode,week,r["session_id"],r["start_ms"]//DAY)
+               c=groups[k];c["n"]+=1;c["short"]+=short;c["long"]+=long;c["credit"]+=credit;c["premium"]+=premium;c["nocache"]+=20*p+100*o;c["max_prompt"]=max(c["max_prompt"],p)
+               c["read5"]+=r5;c["read60"]+=r60;c["write60"]+=p-r60;c["eligible_gap"]+=int(r60>r5)
+               if mode=="append_full":
+                gaps["linked"]+=int(linked);gaps["eligible_5_to_60"]+=int(r60>r5)
+                gaps["eligible_observed_positive_loss"]+=int(r60>r5 and r["cache_read_tokens"]<min(a["cache_read_tokens"],p))
+            assert wc["requests"]==e["requests"]
+           wcounts.append(dict(week=week,sha=e["sha256"],counts=wc));print("WEEK",week,json.dumps(wc),flush=True)
+          # Development: week containing reform + next week; held-out final week. No fitted decision rules.
+          def summarize(rr,rate):
+           if not rr:return {}
+           N=len(rr);short=sum(r["short"] for r in rr);long=sum(r["long"] for r in rr);credit=sum(r["credit"] for r in rr);premium=sum(r["premium"] for r in rr)
+           eq=credit/short
+           def policy(d):
+            # Equal total customer concessions (ex post matched) or pre-fixed development discount (holdout).
+            dif=[r["credit"]-d*r["short"] for r in rr]
+            return dict(rate=d,discount_units=d*short,credit_units=credit,credit_wins=sum(x>1e-6 for x in dif),discount_wins=sum(x< -1e-6 for x in dif),ties=sum(abs(x)<=1e-6 for x in dif),median_credit_minus_discount_usd=q([x*3/20000000 for x in dif]),credit_recipient_discount_share=sum(d*r["short"] for r in rr if r["credit"]>0)/(d*short) if d else None)
+           return dict(groups=N,requests=sum(r["n"] for r in rr),short_units=short,long_units=long,credit_units=credit,premium_units=premium,nocache_units=sum(r["nocache"] for r in rr),credit_recipients=sum(r["credit"]>0 for r in rr),long_cheaper=sum(r["long"]<r["short"] for r in rr),long_costlier=sum(r["long"]>r["short"] for r in rr),long_ties=sum(r["long"]==r["short"] for r in rr),long_net_saving=q([(r["short"]-r["long"])*3/20000000 for r in rr]),eligible_gaps=sum(r["eligible_gap"] for r in rr),equal_budget=policy(eq),frozen_discount=policy(rate),premium_per_credit=premium/credit if credit else None,median_long_vs_short_ratio=S.median(r["long"]/r["short"] for r in rr),median_credit_recipient_saving=q([r["credit"]*3/20000000 for r in rr if r["credit"]>0]),mean_short_usd=short*3/20000000/N)
+          out=[]
+          for mode in ("append_full","previous_hit_proxy","append_full_start_clock"):
+           for cap in (1000000,200000):
+            allr=[(k,v) for k,v in groups.items() if k[0]==mode and v["max_prompt"]<=cap]
+            dev=[v for k,v in allr if k[1]!="2026-08-30_2026-09-05"];test=[v for k,v in allr if k[1]=="2026-08-30_2026-09-05"]
+            rate=sum(r["credit"] for r in dev)/sum(r["short"] for r in dev)
+            for name,rr in [("all",[v for k,v in allr]),("development",dev),("holdout",test)]:
+             out.append(dict(mode=mode,cap=cap,cohort=name,results=summarize(rr,rate)))
+          result=dict(weeks=wcounts,gap_checks=gaps,scenarios=out,limitations=["Replay of DeepSeek observed timing and token counts under normalized Claude-like prices, not actual Claude behavior or invoice.","Deterministic idealized rolling TTL with all prompt tokens written, append prefix proxy, reset at session/day/route/mutation/invalid/declining token counts. No backend hit guarantee, cross-session cache, exact cache key, write eligibility or breakpoint semantics. End-clock vs start-clock and prior-hit proxy sensitivity.","Credit hypothetical covers modeled short-TTL rewrite increment only in 5–60m gaps, not actual Anthropic fallback credit. Credit leaves cache reconstruction unchanged.","Same aggregate customer concessions do not imply same provider cost or welfare. Long TTL premium paid on modeled writes including first and final; no live storage cost.","Week-local session-day groups, not unique customers. 200k cap sensitivity based on group maximum. Fixed discount rate computed on development, applied unchanged to final week."])
+          print("R45",json.dumps(result),flush=True)
+          pathlib.Path("r45-results").mkdir(exist_ok=True);pathlib.Path("r45-results/results.json").write_text(json.dumps(result,indent=2))
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retention-credit-r45
+          path: r45-results/
+          retention-days: 14
