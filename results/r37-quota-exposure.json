@@ -1,0 +1,23 @@
+{
+  "run": 45319804835,
+  "n": 16,
+  "unique_sessions": 15,
+  "weeks": {
+    "2026-08-23_2026-08-29": 1,
+    "2026-08-30_2026-09-05": 15
+  },
+  "sum_excess_usd": 1.3847930880000001,
+  "median_excess_usd": 0.07797504,
+  "mean_excess_usd": 0.08654956800000001,
+  "ge_cent": 16,
+  "ge_dime": 5,
+  "median_input_cost_ratio": 27.085430234693433,
+  "rate_source": "https://doc.freeinference.org/models",
+  "scope": "Severe observed provider-only losses, retained normalized prefix, prior cache >=90%; two full weeks after documented rate change; reference-rate scenario, not actual quota charges.",
+  "policy_sources": [
+    "https://freeinference.org/terms",
+    "https://doc.freeinference.org/models",
+    "https://doc.hybridinference.org/architecture",
+    "https://doc.freeinference.org/batches"
+  ]
+}
