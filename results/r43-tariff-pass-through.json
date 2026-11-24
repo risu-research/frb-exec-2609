@@ -1,0 +1,3640 @@
+{
+  "run": 45323124632,
+  "coverage": {
+    "requests": 658666,
+    "target": 421511
+  },
+  "target_week_sessions": 4182,
+  "weeks": [
+    {
+      "week": "2026-08-09_2026-08-15",
+      "sha": "cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7",
+      "counts": {
+        "requests": 163970,
+        "target": 109675
+      }
+    },
+    {
+      "week": "2026-08-16_2026-08-22",
+      "sha": "b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856",
+      "counts": {
+        "requests": 144227,
+        "target": 98372
+      }
+    },
+    {
+      "week": "2026-08-23_2026-08-29",
+      "sha": "27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",
+      "counts": {
+        "requests": 159925,
+        "target": 104358
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "sha": "e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",
+      "counts": {
+        "requests": 190544,
+        "target": 109106
+      }
+    }
+  ],
+  "period": [
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "off"
+      ],
+      "counts": {
+        "n": 49810,
+        "valid": 49706,
+        "prompt": 11068004011,
+        "cached": 10640238336,
+        "output": 30167765,
+        "old_units": 981268360408,
+        "peak_units": 3770016835040,
+        "ttft_n": 49707,
+        "ttft_sum": 347104922
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "peak"
+      ],
+      "counts": {
+        "n": 16629,
+        "valid": 16610,
+        "prompt": 3598226560,
+        "cached": 3466079104,
+        "output": 9162934,
+        "old_units": 307712868512,
+        "peak_units": 1187650609760,
+        "ttft_n": 16610,
+        "ttft_sum": 121897172
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "off"
+      ],
+      "counts": {
+        "n": 56048,
+        "valid": 55944,
+        "prompt": 12378367480,
+        "cached": 11900868160,
+        "output": 34088829,
+        "old_units": 1097172077680,
+        "peak_units": 4217091093200,
+        "ttft_n": 55945,
+        "ttft_sum": 384503556
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "peak"
+      ],
+      "counts": {
+        "n": 10391,
+        "valid": 10372,
+        "prompt": 2287863091,
+        "cached": 2205449280,
+        "output": 5241870,
+        "old_units": 191809151240,
+        "peak_units": 740576351600,
+        "ttft_n": 10372,
+        "ttft_sum": 84498538
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "off"
+      ],
+      "counts": {
+        "n": 237861,
+        "ttft_n": 237839,
+        "ttft_sum": 552877750,
+        "valid": 229918,
+        "prompt": 50748334713,
+        "cached": 49956724224,
+        "output": 125853897,
+        "old_units": 2859433874472,
+        "peak_units": 12138298983360,
+        "scheduled_units": 6069149491680,
+        "cross_tier": 25,
+        "cross_units": 5092424480
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "peak"
+      ],
+      "counts": {
+        "n": 67252,
+        "ttft_n": 67246,
+        "ttft_sum": 149330003,
+        "valid": 64973,
+        "prompt": 14518838930,
+        "cached": 14308654336,
+        "output": 37640257,
+        "old_units": 800293472608,
+        "peak_units": 3424875213040,
+        "scheduled_units": 3424875213040,
+        "cross_tier": 31,
+        "cross_units": 3975348640
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "pre"
+      ],
+      "counts": {
+        "n": 116398,
+        "ttft_n": 116395,
+        "ttft_sum": 412663153,
+        "valid": 109842,
+        "prompt": 25845027446,
+        "cached": 25609381888,
+        "output": 56477332,
+        "old_units": 1205103003664,
+        "peak_units": 5367654701920
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "off"
+      ],
+      "counts": {
+        "n": 251617,
+        "ttft_n": 251594,
+        "ttft_sum": 576172702,
+        "valid": 243481,
+        "prompt": 53745447569,
+        "cached": 52877534208,
+        "output": 133953950,
+        "old_units": 3070720723224,
+        "peak_units": 12989865717520,
+        "scheduled_units": 6494932858760,
+        "cross_tier": 19,
+        "cross_units": 4246403760
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "peak"
+      ],
+      "counts": {
+        "n": 53496,
+        "ttft_n": 53491,
+        "ttft_sum": 126035051,
+        "valid": 51410,
+        "prompt": 11521726074,
+        "cached": 11387844352,
+        "output": 29540204,
+        "old_units": 589006623856,
+        "peak_units": 2573308478880,
+        "scheduled_units": 2573308478880,
+        "cross_tier": 26,
+        "cross_units": 3379483600
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "pre"
+      ],
+      "counts": {
+        "n": 116398,
+        "ttft_n": 116395,
+        "ttft_sum": 412663153,
+        "valid": 109842,
+        "prompt": 25845027446,
+        "cached": 25609381888,
+        "output": 56477332,
+        "old_units": 1205103003664,
+        "peak_units": 5367654701920
+      }
+    }
+  ],
+  "daily": [
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-08-28",
+        "off"
+      ],
+      "counts": {
+        "n": 5459,
+        "valid": 5458,
+        "prompt": 1044724533,
+        "cached": 1009929280,
+        "output": 3644069,
+        "old_units": 87194767240,
+        "peak_units": 342590923200,
+        "ttft_n": 5458,
+        "ttft_sum": 27353568
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-08-28",
+        "peak"
+      ],
+      "counts": {
+        "n": 833,
+        "valid": 832,
+        "prompt": 98930961,
+        "cached": 93764800,
+        "output": 800945,
+        "old_units": 12100685800,
+        "peak_units": 46430654400,
+        "ttft_n": 832,
+        "ttft_sum": 4091761
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-08-29",
+        "off"
+      ],
+      "counts": {
+        "n": 6613,
+        "valid": 6612,
+        "prompt": 1449860257,
+        "cached": 1388495424,
+        "output": 4661568,
+        "old_units": 137841028472,
+        "peak_units": 525927322160,
+        "ttft_n": 6613,
+        "ttft_sum": 36445819
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-08-29",
+        "peak"
+      ],
+      "counts": {
+        "n": 2217,
+        "valid": 2217,
+        "prompt": 547081802,
+        "cached": 531242368,
+        "output": 1612115,
+        "old_units": 41563915904,
+        "peak_units": 165347359120,
+        "ttft_n": 2217,
+        "ttft_sum": 12514861
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-08-30",
+        "off"
+      ],
+      "counts": {
+        "n": 5991,
+        "valid": 5962,
+        "prompt": 1228787079,
+        "cached": 1152486144,
+        "output": 3800952,
+        "old_units": 149733586632,
+        "peak_units": 547244740560,
+        "ttft_n": 5962,
+        "ttft_sum": 39893707
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-08-30",
+        "peak"
+      ],
+      "counts": {
+        "n": 3202,
+        "valid": 3202,
+        "prompt": 557569381,
+        "cached": 526974848,
+        "output": 2015327,
+        "old_units": 63230557544,
+        "peak_units": 234994740320,
+        "ttft_n": 3202,
+        "ttft_sum": 20467076
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-08-31",
+        "off"
+      ],
+      "counts": {
+        "n": 10395,
+        "valid": 10384,
+        "prompt": 1876484116,
+        "cached": 1790733248,
+        "output": 6808868,
+        "old_units": 189256576544,
+        "peak_units": 717883531520,
+        "ttft_n": 10384,
+        "ttft_sum": 67252398
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-08-31",
+        "peak"
+      ],
+      "counts": {
+        "n": 1084,
+        "valid": 1079,
+        "prompt": 226066358,
+        "cached": 212281792,
+        "output": 564855,
+        "old_units": 26823876576,
+        "peak_units": 97827627280,
+        "ttft_n": 1079,
+        "ttft_sum": 10112517
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-01",
+        "off"
+      ],
+      "counts": {
+        "n": 7105,
+        "valid": 7062,
+        "prompt": 1403524458,
+        "cached": 1347500416,
+        "output": 3960646,
+        "old_units": 127253479248,
+        "peak_units": 487436370240,
+        "ttft_n": 7062,
+        "ttft_sum": 49651217
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-01",
+        "peak"
+      ],
+      "counts": {
+        "n": 3724,
+        "valid": 3721,
+        "prompt": 935138869,
+        "cached": 899283136,
+        "output": 1695979,
+        "old_units": 80126695208,
+        "peak_units": 306051787040,
+        "ttft_n": 3721,
+        "ttft_sum": 30226356
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-02",
+        "off"
+      ],
+      "counts": {
+        "n": 6079,
+        "valid": 6067,
+        "prompt": 1652408871,
+        "cached": 1600900672,
+        "output": 3164293,
+        "old_units": 125796717816,
+        "peak_units": 492530837280,
+        "ttft_n": 6067,
+        "ttft_sum": 54202160
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-02",
+        "peak"
+      ],
+      "counts": {
+        "n": 2487,
+        "valid": 2482,
+        "prompt": 399593070,
+        "cached": 387583808,
+        "output": 1325001,
+        "old_units": 31375316224,
+        "peak_units": 124592499120,
+        "ttft_n": 2482,
+        "ttft_sum": 19471233
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-03",
+        "off"
+      ],
+      "counts": {
+        "n": 3124,
+        "valid": 3124,
+        "prompt": 1057959921,
+        "cached": 1023883776,
+        "output": 1542107,
+        "old_units": 80693248328,
+        "peak_units": 313634579040,
+        "ttft_n": 3124,
+        "ttft_sum": 32350223
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-03",
+        "peak"
+      ],
+      "counts": {
+        "n": 1260,
+        "valid": 1258,
+        "prompt": 339669863,
+        "cached": 331597952,
+        "output": 493447,
+        "old_units": 21967069656,
+        "peak_units": 88453622080,
+        "ttft_n": 1258,
+        "ttft_sum": 12017435
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-04",
+        "off"
+      ],
+      "counts": {
+        "n": 2441,
+        "valid": 2439,
+        "prompt": 706934055,
+        "cached": 693699136,
+        "output": 1185247,
+        "old_units": 41271154008,
+        "peak_units": 170996783040,
+        "ttft_n": 2439,
+        "ttft_sum": 20081870
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-04",
+        "peak"
+      ],
+      "counts": {
+        "n": 1003,
+        "valid": 1000,
+        "prompt": 288463970,
+        "cached": 280937792,
+        "output": 361643,
+        "old_units": 19415507776,
+        "peak_units": 77220161680,
+        "ttft_n": 1000,
+        "ttft_sum": 8579236
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-05",
+        "off"
+      ],
+      "counts": {
+        "n": 2603,
+        "valid": 2598,
+        "prompt": 647320721,
+        "cached": 632610240,
+        "output": 1400015,
+        "old_units": 42227802120,
+        "peak_units": 171771748000,
+        "ttft_n": 2598,
+        "ttft_sum": 19873960
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "daily",
+        "2026-09-05",
+        "peak"
+      ],
+      "counts": {
+        "n": 819,
+        "valid": 819,
+        "prompt": 205712286,
+        "cached": 202412608,
+        "output": 293622,
+        "old_units": 11109243824,
+        "peak_units": 46732158720,
+        "ttft_n": 819,
+        "ttft_sum": 4416697
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-08-28",
+        "off"
+      ],
+      "counts": {
+        "n": 5459,
+        "valid": 5458,
+        "prompt": 1044724533,
+        "cached": 1009929280,
+        "output": 3644069,
+        "old_units": 87194767240,
+        "peak_units": 342590923200,
+        "ttft_n": 5458,
+        "ttft_sum": 27353568
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-08-28",
+        "peak"
+      ],
+      "counts": {
+        "n": 833,
+        "valid": 832,
+        "prompt": 98930961,
+        "cached": 93764800,
+        "output": 800945,
+        "old_units": 12100685800,
+        "peak_units": 46430654400,
+        "ttft_n": 832,
+        "ttft_sum": 4091761
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-08-29",
+        "off"
+      ],
+      "counts": {
+        "n": 8830,
+        "valid": 8829,
+        "prompt": 1996942059,
+        "cached": 1919737792,
+        "output": 6273683,
+        "old_units": 179404944376,
+        "peak_units": 691274681280,
+        "ttft_n": 8830,
+        "ttft_sum": 48960680
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-08-30",
+        "off"
+      ],
+      "counts": {
+        "n": 9193,
+        "valid": 9164,
+        "prompt": 1786356460,
+        "cached": 1679460992,
+        "output": 5816279,
+        "old_units": 212964144176,
+        "peak_units": 782239480880,
+        "ttft_n": 9164,
+        "ttft_sum": 60360783
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-08-31",
+        "off"
+      ],
+      "counts": {
+        "n": 10395,
+        "valid": 10384,
+        "prompt": 1876484116,
+        "cached": 1790733248,
+        "output": 6808868,
+        "old_units": 189256576544,
+        "peak_units": 717883531520,
+        "ttft_n": 10384,
+        "ttft_sum": 67252398
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-08-31",
+        "peak"
+      ],
+      "counts": {
+        "n": 1084,
+        "valid": 1079,
+        "prompt": 226066358,
+        "cached": 212281792,
+        "output": 564855,
+        "old_units": 26823876576,
+        "peak_units": 97827627280,
+        "ttft_n": 1079,
+        "ttft_sum": 10112517
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-01",
+        "off"
+      ],
+      "counts": {
+        "n": 7105,
+        "valid": 7062,
+        "prompt": 1403524458,
+        "cached": 1347500416,
+        "output": 3960646,
+        "old_units": 127253479248,
+        "peak_units": 487436370240,
+        "ttft_n": 7062,
+        "ttft_sum": 49651217
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-01",
+        "peak"
+      ],
+      "counts": {
+        "n": 3724,
+        "valid": 3721,
+        "prompt": 935138869,
+        "cached": 899283136,
+        "output": 1695979,
+        "old_units": 80126695208,
+        "peak_units": 306051787040,
+        "ttft_n": 3721,
+        "ttft_sum": 30226356
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-02",
+        "off"
+      ],
+      "counts": {
+        "n": 6079,
+        "valid": 6067,
+        "prompt": 1652408871,
+        "cached": 1600900672,
+        "output": 3164293,
+        "old_units": 125796717816,
+        "peak_units": 492530837280,
+        "ttft_n": 6067,
+        "ttft_sum": 54202160
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-02",
+        "peak"
+      ],
+      "counts": {
+        "n": 2487,
+        "valid": 2482,
+        "prompt": 399593070,
+        "cached": 387583808,
+        "output": 1325001,
+        "old_units": 31375316224,
+        "peak_units": 124592499120,
+        "ttft_n": 2482,
+        "ttft_sum": 19471233
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-03",
+        "off"
+      ],
+      "counts": {
+        "n": 3124,
+        "valid": 3124,
+        "prompt": 1057959921,
+        "cached": 1023883776,
+        "output": 1542107,
+        "old_units": 80693248328,
+        "peak_units": 313634579040,
+        "ttft_n": 3124,
+        "ttft_sum": 32350223
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-03",
+        "peak"
+      ],
+      "counts": {
+        "n": 1260,
+        "valid": 1258,
+        "prompt": 339669863,
+        "cached": 331597952,
+        "output": 493447,
+        "old_units": 21967069656,
+        "peak_units": 88453622080,
+        "ttft_n": 1258,
+        "ttft_sum": 12017435
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-04",
+        "off"
+      ],
+      "counts": {
+        "n": 2441,
+        "valid": 2439,
+        "prompt": 706934055,
+        "cached": 693699136,
+        "output": 1185247,
+        "old_units": 41271154008,
+        "peak_units": 170996783040,
+        "ttft_n": 2439,
+        "ttft_sum": 20081870
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-04",
+        "peak"
+      ],
+      "counts": {
+        "n": 1003,
+        "valid": 1000,
+        "prompt": 288463970,
+        "cached": 280937792,
+        "output": 361643,
+        "old_units": 19415507776,
+        "peak_units": 77220161680,
+        "ttft_n": 1000,
+        "ttft_sum": 8579236
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "weekend",
+        "2026-09-05",
+        "off"
+      ],
+      "counts": {
+        "n": 3422,
+        "valid": 3417,
+        "prompt": 853033007,
+        "cached": 835022848,
+        "output": 1693637,
+        "old_units": 53337045944,
+        "peak_units": 218503906720,
+        "ttft_n": 3417,
+        "ttft_sum": 24290657
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-08",
+        "pre"
+      ],
+      "counts": {
+        "n": 3,
+        "valid": 2,
+        "prompt": 192969,
+        "cached": 189440,
+        "output": 1931,
+        "old_units": 15651720,
+        "peak_units": 67538400,
+        "ttft_n": 3,
+        "ttft_sum": 3583
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-09",
+        "pre"
+      ],
+      "counts": {
+        "n": 19806,
+        "valid": 18905,
+        "prompt": 4252861048,
+        "cached": 4217401344,
+        "output": 10225719,
+        "old_units": 196362836432,
+        "peak_units": 881438376560,
+        "ttft_n": 19806,
+        "ttft_sum": 50572859
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-10",
+        "pre"
+      ],
+      "counts": {
+        "n": 19445,
+        "valid": 18273,
+        "prompt": 4242485716,
+        "cached": 4198476800,
+        "output": 9870279,
+        "old_units": 206806614000,
+        "peak_units": 911713665200,
+        "ttft_n": 19445,
+        "ttft_sum": 75217103
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-11",
+        "pre"
+      ],
+      "counts": {
+        "n": 17207,
+        "ttft_n": 17207,
+        "ttft_sum": 62506291,
+        "valid": 16302,
+        "prompt": 4413836111,
+        "cached": 4381794048,
+        "output": 7551526,
+        "old_units": 188693394344,
+        "peak_units": 854116387120
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-12",
+        "pre"
+      ],
+      "counts": {
+        "n": 14754,
+        "ttft_n": 14754,
+        "ttft_sum": 39860722,
+        "valid": 14115,
+        "prompt": 2908389918,
+        "cached": 2882322944,
+        "output": 7064826,
+        "old_units": 136980318832,
+        "peak_units": 611475600960
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-13",
+        "pre"
+      ],
+      "counts": {
+        "n": 12471,
+        "ttft_n": 12469,
+        "ttft_sum": 34407085,
+        "valid": 11897,
+        "prompt": 2804330435,
+        "cached": 2781956864,
+        "output": 5592967,
+        "old_units": 124878099192,
+        "peak_units": 561744837760
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-14",
+        "pre"
+      ],
+      "counts": {
+        "n": 11103,
+        "ttft_n": 11103,
+        "ttft_sum": 47560870,
+        "valid": 10374,
+        "prompt": 2172761874,
+        "cached": 2146799360,
+        "output": 5061654,
+        "old_units": 110630532880,
+        "peak_units": 481600804800
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-15",
+        "pre"
+      ],
+      "counts": {
+        "n": 14888,
+        "ttft_n": 14888,
+        "ttft_sum": 70355701,
+        "valid": 13701,
+        "prompt": 3202243635,
+        "cached": 3169188864,
+        "output": 7481681,
+        "old_units": 155962674392,
+        "peak_units": 687885622560
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-16",
+        "off"
+      ],
+      "counts": {
+        "n": 3844,
+        "ttft_n": 3838,
+        "ttft_sum": 22016828,
+        "valid": 3572,
+        "prompt": 1207705318,
+        "cached": 1200729856,
+        "output": 1681388,
+        "old_units": 48093969168,
+        "peak_units": 220988534240
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-16",
+        "pre"
+      ],
+      "counts": {
+        "n": 6721,
+        "valid": 6273,
+        "prompt": 1847925740,
+        "cached": 1831252224,
+        "output": 3626749,
+        "old_units": 84772881872,
+        "peak_units": 377611868560,
+        "ttft_n": 6720,
+        "ttft_sum": 32178939
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-17",
+        "off"
+      ],
+      "counts": {
+        "n": 11122,
+        "ttft_n": 11122,
+        "ttft_sum": 50827437,
+        "valid": 10330,
+        "prompt": 2988749936,
+        "cached": 2967379456,
+        "output": 4942609,
+        "old_units": 126844601968,
+        "peak_units": 574705674640
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-17",
+        "peak"
+      ],
+      "counts": {
+        "n": 2429,
+        "ttft_n": 2429,
+        "ttft_sum": 11441736,
+        "valid": 2255,
+        "prompt": 603561040,
+        "cached": 597778688,
+        "output": 1157604,
+        "old_units": 28074387264,
+        "peak_units": 124411737920
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-18",
+        "off"
+      ],
+      "counts": {
+        "n": 10338,
+        "ttft_n": 10337,
+        "ttft_sum": 46648158,
+        "valid": 9531,
+        "prompt": 2278815345,
+        "cached": 2250847744,
+        "output": 4631773,
+        "old_units": 115147342632,
+        "peak_units": 499315532160
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-18",
+        "peak"
+      ],
+      "counts": {
+        "n": 4029,
+        "valid": 3700,
+        "prompt": 952097721,
+        "cached": 946899200,
+        "output": 2068168,
+        "old_units": 39581977400,
+        "peak_units": 182739198000,
+        "ttft_n": 4029,
+        "ttft_sum": 21803684
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-19",
+        "off"
+      ],
+      "counts": {
+        "n": 11734,
+        "ttft_n": 11732,
+        "ttft_sum": 48767019,
+        "valid": 10880,
+        "prompt": 2581200055,
+        "cached": 2545881600,
+        "output": 5075746,
+        "old_units": 134942610600,
+        "peak_units": 578824473200
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-19",
+        "peak"
+      ],
+      "counts": {
+        "n": 3457,
+        "valid": 3174,
+        "prompt": 857210099,
+        "cached": 850057216,
+        "output": 1588817,
+        "old_units": 38264325848,
+        "peak_units": 171453079840,
+        "ttft_n": 3456,
+        "ttft_sum": 14177991
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-20",
+        "off"
+      ],
+      "counts": {
+        "n": 12446,
+        "ttft_n": 12445,
+        "ttft_sum": 36196106,
+        "valid": 11558,
+        "prompt": 1938831115,
+        "cached": 1907356160,
+        "output": 6068032,
+        "old_units": 114461399080,
+        "peak_units": 485617686800
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-20",
+        "peak"
+      ],
+      "counts": {
+        "n": 3549,
+        "ttft_n": 3549,
+        "ttft_sum": 11402365,
+        "valid": 3245,
+        "prompt": 608369963,
+        "cached": 598270464,
+        "output": 1698400,
+        "old_units": 35646391592,
+        "peak_units": 150614540560
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-21",
+        "off"
+      ],
+      "counts": {
+        "n": 12338,
+        "ttft_n": 12336,
+        "ttft_sum": 32585415,
+        "valid": 11597,
+        "prompt": 2234810157,
+        "cached": 2208868096,
+        "output": 6065476,
+        "old_units": 115150524888,
+        "peak_units": 503450885040
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-21",
+        "peak"
+      ],
+      "counts": {
+        "n": 3067,
+        "ttft_n": 3067,
+        "ttft_sum": 8514539,
+        "valid": 2836,
+        "prompt": 624764901,
+        "cached": 621040896,
+        "output": 1406448,
+        "old_units": 26540806488,
+        "peak_units": 121896461040
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-22",
+        "off"
+      ],
+      "counts": {
+        "n": 11767,
+        "ttft_n": 11767,
+        "ttft_sum": 43038887,
+        "valid": 10786,
+        "prompt": 2108652443,
+        "cached": 2008091904,
+        "output": 6036862,
+        "old_units": 213914541512,
+        "peak_units": 803285816560
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-22",
+        "peak"
+      ],
+      "counts": {
+        "n": 1529,
+        "ttft_n": 1529,
+        "ttft_sum": 6783534,
+        "valid": 1353,
+        "prompt": 212967579,
+        "cached": 205747968,
+        "output": 830794,
+        "old_units": 18194621704,
+        "peak_units": 71537484720
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-23",
+        "off"
+      ],
+      "counts": {
+        "n": 8987,
+        "ttft_n": 8987,
+        "ttft_sum": 14972097,
+        "valid": 8819,
+        "prompt": 1799020013,
+        "cached": 1769336320,
+        "output": 5077785,
+        "old_units": 105316385160,
+        "peak_units": 445342096000
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-23",
+        "peak"
+      ],
+      "counts": {
+        "n": 3958,
+        "ttft_n": 3958,
+        "ttft_sum": 8511686,
+        "valid": 3859,
+        "prompt": 804905931,
+        "cached": 754045440,
+        "output": 2284034,
+        "old_units": 98713254920,
+        "peak_units": 359501770800
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-24",
+        "off"
+      ],
+      "counts": {
+        "n": 9778,
+        "ttft_n": 9777,
+        "ttft_sum": 15937085,
+        "valid": 9502,
+        "prompt": 2118023086,
+        "cached": 2092684288,
+        "output": 5006250,
+        "old_units": 108086977264,
+        "peak_units": 470549011520
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-24",
+        "peak"
+      ],
+      "counts": {
+        "n": 1524,
+        "valid": 1479,
+        "prompt": 285338398,
+        "cached": 283431168,
+        "output": 720662,
+        "old_units": 12624048304,
+        "peak_units": 57584913920,
+        "ttft_n": 1524,
+        "ttft_sum": 1715330
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-25",
+        "off"
+      ],
+      "counts": {
+        "n": 14958,
+        "ttft_n": 14958,
+        "ttft_sum": 20858585,
+        "valid": 14718,
+        "prompt": 2865121449,
+        "cached": 2837358592,
+        "output": 7317146,
+        "old_units": 138802049176,
+        "peak_units": 615973100880
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-25",
+        "peak"
+      ],
+      "counts": {
+        "n": 3120,
+        "ttft_n": 3120,
+        "ttft_sum": 5120379,
+        "valid": 3070,
+        "prompt": 833251889,
+        "cached": 824370176,
+        "output": 1639672,
+        "old_units": 40107844728,
+        "peak_units": 176135032240
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-26",
+        "off"
+      ],
+      "counts": {
+        "n": 16257,
+        "ttft_n": 16255,
+        "ttft_sum": 24221631,
+        "valid": 16042,
+        "prompt": 3519228341,
+        "cached": 3474122752,
+        "output": 9556501,
+        "old_units": 187181464456,
+        "peak_units": 810987590080
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-26",
+        "peak"
+      ],
+      "counts": {
+        "n": 3752,
+        "ttft_n": 3750,
+        "ttft_sum": 3815592,
+        "valid": 3700,
+        "prompt": 598961267,
+        "cached": 591476736,
+        "output": 2106602,
+        "old_units": 32938177608,
+        "peak_units": 143545825840
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-27",
+        "off"
+      ],
+      "counts": {
+        "n": 16564,
+        "ttft_n": 16564,
+        "ttft_sum": 35378930,
+        "valid": 16409,
+        "prompt": 4160484543,
+        "cached": 4097597440,
+        "output": 10417683,
+        "old_units": 231944184920,
+        "peak_units": 987880310400
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-27",
+        "peak"
+      ],
+      "counts": {
+        "n": 5158,
+        "valid": 5091,
+        "prompt": 1458183486,
+        "cached": 1447969536,
+        "output": 3375333,
+        "old_units": 64293609408,
+        "peak_units": 292211510640,
+        "ttft_n": 5158,
+        "ttft_sum": 9545917
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-28",
+        "off"
+      ],
+      "counts": {
+        "n": 6503,
+        "ttft_n": 6503,
+        "ttft_sum": 8420601,
+        "valid": 6378,
+        "prompt": 1037039517,
+        "cached": 1014716672,
+        "output": 3387215,
+        "old_units": 69148251816,
+        "peak_units": 284992090080
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-28",
+        "peak"
+      ],
+      "counts": {
+        "n": 3125,
+        "ttft_n": 3125,
+        "ttft_sum": 4696586,
+        "valid": 3075,
+        "prompt": 594540560,
+        "cached": 582619392,
+        "output": 2103334,
+        "old_units": 38892313376,
+        "peak_units": 161783862880
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-29",
+        "off"
+      ],
+      "counts": {
+        "n": 8427,
+        "valid": 8311,
+        "prompt": 1363332961,
+        "cached": 1343645952,
+        "output": 4911625,
+        "old_units": 78936449256,
+        "peak_units": 339566722880,
+        "ttft_n": 8426,
+        "ttft_sum": 10357443
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-29",
+        "peak"
+      ],
+      "counts": {
+        "n": 2247,
+        "valid": 2220,
+        "prompt": 464679964,
+        "cached": 456941568,
+        "output": 1066153,
+        "old_units": 26613346704,
+        "peak_units": 112093981520,
+        "ttft_n": 2247,
+        "ttft_sum": 3249590
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-30",
+        "off"
+      ],
+      "counts": {
+        "n": 7364,
+        "ttft_n": 7364,
+        "ttft_sum": 13138554,
+        "valid": 7152,
+        "prompt": 1673997272,
+        "cached": 1648931584,
+        "output": 4670378,
+        "old_units": 94339105952,
+        "peak_units": 402788438560
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-30",
+        "peak"
+      ],
+      "counts": {
+        "n": 1187,
+        "ttft_n": 1187,
+        "ttft_sum": 3276441,
+        "valid": 1174,
+        "prompt": 279057444,
+        "cached": 277283840,
+        "output": 642508,
+        "old_units": 12046015520,
+        "peak_units": 55104700800
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-31",
+        "off"
+      ],
+      "counts": {
+        "n": 7540,
+        "ttft_n": 7539,
+        "ttft_sum": 14094734,
+        "valid": 7394,
+        "prompt": 1377794412,
+        "cached": 1359642368,
+        "output": 3794892,
+        "old_units": 74108545504,
+        "peak_units": 320311499520
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-08-31",
+        "peak"
+      ],
+      "counts": {
+        "n": 2791,
+        "ttft_n": 2790,
+        "ttft_sum": 4516943,
+        "valid": 2734,
+        "prompt": 569009242,
+        "cached": 562519040,
+        "output": 1643099,
+        "old_units": 29437493120,
+        "peak_units": 128998461200
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-01",
+        "off"
+      ],
+      "counts": {
+        "n": 12320,
+        "valid": 12141,
+        "prompt": 2410277930,
+        "cached": 2366229248,
+        "output": 6235630,
+        "old_units": 145382337744,
+        "peak_units": 607396611520,
+        "ttft_n": 12319,
+        "ttft_sum": 17213451
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-01",
+        "peak"
+      ],
+      "counts": {
+        "n": 1965,
+        "ttft_n": 1965,
+        "ttft_sum": 2483292,
+        "valid": 1920,
+        "prompt": 460507584,
+        "cached": 456928000,
+        "output": 1130963,
+        "old_units": 20972098000,
+        "peak_units": 94648801200
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-02",
+        "off"
+      ],
+      "counts": {
+        "n": 11568,
+        "valid": 11388,
+        "prompt": 2339867949,
+        "cached": 2277132800,
+        "output": 6368390,
+        "old_units": 169420419000,
+        "peak_units": 678895995600,
+        "ttft_n": 11568,
+        "ttft_sum": 21674442
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-02",
+        "peak"
+      ],
+      "counts": {
+        "n": 3232,
+        "ttft_n": 3231,
+        "ttft_sum": 4134105,
+        "valid": 3180,
+        "prompt": 557436132,
+        "cached": 547819008,
+        "output": 1918314,
+        "old_units": 34174185024,
+        "peak_units": 144331751520
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-03",
+        "off"
+      ],
+      "counts": {
+        "n": 14286,
+        "ttft_n": 14283,
+        "ttft_sum": 27102718,
+        "valid": 14074,
+        "prompt": 3639358413,
+        "cached": 3585297920,
+        "output": 8269317,
+        "old_units": 199227119560,
+        "peak_units": 848962862400
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-03",
+        "peak"
+      ],
+      "counts": {
+        "n": 4932,
+        "valid": 4872,
+        "prompt": 1084920446,
+        "cached": 1061676800,
+        "output": 2851799,
+        "old_units": 70253092000,
+        "peak_units": 288550541200,
+        "ttft_n": 4932,
+        "ttft_sum": 8435441
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-04",
+        "off"
+      ],
+      "counts": {
+        "n": 14916,
+        "ttft_n": 14915,
+        "ttft_sum": 24383090,
+        "valid": 14719,
+        "prompt": 3719838047,
+        "cached": 3689115648,
+        "output": 7908642,
+        "old_units": 168450794344,
+        "peak_units": 756048820720
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-04",
+        "peak"
+      ],
+      "counts": {
+        "n": 5837,
+        "ttft_n": 5837,
+        "ttft_sum": 7447617,
+        "valid": 5726,
+        "prompt": 1220605767,
+        "cached": 1209240064,
+        "output": 3300195,
+        "old_units": 59011251992,
+        "peak_units": 262865276160
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-05",
+        "off"
+      ],
+      "counts": {
+        "n": 14804,
+        "valid": 14617,
+        "prompt": 3386186411,
+        "cached": 3311757824,
+        "output": 8430557,
+        "old_units": 220534800472,
+        "peak_units": 902415230560,
+        "ttft_n": 14804,
+        "ttft_sum": 25044539
+      }
+    },
+    {
+      "key": [
+        "target",
+        "daily",
+        "2026-09-05",
+        "peak"
+      ],
+      "counts": {
+        "n": 6364,
+        "ttft_n": 6363,
+        "ttft_sum": 8257235,
+        "valid": 6310,
+        "prompt": 1448469517,
+        "cached": 1432539136,
+        "output": 4107358,
+        "old_units": 73914231608,
+        "peak_units": 324866281040
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-08",
+        "pre"
+      ],
+      "counts": {
+        "n": 3,
+        "valid": 2,
+        "prompt": 192969,
+        "cached": 189440,
+        "output": 1931,
+        "old_units": 15651720,
+        "peak_units": 67538400,
+        "ttft_n": 3,
+        "ttft_sum": 3583
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-09",
+        "pre"
+      ],
+      "counts": {
+        "n": 19806,
+        "valid": 18905,
+        "prompt": 4252861048,
+        "cached": 4217401344,
+        "output": 10225719,
+        "old_units": 196362836432,
+        "peak_units": 881438376560,
+        "ttft_n": 19806,
+        "ttft_sum": 50572859
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-10",
+        "pre"
+      ],
+      "counts": {
+        "n": 19445,
+        "valid": 18273,
+        "prompt": 4242485716,
+        "cached": 4198476800,
+        "output": 9870279,
+        "old_units": 206806614000,
+        "peak_units": 911713665200,
+        "ttft_n": 19445,
+        "ttft_sum": 75217103
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-11",
+        "pre"
+      ],
+      "counts": {
+        "n": 17207,
+        "ttft_n": 17207,
+        "ttft_sum": 62506291,
+        "valid": 16302,
+        "prompt": 4413836111,
+        "cached": 4381794048,
+        "output": 7551526,
+        "old_units": 188693394344,
+        "peak_units": 854116387120
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-12",
+        "pre"
+      ],
+      "counts": {
+        "n": 14754,
+        "ttft_n": 14754,
+        "ttft_sum": 39860722,
+        "valid": 14115,
+        "prompt": 2908389918,
+        "cached": 2882322944,
+        "output": 7064826,
+        "old_units": 136980318832,
+        "peak_units": 611475600960
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-13",
+        "pre"
+      ],
+      "counts": {
+        "n": 12471,
+        "ttft_n": 12469,
+        "ttft_sum": 34407085,
+        "valid": 11897,
+        "prompt": 2804330435,
+        "cached": 2781956864,
+        "output": 5592967,
+        "old_units": 124878099192,
+        "peak_units": 561744837760
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-14",
+        "pre"
+      ],
+      "counts": {
+        "n": 11103,
+        "ttft_n": 11103,
+        "ttft_sum": 47560870,
+        "valid": 10374,
+        "prompt": 2172761874,
+        "cached": 2146799360,
+        "output": 5061654,
+        "old_units": 110630532880,
+        "peak_units": 481600804800
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-15",
+        "pre"
+      ],
+      "counts": {
+        "n": 14888,
+        "ttft_n": 14888,
+        "ttft_sum": 70355701,
+        "valid": 13701,
+        "prompt": 3202243635,
+        "cached": 3169188864,
+        "output": 7481681,
+        "old_units": 155962674392,
+        "peak_units": 687885622560
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-16",
+        "off"
+      ],
+      "counts": {
+        "n": 3844,
+        "ttft_n": 3838,
+        "ttft_sum": 22016828,
+        "valid": 3572,
+        "prompt": 1207705318,
+        "cached": 1200729856,
+        "output": 1681388,
+        "old_units": 48093969168,
+        "peak_units": 220988534240
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-16",
+        "pre"
+      ],
+      "counts": {
+        "n": 6721,
+        "valid": 6273,
+        "prompt": 1847925740,
+        "cached": 1831252224,
+        "output": 3626749,
+        "old_units": 84772881872,
+        "peak_units": 377611868560,
+        "ttft_n": 6720,
+        "ttft_sum": 32178939
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-17",
+        "off"
+      ],
+      "counts": {
+        "n": 11122,
+        "ttft_n": 11122,
+        "ttft_sum": 50827437,
+        "valid": 10330,
+        "prompt": 2988749936,
+        "cached": 2967379456,
+        "output": 4942609,
+        "old_units": 126844601968,
+        "peak_units": 574705674640
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-17",
+        "peak"
+      ],
+      "counts": {
+        "n": 2429,
+        "ttft_n": 2429,
+        "ttft_sum": 11441736,
+        "valid": 2255,
+        "prompt": 603561040,
+        "cached": 597778688,
+        "output": 1157604,
+        "old_units": 28074387264,
+        "peak_units": 124411737920
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-18",
+        "off"
+      ],
+      "counts": {
+        "n": 10338,
+        "ttft_n": 10337,
+        "ttft_sum": 46648158,
+        "valid": 9531,
+        "prompt": 2278815345,
+        "cached": 2250847744,
+        "output": 4631773,
+        "old_units": 115147342632,
+        "peak_units": 499315532160
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-18",
+        "peak"
+      ],
+      "counts": {
+        "n": 4029,
+        "valid": 3700,
+        "prompt": 952097721,
+        "cached": 946899200,
+        "output": 2068168,
+        "old_units": 39581977400,
+        "peak_units": 182739198000,
+        "ttft_n": 4029,
+        "ttft_sum": 21803684
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-19",
+        "off"
+      ],
+      "counts": {
+        "n": 11734,
+        "ttft_n": 11732,
+        "ttft_sum": 48767019,
+        "valid": 10880,
+        "prompt": 2581200055,
+        "cached": 2545881600,
+        "output": 5075746,
+        "old_units": 134942610600,
+        "peak_units": 578824473200
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-19",
+        "peak"
+      ],
+      "counts": {
+        "n": 3457,
+        "valid": 3174,
+        "prompt": 857210099,
+        "cached": 850057216,
+        "output": 1588817,
+        "old_units": 38264325848,
+        "peak_units": 171453079840,
+        "ttft_n": 3456,
+        "ttft_sum": 14177991
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-20",
+        "off"
+      ],
+      "counts": {
+        "n": 12446,
+        "ttft_n": 12445,
+        "ttft_sum": 36196106,
+        "valid": 11558,
+        "prompt": 1938831115,
+        "cached": 1907356160,
+        "output": 6068032,
+        "old_units": 114461399080,
+        "peak_units": 485617686800
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-20",
+        "peak"
+      ],
+      "counts": {
+        "n": 3549,
+        "ttft_n": 3549,
+        "ttft_sum": 11402365,
+        "valid": 3245,
+        "prompt": 608369963,
+        "cached": 598270464,
+        "output": 1698400,
+        "old_units": 35646391592,
+        "peak_units": 150614540560
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-21",
+        "off"
+      ],
+      "counts": {
+        "n": 12338,
+        "ttft_n": 12336,
+        "ttft_sum": 32585415,
+        "valid": 11597,
+        "prompt": 2234810157,
+        "cached": 2208868096,
+        "output": 6065476,
+        "old_units": 115150524888,
+        "peak_units": 503450885040
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-21",
+        "peak"
+      ],
+      "counts": {
+        "n": 3067,
+        "ttft_n": 3067,
+        "ttft_sum": 8514539,
+        "valid": 2836,
+        "prompt": 624764901,
+        "cached": 621040896,
+        "output": 1406448,
+        "old_units": 26540806488,
+        "peak_units": 121896461040
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-22",
+        "off"
+      ],
+      "counts": {
+        "n": 11767,
+        "ttft_n": 11767,
+        "ttft_sum": 43038887,
+        "valid": 10786,
+        "prompt": 2108652443,
+        "cached": 2008091904,
+        "output": 6036862,
+        "old_units": 213914541512,
+        "peak_units": 803285816560
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-22",
+        "peak"
+      ],
+      "counts": {
+        "n": 1529,
+        "ttft_n": 1529,
+        "ttft_sum": 6783534,
+        "valid": 1353,
+        "prompt": 212967579,
+        "cached": 205747968,
+        "output": 830794,
+        "old_units": 18194621704,
+        "peak_units": 71537484720
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-23",
+        "off"
+      ],
+      "counts": {
+        "n": 12945,
+        "ttft_n": 12945,
+        "ttft_sum": 23483783,
+        "valid": 12678,
+        "prompt": 2603925944,
+        "cached": 2523381760,
+        "output": 7361819,
+        "old_units": 204029640080,
+        "peak_units": 804843866800
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-24",
+        "off"
+      ],
+      "counts": {
+        "n": 9778,
+        "ttft_n": 9777,
+        "ttft_sum": 15937085,
+        "valid": 9502,
+        "prompt": 2118023086,
+        "cached": 2092684288,
+        "output": 5006250,
+        "old_units": 108086977264,
+        "peak_units": 470549011520
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-24",
+        "peak"
+      ],
+      "counts": {
+        "n": 1524,
+        "valid": 1479,
+        "prompt": 285338398,
+        "cached": 283431168,
+        "output": 720662,
+        "old_units": 12624048304,
+        "peak_units": 57584913920,
+        "ttft_n": 1524,
+        "ttft_sum": 1715330
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-25",
+        "off"
+      ],
+      "counts": {
+        "n": 14958,
+        "ttft_n": 14958,
+        "ttft_sum": 20858585,
+        "valid": 14718,
+        "prompt": 2865121449,
+        "cached": 2837358592,
+        "output": 7317146,
+        "old_units": 138802049176,
+        "peak_units": 615973100880
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-25",
+        "peak"
+      ],
+      "counts": {
+        "n": 3120,
+        "ttft_n": 3120,
+        "ttft_sum": 5120379,
+        "valid": 3070,
+        "prompt": 833251889,
+        "cached": 824370176,
+        "output": 1639672,
+        "old_units": 40107844728,
+        "peak_units": 176135032240
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-26",
+        "off"
+      ],
+      "counts": {
+        "n": 16257,
+        "ttft_n": 16255,
+        "ttft_sum": 24221631,
+        "valid": 16042,
+        "prompt": 3519228341,
+        "cached": 3474122752,
+        "output": 9556501,
+        "old_units": 187181464456,
+        "peak_units": 810987590080
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-26",
+        "peak"
+      ],
+      "counts": {
+        "n": 3752,
+        "ttft_n": 3750,
+        "ttft_sum": 3815592,
+        "valid": 3700,
+        "prompt": 598961267,
+        "cached": 591476736,
+        "output": 2106602,
+        "old_units": 32938177608,
+        "peak_units": 143545825840
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-27",
+        "off"
+      ],
+      "counts": {
+        "n": 16564,
+        "ttft_n": 16564,
+        "ttft_sum": 35378930,
+        "valid": 16409,
+        "prompt": 4160484543,
+        "cached": 4097597440,
+        "output": 10417683,
+        "old_units": 231944184920,
+        "peak_units": 987880310400
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-27",
+        "peak"
+      ],
+      "counts": {
+        "n": 5158,
+        "valid": 5091,
+        "prompt": 1458183486,
+        "cached": 1447969536,
+        "output": 3375333,
+        "old_units": 64293609408,
+        "peak_units": 292211510640,
+        "ttft_n": 5158,
+        "ttft_sum": 9545917
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-28",
+        "off"
+      ],
+      "counts": {
+        "n": 6503,
+        "ttft_n": 6503,
+        "ttft_sum": 8420601,
+        "valid": 6378,
+        "prompt": 1037039517,
+        "cached": 1014716672,
+        "output": 3387215,
+        "old_units": 69148251816,
+        "peak_units": 284992090080
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-28",
+        "peak"
+      ],
+      "counts": {
+        "n": 3125,
+        "ttft_n": 3125,
+        "ttft_sum": 4696586,
+        "valid": 3075,
+        "prompt": 594540560,
+        "cached": 582619392,
+        "output": 2103334,
+        "old_units": 38892313376,
+        "peak_units": 161783862880
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-29",
+        "off"
+      ],
+      "counts": {
+        "n": 10674,
+        "valid": 10531,
+        "prompt": 1828012925,
+        "cached": 1800587520,
+        "output": 5977778,
+        "old_units": 105549795960,
+        "peak_units": 451660704400,
+        "ttft_n": 10673,
+        "ttft_sum": 13607033
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-30",
+        "off"
+      ],
+      "counts": {
+        "n": 8551,
+        "ttft_n": 8551,
+        "ttft_sum": 16414995,
+        "valid": 8326,
+        "prompt": 1953054716,
+        "cached": 1926215424,
+        "output": 5312886,
+        "old_units": 106385121472,
+        "peak_units": 457893139360
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-31",
+        "off"
+      ],
+      "counts": {
+        "n": 7540,
+        "ttft_n": 7539,
+        "ttft_sum": 14094734,
+        "valid": 7394,
+        "prompt": 1377794412,
+        "cached": 1359642368,
+        "output": 3794892,
+        "old_units": 74108545504,
+        "peak_units": 320311499520
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-08-31",
+        "peak"
+      ],
+      "counts": {
+        "n": 2791,
+        "ttft_n": 2790,
+        "ttft_sum": 4516943,
+        "valid": 2734,
+        "prompt": 569009242,
+        "cached": 562519040,
+        "output": 1643099,
+        "old_units": 29437493120,
+        "peak_units": 128998461200
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-01",
+        "off"
+      ],
+      "counts": {
+        "n": 12320,
+        "valid": 12141,
+        "prompt": 2410277930,
+        "cached": 2366229248,
+        "output": 6235630,
+        "old_units": 145382337744,
+        "peak_units": 607396611520,
+        "ttft_n": 12319,
+        "ttft_sum": 17213451
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-01",
+        "peak"
+      ],
+      "counts": {
+        "n": 1965,
+        "ttft_n": 1965,
+        "ttft_sum": 2483292,
+        "valid": 1920,
+        "prompt": 460507584,
+        "cached": 456928000,
+        "output": 1130963,
+        "old_units": 20972098000,
+        "peak_units": 94648801200
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-02",
+        "off"
+      ],
+      "counts": {
+        "n": 11568,
+        "valid": 11388,
+        "prompt": 2339867949,
+        "cached": 2277132800,
+        "output": 6368390,
+        "old_units": 169420419000,
+        "peak_units": 678895995600,
+        "ttft_n": 11568,
+        "ttft_sum": 21674442
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-02",
+        "peak"
+      ],
+      "counts": {
+        "n": 3232,
+        "ttft_n": 3231,
+        "ttft_sum": 4134105,
+        "valid": 3180,
+        "prompt": 557436132,
+        "cached": 547819008,
+        "output": 1918314,
+        "old_units": 34174185024,
+        "peak_units": 144331751520
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-03",
+        "off"
+      ],
+      "counts": {
+        "n": 14286,
+        "ttft_n": 14283,
+        "ttft_sum": 27102718,
+        "valid": 14074,
+        "prompt": 3639358413,
+        "cached": 3585297920,
+        "output": 8269317,
+        "old_units": 199227119560,
+        "peak_units": 848962862400
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-03",
+        "peak"
+      ],
+      "counts": {
+        "n": 4932,
+        "valid": 4872,
+        "prompt": 1084920446,
+        "cached": 1061676800,
+        "output": 2851799,
+        "old_units": 70253092000,
+        "peak_units": 288550541200,
+        "ttft_n": 4932,
+        "ttft_sum": 8435441
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-04",
+        "off"
+      ],
+      "counts": {
+        "n": 14916,
+        "ttft_n": 14915,
+        "ttft_sum": 24383090,
+        "valid": 14719,
+        "prompt": 3719838047,
+        "cached": 3689115648,
+        "output": 7908642,
+        "old_units": 168450794344,
+        "peak_units": 756048820720
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-04",
+        "peak"
+      ],
+      "counts": {
+        "n": 5837,
+        "ttft_n": 5837,
+        "ttft_sum": 7447617,
+        "valid": 5726,
+        "prompt": 1220605767,
+        "cached": 1209240064,
+        "output": 3300195,
+        "old_units": 59011251992,
+        "peak_units": 262865276160
+      }
+    },
+    {
+      "key": [
+        "target",
+        "weekend",
+        "2026-09-05",
+        "off"
+      ],
+      "counts": {
+        "n": 21168,
+        "valid": 20927,
+        "prompt": 4834655928,
+        "cached": 4744296960,
+        "output": 12537915,
+        "old_units": 294449032080,
+        "peak_units": 1227281511600,
+        "ttft_n": 21167,
+        "ttft_sum": 33301774
+      }
+    }
+  ],
+  "boundary_windows": [
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "1",
+        "after"
+      ],
+      "counts": {
+        "n": 1711,
+        "valid": 1708,
+        "prompt": 377753644,
+        "cached": 369040384,
+        "output": 563890,
+        "old_units": 24110586752,
+        "peak_units": 97447345760,
+        "ttft_n": 1708,
+        "ttft_sum": 12651540
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "1",
+        "before"
+      ],
+      "counts": {
+        "n": 1226,
+        "valid": 1222,
+        "prompt": 254281214,
+        "cached": 245247232,
+        "output": 625117,
+        "old_units": 21264824896,
+        "peak_units": 82335677680,
+        "ttft_n": 1222,
+        "ttft_sum": 7673712
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "10",
+        "after"
+      ],
+      "counts": {
+        "n": 1667,
+        "valid": 1662,
+        "prompt": 256907793,
+        "cached": 241526784,
+        "output": 1269865,
+        "old_units": 31851784552,
+        "peak_units": 118252407360,
+        "ttft_n": 1662,
+        "ttft_sum": 10658577
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "10",
+        "before"
+      ],
+      "counts": {
+        "n": 1268,
+        "valid": 1263,
+        "prompt": 184275878,
+        "cached": 171047552,
+        "output": 750050,
+        "old_units": 25409127856,
+        "peak_units": 92051951680,
+        "ttft_n": 1263,
+        "ttft_sum": 9828574
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "4",
+        "after"
+      ],
+      "counts": {
+        "n": 2366,
+        "valid": 2366,
+        "prompt": 638423355,
+        "cached": 624464320,
+        "output": 1333378,
+        "old_units": 40761108360,
+        "peak_units": 166445348400,
+        "ttft_n": 2366,
+        "ttft_sum": 20069271
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "4",
+        "before"
+      ],
+      "counts": {
+        "n": 1767,
+        "valid": 1766,
+        "prompt": 514884591,
+        "cached": 503065344,
+        "output": 848358,
+        "old_units": 33008177832,
+        "peak_units": 133632160560,
+        "ttft_n": 1766,
+        "ttft_sum": 17317126
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "6",
+        "after"
+      ],
+      "counts": {
+        "n": 1592,
+        "valid": 1591,
+        "prompt": 351861440,
+        "cached": 334422656,
+        "output": 816738,
+        "old_units": 36064998368,
+        "peak_units": 134330763040,
+        "ttft_n": 1591,
+        "ttft_sum": 12977100
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "6",
+        "before"
+      ],
+      "counts": {
+        "n": 1932,
+        "valid": 1932,
+        "prompt": 452685229,
+        "cached": 440290432,
+        "output": 993156,
+        "old_units": 32461684696,
+        "peak_units": 129287426480,
+        "ttft_n": 1932,
+        "ttft_sum": 14823779
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "1",
+        "after"
+      ],
+      "counts": {
+        "n": 6469,
+        "ttft_n": 6468,
+        "ttft_sum": 16017787,
+        "valid": 6201,
+        "prompt": 1812936247,
+        "cached": 1798582016,
+        "output": 3381243,
+        "old_units": 79923700248,
+        "peak_units": 359592506240
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "1",
+        "before"
+      ],
+      "counts": {
+        "n": 8717,
+        "valid": 8465,
+        "prompt": 2177051467,
+        "cached": 2154245120,
+        "output": 4694695,
+        "old_units": 105392895160,
+        "peak_units": 463912217600,
+        "ttft_n": 8716,
+        "ttft_sum": 19567887
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "10",
+        "after"
+      ],
+      "counts": {
+        "n": 8224,
+        "valid": 7988,
+        "prompt": 1641536733,
+        "cached": 1612571136,
+        "output": 4446792,
+        "old_units": 98154845208,
+        "peak_units": 411906240240,
+        "ttft_n": 8223,
+        "ttft_sum": 16819212
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "10",
+        "before"
+      ],
+      "counts": {
+        "n": 8237,
+        "valid": 7961,
+        "prompt": 1690274186,
+        "cached": 1665048064,
+        "output": 4554099,
+        "old_units": 94689393792,
+        "peak_units": 404215772560,
+        "ttft_n": 8237,
+        "ttft_sum": 17816280
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "4",
+        "after"
+      ],
+      "counts": {
+        "n": 5773,
+        "valid": 5572,
+        "prompt": 1389631666,
+        "cached": 1377952512,
+        "output": 2824959,
+        "old_units": 62843371136,
+        "peak_units": 281591088080,
+        "ttft_n": 5773,
+        "ttft_sum": 13958269
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "4",
+        "before"
+      ],
+      "counts": {
+        "n": 5807,
+        "ttft_n": 5807,
+        "ttft_sum": 14091135,
+        "valid": 5623,
+        "prompt": 1305758273,
+        "cached": 1295107328,
+        "output": 3220743,
+        "old_units": 60192408584,
+        "peak_units": 270692991520
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "6",
+        "after"
+      ],
+      "counts": {
+        "n": 6977,
+        "valid": 6655,
+        "prompt": 1513214780,
+        "cached": 1493634816,
+        "output": 3857072,
+        "old_units": 80033526048,
+        "peak_units": 346174066240,
+        "ttft_n": 6975,
+        "ttft_sum": 21255015
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "6",
+        "before"
+      ],
+      "counts": {
+        "n": 6075,
+        "valid": 5838,
+        "prompt": 1300868032,
+        "cached": 1287433472,
+        "output": 2868877,
+        "old_units": 62889376816,
+        "peak_units": 277221926480,
+        "ttft_n": 6075,
+        "ttft_sum": 17197709
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "1",
+        "after"
+      ],
+      "counts": {
+        "n": 2642,
+        "ttft_n": 2642,
+        "ttft_sum": 9405790,
+        "valid": 2518,
+        "prompt": 898693676,
+        "cached": 891525376,
+        "output": 1146266,
+        "old_units": 38207875328,
+        "peak_units": 171484783840
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "1",
+        "before"
+      ],
+      "counts": {
+        "n": 2535,
+        "ttft_n": 2535,
+        "ttft_sum": 12222873,
+        "valid": 2369,
+        "prompt": 635101049,
+        "cached": 628196608,
+        "output": 1186100,
+        "old_units": 30576802424,
+        "peak_units": 133983585520
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "10",
+        "after"
+      ],
+      "counts": {
+        "n": 3196,
+        "ttft_n": 3196,
+        "ttft_sum": 10452345,
+        "valid": 3037,
+        "prompt": 629123302,
+        "cached": 624003584,
+        "output": 1756429,
+        "old_units": 29557706752,
+        "peak_units": 133072123760
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "10",
+        "before"
+      ],
+      "counts": {
+        "n": 3053,
+        "ttft_n": 3053,
+        "ttft_sum": 6010194,
+        "valid": 2911,
+        "prompt": 558775884,
+        "cached": 555364096,
+        "output": 1464746,
+        "old_units": 24427986688,
+        "peak_units": 112097487840
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "4",
+        "after"
+      ],
+      "counts": {
+        "n": 2042,
+        "valid": 1931,
+        "prompt": 357682804,
+        "cached": 354345984,
+        "output": 891829,
+        "old_units": 17090356752,
+        "peak_units": 76062588560,
+        "ttft_n": 2042,
+        "ttft_sum": 5732209
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "4",
+        "before"
+      ],
+      "counts": {
+        "n": 1831,
+        "valid": 1700,
+        "prompt": 482220631,
+        "cached": 475989504,
+        "output": 901296,
+        "old_units": 24574912712,
+        "peak_units": 105952596560,
+        "ttft_n": 1831,
+        "ttft_sum": 7667675
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "6",
+        "after"
+      ],
+      "counts": {
+        "n": 2102,
+        "ttft_n": 2102,
+        "ttft_sum": 6344045,
+        "valid": 1990,
+        "prompt": 445713079,
+        "cached": 440060160,
+        "output": 1095674,
+        "old_units": 23303658280,
+        "peak_units": 100944162800
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "6",
+        "before"
+      ],
+      "counts": {
+        "n": 1965,
+        "ttft_n": 1965,
+        "ttft_sum": 6180609,
+        "valid": 1857,
+        "prompt": 475055064,
+        "cached": 471411712,
+        "output": 842963,
+        "old_units": 20660517136,
+        "peak_units": 93155500080
+      }
+    }
+  ],
+  "provider_week_local": [
+    {
+      "key": [
+        "2026-08-09_2026-08-15",
+        "A",
+        "daily",
+        "pre"
+      ],
+      "counts": {
+        "n": 109351
+      }
+    },
+    {
+      "key": [
+        "2026-08-09_2026-08-15",
+        "A",
+        "weekend",
+        "pre"
+      ],
+      "counts": {
+        "n": 109351
+      }
+    },
+    {
+      "key": [
+        "2026-08-09_2026-08-15",
+        "D",
+        "daily",
+        "pre"
+      ],
+      "counts": {
+        "n": 324
+      }
+    },
+    {
+      "key": [
+        "2026-08-09_2026-08-15",
+        "D",
+        "weekend",
+        "pre"
+      ],
+      "counts": {
+        "n": 324
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "A",
+        "daily",
+        "off"
+      ],
+      "counts": {
+        "n": 73263
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "A",
+        "daily",
+        "peak"
+      ],
+      "counts": {
+        "n": 18060
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "A",
+        "daily",
+        "pre"
+      ],
+      "counts": {
+        "n": 6722
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "A",
+        "weekend",
+        "off"
+      ],
+      "counts": {
+        "n": 73263
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "A",
+        "weekend",
+        "peak"
+      ],
+      "counts": {
+        "n": 18060
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "A",
+        "weekend",
+        "pre"
+      ],
+      "counts": {
+        "n": 6722
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "D",
+        "daily",
+        "off"
+      ],
+      "counts": {
+        "n": 326
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "D",
+        "daily",
+        "pre"
+      ],
+      "counts": {
+        "n": 1
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "D",
+        "weekend",
+        "off"
+      ],
+      "counts": {
+        "n": 326
+      }
+    },
+    {
+      "key": [
+        "2026-08-16_2026-08-22",
+        "D",
+        "weekend",
+        "pre"
+      ],
+      "counts": {
+        "n": 1
+      }
+    },
+    {
+      "key": [
+        "2026-08-23_2026-08-29",
+        "A",
+        "daily",
+        "off"
+      ],
+      "counts": {
+        "n": 80157
+      }
+    },
+    {
+      "key": [
+        "2026-08-23_2026-08-29",
+        "A",
+        "daily",
+        "peak"
+      ],
+      "counts": {
+        "n": 22053
+      }
+    },
+    {
+      "key": [
+        "2026-08-23_2026-08-29",
+        "A",
+        "weekend",
+        "off"
+      ],
+      "counts": {
+        "n": 86362
+      }
+    },
+    {
+      "key": [
+        "2026-08-23_2026-08-29",
+        "A",
+        "weekend",
+        "peak"
+      ],
+      "counts": {
+        "n": 15848
+      }
+    },
+    {
+      "key": [
+        "2026-08-23_2026-08-29",
+        "D",
+        "daily",
+        "off"
+      ],
+      "counts": {
+        "n": 1317
+      }
+    },
+    {
+      "key": [
+        "2026-08-23_2026-08-29",
+        "D",
+        "daily",
+        "peak"
+      ],
+      "counts": {
+        "n": 831
+      }
+    },
+    {
+      "key": [
+        "2026-08-23_2026-08-29",
+        "D",
+        "weekend",
+        "off"
+      ],
+      "counts": {
+        "n": 1317
+      }
+    },
+    {
+      "key": [
+        "2026-08-23_2026-08-29",
+        "D",
+        "weekend",
+        "peak"
+      ],
+      "counts": {
+        "n": 831
+      }
+    },
+    {
+      "key": [
+        "2026-08-30_2026-09-05",
+        "A",
+        "daily",
+        "off"
+      ],
+      "counts": {
+        "n": 81695
+      }
+    },
+    {
+      "key": [
+        "2026-08-30_2026-09-05",
+        "A",
+        "daily",
+        "peak"
+      ],
+      "counts": {
+        "n": 25995
+      }
+    },
+    {
+      "key": [
+        "2026-08-30_2026-09-05",
+        "A",
+        "weekend",
+        "off"
+      ],
+      "counts": {
+        "n": 89204
+      }
+    },
+    {
+      "key": [
+        "2026-08-30_2026-09-05",
+        "A",
+        "weekend",
+        "peak"
+      ],
+      "counts": {
+        "n": 18486
+      }
+    },
+    {
+      "key": [
+        "2026-08-30_2026-09-05",
+        "D",
+        "daily",
+        "off"
+      ],
+      "counts": {
+        "n": 1103
+      }
+    },
+    {
+      "key": [
+        "2026-08-30_2026-09-05",
+        "D",
+        "daily",
+        "peak"
+      ],
+      "counts": {
+        "n": 313
+      }
+    },
+    {
+      "key": [
+        "2026-08-30_2026-09-05",
+        "D",
+        "weekend",
+        "off"
+      ],
+      "counts": {
+        "n": 1145
+      }
+    },
+    {
+      "key": [
+        "2026-08-30_2026-09-05",
+        "D",
+        "weekend",
+        "peak"
+      ],
+      "counts": {
+        "n": 271
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "off_clock"
+      ],
+      "counts": {
+        "n": 49010,
+        "switch": 2596,
+        "prior90": 44723,
+        "severe": 1393,
+        "switch_prior90": 2196,
+        "switch_severe": 435,
+        "append_prior90": 41062,
+        "append_severe": 335
+      }
+    },
+    {
+      "key": [
+        "glm_control",
+        "post",
+        "peak_clock"
+      ],
+      "counts": {
+        "n": 16427,
+        "switch": 695,
+        "prior90": 15347,
+        "severe": 427,
+        "switch_prior90": 611,
+        "switch_severe": 116,
+        "append_prior90": 14437,
+        "append_severe": 129
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "off_clock"
+      ],
+      "counts": {
+        "n": 222609,
+        "switch": 45,
+        "prior90": 212491,
+        "severe": 2031,
+        "switch_prior90": 40,
+        "switch_severe": 18,
+        "append_prior90": 205548,
+        "append_severe": 662
+      }
+    },
+    {
+      "key": [
+        "target",
+        "post",
+        "peak_clock"
+      ],
+      "counts": {
+        "n": 62867,
+        "switch": 13,
+        "prior90": 60548,
+        "severe": 659,
+        "switch_prior90": 13,
+        "switch_severe": 5,
+        "append_prior90": 58787,
+        "append_severe": 149
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "off_clock"
+      ],
+      "counts": {
+        "n": 78827,
+        "switch": 3,
+        "prior90": 77038,
+        "severe": 369,
+        "switch_prior90": 3,
+        "switch_severe": 2,
+        "append_prior90": 75978,
+        "append_severe": 198
+      }
+    },
+    {
+      "key": [
+        "target",
+        "pre",
+        "peak_clock"
+      ],
+      "counts": {
+        "n": 25298,
+        "switch": 0,
+        "prior90": 24831,
+        "severe": 91,
+        "switch_prior90": 0,
+        "switch_severe": 0,
+        "append_prior90": 24634,
+        "append_severe": 64
+      }
+    }
+  ],
+  "segment_summary": {
+    "daily": {
+      "segments": 3343,
+      "multi": 3181,
+      "affected": 2487,
+      "requests": 120868,
+      "peak_usd": 598.2710796,
+      "scheduled_usd": 382.376007536,
+      "threshold_width_all": {
+        "n": 3181,
+        "mean": 0.06563579913360579,
+        "p10": 0,
+        "median": 0.014160028,
+        "p90": 0.145461796,
+        "max": 6.822854076
+      },
+      "threshold_width_positive": {
+        "n": 2487,
+        "mean": 0.0839515388194612,
+        "p10": 0.003113536000000001,
+        "median": 0.025142508,
+        "p90": 0.17950512160000004,
+        "max": 6.822854076
+      }
+    },
+    "weekend": {
+      "segments": 3343,
+      "multi": 3181,
+      "affected": 2587,
+      "requests": 120868,
+      "peak_usd": 598.2710796,
+      "scheduled_usd": 351.774039368,
+      "threshold_width_all": {
+        "n": 3181,
+        "mean": 0.07514278213643508,
+        "p10": 0,
+        "median": 0.016498244,
+        "p90": 0.157884128,
+        "max": 6.872197108
+      },
+      "threshold_width_positive": {
+        "n": 2587,
+        "mean": 0.09239628526323927,
+        "p10": 0.003171788,
+        "median": 0.025865964,
+        "p90": 0.1842507432,
+        "max": 6.872197108
+      }
+    }
+  },
+  "limits": [
+    "Historical public first-party reference tariff, not verified actual upstream provider, deployment price or invoice.",
+    "Daily calendar from FreeInference documentation and weekend sensitivity using August 22 16 UTC date from archived-page secondary source.",
+    "Time assigned by request start; boundary-crossing cost separately reported.",
+    "First eligible sequential post-change model-only segment per session-day; no actual account balances or other usage; continuous threshold, not live quota admission.",
+    "Before/after and clock-window comparisons descriptive; no causal identification."
+  ]
+}
