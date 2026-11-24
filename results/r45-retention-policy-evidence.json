@@ -1,0 +1,62 @@
+{
+  "as_of": "2026-11-23 US Eastern",
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching",
+      "locator": "1-hour cache duration; When does the cache lifetime start?; Mixing different TTLs",
+      "facts": "5m and 1h cache writes, refresh by read; lifetime measured from request start, not response end; mixing TTLs imposes ordering and does not automatically upgrade existing entries.",
+      "scope": "Model replay uses uniform fixed TTL for every write; start-to-start is documented-clock primary; end-to-start is sensitivity. Exact cache key and provider behavior unknown."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "locator": "Pricing table; Prompt caching",
+      "facts": "Sonnet 4.6 input $3, output $15, 5m write $3.75, 1h write $6, read $0.30 per million. Other models may use different read multipliers.",
+      "scope": "Tariff shape only, DeepSeek trace token counts not Claude tokens; 200k cohort sensitivity; no historical invoice."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/guides/prompt-caching",
+      "locator": "Cache write pricing; Overlapping writes and lifetime changes",
+      "facts": "GPT-5.6 and later 30m write 1.25x, optional 12h write 2.5x in Responses API, varying read multipliers. 30m read refreshes; 12h not restarted by 30m read; upgrade may charge new write without credit.",
+      "scope": "Do not transplant Anthropic rolling 1h behavior to OpenAI 12h."
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/caching",
+      "facts": "Explicit cache on supported models; TTL and expiration metadata."
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "facts": "Supported explicit caching models use per-million-token per-hour storage charges; newer models may be implicit only."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/build-with-claude/fallback-credit",
+      "facts": "Eligible refusal retry gets cached overlap repriced to read; does not transfer physical state; no general TTL-expiry credit stated."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence",
+      "facts": "Vendor itself evaluates short vs long cache economics; cannot claim novelty of break-even analysis."
+    },
+    {
+      "url": "https://arxiv.org/abs/2607.19214",
+      "facts": "Khailo, Keeping the Cache Warm Pays: Keepalive Economics for Agentic Workloads; actual API keepalive comparisons."
+    },
+    {
+      "url": "https://doi.org/10.1086/259916",
+      "facts": "Ehrlich and Becker (1972), Market Insurance, Self-Insurance, and Self-Protection, JPE 80(4),623–648; established distinction between prevention and risk transfer.",
+      "scope": "Use as economic conceptual link; no utility or behavioral estimation."
+    }
+  ],
+  "model": {
+    "short": "S=1.25(P-R5)+0.1 R5+5 O",
+    "long": "L=2(P-R60)+0.1 R60+5 O",
+    "credit": "C=1.15(R60-R5)",
+    "premium": "F=0.75(P-R60)",
+    "identity": "L=S-C+F",
+    "meaning": "Customer price of long retention compared to short retention; hypothetical short retention plus full rewrite credit equals S-C, not a vendor offering for expiry. Prevention reduces modeled rewrite tokens; credit shifts bill only; generic discount is not conditioned on loss.",
+    "equal_budget": "At fixed executed workload, uniform discount d=sum(C)/sum(S); equal nominal concessions not equal supplier cost. Development d fixed before final-week comparison.",
+    "timing": "Hard quota: same nominal rebate after completion cannot finance earlier admission, unlike immediate credit. R38/39 actual route loss separate evidence."
+  },
+  "limits": [
+    "No physical retention guarantees inferred from public workload; append label and prefix token proxies only.",
+    "No inference of provider marginal cost, commercial profit, welfare, or demand response."
+  ]
+}
