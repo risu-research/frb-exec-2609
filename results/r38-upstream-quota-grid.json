@@ -1,0 +1,76 @@
+{
+  "upstream": "94a693e43b211b7e5d76fce0402ad7051b779910",
+  "run": 45320192471,
+  "upstream_tests": "69 passed, 2 warnings",
+  "grid": {
+    "0.05": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 10.4375,
+      "median_lost": 10,
+      "max_lost": 17,
+      "mean_warm": 12.6875,
+      "mean_loss": 2.25
+    },
+    "0.1": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 18.25,
+      "median_lost": 17,
+      "max_lost": 27,
+      "mean_warm": 27.5,
+      "mean_loss": 9.25
+    },
+    "0.25": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 21.9375,
+      "median_lost": 26,
+      "max_lost": 30,
+      "mean_warm": 72.6875,
+      "mean_loss": 50.75
+    },
+    "0.5": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 22,
+      "median_lost": 26.5,
+      "max_lost": 30,
+      "mean_warm": 147.875,
+      "mean_loss": 125.875
+    },
+    "1.0": {
+      "n": 16,
+      "affected": 16,
+      "mean_lost": 21.875,
+      "median_lost": 26,
+      "max_lost": 30,
+      "mean_warm": 298.125,
+      "mean_loss": 276.25
+    },
+    "2.0": {
+      "n": 16,
+      "affected": 14,
+      "mean_lost": 20.375,
+      "median_lost": 26,
+      "max_lost": 29,
+      "mean_warm": 584.5625,
+      "mean_loss": 564.1875
+    },
+    "5.0": {
+      "n": 16,
+      "affected": 5,
+      "mean_lost": 6.8125,
+      "median_lost": 0,
+      "max_lost": 30,
+      "mean_warm": 976.875,
+      "mean_loss": 970.0625
+    }
+  },
+  "limitations": [
+    "Controlled repeated warm-input probes, not observed continuation.",
+    "Input-only synthetic replay from 16 observed severe same-model route changes.",
+    "1000-request horizon cap; $5 rows materially censored.",
+    "First run HTTP harness failed due to auth configuration loaded before imports; this file preserves only the successful computation, not a successful HTTP reproduction."
+  ]
+}
