@@ -1,0 +1,574 @@
+{
+  "run": 45321858351,
+  "counts": {
+    "requests": 350469,
+    "same_n": 188918,
+    "switch_n": 41,
+    "same_drop": 464,
+    "same_cases": 411,
+    "same_nonpositive_delta": 53,
+    "switch_drop": 16,
+    "switch_cases": 16
+  },
+  "weeks": [
+    {
+      "week": "2026-08-23_2026-08-29",
+      "sha256": "27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",
+      "counts": {
+        "requests": 159925,
+        "same_n": 91173,
+        "switch_n": 11,
+        "same_drop": 246,
+        "same_cases": 207,
+        "same_nonpositive_delta": 39,
+        "switch_drop": 1,
+        "switch_cases": 1
+      }
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "sha256": "e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",
+      "counts": {
+        "requests": 190544,
+        "same_n": 97745,
+        "switch_n": 30,
+        "switch_drop": 15,
+        "switch_cases": 15,
+        "same_drop": 218,
+        "same_cases": 204,
+        "same_nonpositive_delta": 14
+      }
+    }
+  ],
+  "all": {
+    "events": 416,
+    "switch_events": 16,
+    "requests": 49891,
+    "credit_usd": 27.151237,
+    "area": 3271.884584,
+    "completion_width": 27.151236,
+    "policies": {
+      "all": {
+        "events": 416,
+        "switch_events": 16,
+        "credit_usd": 27.151237,
+        "area_removed": 3271.884584,
+        "completion_width_removed": 27.151236,
+        "credit_share": 1,
+        "area_share": 1,
+        "completion_share": 1,
+        "uniform_equal_budget_area": 3271.884584
+      },
+      "route_only": {
+        "events": 16,
+        "switch_events": 16,
+        "credit_usd": 1.384792,
+        "area_removed": 30.485564,
+        "completion_width_removed": 1.384796,
+        "credit_share": 0.051002906423747836,
+        "area_share": 0.009317432573593494,
+        "completion_share": 0.05100305562516565,
+        "uniform_equal_budget_area": 166.87562326705512
+      },
+      "gap_le_300s": {
+        "events": 264,
+        "switch_events": 6,
+        "credit_usd": 15.262383,
+        "area_removed": 2017.440469,
+        "completion_width_removed": 15.262381,
+        "credit_share": 0.5621247753831621,
+        "area_share": 0.6165989102627832,
+        "completion_share": 0.5621247224251595,
+        "uniform_equal_budget_area": 1839.2073868606308
+      },
+      "route_and_gap_le_300s": {
+        "events": 6,
+        "switch_events": 6,
+        "credit_usd": 0.371553,
+        "area_removed": 10.856036,
+        "completion_width_removed": 0.371554,
+        "credit_share": 0.013684569877976461,
+        "area_share": 0.0033179764509688463,
+        "completion_share": 0.013684607212725049,
+        "uniform_equal_budget_area": 44.774333222421944
+      },
+      "tool_trigger": {
+        "events": 288,
+        "switch_events": 9,
+        "credit_usd": 18.384657,
+        "area_removed": 2477.274123,
+        "completion_width_removed": 18.384659,
+        "credit_share": 0.6771204199646594,
+        "area_share": 0.7571398255043094,
+        "completion_share": 0.6771205185649743,
+        "uniform_equal_budget_area": 2215.459863593975
+      },
+      "route_and_tool": {
+        "events": 9,
+        "switch_events": 9,
+        "credit_usd": 0.65957,
+        "area_removed": 15.504994,
+        "completion_width_removed": 0.659572,
+        "credit_share": 0.02429244752274086,
+        "area_share": 0.004738857255485635,
+        "completion_share": 0.024292522078921196,
+        "uniform_equal_budget_area": 79.48208455728481
+      },
+      "same_only": {
+        "events": 400,
+        "switch_events": 0,
+        "credit_usd": 25.766445,
+        "area_removed": 3241.39902,
+        "completion_width_removed": 25.76644,
+        "credit_share": 0.9489970935762522,
+        "area_share": 0.9906825674264065,
+        "completion_share": 0.9489969443748344,
+        "uniform_equal_budget_area": 3105.008960732945
+      }
+    }
+  },
+  "first_per_session": {
+    "events": 271,
+    "switch_events": 12,
+    "requests": 27471,
+    "credit_usd": 15.993386,
+    "area": 1579.646046,
+    "completion_width": 15.993391,
+    "policies": {
+      "all": {
+        "events": 271,
+        "switch_events": 12,
+        "credit_usd": 15.993386,
+        "area_removed": 1579.646046,
+        "completion_width_removed": 15.993391,
+        "credit_share": 1,
+        "area_share": 1,
+        "completion_share": 1,
+        "uniform_equal_budget_area": 1579.646046
+      },
+      "route_only": {
+        "events": 12,
+        "switch_events": 12,
+        "credit_usd": 1.078018,
+        "area_removed": 24.024678,
+        "completion_width_removed": 1.078021,
+        "credit_share": 0.0674039881235906,
+        "area_share": 0.015208899525837195,
+        "completion_share": 0.06740415462862129,
+        "uniform_equal_budget_area": 106.47444332406084
+      },
+      "gap_le_300s": {
+        "events": 159,
+        "switch_events": 3,
+        "credit_usd": 7.474692,
+        "area_removed": 917.302863,
+        "completion_width_removed": 7.474697,
+        "credit_share": 0.4673614455375491,
+        "area_share": 0.5807015219154987,
+        "completion_share": 0.46736161205587984,
+        "uniform_equal_budget_area": 738.2656594962339
+      },
+      "route_and_gap_le_300s": {
+        "events": 3,
+        "switch_events": 3,
+        "credit_usd": 0.203934,
+        "area_removed": 4.951772,
+        "completion_width_removed": 0.203935,
+        "credit_share": 0.012751146004979808,
+        "area_share": 0.003134735159524465,
+        "completion_share": 0.012751204544427132,
+        "uniform_equal_budget_area": 20.14229736873505
+      },
+      "tool_trigger": {
+        "events": 184,
+        "switch_events": 6,
+        "credit_usd": 10.335449,
+        "area_removed": 1014.409652,
+        "completion_width_removed": 10.335456,
+        "credit_share": 0.6462326989419251,
+        "area_share": 0.6421752863995711,
+        "completion_share": 0.6462329345915447,
+        "uniform_equal_budget_area": 1020.8189276795205
+      },
+      "route_and_tool": {
+        "events": 6,
+        "switch_events": 6,
+        "credit_usd": 0.491951,
+        "area_removed": 9.60073,
+        "completion_width_removed": 0.491953,
+        "credit_share": 0.030759652771464405,
+        "area_share": 0.006077772944332113,
+        "completion_share": 0.0307597682067549,
+        "uniform_equal_budget_area": 48.58936387677669
+      },
+      "same_only": {
+        "events": 259,
+        "switch_events": 0,
+        "credit_usd": 14.915368,
+        "area_removed": 1555.621368,
+        "completion_width_removed": 14.91537,
+        "credit_share": 0.9325960118764094,
+        "area_share": 0.9847911004741629,
+        "completion_share": 0.9325958453713787,
+        "uniform_equal_budget_area": 1473.171602675939
+      }
+    }
+  },
+  "first_per_session_5": {
+    "events": 251,
+    "switch_events": 9,
+    "requests": 1255,
+    "credit_usd": 14.855169,
+    "area": 59.420676,
+    "completion_width": 14.855169,
+    "policies": {
+      "all": {
+        "events": 251,
+        "switch_events": 9,
+        "credit_usd": 14.855169,
+        "area_removed": 59.420676,
+        "completion_width_removed": 14.855169,
+        "credit_share": 1,
+        "area_share": 1,
+        "completion_share": 1,
+        "uniform_equal_budget_area": 59.420676
+      },
+      "route_only": {
+        "events": 9,
+        "switch_events": 9,
+        "credit_usd": 0.675384,
+        "area_removed": 2.701536,
+        "completion_width_removed": 0.675384,
+        "credit_share": 0.04546457869311349,
+        "area_share": 0.04546457869311349,
+        "completion_share": 0.04546457869311349,
+        "uniform_equal_budget_area": 2.701536
+      },
+      "gap_le_300s": {
+        "events": 152,
+        "switch_events": 3,
+        "credit_usd": 7.252326,
+        "area_removed": 29.009304,
+        "completion_width_removed": 7.252326,
+        "credit_share": 0.48820218740022414,
+        "area_share": 0.48820218740022414,
+        "completion_share": 0.48820218740022414,
+        "uniform_equal_budget_area": 29.009304
+      },
+      "route_and_gap_le_300s": {
+        "events": 3,
+        "switch_events": 3,
+        "credit_usd": 0.203934,
+        "area_removed": 0.815736,
+        "completion_width_removed": 0.203934,
+        "credit_share": 0.013728150787109861,
+        "area_share": 0.013728150787109861,
+        "completion_share": 0.013728150787109861,
+        "uniform_equal_budget_area": 0.815736
+      },
+      "tool_trigger": {
+        "events": 174,
+        "switch_events": 4,
+        "credit_usd": 9.67784,
+        "area_removed": 38.71136,
+        "completion_width_removed": 9.67784,
+        "credit_share": 0.6514796297504256,
+        "area_share": 0.6514796297504256,
+        "completion_share": 0.6514796297504256,
+        "uniform_equal_budget_area": 38.71136
+      },
+      "route_and_tool": {
+        "events": 4,
+        "switch_events": 4,
+        "credit_usd": 0.165111,
+        "area_removed": 0.660444,
+        "completion_width_removed": 0.165111,
+        "credit_share": 0.01111471703889737,
+        "area_share": 0.01111471703889737,
+        "completion_share": 0.01111471703889737,
+        "uniform_equal_budget_area": 0.660444
+      },
+      "same_only": {
+        "events": 242,
+        "switch_events": 0,
+        "credit_usd": 14.179785,
+        "area_removed": 56.71914,
+        "completion_width_removed": 14.179785,
+        "credit_share": 0.9545354213068865,
+        "area_share": 0.9545354213068865,
+        "completion_share": 0.9545354213068865,
+        "uniform_equal_budget_area": 56.71914
+      }
+    }
+  },
+  "first_per_session_20": {
+    "events": 200,
+    "switch_events": 5,
+    "requests": 4000,
+    "credit_usd": 12.073689,
+    "area": 229.400091,
+    "completion_width": 12.073689,
+    "policies": {
+      "all": {
+        "events": 200,
+        "switch_events": 5,
+        "credit_usd": 12.073689,
+        "area_removed": 229.400091,
+        "completion_width_removed": 12.073689,
+        "credit_share": 1,
+        "area_share": 1,
+        "completion_share": 1,
+        "uniform_equal_budget_area": 229.400091
+      },
+      "route_only": {
+        "events": 5,
+        "switch_events": 5,
+        "credit_usd": 0.376789,
+        "area_removed": 7.158991,
+        "completion_width_removed": 0.376789,
+        "credit_share": 0.031207446208031366,
+        "area_share": 0.031207446208031366,
+        "completion_share": 0.031207446208031366,
+        "uniform_equal_budget_area": 7.158991
+      },
+      "gap_le_300s": {
+        "events": 131,
+        "switch_events": 1,
+        "credit_usd": 6.460686,
+        "area_removed": 122.753034,
+        "completion_width_removed": 6.460686,
+        "credit_share": 0.5351045566934844,
+        "area_share": 0.5351045566934844,
+        "completion_share": 0.5351045566934844,
+        "uniform_equal_budget_area": 122.75303399999999
+      },
+      "route_and_gap_le_300s": {
+        "events": 1,
+        "switch_events": 1,
+        "credit_usd": 0.045149,
+        "area_removed": 0.857831,
+        "completion_width_removed": 0.045149,
+        "credit_share": 0.003739453616868879,
+        "area_share": 0.003739453616868879,
+        "completion_share": 0.003739453616868879,
+        "uniform_equal_budget_area": 0.857831
+      },
+      "tool_trigger": {
+        "events": 145,
+        "switch_events": 2,
+        "credit_usd": 8.033272,
+        "area_removed": 152.632168,
+        "completion_width_removed": 8.033272,
+        "credit_share": 0.6653535634386475,
+        "area_share": 0.6653535634386475,
+        "completion_share": 0.6653535634386475,
+        "uniform_equal_budget_area": 152.632168
+      },
+      "route_and_tool": {
+        "events": 2,
+        "switch_events": 2,
+        "credit_usd": 0.072959,
+        "area_removed": 1.386221,
+        "completion_width_removed": 0.072959,
+        "credit_share": 0.006042809285546447,
+        "area_share": 0.006042809285546447,
+        "completion_share": 0.006042809285546447,
+        "uniform_equal_budget_area": 1.386221
+      },
+      "same_only": {
+        "events": 195,
+        "switch_events": 0,
+        "credit_usd": 11.6969,
+        "area_removed": 222.2411,
+        "completion_width_removed": 11.6969,
+        "credit_share": 0.9687925537919686,
+        "area_share": 0.9687925537919686,
+        "completion_share": 0.9687925537919686,
+        "uniform_equal_budget_area": 222.2411
+      }
+    }
+  },
+  "week_holdout": {
+    "2026-08-23_2026-08-29": {
+      "events": 121,
+      "switch_events": 1,
+      "requests": 13061,
+      "credit_usd": 6.745328,
+      "area": 657.711045,
+      "completion_width": 6.745329,
+      "policies": {
+        "all": {
+          "events": 121,
+          "switch_events": 1,
+          "credit_usd": 6.745328,
+          "area_removed": 657.711045,
+          "completion_width_removed": 6.745329,
+          "credit_share": 1,
+          "area_share": 1,
+          "completion_share": 1,
+          "uniform_equal_budget_area": 657.711045
+        },
+        "route_only": {
+          "events": 1,
+          "switch_events": 1,
+          "credit_usd": 0.045149,
+          "area_removed": 3.295873,
+          "completion_width_removed": 0.04515,
+          "credit_share": 0.006693373546846054,
+          "area_share": 0.005011126124543035,
+          "completion_share": 0.0066935208052861465,
+          "uniform_equal_budget_area": 4.4023057100714755
+        },
+        "gap_le_300s": {
+          "events": 75,
+          "switch_events": 1,
+          "credit_usd": 3.500366,
+          "area_removed": 461.488154,
+          "completion_width_removed": 3.500368,
+          "credit_share": 0.5189319185071505,
+          "area_share": 0.7016579051063374,
+          "completion_share": 0.518932138076586,
+          "uniform_equal_budget_area": 341.3072544051928
+        },
+        "route_and_gap_le_300s": {
+          "events": 1,
+          "switch_events": 1,
+          "credit_usd": 0.045149,
+          "area_removed": 3.295873,
+          "completion_width_removed": 0.04515,
+          "credit_share": 0.006693373546846054,
+          "area_share": 0.005011126124543035,
+          "completion_share": 0.0066935208052861465,
+          "uniform_equal_budget_area": 4.4023057100714755
+        },
+        "tool_trigger": {
+          "events": 86,
+          "switch_events": 1,
+          "credit_usd": 4.982544,
+          "area_removed": 542.605096,
+          "completion_width_removed": 4.982547,
+          "credit_share": 0.7386659329242403,
+          "area_share": 0.8249900927237735,
+          "completion_share": 0.7386662681686839,
+          "uniform_equal_budget_area": 485.828742649502
+        },
+        "route_and_tool": {
+          "events": 1,
+          "switch_events": 1,
+          "credit_usd": 0.045149,
+          "area_removed": 3.295873,
+          "completion_width_removed": 0.04515,
+          "credit_share": 0.006693373546846054,
+          "area_share": 0.005011126124543035,
+          "completion_share": 0.0066935208052861465,
+          "uniform_equal_budget_area": 4.4023057100714755
+        },
+        "same_only": {
+          "events": 120,
+          "switch_events": 0,
+          "credit_usd": 6.700179,
+          "area_removed": 654.415172,
+          "completion_width_removed": 6.700179,
+          "credit_share": 0.9933066264531539,
+          "area_share": 0.994988873875457,
+          "completion_share": 0.9933064791947138,
+          "uniform_equal_budget_area": 653.3087392899286
+        }
+      }
+    },
+    "2026-08-30_2026-09-05": {
+      "events": 150,
+      "switch_events": 11,
+      "requests": 14410,
+      "credit_usd": 9.248058,
+      "area": 921.935001,
+      "completion_width": 9.248062,
+      "policies": {
+        "all": {
+          "events": 150,
+          "switch_events": 11,
+          "credit_usd": 9.248058,
+          "area_removed": 921.935001,
+          "completion_width_removed": 9.248062,
+          "credit_share": 1,
+          "area_share": 1,
+          "completion_share": 1,
+          "uniform_equal_budget_area": 921.935001
+        },
+        "route_only": {
+          "events": 11,
+          "switch_events": 11,
+          "credit_usd": 1.032869,
+          "area_removed": 20.728805,
+          "completion_width_removed": 1.032871,
+          "credit_share": 0.11168496131836543,
+          "area_share": 0.022484019998715722,
+          "completion_share": 0.11168512927357105,
+          "uniform_equal_budget_area": 102.96627492473219
+        },
+        "gap_le_300s": {
+          "events": 84,
+          "switch_events": 2,
+          "credit_usd": 3.974326,
+          "area_removed": 455.814709,
+          "completion_width_removed": 3.974329,
+          "credit_share": 0.42974708852388255,
+          "area_share": 0.49441089502577634,
+          "completion_share": 0.42974722704064916,
+          "uniform_equal_budget_area": 396.1988824880127
+        },
+        "route_and_gap_le_300s": {
+          "events": 2,
+          "switch_events": 2,
+          "credit_usd": 0.158785,
+          "area_removed": 1.655899,
+          "completion_width_removed": 0.158785,
+          "credit_share": 0.01716955062349306,
+          "area_share": 0.001796112522253616,
+          "completion_share": 0.01716954319726663,
+          "uniform_equal_budget_area": 15.829209671239626
+        },
+        "tool_trigger": {
+          "events": 98,
+          "switch_events": 5,
+          "credit_usd": 5.352905,
+          "area_removed": 471.804556,
+          "completion_width_removed": 5.352909,
+          "credit_share": 0.5788139520751275,
+          "area_share": 0.5117546849704646,
+          "completion_share": 0.5788141342478024,
+          "uniform_equal_budget_area": 533.6288414851966
+        },
+        "route_and_tool": {
+          "events": 5,
+          "switch_events": 5,
+          "credit_usd": 0.446802,
+          "area_removed": 6.304857,
+          "completion_width_removed": 0.446803,
+          "credit_share": 0.04831306205043264,
+          "area_share": 0.0068387218113655284,
+          "completion_share": 0.04831314928468256,
+          "uniform_equal_budget_area": 44.54150290977868
+        },
+        "same_only": {
+          "events": 139,
+          "switch_events": 0,
+          "credit_usd": 8.215189,
+          "area_removed": 901.206196,
+          "completion_width_removed": 8.215191,
+          "credit_share": 0.8883150386816345,
+          "area_share": 0.9775159800012843,
+          "completion_share": 0.888314870726429,
+          "uniform_equal_budget_area": 818.9687260752678
+        }
+      }
+    }
+  },
+  "limitations": [
+    "All observed DeepSeek events are outside Anthropic fallback-credit product scope; proxy gates are hypothetical, not application of the actual policy.",
+    "Gap is time from previous completed request to next start, not refusal-token age; tool trigger is not server-tool execution or refusal cause.",
+    "Actual balance and actual intervention cost unknown; reference credit budget at fixed observed workload; extra work can increase operating costs.",
+    "First eligible follow-up event per week-local session is descriptive, not independent customer sample.",
+    "Common horizon estimates use continuous formula and exact rounded event charge; source gate rounding can shift a prefix by one micro-dollar."
+  ]
+}
