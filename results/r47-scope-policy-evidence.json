@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-23 US Eastern",
+  "primary_sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/concepts/billing-and-usage/organizations-and-enterprises/budgets",
+      "locator": "How billing flows through budgets",
+      "fact": "Effective user-level budget is the most specific configured override, always hard stop, checked before shared pool. Organization/enterprise metered budgets apply after included pool exhaustion; distinct from all-scope conjunction.",
+      "limit": "No inference that all six HybridInference caps apply to Copilot."
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-budget-requests",
+      "fact": "Member can request increase after block; authorized admins manage requests.",
+      "limit": "No observed request approval delays."
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/tutorials/budgets/optimizing-your-budget-configuration",
+      "fact": "Recommend user allowance above per-seat included value to allow unused credits pooling, with overrides for power users.",
+      "limit": "Budgets preserve other users' capacity; relaxing caps can create externalities."
+    },
+    {
+      "url": "https://openrouter.ai/docs/api-reference/limits",
+      "locator": "Budget limits; Handling 402 errors",
+      "fact": "Guardrail budgets then workspace budgets then key limit; GET /api/v1/key budgets and effective_budget. Credit balance, in-flight budget, key limit and organizational limits require different remedies.",
+      "limit": "No assumption of dollar-for-dollar refund against each budget or same admission arithmetic as HybridInference."
+    },
+    {
+      "url": "https://github.com/OpenRouterTeam/docs/blob/main/guides/features/workspaces/workspace-budgets.mdx",
+      "fact": "Workspace day/week/month/lifetime hard caps; all configured windows checked before routing; broadest exceeded interval reported. BYOK excluded by default, optional inclusion at counterfactual OpenRouter charge. Only admins can modify organizational workspace budgets.",
+      "limit": "BYOK exclusion is an accounting scope, not a recommendation to bypass authorized controls."
+    },
+    {
+      "url": "https://openrouter.ai/docs/guides/features/guardrails/overview",
+      "fact": "Provider/model allowlists intersect; member and key spending caps apply simultaneously.",
+      "limit": "Different policies may change admissible model/provider set; no actual trace of guardrail settings."
+    },
+    {
+      "url": "https://help.openai.com/en/articles/9186755-managing-projects-in-the-api-platform",
+      "fact": "Spend alerts are soft; API requests continue. Project settings may also impose model/rate controls.",
+      "limit": "Do not treat every budget as a hard limit."
+    },
+    {
+      "url": "https://help.openai.com/en/articles/6614457-troubleshooting-api-usage-and-spend-limits",
+      "fact": "Separate project_spend_limit_exceeded error for configured hard spend limit and organization spending limit.",
+      "limit": "Distinguish explicitly configured hard limits from project alerts."
+    },
+    {
+      "url": "https://help.openai.com/en/articles/20001626-api-credits-benefit-for-eligible-chatgpt-subscriptions",
+      "fact": "Credit balance does not remove model, project, organization or rate limits.",
+      "limit": "No account-specific claims."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/hybridInference/blob/94a693e43b211b7e5d76fce0402ad7051b779910/apps/backend/serving/quota.py",
+      "fact": "Checks key day/month, project day/month, account day/month, first refusing scope reported, minimum $0.01 on USD ledger."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/hybridInference/blob/94a693e43b211b7e5d76fce0402ad7051b779910/apps/backend/serving/spend_ledger.py",
+      "fact": "Project attribution propagates through ledger; shared project across keys. record ignores nonpositive cost; hypothetical cap adjustment is not a deployed refund API."
+    }
+  ],
+  "literature": [
+    {
+      "url": "https://doi.org/10.1287/mnsc.2021.02755",
+      "fact": "Internal capital allocation and approval tradeoffs are established research; not novelty of organizational budget partitioning."
+    },
+    {
+      "url": "https://doi.org/10.1002/(SICI)1099-0771(199909)12:3<183::AID-BDM318>3.0.CO;2-F",
+      "fact": "Thaler (1999), Mental Accounting Matters. Nonfungibility of labeled money established; here constraints are software-enforced, not behavioral inference."
+    },
+    {
+      "url": "https://www.finops.org/framework/capabilities/budgeting/",
+      "fact": "Budget control intended to manage organizational cloud spend and protect resources."
+    }
+  ],
+  "model": {
+    "scopes": "Six overlapping hard residual limits, same debit; not six independent wallets.",
+    "completion": "For single first-event credit D after first request and nonnegative later costs, all scopes must support max(first-request minimum, required final prefix + minimum - effective scope credit).",
+    "recognition": "At fixed initial headroom vector, the necessary scopes to adjust are precisely those below the gross threshold, provided every scope meets the full-recognition threshold (up to source floating-point microgrid).",
+    "limits": "Counterfactual cap change not actual refund; observed usage only, no actual scope budgets or damages. Cannot infer welfare without protected other workloads or governance costs."
+  }
+}
