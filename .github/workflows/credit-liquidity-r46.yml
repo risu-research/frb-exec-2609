@@ -1,0 +1,214 @@
+name: Credit liquidity and admission timing R46
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/credit-liquidity-r46.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Obtain pinned upstream implementation and trace readers
+        run: |
+          git clone --quiet https://github.com/HarvardMadSys/hybridInference.git upstream
+          cd upstream
+          git checkout --quiet 94a693e43b211b7e5d76fce0402ad7051b779910
+          git rev-parse HEAD
+          python -m pip install uv
+          uv sync --locked --group dev
+          uv pip install --python .venv/bin/python 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Compare exact source gate and gross/net admission with delayed credits
+        working-directory: upstream
+        run: |
+          cat > replay.py <<'PY'
+          import json,pathlib,tempfile,hashlib,collections as C,statistics as S,math
+          from decimal import Decimal
+          from datetime import datetime,timezone
+          import numpy as np
+          from huggingface_hub import hf_hub_download
+          import pyarrow.parquet as pq
+          from serving.storage.utils import calculate_cost
+          from serving.spend_ledger import counted_amount
+          from serving.quota import first_refusal
+          P={"prompt":"0.44","completion":"1.32","input_cache_reads":"0.014"}
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXPECTED={"2026-08-23_2026-08-29":("27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",159925),"2026-08-30_2026-09-05":("e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",190544)}
+          def valid(r):
+              p,c,o=[r[k] for k in ("prompt_tokens","cache_read_tokens","completion_tokens")]
+              return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0
+          def charge(r,c=None):
+              v=calculate_cost({"prompt_tokens":r["prompt_tokens"],"completion_tokens":r["completion_tokens"],"cache_read_tokens":r["cache_read_tokens"] if c is None else c},P)
+              assert v is not None
+              return int(counted_amount(v)*1000000)
+          def allowed(balance,spent):
+              return first_refusal(account_quota_usd=balance/1e6,account_spent_usd=spent/1e6) is None
+          def threshold(spent):
+              # Integer ledger micro-dollar grid; actual upstream float gate may shift a boundary by one unit.
+              t=spent+10000
+              while not allowed(t,spent):t+=1
+              while t and allowed(t-1,spent):t-=1
+              assert allowed(t,spent) and not allowed(t-1,spent)
+              return t
+          def day(t):return datetime.fromtimestamp(t/1000,timezone.utc).date() if t is not None else None
+          def timed(r):return r["start_ms"] is not None and r["end_ms"] is not None and r["start_ms"]<=r["end_ms"] and day(r["start_ms"])==day(r["end_ms"])
+          def adjacent(a,b):return a["session_id"]==b["session_id"] and b["step"]==a["step"]+1
+          def continuation(a,b):return adjacent(a,b) and a["model"]==b["model"] and a["provider"]==b["provider"] and valid(b) and timed(b) and timed(a) and b["start_ms"]>=a["end_ms"] and day(b["start_ms"])==day(a["start_ms"])
+          def run(costs,b):
+              spent=0;n=0
+              for v in costs:
+                  if not allowed(b,spent):break
+                  spent+=v;n+=1
+              return n
+          def merge(intervals):
+              out=[]
+              for l,h in sorted(intervals):
+                  if h<=l:continue
+                  if out and l<=out[-1][1]:out[-1][1]=max(out[-1][1],h)
+                  else:out.append([l,h])
+              return out
+          def stat(x):
+              if not x:return None
+              return dict(n=len(x),mean=S.fmean(x),median=S.median(x),min=min(x),max=max(x))
+          counts=C.Counter(); strata=C.defaultdict(C.Counter);cases=[];week_results=[]
+          # Exact source-gate boundaries, running maximum prevents a later refund from retroactively admitting a blocked prefix.
+          def timeline(costs,credit,release,policy):
+              spent=0;out=[];running=0
+              for i,v in enumerate(costs):
+                  paid=credit if i>=release else 0
+                  net=spent-paid
+                  if policy=="source_gate":t=threshold(net)
+                  elif policy=="strict_actual_gross":t=net+v
+                  else:raise ValueError(policy)
+                  running=max(running,t);out.append(running);spent+=v
+              return out
+          def simulate(costs,credit,release,policy,b):
+              spent=0;n=0
+              for i,v in enumerate(costs):
+                  net=spent-(credit if i>=release else 0)
+                  if policy=="source_gate":
+                      if not allowed(b,net):break
+                  elif b<net+v:break
+                  spent+=v;n+=1
+              return n
+          def timing_record(actual,delta):
+              result={}
+              for policy in ("source_gate","strict_actual_gross"):
+                  n=len(actual);ref=timeline(actual,delta,1,policy);base=timeline(actual,delta,n,policy)
+                  for label,k in (("1",1),("2",2),("5",5),("20",20),("finish",n)):
+                      z=min(k,n);t=timeline(actual,delta,z,policy)
+                      assert all(a<=b<=c for a,b,c in zip(ref,t,base))
+                      for b in set([t[-1],t[-1]-1,ref[-1],base[-1]]):
+                          assert simulate(actual,delta,z,policy,b)==sum(x<=b for x in t)
+                      result[policy+"/"+label]=dict(threshold=t[-1],extra_vs_immediate=t[-1]-ref[-1],improvement_vs_finish=base[-1]-t[-1],area_vs_immediate=sum(b-a for a,b in zip(ref,t)),area_improvement_vs_finish=sum(b-a for a,b in zip(t,base)))
+                  # strict net authorization makes credit usable before first request; compare gross reservation, even though net invoice same.
+                  if policy=="strict_actual_gross":
+                      net=actual.copy();net[0]-=delta
+                      t=timeline(net,0,n,policy)
+                      assert all(a<=b for a,b in zip(t,ref))
+                      result["strict_net_at_admission"]=dict(threshold=t[-1],extra_vs_immediate=t[-1]-ref[-1],area_vs_immediate=sum(a-b for a,b in zip(t,ref)))
+              return result
+          
+          cols="session_id step model provider prompt_tokens completion_tokens cache_read_tokens start_ms end_ms step_trigger block_ids".split()
+          for week,(sha,nrows) in EXPECTED.items():
+              wc=C.Counter();cur=[];prev=None
+              def close(rows):
+                  if not rows:return
+                  # next route boundary and same-day sequential valid segment calculated backwards.
+                  end=[len(rows)]*len(rows)
+                  for i in range(len(rows)-2,-1,-1):
+                      end[i]=end[i+1] if continuation(rows[i],rows[i+1]) else i+1
+                  for i in range(1,len(rows)):
+                      a,b=rows[i-1:i+1]
+                      if a["model"]!="deepseek-v4-flash" or b["model"]!=a["model"] or not a["provider"] or not b["provider"] or not adjacent(a,b):continue
+                      if not valid(a) or not valid(b) or a["cache_read_tokens"]*10<a["prompt_tokens"]*9:continue
+                      if not b["prefix"]:continue
+                      if not timed(a) or not timed(b) or b["start_ms"]<a["end_ms"]:continue
+                      g="same" if a["provider"]==b["provider"] else "switch"
+                      ar=a["cache_read_tokens"]/a["prompt_tokens"];br=b["cache_read_tokens"]/b["prompt_tokens"]
+                      gap=b["start_ms"]-a["end_ms"]
+                      bin_gap=next((k for k in (1000,5000,15000,60000,300000,1800000) if gap<=k),999999999999)
+                      key=(week,b["step_trigger"],bin_gap,int(math.log2(a["prompt_tokens"])),next((x for x in (1.01,1.05,1.15,1.25,1.5,2) if b["prompt_tokens"]/a["prompt_tokens"]<=x),999),int(ar*20))
+                      c=strata[key];c[g+"_n"]+=1;wc[g+"_n"]+=1
+                      if ar-br<=.5:continue
+                      c[g+"_drop"]+=1;wc[g+"_drop"]+=1
+                      win=rows[i:end[i]];actual=[charge(x) for x in win];preserved=actual.copy()
+                      preserved[0]=charge(b,min(b["prompt_tokens"],a["cache_read_tokens"]))
+                      delta=actual[0]-preserved[0]
+                      if delta<=0:wc[g+"_nonpositive_delta"]+=1;continue
+                      def ts(costs):
+                          out=[];s=0
+                          for v in costs:out.append(threshold(s));s+=v
+                          return out
+                      ta,tw=ts(actual),ts(preserved)
+                      assert ta[0]==tw[0] and all(x>=y for x,y in zip(ta,tw))
+                      # exact boundary tests with actual admission gate, every prefix threshold checked by threshold().
+                      for bal in set([ta[-1],ta[-1]-1,tw[-1],tw[-1]-1]):
+                          assert run(actual,bal)==sum(t<=bal for t in ta)
+                          assert run(preserved,bal)==sum(t<=bal for t in tw)
+                      ints=merge(zip(tw,ta));width=sum(h-l for l,h in ints)
+                      area=sum(x-y for x,y in zip(ta,tw))
+                      # Charge incidence: customer receives first-event credit fraction; operator carries reference credit,
+                      # holding already served workload fixed. Half uses integer floor to avoid inventing sub-ledger precision.
+                      credits={}
+                      for pct in (0,25,50,75,100):
+                          cr=delta*pct//100;costs=actual.copy();costs[0]-=cr;t=ts(costs)
+                          credits[str(pct)]=dict(credit=cr,completion_threshold=t[-1],remaining_completion_width=t[-1]-tw[-1],remaining_area=sum(x-y for x,y in zip(t,tw)))
+                      cases.append(dict(_session=(week,b["session_id"]),_step=b["step"],timing=timing_record(actual,delta),gross=sum(actual),net=sum(actual)-delta,week=week,group=g,n=len(win),gap_ms=gap,trigger=b["step_trigger"],delta=delta,full_preserved=tw[-1],full_actual=ta[-1],completion_width=ta[-1]-tw[-1],any_width=width,area=area,intervals=ints,credits=credits))
+                      wc[g+"_cases"]+=1
+              with tempfile.TemporaryDirectory() as td:
+                  f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+                  with open(f,"rb") as x:assert hashlib.file_digest(x,"sha256").hexdigest()==sha
+                  pf=pq.ParquetFile(f);assert pf.metadata.num_rows==nrows
+                  for batch in pf.iter_batches(batch_size=128,columns=cols):
+                      ba=batch.column(batch.schema.get_field_index("block_ids"));off=ba.offsets.to_numpy();flat=ba.values.to_numpy(zero_copy_only=False);null=ba.is_null().to_numpy(zero_copy_only=False)
+                      for i,r in enumerate(batch.drop_columns(["block_ids"]).to_pylist()):
+                          wc["requests"]+=1
+                          blocks=None if null[i] else flat[off[i]:off[i+1]]
+                          if prev is not None and r["session_id"]!=prev["session_id"]:
+                              close(cur);cur=[];prev=None
+                          r["prefix"]=bool(prev is not None and prev["blocks"] is not None and blocks is not None and 0<len(prev["blocks"])<=len(blocks) and np.array_equal(prev["blocks"],blocks[:len(prev["blocks"])]))
+                          # keep block array only for immediately previous record
+                          if prev is not None:prev.pop("blocks",None)
+                          r["blocks"]=blocks
+                          if r["model"]=="deepseek-v4-flash" or cur:cur.append(r)
+                          prev=r
+                  close(cur)
+              assert wc["requests"]==nrows
+              counts.update(wc);week_results.append(dict(week=week,sha256=sha,counts=wc))
+              print("WEEK",week,json.dumps(wc),flush=True)
+          # Recalculate each fixed delay key even for shorter paths (key collision above: finish takes precedence).
+          # Aggregate eligible common-horizon subsets so every delay has the same meaning.
+          def summarize(rr):
+              if not rr:return {}
+              out=dict(events=len(rr),requests=sum(r["n"] for r in rr),credit_usd=sum(r["delta"] for r in rr)/1e6,gross_usd=sum(r["gross"] for r in rr)/1e6,net_usd=sum(r["net"] for r in rr)/1e6,policies={})
+              for k in sorted(set.intersection(*(set(r["timing"]) for r in rr))):
+                  v=[r["timing"][k] for r in rr]
+                  out["policies"][k]=dict(mean_threshold_usd=S.fmean(x["threshold"] for x in v)/1e6,median_threshold_usd=S.median(x["threshold"] for x in v)/1e6,changed_vs_immediate=sum(x["extra_vs_immediate"]!=0 for x in v),mean_extra_vs_immediate_usd=S.fmean(x["extra_vs_immediate"] for x in v)/1e6,mean_area_vs_immediate=S.fmean(x["area_vs_immediate"] for x in v)/1e6)
+                  if "improvement_vs_finish" in v[0]:
+                      out["policies"][k].update(improved_vs_finish=sum(x["improvement_vs_finish"]>0 for x in v),mean_improvement_vs_finish_usd=S.fmean(x["improvement_vs_finish"] for x in v)/1e6,mean_area_improvement_vs_finish=S.fmean(x["area_improvement_vs_finish"] for x in v)/1e6)
+              return out
+          eligible=[r for r in cases if r["n"]>=2]
+          first={}
+          for r in sorted(eligible,key=lambda x:(x["_session"],x["_step"])):first.setdefault(r["_session"],r)
+          scenarios={}
+          for name,rr in [("switch",[r for r in eligible if r["group"]=="switch"]),("same",[r for r in eligible if r["group"]=="same"]),("first",list(first.values()))]:
+              for h in (2,6,21):
+                  scenarios[name+"/"+str(h)]=summarize([r for r in rr if r["n"]>=h])
+          out=dict(counts=counts,weeks=week_results,scenarios=scenarios,switch_cases=[{k:v for k,v in r.items() if not k.startswith("_")} for r in eligible if r["group"]=="switch"],limitations=["Reference prices and current source gate applied to observed historical workload, not actual account balance or real credit eligibility.","Credit release is hypothetical after k successfully completed calls; no retries, other concurrent work, reset or external topup. Completion-conditioned refund cannot finance prerequisite calls.","Strict actual gross reservation uses realized cost known retrospectively, a hypothetical benchmark not AWS billing or real estimated cap; strict net admission prices first event before authorization.","Same final net debit conditional on completing whole sequence; actual credits paid and workload differ if stopped. No welfare estimates.","First event per week-local session reduces overlapping windows, not independent users."])
+          print("R46",json.dumps(out),flush=True)
+          pathlib.Path("../r46-results").mkdir(exist_ok=True);pathlib.Path("../r46-results/results.json").write_text(json.dumps(out,indent=2))
+          
+          PY
+          PYTHONPATH=apps/backend:. uv run --no-sync python replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: credit-liquidity-r46
+          path: r46-results/
+          retention-days: 14
