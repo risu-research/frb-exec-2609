@@ -1,0 +1,553 @@
+{
+  "source": "results/r46-credit-liquidity.json",
+  "unit": "integer microdollars",
+  "rows": [
+    {
+      "n": 74,
+      "w": 309849,
+      "g": 354999,
+      "delta": 45149,
+      "guarantee": 664847,
+      "noLossGuarantee": 619697,
+      "extraGuarantee": 45150,
+      "atColdTotal": {
+        "total": 354999,
+        "lo": 1,
+        "hi": 309848,
+        "count": 309848,
+        "fraction": 0.8728112676056338
+      },
+      "atDoubleWarm": {
+        "total": 619698,
+        "lo": 264700,
+        "hi": 309848,
+        "count": 45149,
+        "fraction": 0.07285633831908717
+      },
+      "atGuarantee": {
+        "total": 664847,
+        "lo": 309849,
+        "hi": 309848,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 2.145712911773154
+    },
+    {
+      "n": 3,
+      "w": 17871,
+      "g": 93665,
+      "delta": 75794,
+      "guarantee": 111535,
+      "noLossGuarantee": 35741,
+      "extraGuarantee": 75794,
+      "atColdTotal": {
+        "total": 93665,
+        "lo": 1,
+        "hi": 17870,
+        "count": 17870,
+        "fraction": 0.19078427604466935
+      },
+      "atDoubleWarm": {
+        "total": 35742,
+        "lo": 0,
+        "hi": 17870,
+        "count": 17871,
+        "fraction": 0.49998601124695746
+      },
+      "atGuarantee": {
+        "total": 111535,
+        "lo": 17871,
+        "hi": 17870,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 6.2411168932908065
+    },
+    {
+      "n": 6,
+      "w": 35149,
+      "g": 161327,
+      "delta": 126178,
+      "guarantee": 196475,
+      "noLossGuarantee": 70297,
+      "extraGuarantee": 126178,
+      "atColdTotal": {
+        "total": 161327,
+        "lo": 1,
+        "hi": 35148,
+        "count": 35148,
+        "fraction": 0.21786670633739957
+      },
+      "atDoubleWarm": {
+        "total": 70298,
+        "lo": 0,
+        "hi": 35148,
+        "count": 35149,
+        "fraction": 0.49999288752329335
+      },
+      "atGuarantee": {
+        "total": 196475,
+        "lo": 35149,
+        "hi": 35148,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 5.5897749580357905
+    },
+    {
+      "n": 5,
+      "w": 35489,
+      "g": 174645,
+      "delta": 139155,
+      "guarantee": 210133,
+      "noLossGuarantee": 70977,
+      "extraGuarantee": 139156,
+      "atColdTotal": {
+        "total": 174645,
+        "lo": 1,
+        "hi": 35488,
+        "count": 35488,
+        "fraction": 0.20319961522164837
+      },
+      "atDoubleWarm": {
+        "total": 70978,
+        "lo": 0,
+        "hi": 35488,
+        "count": 35489,
+        "fraction": 0.49999295566294255
+      },
+      "atGuarantee": {
+        "total": 210133,
+        "lo": 35489,
+        "hi": 35488,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 5.9210741356476655
+    },
+    {
+      "n": 114,
+      "w": 397569,
+      "g": 469655,
+      "delta": 72086,
+      "guarantee": 867223,
+      "noLossGuarantee": 795137,
+      "extraGuarantee": 72086,
+      "atColdTotal": {
+        "total": 469655,
+        "lo": 1,
+        "hi": 397568,
+        "count": 397568,
+        "fraction": 0.8465089341986475
+      },
+      "atDoubleWarm": {
+        "total": 795138,
+        "lo": 325484,
+        "hi": 397568,
+        "count": 72085,
+        "fraction": 0.09065710523568835
+      },
+      "atGuarantee": {
+        "total": 867223,
+        "lo": 397569,
+        "hi": 397568,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 2.181314438499984
+    },
+    {
+      "n": 7,
+      "w": 29633,
+      "g": 111643,
+      "delta": 82010,
+      "guarantee": 141275,
+      "noLossGuarantee": 59265,
+      "extraGuarantee": 82010,
+      "atColdTotal": {
+        "total": 111643,
+        "lo": 1,
+        "hi": 29632,
+        "count": 29632,
+        "fraction": 0.2654150693275053
+      },
+      "atDoubleWarm": {
+        "total": 59266,
+        "lo": 0,
+        "hi": 29632,
+        "count": 29633,
+        "fraction": 0.4999915636020045
+      },
+      "atGuarantee": {
+        "total": 141275,
+        "lo": 29633,
+        "hi": 29632,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 4.76748894813215
+    },
+    {
+      "n": 166,
+      "w": 343310,
+      "g": 371120,
+      "delta": 27810,
+      "guarantee": 714429,
+      "noLossGuarantee": 686619,
+      "extraGuarantee": 27810,
+      "atColdTotal": {
+        "total": 371120,
+        "lo": 1,
+        "hi": 343309,
+        "count": 343309,
+        "fraction": 0.9250594819479361
+      },
+      "atDoubleWarm": {
+        "total": 686620,
+        "lo": 315501,
+        "hi": 343309,
+        "count": 27809,
+        "fraction": 0.04050123721820335
+      },
+      "atGuarantee": {
+        "total": 714429,
+        "lo": 343310,
+        "hi": 343309,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 2.081002592409193
+    },
+    {
+      "n": 18,
+      "w": 69433,
+      "g": 147953,
+      "delta": 78520,
+      "guarantee": 217385,
+      "noLossGuarantee": 138865,
+      "extraGuarantee": 78520,
+      "atColdTotal": {
+        "total": 147953,
+        "lo": 1,
+        "hi": 69432,
+        "count": 69432,
+        "fraction": 0.46928099274098706
+      },
+      "atDoubleWarm": {
+        "total": 138866,
+        "lo": 0,
+        "hi": 69432,
+        "count": 69433,
+        "fraction": 0.4999963994325506
+      },
+      "atGuarantee": {
+        "total": 217385,
+        "lo": 69433,
+        "hi": 69432,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 3.130859965722351
+    },
+    {
+      "n": 20,
+      "w": 71584,
+      "g": 113680,
+      "delta": 42096,
+      "guarantee": 185263,
+      "noLossGuarantee": 143167,
+      "extraGuarantee": 42096,
+      "atColdTotal": {
+        "total": 113680,
+        "lo": 1,
+        "hi": 71583,
+        "count": 71583,
+        "fraction": 0.629683060493838
+      },
+      "atDoubleWarm": {
+        "total": 143168,
+        "lo": 29489,
+        "hi": 71583,
+        "count": 42095,
+        "fraction": 0.294023147469075
+      },
+      "atGuarantee": {
+        "total": 185263,
+        "lo": 71584,
+        "hi": 71583,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 2.5880504023245416
+    },
+    {
+      "n": 2,
+      "w": 15685,
+      "g": 178833,
+      "delta": 163147,
+      "guarantee": 194517,
+      "noLossGuarantee": 31369,
+      "extraGuarantee": 163148,
+      "atColdTotal": {
+        "total": 178833,
+        "lo": 1,
+        "hi": 15684,
+        "count": 15684,
+        "fraction": 0.08770144379704083
+      },
+      "atDoubleWarm": {
+        "total": 31370,
+        "lo": 0,
+        "hi": 15684,
+        "count": 15685,
+        "fraction": 0.4999840617130471
+      },
+      "atGuarantee": {
+        "total": 194517,
+        "lo": 15685,
+        "hi": 15684,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 12.401466369142494
+    },
+    {
+      "n": 107,
+      "w": 410902,
+      "g": 454415,
+      "delta": 43513,
+      "guarantee": 865316,
+      "noLossGuarantee": 821803,
+      "extraGuarantee": 43513,
+      "atColdTotal": {
+        "total": 454415,
+        "lo": 1,
+        "hi": 410901,
+        "count": 410901,
+        "fraction": 0.9042397274743847
+      },
+      "atDoubleWarm": {
+        "total": 821804,
+        "lo": 367390,
+        "hi": 410901,
+        "count": 43512,
+        "fraction": 0.052946866957489916
+      },
+      "atGuarantee": {
+        "total": 865316,
+        "lo": 410902,
+        "hi": 410901,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 2.1058938627701984
+    },
+    {
+      "n": 2,
+      "w": 15786,
+      "g": 179479,
+      "delta": 163693,
+      "guarantee": 195264,
+      "noLossGuarantee": 31571,
+      "extraGuarantee": 163693,
+      "atColdTotal": {
+        "total": 179479,
+        "lo": 1,
+        "hi": 15785,
+        "count": 15785,
+        "fraction": 0.08794851794071763
+      },
+      "atDoubleWarm": {
+        "total": 31572,
+        "lo": 0,
+        "hi": 15785,
+        "count": 15786,
+        "fraction": 0.49998416368416054
+      },
+      "atGuarantee": {
+        "total": 195264,
+        "lo": 15786,
+        "hi": 15785,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 12.369441277080957
+    },
+    {
+      "n": 25,
+      "w": 193385,
+      "g": 347700,
+      "delta": 154314,
+      "guarantee": 541084,
+      "noLossGuarantee": 386769,
+      "extraGuarantee": 154315,
+      "atColdTotal": {
+        "total": 347700,
+        "lo": 1,
+        "hi": 193384,
+        "count": 193384,
+        "fraction": 0.5561790158785853
+      },
+      "atDoubleWarm": {
+        "total": 386770,
+        "lo": 39071,
+        "hi": 193384,
+        "count": 154314,
+        "fraction": 0.3989802751498949
+      },
+      "atGuarantee": {
+        "total": 541084,
+        "lo": 193385,
+        "hi": 193384,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 2.7979626134395117
+    },
+    {
+      "n": 20,
+      "w": 151903,
+      "g": 229333,
+      "delta": 77430,
+      "guarantee": 381235,
+      "noLossGuarantee": 303805,
+      "extraGuarantee": 77430,
+      "atColdTotal": {
+        "total": 229333,
+        "lo": 1,
+        "hi": 151902,
+        "count": 151902,
+        "fraction": 0.6623614466237017
+      },
+      "atDoubleWarm": {
+        "total": 303806,
+        "lo": 74474,
+        "hi": 151902,
+        "count": 77429,
+        "fraction": 0.25486246202358737
+      },
+      "atGuarantee": {
+        "total": 381235,
+        "lo": 151903,
+        "hi": 151902,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 2.5097266018445983
+    },
+    {
+      "n": 5,
+      "w": 23104,
+      "g": 103369,
+      "delta": 80265,
+      "guarantee": 126472,
+      "noLossGuarantee": 46207,
+      "extraGuarantee": 80265,
+      "atColdTotal": {
+        "total": 103369,
+        "lo": 1,
+        "hi": 23103,
+        "count": 23103,
+        "fraction": 0.22349811357260327
+      },
+      "atDoubleWarm": {
+        "total": 46208,
+        "lo": 0,
+        "hi": 23103,
+        "count": 23104,
+        "fraction": 0.4999891795970482
+      },
+      "atGuarantee": {
+        "total": 126472,
+        "lo": 23104,
+        "hi": 23103,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 5.474030470914127
+    },
+    {
+      "n": 5,
+      "w": 19858,
+      "g": 33490,
+      "delta": 13632,
+      "guarantee": 53347,
+      "noLossGuarantee": 39715,
+      "extraGuarantee": 13632,
+      "atColdTotal": {
+        "total": 33490,
+        "lo": 1,
+        "hi": 19857,
+        "count": 19857,
+        "fraction": 0.5929055567167298
+      },
+      "atDoubleWarm": {
+        "total": 39716,
+        "lo": 6227,
+        "hi": 19857,
+        "count": 13631,
+        "fraction": 0.3432031623737946
+      },
+      "atGuarantee": {
+        "total": 53347,
+        "lo": 19858,
+        "hi": 19857,
+        "count": 0,
+        "fraction": 0
+      },
+      "guaranteeRatio": 2.68642360761406
+    }
+  ],
+  "summary": {
+    "warm": {
+      "n": 16,
+      "min": 0.015685,
+      "median": 0.052460999999999994,
+      "mean": 0.133781875,
+      "max": 0.410902
+    },
+    "gross": {
+      "n": 16,
+      "min": 0.03349,
+      "median": 0.17673899999999998,
+      "mean": 0.22033162499999998,
+      "max": 0.469655
+    },
+    "guarantee": {
+      "n": 16,
+      "min": 0.053347,
+      "median": 0.20330399999999998,
+      "mean": 0.3541125,
+      "max": 0.867223
+    },
+    "additional": {
+      "n": 16,
+      "min": 0.013632,
+      "median": 0.077975,
+      "mean": 0.08654975000000001,
+      "max": 0.163693
+    },
+    "ratio": {
+      "n": 16,
+      "min": 2.081002592409193,
+      "median": 2.9644112895809314,
+      "mean": 4.686958753040099,
+      "max": 12.401466369142494
+    },
+    "allocationShareAtColdTotal": {
+      "n": 16,
+      "min": 0.08770144379704083,
+      "median": 0.5127300043097862,
+      "mean": 0.4834652016201268,
+      "max": 0.9250594819479361
+    },
+    "atDoubleWarmWithBlockedAllocations": 16
+  },
+  "limitations": [
+    "Separate nontransferable budgets, unlike overlapping nested caps. Two authorized alternative paths assumed, whole fixed continuation must be funded on a single path; no splitting, inter-path retry, topup, or transfer.",
+    "Warm path uses R46 immediate preservation-equivalent credit threshold, not observed execution on incumbent; cold path uses observed usage and no available credit until completion. Common reference tariff only.",
+    "No actual pool sizes or distribution. Fraction is fraction of mathematically possible allocations on a microdollar grid, not a probability or market incidence.",
+    "Analytic threshold geometry based on already source-validated R46 completion boundaries."
+  ]
+}
