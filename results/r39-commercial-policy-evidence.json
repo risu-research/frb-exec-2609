@@ -1,0 +1,48 @@
+{
+  "as_of": "2026-11-23 US Eastern",
+  "sources": [
+    {
+      "service": "FreeInference",
+      "url": "https://doc.freeinference.org/models",
+      "claim": "Peak reference tariff used at all hours for internal accounting; DeepSeek V4 Flash cache hit 0.014, miss 0.44, output 1.32 USD/million. Not customer cash fees. Documentation expressly distinguishes quota consumption from payment.",
+      "scope": "Reference rates, no per-route historical pricing or account balances."
+    },
+    {
+      "service": "Anthropic",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/fallback-credit",
+      "claim": "Beta credit for eligible refused request, allowed fallback model, matching prompt-shaping fields, organization/workspace or caller identity, five-minute lifetime; cache write reclassified as cache read in usage.",
+      "scope": "Specific classifier refusals, not general provider outage or model deprecation; no Managed Agents or batch support; restrictions differ by model and platform."
+    },
+    {
+      "service": "Amazon Bedrock",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-fallback-credit.html",
+      "claim": "One-time credit for overlapping cache writes on qualifying refusal retry; model, identity and body matching required.",
+      "scope": "Documented implementation of Anthropic feature, not independent economic experiment."
+    },
+    {
+      "service": "GitHub Copilot",
+      "url": "https://docs.github.com/en/copilot/tutorials/optimize-ai-usage",
+      "claim": "Model switching, expiry and configuration changes can invalidate cache; typical cached input rate 10% of normal rate; soft session credit limits.",
+      "scope": "No historical account-level balance or linkage to R32 Copilot trace."
+    },
+    {
+      "service": "GitHub Copilot",
+      "url": "https://docs.github.com/en/copilot/concepts/billing-and-usage/organizations-and-enterprises/billing",
+      "claim": "User-level budgets enforce hard stop; additional paid usage can be disabled; pooled credits and organization spending limits differ.",
+      "scope": "Current policy, not historical trace proof."
+    },
+    {
+      "service": "Amazon Bedrock",
+      "url": "https://docs.aws.amazon.com/en_en/bedrock/latest/userguide/quotas-token-burndown.html",
+      "claim": "Cache-read tokens excluded from token quota; initial reservation includes max_tokens and actual final usage adjusts.",
+      "scope": "Throughput quota differs from dollar-valued FreeInference limit."
+    },
+    {
+      "service": "Anthropic",
+      "url": "https://platform.claude.com/docs/en/api/rate-limits",
+      "claim": "Default input tokens per minute limits count uncached input; cached reads excluded.",
+      "scope": "Rate limit rather than prepaid entitlement."
+    }
+  ],
+  "novelty_constraint": "Cache-loss compensation already exists commercially. Focus on incident eligibility, economic exposure and accounting incidence; avoid claiming invention or causal attribution."
+}
