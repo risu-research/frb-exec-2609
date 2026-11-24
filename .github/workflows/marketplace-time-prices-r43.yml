@@ -1,0 +1,43 @@
+name: Frozen marketplace time pricing R43
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/marketplace-time-prices-r43.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: endpoint-tariff-census
+          path: capture
+          run-id: 45318045292
+          github-token: ${{ github.token }}
+      - name: Inspect original model and endpoint schedules
+        run: |
+          python - <<'PY'
+          import pathlib,json,hashlib
+          p=pathlib.Path('capture')
+          manifest=json.loads((p/'manifest.json').read_text())
+          raw=(p/'models.json').read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==manifest['catalog']['sha256']
+          models=json.loads(raw)['data']
+          sel=[m for m in models if m['id'].startswith('deepseek/') and 'flash' in m['id']]
+          out=[]
+          for m in sel:
+              r=next((r for r in manifest['models'] if r['model']==m['id'] and not r['error']),None)
+              es=[]
+              if r:
+                  raw=(p/'raw'/r['meta']['file']).read_bytes()
+                  assert hashlib.sha256(raw).hexdigest()==r['meta']['sha256']
+                  data=json.loads(raw)['data'];assert data['id']==m['id']
+                  for e in data['endpoints']:
+                      pp=e.get('pricing') or {}
+                      if pp.get('overrides') or e.get('pricing_overrides') or e.get('pricing_tiers') or e.get('provider_name','').lower()=='deepseek':
+                          es.append(dict(provider=e.get('provider_name'),tag=e.get('tag'),pricing=pp,pricing_overrides=e.get('pricing_overrides'),pricing_tiers=e.get('pricing_tiers')))
+              out.append(dict(model=m['id'],model_pricing=m.get('pricing'),endpoints=es))
+          print('R43_MARKET',json.dumps(out))
+          PY
