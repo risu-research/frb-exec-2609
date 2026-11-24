@@ -1,0 +1,203 @@
+name: Credit coverage and equal-budget incidence R40
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/credit-coverage-r40.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: continuation-cache-audit-results
+          path: capture
+          run-id: 45316568340
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Obtain pinned upstream implementation and trace readers
+        run: |
+          git clone --quiet https://github.com/HarvardMadSys/hybridInference.git upstream
+          cd upstream
+          git checkout --quiet 94a693e43b211b7e5d76fce0402ad7051b779910
+          git rev-parse HEAD
+          python -m pip install uv
+          uv sync --locked --group dev
+          uv pip install --python .venv/bin/python 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Evaluate scope exclusions at equal reference credit budget
+        working-directory: upstream
+        run: |
+          cat > replay.py <<'PY'
+          import json,pathlib,tempfile,hashlib,collections as C,statistics as S,math
+          from decimal import Decimal
+          from datetime import datetime,timezone
+          import numpy as np
+          from huggingface_hub import hf_hub_download
+          import pyarrow.parquet as pq
+          from serving.storage.utils import calculate_cost
+          from serving.spend_ledger import counted_amount
+          from serving.quota import first_refusal
+          P={"prompt":"0.44","completion":"1.32","input_cache_reads":"0.014"}
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXPECTED={"2026-08-23_2026-08-29":("27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",159925),"2026-08-30_2026-09-05":("e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",190544)}
+          def valid(r):
+              p,c,o=[r[k] for k in ("prompt_tokens","cache_read_tokens","completion_tokens")]
+              return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0
+          def charge(r,c=None):
+              v=calculate_cost({"prompt_tokens":r["prompt_tokens"],"completion_tokens":r["completion_tokens"],"cache_read_tokens":r["cache_read_tokens"] if c is None else c},P)
+              assert v is not None
+              return int(counted_amount(v)*1000000)
+          def allowed(balance,spent):
+              return first_refusal(account_quota_usd=balance/1e6,account_spent_usd=spent/1e6) is None
+          def threshold(spent):
+              # Integer ledger micro-dollar grid; actual upstream float gate may shift a boundary by one unit.
+              t=spent+10000
+              while not allowed(t,spent):t+=1
+              while t and allowed(t-1,spent):t-=1
+              assert allowed(t,spent) and not allowed(t-1,spent)
+              return t
+          def day(t):return datetime.fromtimestamp(t/1000,timezone.utc).date() if t is not None else None
+          def timed(r):return r["start_ms"] is not None and r["end_ms"] is not None and r["start_ms"]<=r["end_ms"] and day(r["start_ms"])==day(r["end_ms"])
+          def adjacent(a,b):return a["session_id"]==b["session_id"] and b["step"]==a["step"]+1
+          def continuation(a,b):return adjacent(a,b) and a["model"]==b["model"] and a["provider"]==b["provider"] and valid(b) and timed(b) and timed(a) and b["start_ms"]>=a["end_ms"] and day(b["start_ms"])==day(a["start_ms"])
+          def run(costs,b):
+              spent=0;n=0
+              for v in costs:
+                  if not allowed(b,spent):break
+                  spent+=v;n+=1
+              return n
+          def merge(intervals):
+              out=[]
+              for l,h in sorted(intervals):
+                  if h<=l:continue
+                  if out and l<=out[-1][1]:out[-1][1]=max(out[-1][1],h)
+                  else:out.append([l,h])
+              return out
+          def stat(x):
+              if not x:return None
+              return dict(n=len(x),mean=S.fmean(x),median=S.median(x),min=min(x),max=max(x))
+          counts=C.Counter(); strata=C.defaultdict(C.Counter);cases=[];week_results=[]
+          cols="session_id step model provider prompt_tokens completion_tokens cache_read_tokens start_ms end_ms step_trigger block_ids".split()
+          for week,(sha,nrows) in EXPECTED.items():
+              wc=C.Counter();cur=[];prev=None
+              def close(rows):
+                  if not rows:return
+                  # next route boundary and same-day sequential valid segment calculated backwards.
+                  end=[len(rows)]*len(rows)
+                  for i in range(len(rows)-2,-1,-1):
+                      end[i]=end[i+1] if continuation(rows[i],rows[i+1]) else i+1
+                  for i in range(1,len(rows)):
+                      a,b=rows[i-1:i+1]
+                      if a["model"]!="deepseek-v4-flash" or b["model"]!=a["model"] or not a["provider"] or not b["provider"] or not adjacent(a,b):continue
+                      if not valid(a) or not valid(b) or a["cache_read_tokens"]*10<a["prompt_tokens"]*9:continue
+                      if not b["prefix"]:continue
+                      if not timed(a) or not timed(b) or b["start_ms"]<a["end_ms"]:continue
+                      g="same" if a["provider"]==b["provider"] else "switch"
+                      ar=a["cache_read_tokens"]/a["prompt_tokens"];br=b["cache_read_tokens"]/b["prompt_tokens"]
+                      gap=b["start_ms"]-a["end_ms"]
+                      bin_gap=next((k for k in (1000,5000,15000,60000,300000,1800000) if gap<=k),999999999999)
+                      key=(week,b["step_trigger"],bin_gap,int(math.log2(a["prompt_tokens"])),next((x for x in (1.01,1.05,1.15,1.25,1.5,2) if b["prompt_tokens"]/a["prompt_tokens"]<=x),999),int(ar*20))
+                      c=strata[key];c[g+"_n"]+=1;wc[g+"_n"]+=1
+                      if ar-br<=.5:continue
+                      c[g+"_drop"]+=1;wc[g+"_drop"]+=1
+                      win=rows[i:end[i]];actual=[charge(x) for x in win];preserved=actual.copy()
+                      preserved[0]=charge(b,min(b["prompt_tokens"],a["cache_read_tokens"]))
+                      delta=actual[0]-preserved[0]
+                      if delta<=0:wc[g+"_nonpositive_delta"]+=1;continue
+                      def ts(costs):
+                          out=[];s=0
+                          for v in costs:out.append(threshold(s));s+=v
+                          return out
+                      ta,tw=ts(actual),ts(preserved)
+                      assert ta[0]==tw[0] and all(x>=y for x,y in zip(ta,tw))
+                      # exact boundary tests with actual admission gate, every prefix threshold checked by threshold().
+                      for bal in set([ta[-1],ta[-1]-1,tw[-1],tw[-1]-1]):
+                          assert run(actual,bal)==sum(t<=bal for t in ta)
+                          assert run(preserved,bal)==sum(t<=bal for t in tw)
+                      ints=merge(zip(tw,ta));width=sum(h-l for l,h in ints)
+                      area=sum(x-y for x,y in zip(ta,tw))
+                      # Charge incidence: customer receives first-event credit fraction; operator carries reference credit,
+                      # holding already served workload fixed. Half uses integer floor to avoid inventing sub-ledger precision.
+                      credits={}
+                      for pct in (0,25,50,75,100):
+                          cr=delta*pct//100;costs=actual.copy();costs[0]-=cr;t=ts(costs)
+                          credits[str(pct)]=dict(credit=cr,completion_threshold=t[-1],remaining_completion_width=t[-1]-tw[-1],remaining_area=sum(x-y for x,y in zip(t,tw)))
+                      cases.append(dict(_session=(week,b['session_id']),_step=b['step'],week=week,group=g,n=len(win),gap_ms=gap,trigger=b["step_trigger"],delta=delta,full_preserved=tw[-1],full_actual=ta[-1],completion_width=ta[-1]-tw[-1],any_width=width,area=area,intervals=ints,credits=credits))
+                      wc[g+"_cases"]+=1
+              with tempfile.TemporaryDirectory() as td:
+                  f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+                  with open(f,"rb") as x:assert hashlib.file_digest(x,"sha256").hexdigest()==sha
+                  pf=pq.ParquetFile(f);assert pf.metadata.num_rows==nrows
+                  for batch in pf.iter_batches(batch_size=128,columns=cols):
+                      ba=batch.column(batch.schema.get_field_index("block_ids"));off=ba.offsets.to_numpy();flat=ba.values.to_numpy(zero_copy_only=False);null=ba.is_null().to_numpy(zero_copy_only=False)
+                      for i,r in enumerate(batch.drop_columns(["block_ids"]).to_pylist()):
+                          wc["requests"]+=1
+                          blocks=None if null[i] else flat[off[i]:off[i+1]]
+                          if prev is not None and r["session_id"]!=prev["session_id"]:
+                              close(cur);cur=[];prev=None
+                          r["prefix"]=bool(prev is not None and prev["blocks"] is not None and blocks is not None and 0<len(prev["blocks"])<=len(blocks) and np.array_equal(prev["blocks"],blocks[:len(prev["blocks"])]))
+                          # keep block array only for immediately previous record
+                          if prev is not None:prev.pop("blocks",None)
+                          r["blocks"]=blocks
+                          if r["model"]=="deepseek-v4-flash" or cur:cur.append(r)
+                          prev=r
+                  close(cur)
+              assert wc["requests"]==nrows
+              counts.update(wc);week_results.append(dict(week=week,sha256=sha,counts=wc))
+              print("WEEK",week,json.dumps(wc),flush=True)
+          # Predefined policy rules, no inference of actual refusal or token redemption.
+          # One first eligible event per week-local session controls overlapping windows.
+          def evaluate(rr):
+              rr=[r for r in rr if r["n"]>1]
+              total_credit=sum(r["delta"] for r in rr)
+              total_area=sum(r["area"] for r in rr)
+              total_completion=sum(r["completion_width"] for r in rr)
+              if not rr:return {}
+              policies={
+                "all":lambda r:True,
+                "route_only":lambda r:r["group"]=="switch",
+                "gap_le_300s":lambda r:r["gap_ms"]<=300000,
+                "route_and_gap_le_300s":lambda r:r["group"]=="switch" and r["gap_ms"]<=300000,
+                "tool_trigger":lambda r:r["trigger"]=="tool",
+                "route_and_tool":lambda r:r["group"]=="switch" and r["trigger"]=="tool",
+                "same_only":lambda r:r["group"]=="same",
+              }
+              out={}
+              for name,rule in policies.items():
+                  chosen=[r for r in rr if rule(r)]
+                  c=sum(r["delta"] for r in chosen);a=sum(r["area"] for r in chosen);w=sum(r["completion_width"] for r in chosen)
+                  # Uniform fractional reimbursement with equal reference credit budget.
+                  # On the analytic continuous ledger, exposure is linear in credit.
+                  u=c/total_credit if total_credit else 0
+                  out[name]=dict(events=len(chosen),switch_events=sum(r["group"]=="switch" for r in chosen),credit_usd=c/1e6,area_removed=a/1e6,completion_width_removed=w/1e6,credit_share=u,area_share=a/total_area if total_area else 0,completion_share=w/total_completion if total_completion else 0,uniform_equal_budget_area=total_area*u/1e6)
+              return dict(events=len(rr),switch_events=sum(r["group"]=="switch" for r in rr),requests=sum(r["n"] for r in rr),credit_usd=total_credit/1e6,area=total_area/1e6,completion_width=total_completion/1e6,policies=out)
+          first={}
+          for r in sorted(cases,key=lambda r:(r["_session"],r["_step"])):
+              if r["n"]>1:first.setdefault(r["_session"],r)
+          # Same event counts, but cap the exposure at 5/20 observed calls to avoid future length dominating.
+          def capped(rr,H):
+              out=[]
+              for r in rr:
+                  if r["n"]<H:continue
+                  x=dict(r);x["n"]=H
+                  # Continuous exact model; difference from source gate on micro-dollar grid <= 1 per threshold.
+                  x["area"]=(H-1)*r["delta"];x["completion_width"]=r["delta"]
+                  out.append(x)
+              return out
+          result=dict(counts=counts,weeks=week_results,all=evaluate(cases),first_per_session=evaluate(list(first.values())),first_per_session_5=evaluate(capped(list(first.values()),5)),first_per_session_20=evaluate(capped(list(first.values()),20)),week_holdout={w:evaluate([r for r in first.values() if r["week"]==w]) for w in EXPECTED},limitations=["All observed DeepSeek events are outside Anthropic fallback-credit product scope; proxy gates are hypothetical, not application of the actual policy.","Gap is time from previous completed request to next start, not refusal-token age; tool trigger is not server-tool execution or refusal cause.","Actual balance and actual intervention cost unknown; reference credit budget at fixed observed workload; extra work can increase operating costs.","First eligible follow-up event per week-local session is descriptive, not independent customer sample.","Common horizon estimates use continuous formula and exact rounded event charge; source gate rounding can shift a prefix by one micro-dollar."])
+          print("R40",json.dumps(result),flush=True)
+          pathlib.Path("../r40-results").mkdir(exist_ok=True);pathlib.Path("../r40-results/results.json").write_text(json.dumps(result,indent=2))
+          
+          PY
+          PYTHONPATH=apps/backend:. uv run --no-sync python replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: credit-coverage-r40
+          path: r40-results/
+          retention-days: 14
