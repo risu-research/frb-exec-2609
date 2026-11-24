@@ -1,0 +1,41 @@
+{
+  "source": "R39 exact boundaries",
+  "total_events": 16,
+  "total_credit_usd": 1.384792,
+  "total_area": 30.485564,
+  "proxies": {
+    "route_gap_le_300s": {
+      "n": 6,
+      "credit_usd": 0.371553,
+      "credit_share": 0.26830960895210254,
+      "area_share": 0.35610415474025675,
+      "area_removed": 10.856036,
+      "uniform_equal_budget_area": 8.179569755524295
+    },
+    "route_gap_gt_300s": {
+      "n": 10,
+      "credit_usd": 1.013239,
+      "credit_share": 0.7316903910478975,
+      "area_share": 0.6438958452597433,
+      "area_removed": 19.629528,
+      "uniform_equal_budget_area": 22.305994244475702
+    },
+    "tool": {
+      "n": 9,
+      "credit_usd": 0.65957,
+      "credit_share": 0.47629535699224146,
+      "area_share": 0.5086011857940368,
+      "area_removed": 15.504994,
+      "uniform_equal_budget_area": 14.520132588489822
+    },
+    "user": {
+      "n": 7,
+      "credit_usd": 0.725222,
+      "credit_share": 0.5237046430077585,
+      "area_share": 0.4913988142059632,
+      "area_removed": 14.98057,
+      "uniform_equal_budget_area": 15.965431411510178
+    }
+  },
+  "limitations": "These are hypothetical time/trigger coverage rules, not Anthropic fallback-credit eligibility. All events are DeepSeek and outside that feature. No actual loss probability. Time gap is previous request end to next start."
+}
