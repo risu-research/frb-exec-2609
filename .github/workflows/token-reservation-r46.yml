@@ -1,0 +1,75 @@
+name: Documented token reservation exposure R46
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/token-reservation-r46.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Reproduce documented token accounting and audit observed workload
+        run: |
+          cat > expected.json <<'JSON'
+          {"2026-08-09_2026-08-15":{"sha256":"cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7","requests":163970},"2026-08-16_2026-08-22":{"sha256":"b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856","requests":144227},"2026-08-23_2026-08-29":{"sha256":"27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f","requests":159925},"2026-08-30_2026-09-05":{"sha256":"e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a","requests":190544}}
+          JSON
+          cat > audit.py <<'PY'
+          import json,pathlib,tempfile,hashlib,collections as C,statistics as S
+          import pyarrow.parquet as pq
+          from huggingface_hub import hf_hub_download
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXP=json.loads(pathlib.Path("expected.json").read_text())
+          # Reproduce both examples in AWS docs before replay.
+          assert 3000+1000+32000==36000 and 3000+1000+1000*5==9000
+          assert 3000+1000+1250==5250
+          counts=C.Counter();groups=C.defaultdict(C.Counter);weeks=[]
+          for week,e in EXP.items():
+           if week<"2026-08-23":continue
+           wc=C.Counter()
+           with tempfile.TemporaryDirectory() as td:
+            f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+            with open(f,"rb") as v:assert hashlib.file_digest(v,"sha256").hexdigest()==e["sha256"]
+            pf=pq.ParquetFile(f);assert pf.metadata.num_rows==e["requests"]
+            for batch in pf.iter_batches(batch_size=8192,columns="model prompt_tokens cache_read_tokens completion_tokens".split()):
+             for r in batch.to_pylist():
+              wc["requests"]+=1
+              if r["model"]!="deepseek-v4-flash":continue
+              p,c,o=[r[k] for k in ("prompt_tokens","cache_read_tokens","completion_tokens")]
+              if p is None or c is None or o is None or p<=0 or not 0<=c<=p or not 0<=o<=1024 or p>200000:continue
+              wc["common"]+=1
+              for cohort in ("all","high_cache") if c*10>=p*9 else ("all",):
+               for mult in (1,5,10,15):
+                for cap in (1024,4096,16384,32768):
+                 u=p-c;final=u+mult*o;initial=u+cap
+                 cold_final=p+mult*o;cold_initial=p+cap
+                 assert cold_final-final==c and cold_initial-initial==c
+                 z=groups[(cohort,str(mult),str(cap))]
+                 z["n"]+=1;z["initial_sum"]+=initial;z["final_sum"]+=final
+                 z["initial_gt_final"]+=int(initial>final);z["initial_lt_final"]+=int(initial<final)
+                 z["initial_only_block_width_sum"]+=max(0,initial-final)
+                 z["warm_vs_cold_initial_width_sum"]+=c
+                 z["warm_vs_cold_final_width_sum"]+=c
+                 z["initial_gt_2final"]+=int(initial>2*final)
+                 z["zero_final"]+=int(final==0)
+                 # Cold reservation blocks despite warm final fitting: union of actual cache debit and cap gap.
+                 z["cold_initial_minus_warm_final_positive_sum"]+=max(0,cold_initial-final)
+           assert wc["requests"]==e["requests"];counts.update(wc);weeks.append(dict(week=week,sha=e["sha256"],counts=wc))
+           print("WEEK",week,json.dumps(wc),flush=True)
+          out=dict(counts=counts,weeks=weeks,groups=[dict(cohort=k[0],burndown=k[1],max_tokens=k[2],counts=v) for k,v in sorted(groups.items())],limits=["AWS documented arithmetic, not actual AWS calls. DeepSeek trace workloads re-expressed in token units; provider tokenization differs.","max_tokens absent, assumed constant 1024/4096/16384/32768. Common cohort actual output <=1024, prompt <=200000; does not represent entire corpus.","Intervals are per-request initial reservation versus final quota use, not a minute-level throttle estimate. No actual headroom, refill timing, concurrency, model output cap or live implementation. During-generation accounting can differ.","Cold/warm comparison holds prompt/output fixed and treats observed noncached input as input plus cache write tokens. Not customer currency or bill."])
+          print("R46_TOKENS",json.dumps(out),flush=True)
+          pathlib.Path("r46-token-results").mkdir(exist_ok=True);pathlib.Path("r46-token-results/results.json").write_text(json.dumps(out,indent=2))
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: token-reservation-r46
+          path: r46-token-results/
+          retention-days: 14
