@@ -1,0 +1,131 @@
+name: Historical tariff pass-through audit R43
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/tariff-pass-through-r43.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Audit actual timed workloads around pricing reform
+        run: |
+          cat > expected.json <<'JSON'
+          {"2026-08-09_2026-08-15":{"sha256":"cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7","requests":163970},"2026-08-16_2026-08-22":{"sha256":"b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856","requests":144227},"2026-08-23_2026-08-29":{"sha256":"27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f","requests":159925},"2026-08-30_2026-09-05":{"sha256":"e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a","requests":190544}}
+          JSON
+          cat > audit.py <<'PY'
+          import pathlib,json,hashlib,collections as C,statistics as S,tempfile,datetime as dt
+          import numpy as np
+          import pyarrow.parquet as pq
+          from huggingface_hub import hf_hub_download
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXP=json.loads(pathlib.Path("expected.json").read_text())
+          UTC=dt.timezone.utc
+          def ms(s):return int(dt.datetime.fromisoformat(s).replace(tzinfo=UTC).timestamp()*1000)
+          CUT=ms("2026-08-16T16:00:00");WEEKEND=ms("2026-08-22T16:00:00");DAY=86400000;HOUR=3600000
+          # Integer nano-USD, rates per token. Old card 0.0028/0.14/0.28 per million.
+          # Use units of 0.1 nano-USD to preserve the 2.8 nano-USD cache-hit rate.
+          def cost(r,old=False):
+              p,c,o=r["prompt_tokens"],r["cache_read_tokens"],r["completion_tokens"]
+              return (p-c)*(1400 if old else 4400)+c*(28 if old else 140)+o*(2800 if old else 13200)
+          def valid(r):
+              p,c,o=r["prompt_tokens"],r["cache_read_tokens"],r["completion_tokens"]
+              return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0
+          def peak(t,calendar):
+              h=t%DAY
+              w=dt.datetime.fromtimestamp(t/1000,UTC).weekday()
+              return (HOUR<=h<4*HOUR or 6*HOUR<=h<10*HOUR) and (calendar=="daily" or t<WEEKEND or w<5)
+          def tier(t,calendar):
+              return "pre" if t<CUT else "peak" if peak(t,calendar) else "off"
+          def add(c,r):
+              c["n"]+=1
+              if valid(r):
+                  p,z,o=r["prompt_tokens"],r["cache_read_tokens"],r["completion_tokens"]
+                  c["valid"]+=1;c["prompt"]+=p;c["cached"]+=z;c["output"]+=o;c["old_units"]+=cost(r,True);c["peak_units"]+=cost(r)
+              if r["ttft_ms"] is not None and r["ttft_ms"]>=0:c["ttft_n"]+=1;c["ttft_sum"]+=r["ttft_ms"]
+          def quant(a):
+              if not a:return {}
+              return dict(n=len(a),mean=S.fmean(a),p10=float(np.quantile(a,.1)),median=S.median(a),p90=float(np.quantile(a,.9)),max=max(a))
+          daily=C.defaultdict(C.Counter);period=C.defaultdict(C.Counter);windows=C.defaultdict(C.Counter);providers=C.defaultdict(C.Counter);trans=C.defaultdict(C.Counter);coverage=C.Counter();weeks=[];segments=[];sessions=set()
+          for week,e in EXP.items():
+              wc=C.Counter();prev=None;seg=[];seen=set()
+              def close():
+                  if not seg:return
+                  # One first eligible post-change segment per week-local session/day.
+                  key=(seg[0]["session_id"],seg[0]["start_ms"]//DAY)
+                  if key in seen:return
+                  seen.add(key)
+                  for cal in ("daily","weekend"):
+                      costs=[cost(r) for r in seg];low=[v if peak(r["start_ms"],cal) else v//2 for r,v in zip(seg,costs)]
+                      # First request minimum 0.01, actual gate checks prior accumulated amount; continuous reference threshold.
+                      for H in (len(seg),):
+                          a=sum(costs[:H-1]);b=sum(low[:H-1])
+                          segments.append(dict(calendar=cal,n=H,peak_units=sum(costs),tier_units=sum(low),full_peak_units=100000000+a,full_tier_units=100000000+b))
+              with tempfile.TemporaryDirectory() as td:
+                  f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+                  with open(f,"rb") as v:assert hashlib.file_digest(v,"sha256").hexdigest()==e["sha256"]
+                  pf=pq.ParquetFile(f);assert pf.metadata.num_rows==e["requests"]
+                  for batch in pf.iter_batches(batch_size=8192,columns="session_id step model provider prompt_tokens cache_read_tokens completion_tokens start_ms end_ms ttft_ms step_trigger transition".split()):
+                      for r in batch.to_pylist():
+                          wc["requests"]+=1;t=r["start_ms"];u=r["end_ms"];m=r["model"]
+                          if t is None or u is None or u<t:
+                              wc["invalid_time"]+=1;close();seg=[];prev=None;continue
+                          target=m=="deepseek-v4-flash";g="target" if target else "glm_control" if m=="glm-5.3-flash" else "other"
+                          if target:wc["target"]+=1;sessions.add((week,r["session_id"]))
+                          if g!="other":
+                              date=dt.datetime.fromtimestamp(t/1000,UTC).date().isoformat()
+                              for cal in ("daily","weekend"):
+                                  tr=tier(t,cal);add(period[(g,cal,tr)],r)
+                                  add(daily[(g,cal,date,tr)],r)
+                                  if target and tr!="pre" and valid(r):
+                                      c=period[(g,cal,tr)];v=cost(r);c["scheduled_units"]+=v if tr=="peak" else v//2
+                                      if tier(u,cal)!=tr:c["cross_tier"]+=1;c["cross_units"]+=v
+                                  if target:providers[(week,str(r["provider"]),cal,tr)]["n"]+=1
+                              # 60 min either side of actual weekday peak boundaries; classify by scheduled high/low side, not chronological side.
+                              h=t%DAY;weekday=dt.datetime.fromtimestamp(t/1000,UTC).weekday()<5
+                              if weekday:
+                                  for b in (1,4,6,10):
+                                      if -HOUR<=h-b*HOUR<HOUR:
+                                          side="before" if h<b*HOUR else "after"
+                                          era="pre" if t<CUT else "post"
+                                          add(windows[(g,era,str(b),side)],r)
+                              if prev is not None and r["session_id"]==prev["session_id"] and r["step"]==prev["step"]+1 and m==prev["model"] and r["provider"] and prev["provider"] and valid(r) and valid(prev) and t>=prev["end_ms"]:
+                                  c=trans[(g,"pre" if t<CUT else "post","peak_clock" if peak(t,"daily") else "off_clock")]
+                                  c["n"]+=1
+                                  sw=r["provider"]!=prev["provider"];c["switch"]+=int(sw)
+                                  if prev["cache_read_tokens"]*10>=prev["prompt_tokens"]*9:
+                                      c["prior90"]+=1
+                                      drop=prev["cache_read_tokens"]/prev["prompt_tokens"]-r["cache_read_tokens"]/r["prompt_tokens"]>.5
+                                      c["severe"]+=int(drop);c["switch_prior90"]+=int(sw);c["switch_severe"]+=int(sw and drop)
+                                      if r["transition"]=="append":
+                                          c["append_prior90"]+=1;c["append_severe"]+=int(drop)
+                          ok=target and t>=CUT and valid(r) and t//DAY==u//DAY
+                          contiguous=bool(seg and r["session_id"]==seg[-1]["session_id"] and r["step"]==seg[-1]["step"]+1 and t>=seg[-1]["end_ms"] and t//DAY==seg[-1]["start_ms"]//DAY)
+                          if not ok or not contiguous:close();seg=[]
+                          if ok:seg.append(r)
+                          prev=r
+                  close()
+              assert wc["requests"]==e["requests"];coverage.update(wc);weeks.append(dict(week=week,sha=e["sha256"],counts=wc));print("WEEK",week,json.dumps(wc),flush=True)
+          def rows(d):return [dict(key=list(k),counts=v) for k,v in sorted(d.items())]
+          summary={}
+          for cal in ("daily","weekend"):
+              rr=[r for r in segments if r["calendar"]==cal];v=[r for r in rr if r["n"]>=2];u=[r for r in v if r["full_peak_units"]>r["full_tier_units"]]
+              summary[cal]=dict(segments=len(rr),multi=len(v),affected=len(u),requests=sum(r["n"] for r in rr),peak_usd=sum(r["peak_units"] for r in rr)/1e10,scheduled_usd=sum(r["tier_units"] for r in rr)/1e10,threshold_width_all=quant([(r["full_peak_units"]-r["full_tier_units"])/1e10 for r in v]),threshold_width_positive=quant([(r["full_peak_units"]-r["full_tier_units"])/1e10 for r in u]))
+          result=dict(coverage=coverage,target_week_sessions=len(sessions),weeks=weeks,period=rows(period),daily=rows(daily),boundary_windows=rows(windows),provider_week_local=rows(providers),transitions=rows(trans),segment_summary=summary,limits=["Historical public first-party reference tariff, not verified actual upstream provider, deployment price or invoice.","Daily calendar from FreeInference documentation and weekend sensitivity using August 22 16 UTC date from archived-page secondary source.","Time assigned by request start; boundary-crossing cost separately reported.","First eligible sequential post-change model-only segment per session-day; no actual account balances or other usage; continuous threshold, not live quota admission.","Before/after and clock-window comparisons descriptive; no causal identification."])
+          print("R43",json.dumps(result),flush=True)
+          pathlib.Path("r43-results").mkdir(exist_ok=True);pathlib.Path("r43-results/results.json").write_text(json.dumps(result,indent=2))
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tariff-pass-through-r43
+          path: r43-results/
+          retention-days: 14
