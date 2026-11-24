@@ -1,0 +1,120 @@
+name: Exact snapshot tariff audit 20261123
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/exact-tariff-audit-20261123.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: endpoint-tariff-census
+          path: capture
+          run-id: 45318045292
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen source and run stricter price audit
+        run: |
+          cat > audit.py <<'PY'
+          import pathlib,json,hashlib,collections as C,statistics as S
+          from decimal import Decimal as D
+          P=pathlib.Path("capture"); O=pathlib.Path("r35-audited");O.mkdir(exist_ok=True)
+          m=json.loads((P/"manifest.json").read_text())
+          assert hashlib.sha256((P/"models.json").read_bytes()).hexdigest()==m["catalog"]["sha256"]
+          def d(x):
+              try:
+                  if x is None or isinstance(x,bool):return None
+                  a=D(str(x));return a if a.is_finite() and a>=0 else None
+              except Exception:return None
+          def nonzero(v):
+              return v is not None and d(v)!=D(0)
+          def positive(v):return isinstance(v,int) and not isinstance(v,bool) and v>0
+          def norm(e):
+              p=e.get("pricing") or {}; a,b,c=(d(p.get(k)) for k in ("prompt","completion","input_cache_read"))
+              if not e.get("provider_name") or a is None or a<=0 or b is None:return None,"price"
+              if c is None:return None,"unknown_cache"
+              if c>a:return None,"cache_above_prompt"
+              if p.get("overrides") or e.get("pricing_overrides") or e.get("pricing_tiers"):return None,"overrides"
+              if nonzero(p.get("discount")) or nonzero(e.get("discount")):return None,"discount"
+              if any(nonzero(p.get(k)) for k in ("input_cache_write","input_cache_write_1h")):return None,"cache_write"
+              if any(nonzero(p.get(k)) for k in ("request","internal_reasoning")):return None,"other_charge"
+              if e.get("status")!=0:return None,"status"
+              tag=str(e.get("tag") or e.get("name") or "")
+              if any(x in tag.lower() for x in (":free",":batch","/free","/batch")):return None,"variant"
+              q=e.get("quantization");q=q.lower() if isinstance(q,str) else ""
+              return (e["provider_name"],a,b,c,e.get("context_length"),e.get("max_prompt_tokens"),e.get("max_completion_tokens"),q,tuple(sorted(e.get("supported_parameters") or [])),tag),None
+          def eligible(r,n,o,strict):
+              if not positive(r[4]) or r[4]<n+o:return False
+              if r[5] is not None and (not positive(r[5]) or r[5]<n):return False
+              if r[6] is not None and (not positive(r[6]) or r[6]<o):return False
+              return not strict or ("tools" in r[8] and r[7] not in ("","unknown","none","other","null"))
+          def cost(r,h,q):return r[1]*(1-h)+r[3]*h+r[2]*q
+          def analyze(rs,n,h,q,H,loss,strict):
+              o=int(n*q); rs=[r for r in rs if eligible(r,n,o,strict)]
+              rows=[]
+              for a in rs:
+                  g=C.defaultdict(list)
+                  for b in rs:
+                      if a[0]!=b[0] and (not strict or a[7]==b[7]):g[b[0]].append(b)
+                  if not g:continue
+                  base={p for p,v in g.items() if min(cost(b,0,q) for b in v)<cost(a,0,q)}
+                  warm={p for p,v in g.items() if min(cost(b,h,q) for b in v)<cost(a,h,q)}
+                  sw={p for p,v in g.items() if min(cost(b,h*(1-loss),q)+(H-1)*cost(b,h,q) for b in v)<H*cost(a,h,q)}
+                  rows.append((len(base),len(base&warm),len(base&sw),len(warm),len(sw),len(g)))
+              v=[r for r in rows if r[0]]
+              return dict(incumbents=len(rows),eligible_incumbents=len(v),cold=sum(r[0] for r in v),warm=sum(r[1] for r in v),switch=sum(r[2] for r in v),all_warm=sum(r[3] for r in rows),all_switch=sum(r[4] for r in rows),zero_original=sum(r[2]==0 for r in v),zero_any=sum(r[4]==0 for r in v))
+          coverage=C.Counter(); exc=C.Counter(); discounts=C.Counter(); writes=C.Counter(); models={}; failed=[]
+          for r in m["models"]:
+              if r["error"]:failed.append(r["model"]);continue
+              raw=(P/"raw"/r["meta"]["file"]).read_bytes()
+              assert hashlib.sha256(raw).hexdigest()==r["meta"]["sha256"]
+              data=json.loads(raw)["data"];assert data["id"]==r["model"]
+              ends=data["endpoints"];assert len(ends)==r["endpoint_count"]
+              coverage["models"]+=1;coverage["endpoints"]+=len(ends)
+              coverage["multi_provider"]+=len({e.get("provider_name") for e in ends if e.get("provider_name")})>=2
+              rs=[]
+              for e in ends:
+                  p=e.get("pricing") or {};discounts[str(p.get("discount"))]+=1;writes[str(p.get("input_cache_write_1h"))]+=1
+                  a,why=norm(e)
+                  if why:exc[why]+=1
+                  else:rs.append(a)
+              # Deduplicate economically equivalent endpoint conditions (tag alone does not create an incumbent).
+              unique={}
+              for a in rs:unique.setdefault(a[:9],a)
+              rs=list(unique.values());coverage["tariffs"]+=len(rs);coverage["multi_eligible"]+=len({a[0] for a in rs})>=2
+              models[r["model"]]=rs
+          print("AUDIT",json.dumps(dict(coverage=coverage,exclusions=exc,discounts=discounts,write_1h=writes,failed=failed)),flush=True)
+          res={}; per={}
+          for n in [8192,32768,104816]:
+           for h in [D(".5"),D(".9")]:
+            for q in [D(".01"),D(".1")]:
+             for H in [1,5,20]:
+              for loss in [D(0),D(".1041711229946524"),D(".1863101604278075"),D(1)]:
+               for strict in [False,True]:
+                  key=f"{n}/{h}/{q}/{H}/{loss}/{int(strict)}"
+                  rr={mid:analyze(rs,n,h,q,H,loss,strict) for mid,rs in models.items() if len({r[0] for r in rs})>=2}
+                  rr={mid:s for mid,s in rr.items() if s["cold"]}
+                  if not rr:continue
+                  a={k:sum(s[k] for s in rr.values()) for k in next(iter(rr.values()))}
+                  a.update(models=len(rr),models_with_loss=sum(s["switch"]<s["cold"] for s in rr.values()),models_zero=sum(s["switch"]==0 for s in rr.values()),median_model_retention=S.median(s["switch"]/s["cold"] for s in rr.values()),authors=len({mid.split("/")[0] for mid in rr}))
+                  res[key]=a
+                  if n==32768 and h==D(".9") and q==D(".01"):print("RESULT",key,json.dumps(a),flush=True)
+                  if n==32768 and h==D(".9") and q==D(".01") and H==1 and loss==1 and strict:per=rr
+          for mid,s in sorted(per.items()):print("MODEL",mid,json.dumps(s),flush=True)
+          (O/"summary.json").write_text(json.dumps(res,indent=2));(O/"primary_models.json").write_text(json.dumps(per,indent=2));(O/"audit.json").write_text(json.dumps(dict(coverage=coverage,exclusions=exc,discounts=discounts,write_1h=writes,failed=failed),indent=2))
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audited-tariff-census
+          path: r35-audited/
+          retention-days: 14
