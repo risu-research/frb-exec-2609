@@ -1,0 +1,87 @@
+name: Direct supplier quote sensitivity R48
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/direct-entry-r48.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Independently compare named direct supplier prices
+        run: |
+          cat > expected.json <<'JSON'
+          {"2026-08-09_2026-08-15":{"sha256":"cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7","requests":163970},"2026-08-16_2026-08-22":{"sha256":"b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856","requests":144227},"2026-08-23_2026-08-29":{"sha256":"27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f","requests":159925},"2026-08-30_2026-09-05":{"sha256":"e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a","requests":190544}}
+          JSON
+          cat > audit.py <<'PY'
+          import json,pathlib,hashlib,tempfile,collections as C,statistics as S
+          import numpy as np
+          import pyarrow.parquet as pq
+          from huggingface_hub import hf_hub_download
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXP=json.loads(pathlib.Path("expected.json").read_text())
+          # Direct first-party quotes as captured November 24, 2026; in units of $0.01 per million.
+          # CoreWeave legacy page differs; explicitly retain second quote as sensitivity.
+          rates={"Novita":(15,3,50),"CoreWeave_current":(12,2,38),"CoreWeave_legacy":(15,5,50)}
+          def cost(r,price,loss=False):
+              p,c,o=r["prompt_tokens"],r["cache_read_tokens"],r["completion_tokens"];a,b,d=price
+              return (p-c)*a+c*b+o*d+(a-b)*c*int(loss)
+          def valid(r):
+              p,c,o=[r[k] for k in ("prompt_tokens","cache_read_tokens","completion_tokens")]
+              return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0 and p+o<=1000000 and bool(r["provider"])
+          def adjacent(a,b):return a["session_id"]==b["session_id"] and b["step"]==a["step"]+1 and a["model"]==b["model"] and a["provider"]==b["provider"]
+          agg=C.defaultdict(C.Counter);weeks=[];samples=C.defaultdict(list)
+          for week,e in EXP.items():
+              cnt=C.Counter();seg=[];seen=set()
+              def close():
+                  if len(seg)<21:return
+                  for i in range(1,len(seg)-19):
+                      a,b=seg[i-1:i+1]
+                      if a["cache_read_tokens"]*10<a["prompt_tokens"]*9:continue
+                      if b["cache_read_tokens"]*10<b["prompt_tokens"]*9:continue
+                      key=(b["session_id"],)
+                      first=key not in seen;seen.add(key)
+                      for H in (1,5,20):
+                          seq=seg[i:i+H]
+                          for c in ("CoreWeave_current","CoreWeave_legacy"):
+                              for A,B in (("Novita",c),(c,"Novita")):
+                                  incumbent=sum(cost(r,rates[A]) for r in seq)
+                                  warm=sum(cost(r,rates[B]) for r in seq)
+                                  cold=warm+cost(b,rates[B],True)-cost(b,rates[B])
+                                  deficit=max(0,cold-incumbent)
+                                  firstcold=cost(b,rates[B],True);later=cold-firstcold
+                                  for cohort in ("all","first") if first else ("all",):
+                                      k=(A,B,str(H),cohort);z=agg[k];z["n"]+=1;z["incumbent"]+=incumbent;z["warm"]+=warm;z["cold"]+=cold;z["warm_cheaper"]+=int(warm<incumbent);z["cold_cheaper"]+=int(cold<incumbent);z["blocked"]+=int(warm<incumbent<cold);z["credit_required"]+=int(deficit>0);z["later_only_impossible"]+=int(deficit>later)
+                                      if deficit>0:samples[k].append(deficit/1e8)
+                                      for grant in (.01,.05,.1,.25,1,10):
+                                          u=int(grant*1e8);z["grant/"+str(grant)]+=int(deficit<=u);z["later_grant/"+str(grant)]+=int(deficit<=min(u,later))
+              with tempfile.TemporaryDirectory() as td:
+                  f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+                  with open(f,"rb") as v:assert hashlib.file_digest(v,"sha256").hexdigest()==e["sha256"]
+                  pf=pq.ParquetFile(f);assert pf.metadata.num_rows==e["requests"]
+                  for batch in pf.iter_batches(batch_size=8192,columns="session_id step model provider prompt_tokens cache_read_tokens completion_tokens".split()):
+                      for b in batch.to_pylist():
+                          cnt["requests"]+=1;ok=b["model"]=="glm-5.3-flash" and valid(b)
+                          if ok:cnt["valid_target"]+=1
+                          if not ok or (seg and not adjacent(seg[-1],b)):close();seg=[]
+                          if ok:seg.append(b)
+                  close()
+              assert cnt["requests"]==e["requests"];weeks.append(dict(week=week,counts=cnt));print("WEEK",week,json.dumps(cnt),flush=True)
+          out=dict(weeks=weeks,groups=[dict(incumbent=k[0],entrant=k[1],horizon=k[2],cohort=k[3],counts=v,positive_deficit_usd=dict(n=len(samples[k]),median=S.median(samples[k]),p90=float(np.quantile(samples[k],.9)),max=max(samples[k])) if samples[k] else None) for k,v in sorted(agg.items())],rates=rates,limits=["Public direct list price scenarios applied to historical anonymous-provider workloads; no actual customer accounts, model-output equality assumption; 1M advertised context, no validated output cap, quantization or tool support equivalence; narrower than strict marketplace replay.","Observed warm state on both hypothetical incumbents, first full loss after move, later observed hit restoration assumed.","Novita referral grant not verified on these requests; $10 eligible full-work grant hypothetical only for Novita direct, reverse direction not actual CoreWeave offer.","CoreWeave official pages show two quotes; current Forge and legacy product page both included as sensitivity; no dated historical tariff claim.","Finite horizon not lifetime value. First session anchor conditional on common20, overlapping all anchors."])
+          print("R48_DIRECT",json.dumps(out),flush=True)
+          pathlib.Path("r48-direct").mkdir(exist_ok=True);pathlib.Path("r48-direct/results.json").write_text(json.dumps(out,indent=2))
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: direct-entry-r48
+          path: r48-direct/
+          retention-days: 14
