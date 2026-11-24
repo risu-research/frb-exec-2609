@@ -1,0 +1,194 @@
+name: Multi-scope entitlement and credit attribution R47
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/scope-entitlement-r47.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Obtain pinned upstream implementation and trace readers
+        run: |
+          git clone --quiet https://github.com/HarvardMadSys/hybridInference.git upstream
+          cd upstream
+          git checkout --quiet 94a693e43b211b7e5d76fce0402ad7051b779910
+          git rev-parse HEAD
+          python -m pip install uv
+          uv sync --locked --group dev
+          uv pip install --python .venv/bin/python 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Audit exact multi-scope completion thresholds
+        working-directory: upstream
+        run: |
+          cat > replay.py <<'PY'
+          import json,pathlib,tempfile,hashlib,collections as C,statistics as S,math
+          from decimal import Decimal
+          from datetime import datetime,timezone
+          import numpy as np
+          from huggingface_hub import hf_hub_download
+          import pyarrow.parquet as pq
+          from serving.storage.utils import calculate_cost
+          from serving.spend_ledger import counted_amount
+          from serving.quota import first_refusal
+          P={"prompt":"0.44","completion":"1.32","input_cache_reads":"0.014"}
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXPECTED={"2026-08-23_2026-08-29":("27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f",159925),"2026-08-30_2026-09-05":("e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a",190544)}
+          def valid(r):
+              p,c,o=[r[k] for k in ("prompt_tokens","cache_read_tokens","completion_tokens")]
+              return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0
+          def charge(r,c=None):
+              v=calculate_cost({"prompt_tokens":r["prompt_tokens"],"completion_tokens":r["completion_tokens"],"cache_read_tokens":r["cache_read_tokens"] if c is None else c},P)
+              assert v is not None
+              return int(counted_amount(v)*1000000)
+          def allowed(balance,spent):
+              return first_refusal(account_quota_usd=balance/1e6,account_spent_usd=spent/1e6) is None
+          def threshold(spent):
+              # Integer ledger micro-dollar grid; actual upstream float gate may shift a boundary by one unit.
+              t=spent+10000
+              while not allowed(t,spent):t+=1
+              while t and allowed(t-1,spent):t-=1
+              assert allowed(t,spent) and not allowed(t-1,spent)
+              return t
+          def day(t):return datetime.fromtimestamp(t/1000,timezone.utc).date() if t is not None else None
+          def timed(r):return r["start_ms"] is not None and r["end_ms"] is not None and r["start_ms"]<=r["end_ms"] and day(r["start_ms"])==day(r["end_ms"])
+          def adjacent(a,b):return a["session_id"]==b["session_id"] and b["step"]==a["step"]+1
+          def continuation(a,b):return adjacent(a,b) and a["model"]==b["model"] and a["provider"]==b["provider"] and valid(b) and timed(b) and timed(a) and b["start_ms"]>=a["end_ms"] and day(b["start_ms"])==day(a["start_ms"])
+          def run(costs,b):
+              spent=0;n=0
+              for v in costs:
+                  if not allowed(b,spent):break
+                  spent+=v;n+=1
+              return n
+          def merge(intervals):
+              out=[]
+              for l,h in sorted(intervals):
+                  if h<=l:continue
+                  if out and l<=out[-1][1]:out[-1][1]=max(out[-1][1],h)
+                  else:out.append([l,h])
+              return out
+          def stat(x):
+              if not x:return None
+              return dict(n=len(x),mean=S.fmean(x),median=S.median(x),min=min(x),max=max(x))
+          counts=C.Counter(); strata=C.defaultdict(C.Counter);cases=[];week_results=[]
+          # Fixed order from first_refusal(). The six caps overlap, not six independent cash balances.
+          SCOPES=("key_day","key_month","project_day","project_month","account_day","account_month")
+          def gate(headrooms,spent,credit,credited,after):
+              v=[(b+(credit if after and s in credited else 0))/1e6 for s,b in zip(SCOPES,headrooms)]
+              x=spent/1e6
+              r=first_refusal(key_budget_daily_usd=v[0],key_budget_monthly_usd=v[1],project_budget_daily_usd=v[2],project_budget_monthly_usd=v[3],account_quota_usd=v[4],account_quota_monthly_usd=v[5],key_spent_today_usd=x,key_spent_month_usd=x,project_spent_today_usd=x,project_spent_month_usd=x,account_spent_usd=x,account_spent_month_usd=x)
+              return None if r is None else r.scope+"_"+r.window
+          def run_multi(costs,headrooms,credit,credited):
+              s=0
+              for i,v in enumerate(costs):
+                  r=gate(headrooms,s,credit,credited,i>0)
+                  if r:return i,r
+                  s+=v
+              return len(costs),None
+          def gate_threshold(spent,delta,offsets,credited):
+              # common residual-headroom axis b; all other differences expressed as nonnegative offsets.
+              t=max(10000,spent+10000-min(o+(delta if s in credited else 0) for s,o in zip(SCOPES,offsets)))
+              while gate([t+o for o in offsets],spent,delta,credited,True) is not None:t+=1
+              while t>10000 and gate([t-1+o for o in offsets],spent,delta,credited,True) is None:t-=1
+              assert gate([t+o for o in offsets],spent,delta,credited,True) is None
+              return t
+          def multi_record(actual,delta):
+              # hold initial account/key/project headrooms fixed, apply a hypothetical cap adjustment after first call.
+              # scopes are accounting views of a single concession, not separate cash grants.
+              n=len(actual)
+              if n<2:return {}
+              spent=sum(actual[:-1])
+              policies={"none":set(),"account_day":set(SCOPES[4:5]),"account_both":set(SCOPES[4:]),"key_both":set(SCOPES[:2]),"project_both":set(SCOPES[2:4]),"key_project":set(SCOPES[:4]),"all":set(SCOPES)}
+              profiles={"all_equal":[0]*6,"account_tight":[delta]*4+[0,0],"project_tight":[delta]*2+[0,0]+[delta]*2,"key_tight":[0,0]+[delta]*4,"key_project_tight":[0]*4+[delta]*2,"project_day_tight":[delta,delta,0,delta,delta,delta],"project_day_month_tight":[delta,delta,0,0,delta,delta],"project_tight_account_half":[delta,delta,0,0,delta//2,delta//2]}
+              result={}
+              for name,off in profiles.items():
+                  base=gate_threshold(spent,delta,off,set());full=gate_threshold(spent,delta,off,set(SCOPES))
+                  assert base>=full
+                  for pn,creditset in policies.items():
+                      t=gate_threshold(spent,delta,off,creditset)
+                      assert full<=t<=base
+                      # Every request checked for exact two thresholds, including a possibly blocked first request.
+                      for b in set([t,t-1]):
+                          got,reason=run_multi(actual,[b+o for o in off],delta,creditset)
+                          assert (got==n)==(b>=t),(name,pn,b,t,got,reason)
+                      # first refusal at the minimum initial headroom which would complete under full recognition.
+                      got,why=run_multi(actual,[full+o for o in off],delta,creditset)
+                      result[name+"/"+pn]=dict(threshold=t,restored=base-t,remaining=t-full,first_block=why,requests_at_full=got)
+              return result
+          cols="session_id step model provider prompt_tokens completion_tokens cache_read_tokens start_ms end_ms step_trigger block_ids".split()
+          for week,(sha,nrows) in EXPECTED.items():
+              wc=C.Counter();cur=[];prev=None
+              def close(rows):
+                  if not rows:return
+                  # next route boundary and same-day sequential valid segment calculated backwards.
+                  end=[len(rows)]*len(rows)
+                  for i in range(len(rows)-2,-1,-1):
+                      end[i]=end[i+1] if continuation(rows[i],rows[i+1]) else i+1
+                  for i in range(1,len(rows)):
+                      a,b=rows[i-1:i+1]
+                      if a["model"]!="deepseek-v4-flash" or b["model"]!=a["model"] or not a["provider"] or not b["provider"] or not adjacent(a,b):continue
+                      if not valid(a) or not valid(b) or a["cache_read_tokens"]*10<a["prompt_tokens"]*9:continue
+                      if not b["prefix"]:continue
+                      if not timed(a) or not timed(b) or b["start_ms"]<a["end_ms"]:continue
+                      g="same" if a["provider"]==b["provider"] else "switch"
+                      ar=a["cache_read_tokens"]/a["prompt_tokens"];br=b["cache_read_tokens"]/b["prompt_tokens"]
+                      gap=b["start_ms"]-a["end_ms"]
+                      bin_gap=next((k for k in (1000,5000,15000,60000,300000,1800000) if gap<=k),999999999999)
+                      key=(week,b["step_trigger"],bin_gap,int(math.log2(a["prompt_tokens"])),next((x for x in (1.01,1.05,1.15,1.25,1.5,2) if b["prompt_tokens"]/a["prompt_tokens"]<=x),999),int(ar*20))
+                      c=strata[key];c[g+"_n"]+=1;wc[g+"_n"]+=1
+                      if ar-br<=.5:continue
+                      c[g+"_drop"]+=1;wc[g+"_drop"]+=1
+                      win=rows[i:end[i]];actual=[charge(x) for x in win];preserved=actual.copy()
+                      preserved[0]=charge(b,min(b["prompt_tokens"],a["cache_read_tokens"]))
+                      delta=actual[0]-preserved[0]
+                      if delta<=0:wc[g+"_nonpositive_delta"]+=1;continue
+                      if len(actual)>=2:
+                          cases.append(dict(_session=(week,b["session_id"]),_step=b["step"],week=week,group=g,n=len(actual),delta=delta,policies=multi_record(actual,delta)))
+                      wc[g+"_cases"]+=1
+              with tempfile.TemporaryDirectory() as td:
+                  f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+                  with open(f,"rb") as x:assert hashlib.file_digest(x,"sha256").hexdigest()==sha
+                  pf=pq.ParquetFile(f);assert pf.metadata.num_rows==nrows
+                  for batch in pf.iter_batches(batch_size=128,columns=cols):
+                      ba=batch.column(batch.schema.get_field_index("block_ids"));off=ba.offsets.to_numpy();flat=ba.values.to_numpy(zero_copy_only=False);null=ba.is_null().to_numpy(zero_copy_only=False)
+                      for i,r in enumerate(batch.drop_columns(["block_ids"]).to_pylist()):
+                          wc["requests"]+=1
+                          blocks=None if null[i] else flat[off[i]:off[i+1]]
+                          if prev is not None and r["session_id"]!=prev["session_id"]:
+                              close(cur);cur=[];prev=None
+                          r["prefix"]=bool(prev is not None and prev["blocks"] is not None and blocks is not None and 0<len(prev["blocks"])<=len(blocks) and np.array_equal(prev["blocks"],blocks[:len(prev["blocks"])]))
+                          # keep block array only for immediately previous record
+                          if prev is not None:prev.pop("blocks",None)
+                          r["blocks"]=blocks
+                          if r["model"]=="deepseek-v4-flash" or cur:cur.append(r)
+                          prev=r
+                  close(cur)
+              assert wc["requests"]==nrows
+              counts.update(wc);week_results.append(dict(week=week,sha256=sha,counts=wc))
+              print("WEEK",week,json.dumps(wc),flush=True)
+          def summarize(rr):
+              out=dict(events=len(rr),requests=sum(r["n"] for r in rr),delta_usd=sum(r["delta"] for r in rr)/1e6,policies={})
+              if not rr:return out
+              for k in rr[0]["policies"]:
+                  vv=[r["policies"][k] for r in rr]
+                  out["policies"][k]=dict(mean_threshold_usd=S.fmean(v["threshold"] for v in vv)/1e6,mean_restored_usd=S.fmean(v["restored"] for v in vv)/1e6,mean_remaining_usd=S.fmean(v["remaining"] for v in vv)/1e6,full_restored=sum(v["remaining"]==0 for v in vv),no_restoration=sum(v["restored"]==0 for v in vv),first_blocks=C.Counter(v["first_block"] or "none" for v in vv),mean_requests_at_full=S.fmean(v["requests_at_full"] for v in vv))
+              return out
+          first={}
+          for r in sorted(cases,key=lambda x:(x["_session"],x["_step"])):first.setdefault(r["_session"],r)
+          out=dict(counts=counts,weeks=week_results,scenarios={k:summarize(rr) for k,rr in [("switch",[r for r in cases if r["group"]=="switch"]),("same",[r for r in cases if r["group"]=="same"]),("first",list(first.values()))]},switch_cases=[{k:v for k,v in r.items() if not k.startswith("_")} for r in cases if r["group"]=="switch"],limitations=["Hypothetical initial residual headroom profiles, no observed balances or actual administrator actions.","One credit represented as a cap adjustment to specified overlapping scopes; not multiple monetary grants and not a refund implementation.","All six counters accrue the same sequential request cost; no other concurrent usage, reset, or key change; scopes can have different initial headroom.","Current pinned source gate and public reference tariff applied to historical workload, no actual customer charges or eligibility.","Exact full completion boundary checked against upstream gate at threshold and one micro-dollar below. First refusal at counterfactual full-recognition threshold is a scenario, not observed denial."])
+          print("R47",json.dumps(out),flush=True)
+          pathlib.Path("../r47-results").mkdir(exist_ok=True);pathlib.Path("../r47-results/results.json").write_text(json.dumps(out,indent=2))
+          
+          PY
+          PYTHONPATH=apps/backend:. uv run --no-sync python replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scope-entitlement-r47
+          path: r47-results/
+          retention-days: 14
