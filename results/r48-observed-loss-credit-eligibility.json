@@ -1,0 +1,261 @@
+{
+  "sources": [
+    "results/r46-credit-liquidity.json",
+    "results/r39-exact-quota-boundaries.json"
+  ],
+  "rows": [
+    {
+      "n": 74,
+      "credit": 45149,
+      "gross": 348910,
+      "net": 303761,
+      "first_gross_approx": 50211,
+      "later_approx": 298699,
+      "later_only_impossible": false,
+      "minimum_later_discount": 0.15115216321447345,
+      "minimum_all_discount": 0.12940013183915622,
+      "minimum_first_discount": 0.8991854374539443
+    },
+    {
+      "n": 3,
+      "credit": 75794,
+      "gross": 86916,
+      "net": 11122,
+      "first_gross_approx": 80294,
+      "later_approx": 6622,
+      "later_only_impossible": true,
+      "minimum_later_discount": 11.445786771368168,
+      "minimum_all_discount": 0.872037369414147,
+      "minimum_first_discount": 0.9439559618402371
+    },
+    {
+      "n": 6,
+      "credit": 126178,
+      "gross": 156581,
+      "net": 30403,
+      "first_gross_approx": 131189,
+      "later_approx": 25392,
+      "later_only_impossible": true,
+      "minimum_later_discount": 4.969202898550725,
+      "minimum_all_discount": 0.8058321252259214,
+      "minimum_first_discount": 0.9618031999634116
+    },
+    {
+      "n": 5,
+      "credit": 139155,
+      "gross": 173921,
+      "net": 34766,
+      "first_gross_approx": 144511,
+      "later_approx": 29410,
+      "later_only_impossible": true,
+      "minimum_later_discount": 4.731553893233594,
+      "minimum_all_discount": 0.8001046452124815,
+      "minimum_first_discount": 0.9629370774543115
+    },
+    {
+      "n": 114,
+      "credit": 72086,
+      "gross": 568110,
+      "net": 496024,
+      "first_gross_approx": 76596,
+      "later_approx": 491514,
+      "later_only_impossible": false,
+      "minimum_later_discount": 0.14666113274494724,
+      "minimum_all_discount": 0.1268873985671789,
+      "minimum_first_discount": 0.9411196407123087
+    },
+    {
+      "n": 7,
+      "credit": 82010,
+      "gross": 105445,
+      "net": 23435,
+      "first_gross_approx": 85431,
+      "later_approx": 20014,
+      "later_only_impossible": true,
+      "minimum_later_discount": 4.097631657839512,
+      "minimum_all_discount": 0.7777514343970791,
+      "minimum_first_discount": 0.9599559878732544
+    },
+    {
+      "n": 166,
+      "credit": 27810,
+      "gross": 362562,
+      "net": 334752,
+      "first_gross_approx": 29616,
+      "later_approx": 332946,
+      "later_only_impossible": false,
+      "minimum_later_discount": 0.0835270584419095,
+      "minimum_all_discount": 0.07670412232942228,
+      "minimum_first_discount": 0.9390194489465153
+    },
+    {
+      "n": 18,
+      "credit": 78520,
+      "gross": 144101,
+      "net": 65581,
+      "first_gross_approx": 81887,
+      "later_approx": 62214,
+      "later_only_impossible": true,
+      "minimum_later_discount": 1.2620953483138844,
+      "minimum_all_discount": 0.5448955940624979,
+      "minimum_first_discount": 0.9588823622797269
+    },
+    {
+      "n": 20,
+      "credit": 42096,
+      "gross": 105706,
+      "net": 63610,
+      "first_gross_approx": 51526,
+      "later_approx": 54180,
+      "later_only_impossible": false,
+      "minimum_later_discount": 0.7769656699889258,
+      "minimum_all_discount": 0.3982366185457779,
+      "minimum_first_discount": 0.8169855995031634
+    },
+    {
+      "n": 2,
+      "credit": 163147,
+      "gross": 174655,
+      "net": 11508,
+      "first_gross_approx": 168832,
+      "later_approx": 5823,
+      "later_only_impossible": true,
+      "minimum_later_discount": 28.017688476730207,
+      "minimum_all_discount": 0.9341101027740403,
+      "minimum_first_discount": 0.966327473464746
+    },
+    {
+      "n": 107,
+      "credit": 43513,
+      "gross": 447253,
+      "net": 403740,
+      "first_gross_approx": 48877,
+      "later_approx": 398376,
+      "later_only_impossible": false,
+      "minimum_later_discount": 0.10922595738699119,
+      "minimum_all_discount": 0.09728945362021048,
+      "minimum_first_discount": 0.8902551302248501
+    },
+    {
+      "n": 2,
+      "credit": 163693,
+      "gross": 175058,
+      "net": 11365,
+      "first_gross_approx": 169479,
+      "later_approx": 5579,
+      "later_only_impossible": true,
+      "minimum_later_discount": 29.340921312063095,
+      "minimum_all_discount": 0.9350786596442322,
+      "minimum_first_discount": 0.9658600770596947
+    },
+    {
+      "n": 25,
+      "credit": 154314,
+      "gross": 344112,
+      "net": 189798,
+      "first_gross_approx": 160626,
+      "later_approx": 183486,
+      "later_only_impossible": false,
+      "minimum_later_discount": 0.8410123933161113,
+      "minimum_all_discount": 0.4484412051890082,
+      "minimum_first_discount": 0.960703746591461
+    },
+    {
+      "n": 20,
+      "credit": 77430,
+      "gross": 222966,
+      "net": 145536,
+      "first_gross_approx": 80491,
+      "later_approx": 142475,
+      "later_only_impossible": false,
+      "minimum_later_discount": 0.5434637655729075,
+      "minimum_all_discount": 0.34727267834557735,
+      "minimum_first_discount": 0.9619709035792822
+    },
+    {
+      "n": 5,
+      "credit": 80265,
+      "gross": 96190,
+      "net": 15925,
+      "first_gross_approx": 83659,
+      "later_approx": 12531,
+      "later_only_impossible": true,
+      "minimum_later_discount": 6.4053148192482645,
+      "minimum_all_discount": 0.8344422497141075,
+      "minimum_first_discount": 0.9594305454284655
+    },
+    {
+      "n": 5,
+      "credit": 13632,
+      "gross": 26252,
+      "net": 12620,
+      "first_gross_approx": 16324,
+      "later_approx": 9928,
+      "later_only_impossible": true,
+      "minimum_later_discount": 1.3730862207896857,
+      "minimum_all_discount": 0.5192747219259485,
+      "minimum_first_discount": 0.8350894388630238
+    }
+  ],
+  "summary": {
+    "n": 16,
+    "later_only_impossible": 9,
+    "all_discount": {
+      "n": 16,
+      "min": 0.07670412232942228,
+      "median": 0.5320851579942232,
+      "max": 0.9350786596442322
+    },
+    "first_discount": {
+      "n": 16,
+      "min": 0.8169855995031634,
+      "median": 0.9591564538540962,
+      "max": 0.966327473464746
+    },
+    "later_discount": {
+      "n": 16,
+      "min": 0.0835270584419095,
+      "median": 1.317590784551785,
+      "max": 29.340921312063095
+    },
+    "grant_usd": {
+      "n": 16,
+      "min": 0.013632,
+      "median": 0.077975,
+      "max": 0.163693
+    },
+    "by_cap": {
+      "1": {
+        "all": 16,
+        "later": 7
+      },
+      "5": {
+        "all": 16,
+        "later": 7
+      },
+      "10": {
+        "all": 16,
+        "later": 7
+      },
+      "0.01": {
+        "all": 0,
+        "later": 0
+      },
+      "0.05": {
+        "all": 5,
+        "later": 4
+      },
+      "0.1": {
+        "all": 11,
+        "later": 6
+      },
+      "0.25": {
+        "all": 16,
+        "later": 7
+      }
+    }
+  },
+  "limitations": [
+    "Same reference tariff at both paths; preserved first cache is counterfactual, not actual incumbent invoice. First cost recovered from micro-dollar gate boundary and may differ by one micro-dollar. No actual customer grant or eligibility. Subsequent-only credit is hypothetical. Financial parity only, not actual switching or acquisition cost."
+  ]
+}
