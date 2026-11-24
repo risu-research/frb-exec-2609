@@ -1,0 +1,538 @@
+{
+  "run": 45327291796,
+  "upstream": "94a693e43b211b7e5d76fce0402ad7051b779910",
+  "tests": [
+    "2026-11-24T04:34:27.8884561Z 120 passed, 7 warnings in 4.62s"
+  ],
+  "counts": {
+    "key_day": 32,
+    "key_month": 16,
+    "project_day": 8,
+    "project_month": 4,
+    "account_day": 2,
+    "account_month": 1,
+    "none": 1
+  },
+  "first": 0.168832,
+  "credit": 0.163147,
+  "headroom": 0.05,
+  "masks": [
+    {
+      "adjusted": [],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "account_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_month",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_month",
+        "account_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_day",
+        "account_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_day",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_day",
+        "project_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_day",
+        "project_month",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_day",
+        "project_month",
+        "account_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "project_day",
+        "project_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "account_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_month",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_month",
+        "account_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_day",
+        "account_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_day",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_day",
+        "project_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_day",
+        "project_month",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_day",
+        "project_month",
+        "account_day"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_month",
+        "project_day",
+        "project_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_day"
+    },
+    {
+      "adjusted": [
+        "key_day"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "account_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "account_day"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_month",
+        "account_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_month",
+        "account_day"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_day"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_day",
+        "account_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_day",
+        "account_day"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_day",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_day",
+        "project_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_day",
+        "project_month",
+        "account_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_day",
+        "project_month",
+        "account_day"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "project_day",
+        "project_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "key_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month"
+      ],
+      "refusal": "project_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "account_month"
+      ],
+      "refusal": "project_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "account_day"
+      ],
+      "refusal": "project_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "project_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_month"
+      ],
+      "refusal": "project_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_month",
+        "account_month"
+      ],
+      "refusal": "project_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_month",
+        "account_day"
+      ],
+      "refusal": "project_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "project_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_day"
+      ],
+      "refusal": "project_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_day",
+        "account_month"
+      ],
+      "refusal": "project_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_day",
+        "account_day"
+      ],
+      "refusal": "project_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_day",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": "project_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_day",
+        "project_month"
+      ],
+      "refusal": "account_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_day",
+        "project_month",
+        "account_month"
+      ],
+      "refusal": "account_day"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_day",
+        "project_month",
+        "account_day"
+      ],
+      "refusal": "account_month"
+    },
+    {
+      "adjusted": [
+        "key_day",
+        "key_month",
+        "project_day",
+        "project_month",
+        "account_day",
+        "account_month"
+      ],
+      "refusal": null
+    }
+  ],
+  "negative_record_ignored": true,
+  "same_project_new_key": "project",
+  "other_project_new_key": null,
+  "stored_project": "p",
+  "stored_cost": 0.168832,
+  "limitations": "Actual ledger code, original in-memory atomic store; cap changes are hypothetical check parameters, not actual admin operations or refund API. All six limits deliberately binding in initial scenario."
+}
