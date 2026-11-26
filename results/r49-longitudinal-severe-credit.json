@@ -1,0 +1,2111 @@
+{
+  "run": 45762249736,
+  "source_run": 45316568340,
+  "source_artifact_sha256": "b3ea899f33bb4479a8ae4e888b94e8fd8cac8ad5f694530fb64de297bee8789e",
+  "counts": {
+    "events": 871,
+    "positive": 869,
+    "signed_tokens": 154441152,
+    "benchmark": 3,
+    "child": 12,
+    "unknown_account": 0
+  },
+  "metadata_sessions": 14036,
+  "top_sessions": 12002,
+  "known_nonbenchmark_accounts": 261,
+  "metadata": [
+    {
+      "week": "2026-05-17_2026-05-23",
+      "sha256": "e905f1c1cbb1bac148aaffe7ff21509d4bae74897d87079f056ccf477af53ad8",
+      "sessions": 125,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-05-24_2026-05-30",
+      "sha256": "edd9cfed7f4e1e5818dbee32c246ca222d0fd4513408f077dac6f5d02151330d",
+      "sessions": 170,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-05-31_2026-06-06",
+      "sha256": "17a5e612765dbe759bdc659d9fefb80b4ab500c7ede979ff4529aedfbb93b89c",
+      "sessions": 76,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-06-07_2026-06-13",
+      "sha256": "5025c78dc15fc8e9bb422fc6cd994ac2c80e992f597a88a0f6bf3c3210b6a18e",
+      "sessions": 80,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-06-14_2026-06-20",
+      "sha256": "66799ec7bed41d89596389911ef5bb7e4745be640cfb52ee6fdf298dfa94c667",
+      "sessions": 479,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-06-21_2026-06-27",
+      "sha256": "8edb18feeb8cc7d014e8824f2e3e0714d0e255a0e1e9888cb0951677657d48dd",
+      "sessions": 715,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-06-28_2026-07-04",
+      "sha256": "5c35b06ae9fd0d1225b40cc9a9bc183d2baaaf316cf11cf9d8f15cbb60a44f10",
+      "sessions": 628,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-07-05_2026-07-11",
+      "sha256": "e9cd6df3a3be20b43eaafb182cec592b283c70046a1d296801f4883f395ed743",
+      "sessions": 978,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-07-12_2026-07-18",
+      "sha256": "f89255cc32b3ca04c134d659928c1e7393ce11856faa69e02b55481efe7a81de",
+      "sessions": 969,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-07-19_2026-07-25",
+      "sha256": "2ab636a3df9016620d597f298c7458b7e6fc4c01f27d83a12ce47854b6897ed4",
+      "sessions": 927,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-07-26_2026-08-01",
+      "sha256": "2e0427b19b38a0ef56543979a4bb0c3934415071ec6331be53bf5b2004b30684",
+      "sessions": 1198,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-08-02_2026-08-08",
+      "sha256": "1b06a5fe0a2228aa01734ac9bbc7ece3cecf414bc0bce88dc55cbb7039784621",
+      "sessions": 973,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-08-09_2026-08-15",
+      "sha256": "1b39f1c9ca957544f9fad4b89072e53a1cb91336d00579c9cb93ff33d4b46c0f",
+      "sessions": 1558,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-08-16_2026-08-22",
+      "sha256": "ae029860e6b36c2dbfe3e8612789b22011abfb49707db65e2681424371d54064",
+      "sessions": 1505,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-08-23_2026-08-29",
+      "sha256": "0a512113c530dab4b4b9b8bdfe17e42b7e6c7902bc8544568d635c8ca6e2b9d2",
+      "sessions": 1608,
+      "salt_series": "1b437658707a6c7e"
+    },
+    {
+      "week": "2026-08-30_2026-09-05",
+      "sha256": "d782ad98880f8024874ceae02e87053b6214e956e7b145a4abdbfa60d9db5871",
+      "sessions": 2047,
+      "salt_series": "1b437658707a6c7e"
+    }
+  ],
+  "groups": [
+    {
+      "cohort": "all",
+      "unit": "account_16w",
+      "groups": 105,
+      "events": 871,
+      "positive_events": 869,
+      "event_count": {
+        "n": 105,
+        "min": 1,
+        "median": 4,
+        "mean": 8.295238095238096,
+        "max": 48,
+        "p90": 24
+      },
+      "repeat_groups": 74,
+      "repeat_positive_groups": 74,
+      "positive_tokens": 154442432,
+      "signed_tokens": 154441152,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 104,
+            "min": 0.0023615999999999997,
+            "median": 0.047331750000000006,
+            "mean": 0.14850233846153846,
+            "max": 1.7729149000000002,
+            "p90": 0.42125440000000003
+          },
+          "total": 15.4442432,
+          "top1_share": 0.1147945468768583,
+          "top5_share": 0.29875152445151865,
+          "grant": {
+            "1": {
+              "exhausted": 1,
+              "coverage": 0.9499544982560233,
+              "residual": 0.7729149000000002
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 37,
+              "coverage": 0.38407953845223053,
+              "residual": 9.512425400000001
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 104,
+            "min": 0.010060415999999999,
+            "median": 0.201633255,
+            "mean": 0.6326199618461538,
+            "max": 7.552617474,
+            "p90": 1.794543744
+          },
+          "total": 65.792476032,
+          "top1_share": 0.1147945468768583,
+          "top5_share": 0.2987515244515186,
+          "grant": {
+            "1": {
+              "exhausted": 21,
+              "coverage": 0.6313851924313606,
+              "residual": 24.252080892
+            },
+            "2": {
+              "exhausted": 8,
+              "coverage": 0.8366395864966008,
+              "residual": 10.74788609
+            },
+            "5": {
+              "exhausted": 1,
+              "coverage": 0.9612019849692469,
+              "residual": 2.552617474
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 75,
+              "coverage": 0.13747601956188377,
+              "residual": 56.74758831
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 104,
+            "min": 0.023616,
+            "median": 0.4733175,
+            "mean": 1.4850233846153846,
+            "max": 17.729149,
+            "p90": 4.212544
+          },
+          "total": 154.442432,
+          "top1_share": 0.11479454687685829,
+          "top5_share": 0.29875152445151865,
+          "grant": {
+            "1": {
+              "exhausted": 37,
+              "coverage": 0.3840795384522306,
+              "residual": 95.124254
+            },
+            "2": {
+              "exhausted": 24,
+              "coverage": 0.579618954718351,
+              "residual": 64.924671
+            },
+            "5": {
+              "exhausted": 8,
+              "coverage": 0.8524468651205906,
+              "residual": 22.788465
+            },
+            "10": {
+              "exhausted": 1,
+              "coverage": 0.9499544982560233,
+              "residual": 7.729149
+            },
+            "0.1": {
+              "exhausted": 92,
+              "coverage": 0.06449668572947621,
+              "residual": 144.481407
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 104,
+            "min": 0.070848,
+            "median": 1.4199525,
+            "mean": 4.455070153846154,
+            "max": 53.187447,
+            "p90": 12.637632
+          },
+          "total": 463.327296,
+          "top1_share": 0.11479454687685829,
+          "top5_share": 0.2987515244515186,
+          "grant": {
+            "1": {
+              "exhausted": 66,
+              "coverage": 0.18286952383655808,
+              "residual": 378.598854
+            },
+            "2": {
+              "exhausted": 44,
+              "coverage": 0.2970823933498621,
+              "residual": 325.680914
+            },
+            "5": {
+              "exhausted": 27,
+              "coverage": 0.5228700361310032,
+              "residual": 221.067336
+            },
+            "10": {
+              "exhausted": 16,
+              "coverage": 0.7384022632674765,
+              "residual": 121.205372
+            },
+            "0.1": {
+              "exhausted": 100,
+              "coverage": 0.02225723390145354,
+              "residual": 453.014912
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 13,
+            "min": 0.013632,
+            "median": 0.080265216,
+            "mean": 0.10652254523076922,
+            "max": 0.370354176,
+            "p90": 0.15431424
+          },
+          "total": 1.384793088,
+          "top1_share": 0.2674436919199874,
+          "top5_share": 0.6811308867538196,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.6799338848230878,
+              "residual": 0.443225344
+            }
+          }
+        }
+      }
+    },
+    {
+      "cohort": "all",
+      "unit": "account_week",
+      "groups": 224,
+      "events": 871,
+      "positive_events": 869,
+      "event_count": {
+        "n": 224,
+        "min": 1,
+        "median": 2,
+        "mean": 3.888392857142857,
+        "max": 36,
+        "p90": 9
+      },
+      "repeat_groups": 142,
+      "repeat_positive_groups": 141,
+      "positive_tokens": 154442432,
+      "signed_tokens": 154441152,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 223,
+            "min": 0.0020992000000000003,
+            "median": 0.030399,
+            "mean": 0.06925669596412556,
+            "max": 1.4026368,
+            "p90": 0.16112640000000003
+          },
+          "total": 15.4442432,
+          "top1_share": 0.09081939346824064,
+          "top5_share": 0.21082882844010123,
+          "grant": {
+            "1": {
+              "exhausted": 1,
+              "coverage": 0.973929651664641,
+              "residual": 0.4026368
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 43,
+              "coverage": 0.6067342360938734,
+              "residual": 6.073692100000001
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 223,
+            "min": 0.008942592000000001,
+            "median": 0.12949974,
+            "mean": 0.2950335248071749,
+            "max": 5.975232768000001,
+            "p90": 0.686398464
+          },
+          "total": 65.792476032,
+          "top1_share": 0.09081939346824065,
+          "top5_share": 0.21082882844010126,
+          "grant": {
+            "1": {
+              "exhausted": 15,
+              "coverage": 0.8201993452526946,
+              "residual": 11.829530268
+            },
+            "2": {
+              "exhausted": 2,
+              "coverage": 0.9357178172479332,
+              "residual": 4.229283968000001
+            },
+            "5": {
+              "exhausted": 1,
+              "coverage": 0.9851771383778646,
+              "residual": 0.9752327680000006
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 132,
+              "coverage": 0.268606424774234,
+              "residual": 48.120194268
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 223,
+            "min": 0.020992,
+            "median": 0.30399,
+            "mean": 0.6925669596412556,
+            "max": 14.026368,
+            "p90": 1.611264
+          },
+          "total": 154.442432,
+          "top1_share": 0.09081939346824064,
+          "top5_share": 0.21082882844010126,
+          "grant": {
+            "1": {
+              "exhausted": 43,
+              "coverage": 0.6067342360938734,
+              "residual": 60.736921
+            },
+            "2": {
+              "exhausted": 18,
+              "coverage": 0.7830415478046863,
+              "residual": 33.507591
+            },
+            "5": {
+              "exhausted": 2,
+              "coverage": 0.9396696369039307,
+              "residual": 9.317568
+            },
+            "10": {
+              "exhausted": 1,
+              "coverage": 0.9739296516646411,
+              "residual": 4.026368
+            },
+            "0.1": {
+              "exhausted": 185,
+              "coverage": 0.13353940839263656,
+              "residual": 133.818281
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 223,
+            "min": 0.062976,
+            "median": 0.91197,
+            "mean": 2.0777008789237668,
+            "max": 42.079104,
+            "p90": 4.833792
+          },
+          "total": 463.327296,
+          "top1_share": 0.09081939346824065,
+          "top5_share": 0.21082882844010123,
+          "grant": {
+            "1": {
+              "exhausted": 102,
+              "coverage": 0.3439304750134989,
+              "residual": 303.974919
+            },
+            "2": {
+              "exhausted": 57,
+              "coverage": 0.5014948288304603,
+              "residual": 230.971053
+            },
+            "5": {
+              "exhausted": 22,
+              "coverage": 0.7393033778868924,
+              "residual": 120.787861
+            },
+            "10": {
+              "exhausted": 9,
+              "coverage": 0.8858446751214071,
+              "residual": 52.891278
+            },
+            "0.1": {
+              "exhausted": 211,
+              "coverage": 0.04753694459650398,
+              "residual": 441.30213200000003
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 13,
+            "min": 0.013632,
+            "median": 0.080265216,
+            "mean": 0.10652254523076922,
+            "max": 0.370354176,
+            "p90": 0.15431424
+          },
+          "total": 1.384793088,
+          "top1_share": 0.2674436919199874,
+          "top5_share": 0.6811308867538196,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.6799338848230878,
+              "residual": 0.443225344
+            }
+          }
+        }
+      }
+    },
+    {
+      "cohort": "all",
+      "unit": "session",
+      "groups": 560,
+      "events": 871,
+      "positive_events": 869,
+      "event_count": {
+        "n": 560,
+        "min": 1,
+        "median": 1,
+        "mean": 1.5553571428571429,
+        "max": 18,
+        "p90": 3
+      },
+      "repeat_groups": 139,
+      "repeat_positive_groups": 138,
+      "positive_tokens": 154442432,
+      "signed_tokens": 154441152,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 559,
+            "min": 0.00031360000000000003,
+            "median": 0.013862400000000002,
+            "mean": 0.027628342039355994,
+            "max": 0.6356608,
+            "p90": 0.058496
+          },
+          "total": 15.4442432,
+          "top1_share": 0.041158429828403634,
+          "top5_share": 0.132482969447153,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 22,
+              "coverage": 0.8348844182925066,
+              "residual": 2.5500852000000003
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 559,
+            "min": 0.001335936,
+            "median": 0.059053824,
+            "mean": 0.11769673708765652,
+            "max": 2.707915008,
+            "p90": 0.24919296
+          },
+          "total": 65.792476032,
+          "top1_share": 0.04115842982840364,
+          "top5_share": 0.13248296944715296,
+          "grant": {
+            "1": {
+              "exhausted": 7,
+              "coverage": 0.9429988054230402,
+              "residual": 3.750249728
+            },
+            "2": {
+              "exhausted": 2,
+              "coverage": 0.9830362122340988,
+              "residual": 1.1160895999999996
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 170,
+              "coverage": 0.5134836149587763,
+              "residual": 32.009117601999996
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 559,
+            "min": 0.003136,
+            "median": 0.138624,
+            "mean": 0.2762834203935599,
+            "max": 6.356608,
+            "p90": 0.58496
+          },
+          "total": 154.442432,
+          "top1_share": 0.041158429828403634,
+          "top5_share": 0.132482969447153,
+          "grant": {
+            "1": {
+              "exhausted": 22,
+              "coverage": 0.8348844182925065,
+              "residual": 25.500852000000002
+            },
+            "2": {
+              "exhausted": 8,
+              "coverage": 0.9258815090402099,
+              "residual": 11.44704
+            },
+            "5": {
+              "exhausted": 2,
+              "coverage": 0.9869880318900961,
+              "residual": 2.0096
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 353,
+              "coverage": 0.300612353734497,
+              "residual": 108.015129
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 559,
+            "min": 0.009408,
+            "median": 0.415872,
+            "mean": 0.8288502611806797,
+            "max": 19.069824,
+            "p90": 1.75488
+          },
+          "total": 463.327296,
+          "top1_share": 0.041158429828403634,
+          "top5_share": 0.13248296944715296,
+          "grant": {
+            "1": {
+              "exhausted": 113,
+              "coverage": 0.6041834323527531,
+              "residual": 183.39262
+            },
+            "2": {
+              "exhausted": 48,
+              "coverage": 0.7637303263911306,
+              "residual": 109.470189
+            },
+            "5": {
+              "exhausted": 11,
+              "coverage": 0.904400361510322,
+              "residual": 44.293922
+            },
+            "10": {
+              "exhausted": 3,
+              "coverage": 0.9638375028955773,
+              "residual": 16.755072
+            },
+            "0.1": {
+              "exhausted": 512,
+              "coverage": 0.11734421319308587,
+              "residual": 408.958519
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 15,
+            "min": 0.013632,
+            "median": 0.07852031999999999,
+            "mean": 0.0923195392,
+            "max": 0.20666112,
+            "p90": 0.16369305599999998
+          },
+          "total": 1.384793088,
+          "top1_share": 0.14923610017325564,
+          "top5_share": 0.5704835407150733,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.7905812308618341,
+              "residual": 0.29000166399999994
+            }
+          }
+        }
+      }
+    },
+    {
+      "cohort": "human",
+      "unit": "account_16w",
+      "groups": 104,
+      "events": 868,
+      "positive_events": 866,
+      "event_count": {
+        "n": 104,
+        "min": 1,
+        "median": 4,
+        "mean": 8.346153846153847,
+        "max": 48,
+        "p90": 24
+      },
+      "repeat_groups": 73,
+      "repeat_positive_groups": 73,
+      "positive_tokens": 154413824,
+      "signed_tokens": 154412544,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 103,
+            "min": 0.0023615999999999997,
+            "median": 0.0480289,
+            "mean": 0.14991633398058254,
+            "max": 1.7729149000000002,
+            "p90": 0.42125440000000003
+          },
+          "total": 15.441382400000002,
+          "top1_share": 0.11481581467731801,
+          "top5_share": 0.2988068736643683,
+          "grant": {
+            "1": {
+              "exhausted": 1,
+              "coverage": 0.9499452264066719,
+              "residual": 0.7729149000000002
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 37,
+              "coverage": 0.38396542786221005,
+              "residual": 9.512425400000001
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 103,
+            "min": 0.010060415999999999,
+            "median": 0.204603114,
+            "mean": 0.6386435827572815,
+            "max": 7.552617474,
+            "p90": 1.794543744
+          },
+          "total": 65.780289024,
+          "top1_share": 0.11481581467731801,
+          "top5_share": 0.29880687366436826,
+          "grant": {
+            "1": {
+              "exhausted": 21,
+              "coverage": 0.631316899760784,
+              "residual": 24.252080892
+            },
+            "2": {
+              "exhausted": 8,
+              "coverage": 0.8366093209764003,
+              "residual": 10.74788609
+            },
+            "5": {
+              "exhausted": 1,
+              "coverage": 0.9611947969236092,
+              "residual": 2.552617474
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 75,
+              "coverage": 0.13731622113585443,
+              "residual": 56.74758831
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 103,
+            "min": 0.023616,
+            "median": 0.480289,
+            "mean": 1.4991633398058253,
+            "max": 17.729149,
+            "p90": 4.212544
+          },
+          "total": 154.413824,
+          "top1_share": 0.11481581467731801,
+          "top5_share": 0.2988068736643683,
+          "grant": {
+            "1": {
+              "exhausted": 37,
+              "coverage": 0.38396542786221005,
+              "residual": 95.124254
+            },
+            "2": {
+              "exhausted": 24,
+              "coverage": 0.5795410714004466,
+              "residual": 64.924671
+            },
+            "5": {
+              "exhausted": 8,
+              "coverage": 0.8524195281893931,
+              "residual": 22.788465
+            },
+            "10": {
+              "exhausted": 1,
+              "coverage": 0.9499452264066719,
+              "residual": 7.729149
+            },
+            "0.1": {
+              "exhausted": 92,
+              "coverage": 0.06432336654003207,
+              "residual": 144.481407
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 103,
+            "min": 0.070848,
+            "median": 1.440867,
+            "mean": 4.497490019417476,
+            "max": 53.187447,
+            "p90": 12.637632
+          },
+          "total": 463.241472,
+          "top1_share": 0.11481581467731801,
+          "top5_share": 0.2988068736643683,
+          "grant": {
+            "1": {
+              "exhausted": 66,
+              "coverage": 0.1827181353918157,
+              "residual": 378.598854
+            },
+            "2": {
+              "exhausted": 44,
+              "coverage": 0.29695216493915294,
+              "residual": 325.680914
+            },
+            "5": {
+              "exhausted": 27,
+              "coverage": 0.5227816390325261,
+              "residual": 221.067336
+            },
+            "10": {
+              "exhausted": 16,
+              "coverage": 0.7383537974769236,
+              "residual": 121.205372
+            },
+            "0.1": {
+              "exhausted": 100,
+              "coverage": 0.022076089076929626,
+              "residual": 453.014912
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 13,
+            "min": 0.013632,
+            "median": 0.080265216,
+            "mean": 0.10652254523076922,
+            "max": 0.370354176,
+            "p90": 0.15431424
+          },
+          "total": 1.384793088,
+          "top1_share": 0.2674436919199874,
+          "top5_share": 0.6811308867538196,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.6799338848230878,
+              "residual": 0.443225344
+            }
+          }
+        }
+      }
+    },
+    {
+      "cohort": "human",
+      "unit": "account_week",
+      "groups": 223,
+      "events": 868,
+      "positive_events": 866,
+      "event_count": {
+        "n": 223,
+        "min": 1,
+        "median": 2,
+        "mean": 3.89237668161435,
+        "max": 36,
+        "p90": 9
+      },
+      "repeat_groups": 141,
+      "repeat_positive_groups": 140,
+      "positive_tokens": 154413824,
+      "signed_tokens": 154412544,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 222,
+            "min": 0.0020992000000000003,
+            "median": 0.0305563,
+            "mean": 0.06955577657657658,
+            "max": 1.4026368,
+            "p90": 0.16112640000000003
+          },
+          "total": 15.4413824,
+          "top1_share": 0.09083621943071625,
+          "top5_share": 0.21086788835693884,
+          "grant": {
+            "1": {
+              "exhausted": 1,
+              "coverage": 0.9739248216532738,
+              "residual": 0.4026368
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 43,
+              "coverage": 0.6066613763803946,
+              "residual": 6.073692100000001
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 222,
+            "min": 0.008942592000000001,
+            "median": 0.13016983799999998,
+            "mean": 0.2963076082162162,
+            "max": 5.975232768000001,
+            "p90": 0.686398464
+          },
+          "total": 65.780289024,
+          "top1_share": 0.09083621943071626,
+          "top5_share": 0.21086788835693884,
+          "grant": {
+            "1": {
+              "exhausted": 15,
+              "coverage": 0.8201660338755279,
+              "residual": 11.829530268
+            },
+            "2": {
+              "exhausted": 2,
+              "coverage": 0.9357059077916647,
+              "residual": 4.229283968000001
+            },
+            "5": {
+              "exhausted": 1,
+              "coverage": 0.985174392170211,
+              "residual": 0.9752327680000006
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 132,
+              "coverage": 0.2684709206667775,
+              "residual": 48.120194268
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 222,
+            "min": 0.020992,
+            "median": 0.30556300000000003,
+            "mean": 0.6955577657657658,
+            "max": 14.026368,
+            "p90": 1.611264
+          },
+          "total": 154.413824,
+          "top1_share": 0.09083621943071625,
+          "top5_share": 0.21086788835693884,
+          "grant": {
+            "1": {
+              "exhausted": 43,
+              "coverage": 0.6066613763803945,
+              "residual": 60.736921
+            },
+            "2": {
+              "exhausted": 18,
+              "coverage": 0.7830013522623467,
+              "residual": 33.507591
+            },
+            "5": {
+              "exhausted": 2,
+              "coverage": 0.939658459594913,
+              "residual": 9.317568
+            },
+            "10": {
+              "exhausted": 1,
+              "coverage": 0.9739248216532738,
+              "residual": 4.026368
+            },
+            "0.1": {
+              "exhausted": 185,
+              "coverage": 0.13337888063700826,
+              "residual": 133.818281
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 222,
+            "min": 0.062976,
+            "median": 0.916689,
+            "mean": 2.0866732972972972,
+            "max": 42.079104,
+            "p90": 4.833792
+          },
+          "total": 463.241472,
+          "top1_share": 0.09083621943071626,
+          "top5_share": 0.21086788835693882,
+          "grant": {
+            "1": {
+              "exhausted": 102,
+              "coverage": 0.34380892607128233,
+              "residual": 303.974919
+            },
+            "2": {
+              "exhausted": 57,
+              "coverage": 0.501402471581819,
+              "residual": 230.971053
+            },
+            "5": {
+              "exhausted": 22,
+              "coverage": 0.739255079044391,
+              "residual": 120.787861
+            },
+            "10": {
+              "exhausted": 9,
+              "coverage": 0.8858235257485755,
+              "residual": 52.891278
+            },
+            "0.1": {
+              "exhausted": 211,
+              "coverage": 0.047360483303187505,
+              "residual": 441.30213200000003
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 13,
+            "min": 0.013632,
+            "median": 0.080265216,
+            "mean": 0.10652254523076922,
+            "max": 0.370354176,
+            "p90": 0.15431424
+          },
+          "total": 1.384793088,
+          "top1_share": 0.2674436919199874,
+          "top5_share": 0.6811308867538196,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.6799338848230878,
+              "residual": 0.443225344
+            }
+          }
+        }
+      }
+    },
+    {
+      "cohort": "human",
+      "unit": "session",
+      "groups": 557,
+      "events": 868,
+      "positive_events": 866,
+      "event_count": {
+        "n": 557,
+        "min": 1,
+        "median": 1,
+        "mean": 1.5583482944344704,
+        "max": 18,
+        "p90": 3
+      },
+      "repeat_groups": 139,
+      "repeat_positive_groups": 138,
+      "positive_tokens": 154413824,
+      "signed_tokens": 154412544,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 556,
+            "min": 0.00031360000000000003,
+            "median": 0.013884800000000001,
+            "mean": 0.027772270503597124,
+            "max": 0.6356608,
+            "p90": 0.058496
+          },
+          "total": 15.4413824,
+          "top1_share": 0.04116605518428195,
+          "top5_share": 0.13250751435311908,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 22,
+              "coverage": 0.8348538275951252,
+              "residual": 2.5500852000000003
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 556,
+            "min": 0.001335936,
+            "median": 0.059149248,
+            "mean": 0.11830987234532374,
+            "max": 2.707915008,
+            "p90": 0.24919296
+          },
+          "total": 65.780289024,
+          "top1_share": 0.04116605518428195,
+          "top5_share": 0.13250751435311903,
+          "grant": {
+            "1": {
+              "exhausted": 7,
+              "coverage": 0.9429882449037018,
+              "residual": 3.750249728
+            },
+            "2": {
+              "exhausted": 2,
+              "coverage": 0.9830330693805133,
+              "residual": 1.1160895999999996
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 170,
+              "coverage": 0.5133934788531951,
+              "residual": 32.009117601999996
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 556,
+            "min": 0.003136,
+            "median": 0.138848,
+            "mean": 0.27772270503597124,
+            "max": 6.356608,
+            "p90": 0.58496
+          },
+          "total": 154.413824,
+          "top1_share": 0.041166055184281944,
+          "top5_share": 0.13250751435311905,
+          "grant": {
+            "1": {
+              "exhausted": 22,
+              "coverage": 0.8348538275951252,
+              "residual": 25.500852000000002
+            },
+            "2": {
+              "exhausted": 8,
+              "coverage": 0.9258677772269922,
+              "residual": 11.44704
+            },
+            "5": {
+              "exhausted": 2,
+              "coverage": 0.9869856211837613,
+              "residual": 2.0096
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 353,
+              "coverage": 0.30048277931385214,
+              "residual": 108.015129
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 556,
+            "min": 0.009408,
+            "median": 0.416544,
+            "mean": 0.8331681151079137,
+            "max": 19.069824,
+            "p90": 1.75488
+          },
+          "total": 463.241472,
+          "top1_share": 0.04116605518428195,
+          "top5_share": 0.13250751435311905,
+          "grant": {
+            "1": {
+              "exhausted": 113,
+              "coverage": 0.6041101000559812,
+              "residual": 183.39262
+            },
+            "2": {
+              "exhausted": 48,
+              "coverage": 0.7636865530899617,
+              "residual": 109.470189
+            },
+            "5": {
+              "exhausted": 11,
+              "coverage": 0.9043826499195651,
+              "residual": 44.293922
+            },
+            "10": {
+              "exhausted": 3,
+              "coverage": 0.963830803128093,
+              "residual": 16.755072
+            },
+            "0.1": {
+              "exhausted": 512,
+              "coverage": 0.11718068497977661,
+              "residual": 408.958519
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 15,
+            "min": 0.013632,
+            "median": 0.07852031999999999,
+            "mean": 0.0923195392,
+            "max": 0.20666112,
+            "p90": 0.16369305599999998
+          },
+          "total": 1.384793088,
+          "top1_share": 0.14923610017325564,
+          "top5_share": 0.5704835407150733,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.7905812308618341,
+              "residual": 0.29000166399999994
+            }
+          }
+        }
+      }
+    },
+    {
+      "cohort": "human_top",
+      "unit": "account_16w",
+      "groups": 103,
+      "events": 856,
+      "positive_events": 855,
+      "event_count": {
+        "n": 103,
+        "min": 1,
+        "median": 4,
+        "mean": 8.310679611650485,
+        "max": 48,
+        "p90": 24
+      },
+      "repeat_groups": 73,
+      "repeat_positive_groups": 73,
+      "positive_tokens": 153601463,
+      "signed_tokens": 153600759,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 103,
+            "min": 0.0023615999999999997,
+            "median": 0.0480289,
+            "mean": 0.1491276339805825,
+            "max": 1.7729149000000002,
+            "p90": 0.41402880000000003
+          },
+          "total": 15.3601463,
+          "top1_share": 0.11542304776094484,
+          "top5_share": 0.29990136226762376,
+          "grant": {
+            "1": {
+              "exhausted": 1,
+              "coverage": 0.9496804988113948,
+              "residual": 0.7729149000000002
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 36,
+              "coverage": 0.38486839803081824,
+              "residual": 9.448511400000001
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 103,
+            "min": 0.010060415999999999,
+            "median": 0.204603114,
+            "mean": 0.6352837207572816,
+            "max": 7.552617474,
+            "p90": 1.763762688
+          },
+          "total": 65.434223238,
+          "top1_share": 0.11542304776094482,
+          "top5_share": 0.2999013622676237,
+          "grant": {
+            "1": {
+              "exhausted": 21,
+              "coverage": 0.6305286795861269,
+              "residual": 24.176068859999997
+            },
+            "2": {
+              "exhausted": 8,
+              "coverage": 0.8362310158856324,
+              "residual": 10.716096266
+            },
+            "5": {
+              "exhausted": 1,
+              "coverage": 0.9609895655868715,
+              "residual": 2.552617474
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 75,
+              "coverage": 0.13804245342908553,
+              "residual": 56.401522524
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 103,
+            "min": 0.023616,
+            "median": 0.480289,
+            "mean": 1.4912763398058253,
+            "max": 17.729149,
+            "p90": 4.140288
+          },
+          "total": 153.601463,
+          "top1_share": 0.11542304776094484,
+          "top5_share": 0.29990136226762376,
+          "grant": {
+            "1": {
+              "exhausted": 36,
+              "coverage": 0.38486839803081824,
+              "residual": 94.485114
+            },
+            "2": {
+              "exhausted": 24,
+              "coverage": 0.5784790213879669,
+              "residual": 64.746239
+            },
+            "5": {
+              "exhausted": 8,
+              "coverage": 0.8521248394619783,
+              "residual": 22.713841
+            },
+            "10": {
+              "exhausted": 1,
+              "coverage": 0.9496804988113947,
+              "residual": 7.729149
+            },
+            "0.1": {
+              "exhausted": 92,
+              "coverage": 0.06466355727353978,
+              "residual": 143.669046
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 103,
+            "min": 0.070848,
+            "median": 1.440867,
+            "mean": 4.473829019417476,
+            "max": 53.187447,
+            "p90": 12.420864
+          },
+          "total": 460.804389,
+          "top1_share": 0.11542304776094482,
+          "top5_share": 0.2999013622676237,
+          "grant": {
+            "1": {
+              "exhausted": 66,
+              "coverage": 0.18368448743225838,
+              "residual": 376.161771
+            },
+            "2": {
+              "exhausted": 44,
+              "coverage": 0.2985226731423341,
+              "residual": 323.243831
+            },
+            "5": {
+              "exhausted": 27,
+              "coverage": 0.5214194021055646,
+              "residual": 220.53204
+            },
+            "10": {
+              "exhausted": 16,
+              "coverage": 0.7381316695748746,
+              "residual": 120.670076
+            },
+            "0.1": {
+              "exhausted": 100,
+              "coverage": 0.022192844174494183,
+              "residual": 450.577829
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 13,
+            "min": 0.013632,
+            "median": 0.080265216,
+            "mean": 0.10652254523076922,
+            "max": 0.370354176,
+            "p90": 0.15431424
+          },
+          "total": 1.384793088,
+          "top1_share": 0.2674436919199874,
+          "top5_share": 0.6811308867538196,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.6799338848230878,
+              "residual": 0.443225344
+            }
+          }
+        }
+      }
+    },
+    {
+      "cohort": "human_top",
+      "unit": "account_week",
+      "groups": 222,
+      "events": 856,
+      "positive_events": 855,
+      "event_count": {
+        "n": 222,
+        "min": 1,
+        "median": 2,
+        "mean": 3.855855855855856,
+        "max": 36,
+        "p90": 9
+      },
+      "repeat_groups": 140,
+      "repeat_positive_groups": 139,
+      "positive_tokens": 153601463,
+      "signed_tokens": 153600759,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 222,
+            "min": 0.0020992000000000003,
+            "median": 0.0305563,
+            "mean": 0.0691898481981982,
+            "max": 1.4026368,
+            "p90": 0.16112640000000003
+          },
+          "total": 15.3601463,
+          "top1_share": 0.09131663023287741,
+          "top5_share": 0.21198311763475847,
+          "grant": {
+            "1": {
+              "exhausted": 1,
+              "coverage": 0.9737869163394622,
+              "residual": 0.4026368
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 43,
+              "coverage": 0.6055682360265019,
+              "residual": 6.0585296
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 222,
+            "min": 0.008942592000000001,
+            "median": 0.13016983799999998,
+            "mean": 0.2947487533243243,
+            "max": 5.975232768000001,
+            "p90": 0.686398464
+          },
+          "total": 65.434223238,
+          "top1_share": 0.09131663023287741,
+          "top5_share": 0.21198311763475847,
+          "grant": {
+            "1": {
+              "exhausted": 15,
+              "coverage": 0.8196853476951179,
+              "residual": 11.798749212
+            },
+            "2": {
+              "exhausted": 2,
+              "coverage": 0.9353658718830193,
+              "residual": 4.229283968000001
+            },
+            "5": {
+              "exhausted": 1,
+              "coverage": 0.9850959831149391,
+              "residual": 0.9752327680000006
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 131,
+              "coverage": 0.26860188635651333,
+              "residual": 47.858467444
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 222,
+            "min": 0.020992,
+            "median": 0.30556300000000003,
+            "mean": 0.691898481981982,
+            "max": 14.026368,
+            "p90": 1.611264
+          },
+          "total": 153.601463,
+          "top1_share": 0.09131663023287741,
+          "top5_share": 0.2119831176347585,
+          "grant": {
+            "1": {
+              "exhausted": 43,
+              "coverage": 0.6055682360265019,
+              "residual": 60.585296
+            },
+            "2": {
+              "exhausted": 18,
+              "coverage": 0.7823241110665724,
+              "residual": 33.435335
+            },
+            "5": {
+              "exhausted": 2,
+              "coverage": 0.9393393277771059,
+              "residual": 9.317568
+            },
+            "10": {
+              "exhausted": 1,
+              "coverage": 0.9737869163394622,
+              "residual": 4.026368
+            },
+            "0.1": {
+              "exhausted": 184,
+              "coverage": 0.13380653802757075,
+              "residual": 133.048583
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 222,
+            "min": 0.062976,
+            "median": 0.916689,
+            "mean": 2.075695445945946,
+            "max": 42.079104,
+            "p90": 4.833792
+          },
+          "total": 460.804389,
+          "top1_share": 0.09131663023287741,
+          "top5_share": 0.21198311763475844,
+          "grant": {
+            "1": {
+              "exhausted": 101,
+              "coverage": 0.3440862908100469,
+              "residual": 302.247916
+            },
+            "2": {
+              "exhausted": 56,
+              "coverage": 0.500343192260697,
+              "residual": 230.24405
+            },
+            "5": {
+              "exhausted": 22,
+              "coverage": 0.7385518890966987,
+              "residual": 120.476437
+            },
+            "10": {
+              "exhausted": 9,
+              "coverage": 0.8856900861679944,
+              "residual": 52.67451
+            },
+            "0.1": {
+              "exhausted": 211,
+              "coverage": 0.04761096144854645,
+              "residual": 438.865049
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 13,
+            "min": 0.013632,
+            "median": 0.080265216,
+            "mean": 0.10652254523076922,
+            "max": 0.370354176,
+            "p90": 0.15431424
+          },
+          "total": 1.384793088,
+          "top1_share": 0.2674436919199874,
+          "top5_share": 0.6811308867538196,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.6799338848230878,
+              "residual": 0.443225344
+            }
+          }
+        }
+      }
+    },
+    {
+      "cohort": "human_top",
+      "unit": "session",
+      "groups": 545,
+      "events": 856,
+      "positive_events": 855,
+      "event_count": {
+        "n": 545,
+        "min": 1,
+        "median": 1,
+        "mean": 1.5706422018348625,
+        "max": 18,
+        "p90": 3
+      },
+      "repeat_groups": 139,
+      "repeat_positive_groups": 138,
+      "positive_tokens": 153601463,
+      "signed_tokens": 153600759,
+      "price": {
+        "tokens/0.1": {
+          "stats": {
+            "n": 545,
+            "min": 0.00031360000000000003,
+            "median": 0.014103800000000001,
+            "mean": 0.028183754678899085,
+            "max": 0.6356608,
+            "p90": 0.0597248
+          },
+          "total": 15.3601463,
+          "top1_share": 0.04138377249701066,
+          "top5_share": 0.13320831455882684,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 22,
+              "coverage": 0.833980409418366,
+              "residual": 2.5500852000000003
+            }
+          }
+        },
+        "tokens/0.426": {
+          "stats": {
+            "n": 545,
+            "min": 0.001335936,
+            "median": 0.060082188,
+            "mean": 0.1200627949321101,
+            "max": 2.707915008,
+            "p90": 0.254427648
+          },
+          "total": 65.434223238,
+          "top1_share": 0.041383772497010654,
+          "top5_share": 0.1332083145588268,
+          "grant": {
+            "1": {
+              "exhausted": 7,
+              "coverage": 0.9426867235153165,
+              "residual": 3.750249728
+            },
+            "2": {
+              "exhausted": 2,
+              "coverage": 0.9829433353867363,
+              "residual": 1.1160895999999996
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 170,
+              "coverage": 0.5108199346147176,
+              "residual": 32.009117601999996
+            }
+          }
+        },
+        "tokens/1.0": {
+          "stats": {
+            "n": 545,
+            "min": 0.003136,
+            "median": 0.141038,
+            "mean": 0.2818375467889908,
+            "max": 6.356608,
+            "p90": 0.597248
+          },
+          "total": 153.601463,
+          "top1_share": 0.041383772497010654,
+          "top5_share": 0.13320831455882684,
+          "grant": {
+            "1": {
+              "exhausted": 22,
+              "coverage": 0.8339804094183659,
+              "residual": 25.500852000000002
+            },
+            "2": {
+              "exhausted": 8,
+              "coverage": 0.9254757098244566,
+              "residual": 11.44704
+            },
+            "5": {
+              "exhausted": 2,
+              "coverage": 0.9869167912808225,
+              "residual": 2.0096
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 350,
+              "coverage": 0.29716465656319957,
+              "residual": 107.956537
+            }
+          }
+        },
+        "tokens/3.0": {
+          "stats": {
+            "n": 545,
+            "min": 0.009408,
+            "median": 0.423114,
+            "mean": 0.8455126403669725,
+            "max": 19.069824,
+            "p90": 1.791744
+          },
+          "total": 460.804389,
+          "top1_share": 0.041383772497010654,
+          "top5_share": 0.1332083145588268,
+          "grant": {
+            "1": {
+              "exhausted": 113,
+              "coverage": 0.6020163340935539,
+              "residual": 183.39262
+            },
+            "2": {
+              "exhausted": 48,
+              "coverage": 0.7624367484051894,
+              "residual": 109.470189
+            },
+            "5": {
+              "exhausted": 11,
+              "coverage": 0.9038769528733807,
+              "residual": 44.293922
+            },
+            "10": {
+              "exhausted": 3,
+              "coverage": 0.9636395129908366,
+              "residual": 16.755072
+            },
+            "0.1": {
+              "exhausted": 503,
+              "coverage": 0.11552273865169284,
+              "residual": 407.571004
+            }
+          }
+        },
+        "deepseek/0.426": {
+          "stats": {
+            "n": 15,
+            "min": 0.013632,
+            "median": 0.07852031999999999,
+            "mean": 0.0923195392,
+            "max": 0.20666112,
+            "p90": 0.16369305599999998
+          },
+          "total": 1.384793088,
+          "top1_share": 0.14923610017325564,
+          "top5_share": 0.5704835407150733,
+          "grant": {
+            "1": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "2": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "5": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "10": {
+              "exhausted": 0,
+              "coverage": 1,
+              "residual": 0
+            },
+            "0.1": {
+              "exhausted": 5,
+              "coverage": 0.7905812308618341,
+              "residual": 0.29000166399999994
+            }
+          }
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Severe event subset from R32, not all cache changes. Unique request keys checked. Account hashes joined only internally; no IDs published. Stable release salt verified; no real identity or distinct-person claim.",
+    "Each positive absolute cached-token decline counted once, no overlapping continuation windows. Not a causal cost; comparison preserves preceding request's cached token count; signed total separately.",
+    "Generic reference price spread sensitivity, not actual supplier invoices. DeepSeek historical reference rate applied only two final weeks; not verified actual deployment.",
+    "One grant per group, usable only for reference exposure, no other usage, no expiry within group; no actual grant exhaustion or welfare inference."
+  ]
+}
