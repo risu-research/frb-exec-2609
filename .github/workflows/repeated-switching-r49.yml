@@ -1,0 +1,135 @@
+name: Repeated switching and finite credit R49
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/repeated-switching-r49.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        part: [0,1,2,3]
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'huggingface_hub==0.36.0' 'pyarrow==21.0.0' 'numpy==2.2.6'
+      - name: Scan frozen trace and account-week aggregates
+        env:
+          PART: ${{ matrix.part }}
+        run: |
+          cat > expected.json <<'JSON'
+          {"2026-05-17_2026-05-23":{"sha256":"6772d28dee9df407dac2064cf5758a481baf1b8576600965a8cbf47266844d90","requests":10738},"2026-05-24_2026-05-30":{"sha256":"a045b793e1de0aed6e877f59e1699b6b496a55b9a522465eacfb9b8d7ad6e4d7","requests":12827},"2026-05-31_2026-06-06":{"sha256":"bfb76d58fc23d5afe92bdb3f9503cf0c19cb983586744706f47b5f94bd0f2d69","requests":7324},"2026-06-07_2026-06-13":{"sha256":"81c8642eed8141a6911d9321be96454d1620acf4d4e36faa50a80c8c59ca80c5","requests":6859},"2026-06-14_2026-06-20":{"sha256":"1e3ee32ffe76fce288ea4b71c79fd6af34c97c7dc9bef3050269276ae370576f","requests":35659},"2026-06-21_2026-06-27":{"sha256":"82e639ac17c4560e05c5f4cbc4b24cad9fb8f006c5f8b8a79fff1f8fcf27d4a8","requests":56310},"2026-06-28_2026-07-04":{"sha256":"d146b14e3353a675b0c9427ee013df5fd022370ce57649df29ee2e8c7bb72efc","requests":50615},"2026-07-05_2026-07-11":{"sha256":"502b4635f3d9b87b42523c181c0dcef4e91f918b8c104cc628e79bd42affaa20","requests":68302},"2026-07-12_2026-07-18":{"sha256":"b479e68289f78cc184c650996d0d7cbc07fa5169a5ccc6a6dc8939d2e536b024","requests":72025},"2026-07-19_2026-07-25":{"sha256":"764616d813311357fd19cc99ecd2e167fcbf14132f9fa8fbfcb1fc19595ccef9","requests":78804},"2026-07-26_2026-08-01":{"sha256":"16466f33e7fec987a621a1374baf272d7d9943fd5062ab2cb7ee2ad113a29eaf","requests":84524},"2026-08-02_2026-08-08":{"sha256":"f1cdcf63fb579b2c51de3a56025cb3a03d06bc1e45e82a0a79cb53d4c5ac7820","requests":79546},"2026-08-09_2026-08-15":{"sha256":"cb11c50b6dc9f35d8cff5385768a77c8618c3aff03113f28e7ac8c17a5ffbae7","requests":163970},"2026-08-16_2026-08-22":{"sha256":"b707132fd02d13cd9ac3570990eea566933344d308990e6669ae4f686ddc9856","requests":144227},"2026-08-23_2026-08-29":{"sha256":"27bd0ad8367a4176d5bff29e88820ccc0cda814f882a3c05ecc99da08931d23f","requests":159925},"2026-08-30_2026-09-05":{"sha256":"e8f4f987f00442348ac09b1d6dc8865cf3dde299944423d54402f620244d3a6a","requests":190544}}
+          JSON
+          cat > audit.py <<'PY'
+          import json,pathlib,tempfile,hashlib,collections as C,statistics as S,os
+          import numpy as np
+          import pyarrow.parquet as pq
+          from huggingface_hub import hf_hub_download
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          EXP=json.loads(pathlib.Path("expected.json").read_text())
+          def valid(r):
+           p,c,o=[r[k] for k in ("prompt_tokens","cache_read_tokens","completion_tokens")]
+           return p is not None and c is not None and o is not None and p>0 and 0<=c<=p and o>=0 and bool(r["provider"]) and bool(r["model"]) and r["start_ms"] is not None and r["end_ms"] is not None and r["end_ms"]>=r["start_ms"]
+          def adjacent(a,b):
+           return a["session_id"]==b["session_id"] and b["step"]==a["step"]+1 and a["model"]==b["model"] and b["start_ms"]>=a["end_ms"]
+          def summary(rr):
+           a=C.Counter()
+           for r in rr:a.update(r)
+           out=dict(a)
+           for k in ("switch","eligible_switch","severe","positive","loss","signed_loss","deepseek_loss"):
+            v=[r[k] for r in rr if r.get(k,0)>0]
+            out[k+"_positive_groups"]=len(v)
+            out[k+"_positive_median"]=S.median(v) if v else 0
+            out[k+"_positive_max"]=max(v,default=0)
+            out[k+"_positive_p90"]=float(np.quantile(v,.9)) if v else 0
+            out[k+"_positive_ge2"]=sum(x>=2 for x in v)
+           for k,rate in [("loss",.426),("loss",1.),("loss",3.),("deepseek_loss",.426)]:
+            vs=[r[k]*rate/1e6 for r in rr if r.get(k,0)>0]
+            z=dict(n=len(vs),total=sum(vs),median=S.median(vs) if vs else 0,max=max(vs,default=0))
+            for cap in (.1,1,2,5,10):
+             z[str(cap)]=dict(exhausted=sum(x>cap+1e-12 for x in vs),residual=sum(max(0,x-cap) for x in vs),covered=sum(min(x,cap) for x in vs))
+            out["credit_"+k+"_"+str(rate)]=z
+           return out
+          def audit(week,e):
+           wc=C.Counter();classes=C.defaultdict(C.Counter);sessions={};users=C.defaultdict(C.Counter);meta={}
+           with tempfile.TemporaryDirectory() as td:
+            sf=hf_hub_download(REPO,f"release/{week}/processed/sessions.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+            with open(sf,"rb") as f:meta_hash=hashlib.file_digest(f,"sha256").hexdigest()
+            for r in pq.read_table(sf,columns=["session_id","user_id","harness","parent_session_id"]).to_pylist():
+             assert r["session_id"] not in meta;meta[r["session_id"]]=r
+            f=hf_hub_download(REPO,f"release/{week}/processed/requests.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+            with open(f,"rb") as v:assert hashlib.file_digest(v,"sha256").hexdigest()==e["sha256"]
+            pf=pq.ParquetFile(f);assert pf.metadata.num_rows==e["requests"]
+            prev=None;seen={};sid=None
+            for batch in pf.iter_batches(batch_size=96,columns="session_id step model provider prompt_tokens completion_tokens cache_read_tokens start_ms end_ms step_trigger block_ids".split()):
+             ba=batch.column(batch.schema.get_field_index("block_ids"));off=ba.offsets.to_numpy();flat=ba.values.to_numpy(zero_copy_only=False);null=ba.is_null().to_numpy(zero_copy_only=False)
+             for i,r in enumerate(batch.drop_columns(["block_ids"]).to_pylist()):
+              wc["requests"]+=1
+              r["blocks"]=None if null[i] else flat[off[i]:off[i+1]].copy()
+              if r["session_id"]!=sid:
+               sid=r["session_id"];assert sid not in sessions;assert sid in meta
+               sessions[sid]=C.Counter(sessions=1);prev=None;seen={}
+              z=sessions[sid];z["requests"]+=1
+              human=meta[sid]["harness"]!="eval:swe-bench" and meta[sid]["harness"]!="swe-bench"
+              if valid(r) and prev is not None and valid(prev) and adjacent(prev,r):
+               a=prev;z["same_model_pairs"]+=1
+               sw=a["provider"]!=r["provider"]
+               if sw:z["switch"]+=1
+               prefix=a["blocks"] is not None and r["blocks"] is not None and 0<len(a["blocks"])<=len(r["blocks"]) and np.array_equal(a["blocks"],r["blocks"][:len(a["blocks"])])
+               high=a["cache_read_tokens"]*10>=9*a["prompt_tokens"]
+               if prefix and high:
+                z["eligible_switch" if sw else "eligible_same"]+=1
+                delta=min(r["prompt_tokens"],a["cache_read_tokens"])-r["cache_read_tokens"]
+                severe=a["cache_read_tokens"]/a["prompt_tokens"]-r["cache_read_tokens"]/r["prompt_tokens"]>.5
+                if sw:
+                 z["severe"]+=int(severe);z["positive"]+=int(delta>0);z["loss"]+=max(delta,0);z["signed_loss"]+=delta
+                 z["severe_loss"]+=max(delta,0)*int(severe)
+                 if week>="2026-08-23" and r["model"]=="deepseek-v4-flash":z["deepseek_loss"]+=max(delta,0)
+                else:z["same_loss"]+=max(delta,0);z["same_positive"]+=int(delta>0)
+                if sw:
+                 old=seen.get((r["model"],r["provider"]))
+                 typ="return" if old is not None else "first_visit"
+                 # Compare to a previously observed request on the return route, not identity of physical cache.
+                 sameprefix=old is not None and old["blocks"] is not None and r["blocks"] is not None and 0<len(old["blocks"])<=len(r["blocks"]) and np.array_equal(old["blocks"],r["blocks"][:len(old["blocks"])])
+                 lag=r["start_ms"]-old["end_ms"] if old is not None else None
+                 for cohort in ("all","human") if human else ("all",):
+                  for window in ["all"]+(["gap_le60"] if r["start_ms"]-a["end_ms"]<=60000 else []):
+                   c=classes[(cohort,window,typ)];c["n"]+=1;c["severe"]+=int(severe);c["positive"]+=int(delta>0);c["loss"]+=max(delta,0);c["signed_loss"]+=delta;c["high_after"]+=int(r["cache_read_tokens"]*10>=9*r["prompt_tokens"]);c["zero_after"]+=int(r["cache_read_tokens"]==0)
+                   if sameprefix and lag>=0:
+                    c["old_prefix"]+=1;c["old_cached_preserved"]+=int(r["cache_read_tokens"]>=old["cache_read_tokens"]);c["old_prefix_high_after"]+=int(r["cache_read_tokens"]*10>=9*r["prompt_tokens"]);c["old_prefix_severe"]+=int(severe)
+                    c["old_prefix_le600s"]+=int(lag<=600000);c["old_prefix_le600s_high"]+=int(lag<=600000 and r["cache_read_tokens"]*10>=9*r["prompt_tokens"])
+              if valid(r):seen[(r["model"],r["provider"])]=r
+              prev=r
+            assert wc["requests"]==e["requests"]
+            # Same week account hash only; include child requests once, exclude benchmark for human cohort.
+            for sid,r in sessions.items():
+             m=meta[sid]
+             if m["harness"] not in ("eval:swe-bench","swe-bench") and m["user_id"]:users[m["user_id"]].update(r)
+            human=[r for s,r in sessions.items() if meta[s]["harness"] not in ("eval:swe-bench","swe-bench")]
+            top=[r for s,r in sessions.items() if not meta[s]["parent_session_id"]]
+            bench=[r for s,r in sessions.items() if meta[s]["harness"] in ("eval:swe-bench","swe-bench")]
+            # Histograms and counts are aggregated only; no user or session IDs published.
+            cohorts={"all_session":list(sessions.values()),"human_session":human,"top_session":top,"benchmark_session":bench,"human_user_week":list(users.values())}
+            out=dict(week=week,request_sha256=e["sha256"],session_sha256=meta_hash,metadata_sessions=len(meta),harnesses=dict(C.Counter(m["harness"] for m in meta.values())),cohorts={k:summary(v) for k,v in cohorts.items()},route_classes=[dict(cohort=k[0],window=k[1],type=k[2],counts=v) for k,v in sorted(classes.items())])
+            # Compact per-group amounts without IDs for aggregation across weeks.
+            out["distributions"]={k:[{x:r.get(x,0) for x in ("switch","eligible_switch","severe","positive","loss","signed_loss","deepseek_loss")} for r in v if r.get("switch",0)>0] for k,v in cohorts.items()}
+            return out
+          part=int(os.environ["PART"])
+          for week,e in list(sorted(EXP.items()))[part*4:(part+1)*4]:
+           r=audit(week,e);pathlib.Path("r49-results").mkdir(exist_ok=True);pathlib.Path("r49-results",week+".json").write_text(json.dumps(r))
+           print("R49_WEEK",json.dumps(r,separators=(",",":")),flush=True)
+          
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: repeated-switching-r49-${{ matrix.part }}
+          path: r49-results/
+          retention-days: 14
