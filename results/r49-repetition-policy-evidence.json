@@ -1,0 +1,61 @@
+{
+  "as_of": "2026-11-26",
+  "sources": [
+    {
+      "url": "https://huggingface.co/datasets/harvardMadsys/freeinference_agentic_trace",
+      "locator": "Notes, Traces",
+      "facts": "Normalized o200k_base 16-token chained blocks; week-local block IDs and reconstructed session boundaries; provider reported token counts; nested subagents."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/freeinference_agentic_trace/blob/main/export/privacy/pseudonyms.py",
+      "facts": "Same raw account ID maps to same keyed hash across releases using fixed salt; provider letters use stable private map. Validate release salt_series across all weeks before longitudinal aggregation."
+    },
+    {
+      "url": "https://github.com/HarvardMadSys/freeinference_agentic_trace/blob/main/release/population.py",
+      "facts": "BENCHMARK_HARNESS = eval:swe-bench; exclude for human-driven sensitivity."
+    },
+    {
+      "url": "https://openrouter.ai/docs/guides/best-practices/prompt-caching",
+      "facts": "Sticky routing preserves provider cache when feasible; session_id preferred routing, not unconditional availability."
+    },
+    {
+      "url": "https://openrouter.ai/blog/announcements/how-we-rebuilt-provider-routing/",
+      "date": "2026-10-28",
+      "facts": "Production switchback measured higher average cost alongside improved performance/reliability; cache-aware routing. No causal or welfare inference from our traces."
+    },
+    {
+      "url": "https://learn.openrouter.ai/courses/what-is-openrouter/how-routing-works",
+      "facts": "Fallback on error or rate limit unless restricted to one provider; subsequent requests remain on warm provider when possible."
+    },
+    {
+      "url": "https://openrouter.ai/terms/",
+      "locator": "4.2 Credit Expiration; Auto Recharge",
+      "facts": "Purchased credit expiry possible after 365 days; purchased/promotional credits may be used in provider-determined order."
+    },
+    {
+      "url": "https://huggingface.co/pricing",
+      "facts": "PRO $2 monthly included inference credits; not dedicated switching grant."
+    },
+    {
+      "url": "https://vercel.com/docs/ai-gateway/pricing",
+      "facts": "Monthly free tier ceases after credit purchase; not unrestricted switching compensation."
+    },
+    {
+      "url": "https://academic.oup.com/qje/article-abstract/102/2/375/1931195",
+      "facts": "Klemperer (1987), Markets with Consumer Switching Costs; existing IO theory."
+    },
+    {
+      "url": "https://ora.ox.ac.uk/objects/uuid%3Aaea6ae27-e25e-404a-85f7-841ea45ae53b/files/mebccb479a9b0306cb13b430fde14d530",
+      "facts": "Beggs and Klemperer (1992), Multi-period Competition with Switching Costs; repeated competition well-established."
+    }
+  ],
+  "estimands": {
+    "event": "One adjacent request pair, same model, provider change, previous observed hit >=90%, exact normalized prefix retention, valid nonoverlapping timing and token counts.",
+    "exposure": "max(0,min(current prompt,previous cached)-current cached); also signed difference; no overlapping future work costs; not causal cache-miss attribution.",
+    "return": "Provider previously observed in same reconstructed session and same model; check prior-route prefix and cached count; not actual same cache object or known voluntary multi-homing.",
+    "credits": "One hypothetical dedicated credit per session/account-week/account across entire period; no ordinary consumption, no expiration; generic price-spread sensitivities and dated DeepSeek reference separately."
+  },
+  "limitations": [
+    "No actual account balance, supplier identity, private price, contract, grant, causal event reason, or behavior response. Human cohort excludes tagged benchmark, not independent individuals; no published account IDs. Distinguish financial exposure from actual market power."
+  ]
+}
