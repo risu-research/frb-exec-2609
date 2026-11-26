@@ -1,0 +1,85 @@
+name: Severe-event longitudinal credit concentration R49
+on:
+  push:
+    branches: [experiment/continuation-cache-audit-20261123]
+    paths: ['.github/workflows/longitudinal-credit-r49.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: continuation-cache-audit-results
+          path: capture
+          run-id: 45316568340
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'huggingface_hub==0.36.0' 'pyarrow==21.0.0'
+      - name: Join pinned session metadata and sum unique severe events
+        run: |
+          cat > audit.py <<'PY'
+          import json,gzip,pathlib,collections as C,hashlib,statistics as S,tempfile
+          import pyarrow.parquet as pq
+          from huggingface_hub import hf_hub_download,HfApi
+          REV="bb26cf72c9c20f2b05f765d88548156a74d3c253";REPO="harvardMadsys/freeinference_agentic_trace"
+          p=pathlib.Path("capture/events.jsonl.gz")
+          with gzip.open(p,"rt") as f:events=[json.loads(x) for x in f]
+          assert len(events)==922
+          assert len({(e["week"],e["session_id"],e["step"]) for e in events})==len(events)
+          ev=[e for e in events if e["type"]=="provider_only"]
+          assert len(ev)==871
+          info=HfApi().dataset_info(REPO,revision=REV,files_metadata=True);assert info.sha==REV
+          weeks=sorted({s.rfilename.split("/")[1] for s in info.siblings if s.rfilename.endswith("/processed/sessions.parquet")});assert len(weeks)==16
+          meta={};series=set();hashes=[];allusers=set();top=0
+          with tempfile.TemporaryDirectory() as td:
+            for w in weeks:
+              f=hf_hub_download(REPO,f"release/{w}/manifest.json",repo_type="dataset",revision=REV,cache_dir=td)
+              m=json.loads(pathlib.Path(f).read_text());series.add(m["salt_series"])
+              f=hf_hub_download(REPO,f"release/{w}/processed/sessions.parquet",repo_type="dataset",revision=REV,cache_dir=td)
+              with open(f,"rb") as h:sha=hashlib.file_digest(h,"sha256").hexdigest()
+              rr=pq.read_table(f,columns=["session_id","user_id","harness","parent_session_id"]).to_pylist()
+              for r in rr:
+                k=(w,r["session_id"]);assert k not in meta;meta[k]=r
+                top+=int(not r["parent_session_id"])
+                if r["user_id"] and r["harness"]!="eval:swe-bench":allusers.add(r["user_id"])
+              hashes.append(dict(week=w,sha256=sha,sessions=len(rr),salt_series=m["salt_series"]))
+          assert len(series)==1
+          groups=C.defaultdict(lambda:C.defaultdict(C.Counter));counts=C.Counter()
+          for e in ev:
+            w=e["week"];s=e["session_id"];r=meta[(w,s)]
+            d=min(e["before_cached"],e["after_prompt"])-e["after_cached"]
+            counts["events"]+=1;counts["positive"]+=int(d>0);counts["signed_tokens"]+=d
+            counts["benchmark"]+=int(r["harness"]=="eval:swe-bench");counts["child"]+=int(bool(r["parent_session_id"]));counts["unknown_account"]+=int(not r["user_id"])
+            for cohort in ["all"]+(["human"] if r["harness"]!="eval:swe-bench" else [])+(["human_top"] if r["harness"]!="eval:swe-bench" and not r["parent_session_id"] else []):
+              keys=[("session",(w,s))]
+              if r["user_id"]:keys.extend([("account_week",(w,r["user_id"])),("account_16w",r["user_id"])])
+              for unit,k in keys:
+                a=groups[(cohort,unit)][k];a["events"]+=1;a["positive"]+=int(d>0);a["tokens"]+=max(0,d);a["signed"]+=d
+                if w>="2026-08-23" and e["before_model"]=="deepseek-v4-flash":a["deepseek"]+=max(0,d)
+          def quant(v):
+            if not v:return dict(n=0)
+            v=sorted(v);n=len(v)
+            return dict(n=n,min=v[0],median=S.median(v),mean=S.fmean(v),max=v[-1],p90=v[min(n-1,int(.9*n))])
+          def summarize(d):
+            rr=list(d.values());z=dict(groups=len(rr),events=sum(r["events"] for r in rr),positive_events=sum(r["positive"] for r in rr),event_count=quant([r["events"] for r in rr]),repeat_groups=sum(r["events"]>1 for r in rr),repeat_positive_groups=sum(r["positive"]>1 for r in rr),positive_tokens=sum(r["tokens"] for r in rr),signed_tokens=sum(r["signed"] for r in rr),price={})
+            for key,rate in [("tokens",.1),("tokens",.426),("tokens",1.),("tokens",3.),("deepseek",.426)]:
+              v=sorted([r[key]*rate/1e6 for r in rr if r[key]>0],reverse=True);total=sum(v)
+              z["price"][key+"/"+str(rate)]=dict(stats=quant(v),total=total,top1_share=v[0]/total if total else 0,top5_share=sum(v[:5])/total if total else 0,grant={str(b):dict(exhausted=sum(x>b+1e-12 for x in v),coverage=sum(min(x,b) for x in v)/total if total else None,residual=sum(max(0,x-b) for x in v)) for b in (.1,1,2,5,10)})
+            return z
+          out=dict(source_run=45316568340,source_artifact_sha256=hashlib.sha256(p.read_bytes()).hexdigest(),counts=counts,metadata_sessions=len(meta),top_sessions=top,known_nonbenchmark_accounts=len(allusers),metadata=hashes,groups=[dict(cohort=k[0],unit=k[1],**summarize(d)) for k,d in sorted(groups.items())],limits=["Severe event subset from R32, not all cache changes. Unique request keys checked. Account hashes joined only internally; no IDs published. Stable release salt verified; no real identity or distinct-person claim.","Each positive absolute cached-token decline counted once, no overlapping continuation windows. Not a causal cost; comparison preserves preceding request's cached token count; signed total separately.","Generic reference price spread sensitivity, not actual supplier invoices. DeepSeek historical reference rate applied only two final weeks; not verified actual deployment.","One grant per group, usable only for reference exposure, no other usage, no expiry within group; no actual grant exhaustion or welfare inference."])
+          print("R49_LONG",json.dumps(out),flush=True)
+          pathlib.Path("r49-long").mkdir(exist_ok=True);pathlib.Path("r49-long/results.json").write_text(json.dumps(out,indent=2))
+          PY
+          python audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: longitudinal-credit-r49
+          path: r49-long/
+          retention-days: 14
